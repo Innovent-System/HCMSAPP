@@ -7,7 +7,7 @@ import {
   makeStyles,List,Collapse, Divider
 } from '@material-ui/core';
 import { ExpandLess as ExpandLessIcon,ExpandMore as ExpandMoreIcon } from '@material-ui/icons';
-
+import * as iconMapping from '../../../assests/icons';
 const titleColor = "#7c828d";
 
 
@@ -27,14 +27,15 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
     '&:hover':{
       backgroundColor: "#37b0577a"
-    }
+    },
+    minWidth:33
   },
   icon: {
-    marginRight: theme.spacing(1),
-    fontSize:35
+    marginRight: theme.spacing(1)
   },
   title: {
-    marginRight: 'auto'
+    marginRight: 'auto',
+    fontSize:12
   },
   active: {
     color: "#37b057",
@@ -49,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
     paddingLeft: theme.spacing(4),
   },
   dividerColor:{
-    background:theme.palette.primary.light
+    backgroundColor:'#3a3b3c'
   }
 }));
 
@@ -68,13 +69,13 @@ const NavItem = ({
     setExpand(!isExpand)
   }
 
+  debugger;
     
   const MenuItemRoot = (
     <ListItem
     button
     className={classes.item}
     disableGutters
-    
   >
     {routeTo ? <Button
       activeClassName={classes.active}
@@ -83,7 +84,8 @@ const NavItem = ({
       to={routeTo}
       startIcon={<Icon
         className={classes.icon}
-        
+        style={{fontSize:24}}
+        fontSize="large"
       />}
       onClick={handleMenuList}
       endIcon={isExpandable ?  isExpand ?  <ExpandLessIcon  fontSize="large"/> : <ExpandMoreIcon  fontSize="large"/> : null }
@@ -96,10 +98,11 @@ const NavItem = ({
       className={classes.button}
       startIcon={<Icon
         className={classes.icon}
-        
+        style={{fontSize:24}}
+        fontSize="large"
       />}
       onClick={handleMenuList}
-      endIcon={isExpandable ?  isExpand ?  <ExpandLessIcon  fontSize="large"/> : <ExpandMoreIcon  fontSize="large"/> : null }
+      endIcon={isExpandable ?  isExpand ?  <ExpandLessIcon   fontSize="large"/> : <ExpandMoreIcon  fontSize="large"/> : null }
     >
       <span className={classes.title}>
         {title}
@@ -114,8 +117,14 @@ const NavItem = ({
     <Collapse in={isExpand} timeout="auto" unmountOnExit>
       <Divider  className={classes.dividerColor} />
       <List component="div" disablePadding>
-        {children.map((item, index) => (
-          <NavItem {...item} key={index} />
+        {children.map((item) => (
+         <NavItem
+          routeTo={item?.routeTo}
+          key={item.title}
+          title={item.title}
+          icon={iconMapping[item.icon]}
+          children={item?.children}
+        />
         ))}
       </List>
       <Divider className={classes.dividerColor}  />

@@ -9,9 +9,15 @@ import am4themes_animated from "@amcharts/amcharts4/themes/animated";
 
 am4core.useTheme(am4themes_animated);
 
-const Amchart = ({ chartId, type, parentLabel, data, options }) => {
+const ChartType = {
+  XY:"XY",
+  PIE:"PIE"
+}
+
+
+const Amchart = ({ chartId, type, data, options }) => {
     
-    // const [chart,setChart] = useState(null);
+    const [amchart,setAmChart] = useState(null);
     useEffect(() => {
         const chart = am4core.create(chartId, am4charts.XYChart3D);
 
@@ -86,7 +92,7 @@ const Amchart = ({ chartId, type, parentLabel, data, options }) => {
           "visits": 328
         }];
         
-
+        
         // Create axes
         let categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
         categoryAxis.dataFields.category = "country";
@@ -102,6 +108,7 @@ const Amchart = ({ chartId, type, parentLabel, data, options }) => {
         let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
         valueAxis.title.text = "Countries";
         valueAxis.title.fontWeight = "bold";
+        valueAxis.title.align = "center";
         
         // Create series
         var series = chart.series.push(new am4charts.ColumnSeries3D());
@@ -128,13 +135,33 @@ const Amchart = ({ chartId, type, parentLabel, data, options }) => {
         chart.cursor.lineX.strokeOpacity = 0;
         chart.cursor.lineY.strokeOpacity = 0;
 
+        let count  = 0;
+        var intervalID = setInterval(() => {
+          am4core.ready(() => {
+            const logo = document.querySelectorAll("[id^='id-'][id$='-title']");
+            logo.length && logo[1]?.parentElement.remove();
+            if(logo[1]){
+              ++count;
+            }
+            
+          });
+
+          if(count === 2){
+            clearInterval(intervalID);
+          }
+         
+        }, 1000);
+        
+        
+        setAmChart(chart);
         return () => {
+          
             chart?.dispose();
         }
     }, [data])
    
     return (
-        <Paper elevation={4} style={{height:'inherit',width:'inherit'}} >
+        <Paper elevation={4} style={{height:'inherit',width:'inherit',backgroundColor:'transparent'}} >
            <div id={chartId} style={{ width: "100%", height: "400px" }}></div>
         </Paper>
     )

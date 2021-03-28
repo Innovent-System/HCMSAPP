@@ -5,7 +5,7 @@ import { Paper } from '@material-ui/core';
 
 
 const Chart = ({ chartId, type, parentLabel, data, options }) => {
-    debugger;
+   
     const [chart,setChart] = useState(null);
     useEffect(() => {
         chart?.destroy();

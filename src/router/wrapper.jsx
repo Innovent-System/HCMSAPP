@@ -5,7 +5,7 @@ import Auth from '../services/AuthenticationService';
 
 const RouterWrapper = ({ component: Component, isPrivate, ...rest }) => {
   //Manage with Globaly
-  debugger;
+
   const signed = Auth.getitem('employeeInfo')?.signIn || false;
   
 

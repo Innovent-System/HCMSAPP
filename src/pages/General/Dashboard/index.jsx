@@ -5,8 +5,8 @@ import Amchart from '../../../components/Amchart';
 
 const useStyles = makeStyles((theme) => ({
     pageContent: {
-        margin: theme.spacing(5),
-        padding: theme.spacing(3),
+        margin: theme.spacing(2),
+        padding: theme.spacing(1),
       },
    
   }));
@@ -22,7 +22,7 @@ const DashBoard = () => {
       
            <Grid  container spacing={3}>
 
-            <Grid lg={6} item>
+            <Grid lg={12} item>
                 <Amchart chartId="flag-6" parentLabel={label} data={data} options={{
                     responsive: true,
                     maintainAspectRatio: false,
@@ -36,19 +36,6 @@ const DashBoard = () => {
                 }} />
             </Grid>
 
-            <Grid lg={6} item>
-                <Amchart chartId="flag-7" parentLabel={label} data={data} options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        yAxes: [{
-                            ticks: {
-                                beginAtZero: true
-                            }
-                        }]
-                    }
-                }} />
-            </Grid>
         
            
             

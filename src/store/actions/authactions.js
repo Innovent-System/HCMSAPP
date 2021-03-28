@@ -77,7 +77,7 @@ export const handlePostActions = (url, data = {}) => dispatch => {
         type: POST_DATA,
         payload: null
       });
-
+debugger;
   httpService("POST",url,data).then(response => {
     if(response.status){
       const { result,message } = response.data;
@@ -89,10 +89,13 @@ export const handlePostActions = (url, data = {}) => dispatch => {
         });
     }
    
-  }).catch(err => dispatch({
-          type: POST_DATA_FAILED,
-          payload: err.message
-        }));
+  }).catch(err => 
+    
+    dispatch({
+      type: POST_DATA_FAILED,
+      payload: err.response.data.message
+    })
+  );
 
   
 //   authRef.setPersistence(FIREBASE_AUTH_PERSIST)

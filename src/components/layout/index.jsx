@@ -3,7 +3,7 @@ import Sidebar from './sidemenu/SideMenu';
 import { Box,makeStyles } from '@material-ui/core';
 import {  useState } from 'react';
 
-const drawerWidth = 256;
+const drawerWidth = 220;
 
 const sideMenuStyles = makeStyles((theme) => ({
   mobileDrawer: {
@@ -14,6 +14,7 @@ const sideMenuStyles = makeStyles((theme) => ({
     flexShrink: 0,
     whiteSpace: 'nowrap'
   },
+  
   drawerOpen: {
     width: drawerWidth,
     transition: theme.transitions.create('width', {

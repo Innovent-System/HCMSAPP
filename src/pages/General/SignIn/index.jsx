@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import  Controls  from '../../../components/controls/Controls';
 import { useForm, Form } from "../../../components/useForm";
@@ -6,8 +5,8 @@ import { Link as RouterLink } from "react-router-dom";
 import { InputAdornment,IconButton, Link,Box,Container,Typography,Paper,makeStyles,CircularProgress } from "@material-ui/core";
 import { Visibility,VisibilityOff,Person } from '@material-ui/icons';
 import { green } from '@material-ui/core/colors';
-import bg from '../../../assests/bg-1.jpg';
-import logo from '../../../assests/Logo.png';
+import bg from '../../../assests/images/bg-1.jpg';
+
 import { handlePostActions } from '../../../store/actions/authactions';
 import { useSelector, useDispatch } from "react-redux";
 import { API_USER_LOGIN } from '../../../services/UrlService'; 
@@ -139,7 +138,7 @@ const SignIn = ({setRoutes,setSideMenu}) => {
       
                   <Typography
                     color="textPrimary"
-                    variant="h2"
+                    variant="h4"
                   >
                     Sign in
                   </Typography>
@@ -151,7 +150,7 @@ const SignIn = ({setRoutes,setSideMenu}) => {
                     Sign in on the internal platform
                   </Typography>
 
-                  <Controls.Avatar alt="Innovent Solution"  src={logo}  />
+                  
 
                 </Box>
                 <Form onSubmit={handleSubmit}>
@@ -180,7 +179,7 @@ const SignIn = ({setRoutes,setSideMenu}) => {
                     value={values.password}
                     type={values.isShowPassword ? 'text' : 'password'}
                     onChange={handleInputChange}
-                    style={{width:'60%',marginBottom:'10%'}}
+                    style={{width:'60%'}}
                     error={errors.password}
                     InputProps={{
                         endAdornment: (
@@ -197,7 +196,7 @@ const SignIn = ({setRoutes,setSideMenu}) => {
                     }}
                 />
 
-                   <Box mb={2}>
+                   <Box mb={2} display='flex' justifyContent='center' alignItems='center'> 
 
                      <div className={classes.wrapper}>
                       <Controls.Button
