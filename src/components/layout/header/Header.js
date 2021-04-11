@@ -5,7 +5,7 @@ import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
 import PowerSettingsNewIcon from '@material-ui/icons/PowerSettingsNew';
 import SearchIcon from '@material-ui/icons/Search';
 import clsx from 'clsx';
-import SubjectIcon from '@material-ui/icons/Subject';
+import SubjectIcon from '@material-ui/icons/Dashboard';
 import Auth from '../../../services/AuthenticationService';
 import { useHistory }  from 'react-router-dom';
 
@@ -13,9 +13,7 @@ import { useHistory }  from 'react-router-dom';
 export default function Header({headerStyles,isOpen,setOpen }) {
     const history = useHistory();
     const classes = headerStyles();
-    const handleNavBar = () =>{
-        setOpen(!isOpen);
-      }
+  
     const handleLogout = () => {
         Auth.remove("employeeInfo");
         Auth.remove("appConfigData");
@@ -23,14 +21,12 @@ export default function Header({headerStyles,isOpen,setOpen }) {
     }
 
     return (
-        <AppBar  className={clsx(classes.appBar, {
-            [classes.appBarShift]: isOpen,
-          })} position="static">
-            <Toolbar >
+        <AppBar  className={classes.appBar} position="static" elevation={2}>
+            <Toolbar disableGutters>
                 <Grid container
                     alignItems="center">
                     <Grid style={{display:'flex'}} item>
-                         <IconButton onClick={handleNavBar}>
+                         <IconButton>
                             <SubjectIcon />
                          </IconButton>
                           

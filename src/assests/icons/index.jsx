@@ -1,3 +1,3 @@
-export { Person,Dashboard,History,Today,AttachMoney,Group} from '@material-ui/icons';
+export { Person,Dashboard,History,Today,AttachMoney,Group,People} from '@material-ui/icons';
 
 

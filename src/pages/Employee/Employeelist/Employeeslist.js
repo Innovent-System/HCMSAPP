@@ -11,6 +11,7 @@ import {
   Toolbar,
   InputAdornment,
   Grid,
+  IconButton
 } from "@material-ui/core";
 import useTable from "../../../components/useTable";
 import * as employeeService from "../../../services/employeeService";
@@ -22,11 +23,13 @@ import EditOutlinedIcon from "@material-ui/icons/EditOutlined";
 import CloseIcon from "@material-ui/icons/Close";
 import Notification from "../../../components/Notification";
 import ConfirmDialog from "../../../components/ConfirmDialog";
+import GridToolBar from '../../../components/GridToolBar';
+import TableGrid  from '../../../components/useXGrid';
 
 const useStyles = makeStyles((theme) => ({
   pageContent: {
-    margin: theme.spacing(5),
-    padding: theme.spacing(3),
+    
+    padding: theme.spacing(2),
   },
   searchInput: {
     width: "75%",
@@ -74,6 +77,8 @@ export default function Employees() {
     TblPagination,
     recordsAfterPagingAndSorting,
   } = useTable(records, headCells, filterFn);
+
+
 
   const handleSearch = (e) => {
     let target = e.target;
@@ -124,14 +129,17 @@ export default function Employees() {
   return (
     <>
       <PageHeader
-        title="New Employee"
-        subTitle="Form design with validation"
+        title="Employee List"
+        subTitle="Manage Employees"
         icon={<PeopleOutlineTwoToneIcon fontSize="large" />}
       />
 
       <Grid className={classes.pageContent}>
-        <Toolbar>
-          <Controls.Input
+        <GridToolBar/>
+      
+        
+        <Toolbar style={{borderBottom:"1px solid #ddd"}}>
+          {/* <Controls.Input
             label="Search Employees"
             className={classes.searchInput}
             InputProps={{
@@ -142,7 +150,8 @@ export default function Employees() {
               ),
             }}
             onChange={handleSearch}
-          />
+          /> */}
+
           <Controls.Button
             text="Add New"
             variant="outlined"
@@ -154,7 +163,8 @@ export default function Employees() {
             }}
           />
         </Toolbar>
-        <TblContainer>
+         <TableGrid/>
+        {/* <TblContainer>
           <TblHead />
           <TableBody>
             {recordsAfterPagingAndSorting().map((item) => (
@@ -192,7 +202,7 @@ export default function Employees() {
             ))}
           </TableBody>
         </TblContainer>
-        <TblPagination />
+        <TblPagination /> */}
       </Grid>
       <Popup
         title="Employee Form"
@@ -201,7 +211,7 @@ export default function Employees() {
       >
         <EmployeeForm recordForEdit={recordForEdit} addOrEdit={addOrEdit} />
       </Popup>
-      <Notification notify={notify} setNotify={setNotify} />
+      a<Notification notify={notify} setNotify={setNotify} />
       <ConfirmDialog
         confirmDialog={confirmDialog}
         setConfirmDialog={setConfirmDialog}

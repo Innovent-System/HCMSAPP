@@ -4,10 +4,11 @@ import PropTypes from 'prop-types';
 import {
   Button,
   ListItem,
-  makeStyles,List,Collapse, Divider
+  makeStyles,List,Collapse, Divider,Tooltip
 } from '@material-ui/core';
 import { ExpandLess as ExpandLessIcon,ExpandMore as ExpandMoreIcon } from '@material-ui/icons';
 import * as iconMapping from '../../../assests/icons';
+
 const titleColor = "#7c828d";
 
 
@@ -28,7 +29,11 @@ const useStyles = makeStyles((theme) => ({
     '&:hover':{
       backgroundColor: "#37b0577a"
     },
+    
     minWidth:33
+  },
+  startIcon:{
+    marginLeft:0
   },
   icon: {
     marginRight: theme.spacing(1)
@@ -59,27 +64,25 @@ const NavItem = ({
   icon: Icon,
   title,
   children,
+  isShowToolTip,
   ...rest
 }) => {
   
   const classes = useStyles();
-  const [isExpand,setExpand] = useState(false);
-  const isExpandable = children && children.length > 0
-  const handleMenuList = () => {
-    setExpand(!isExpand)
-  }
-
-  debugger;
     
   const MenuItemRoot = (
-    <ListItem
+    <ListItem {...rest}
     button
     className={classes.item}
     disableGutters
   >
+    <Tooltip title={title} disableHoverListener={isShowToolTip} aria-label={title}>
     {routeTo ? <Button
       activeClassName={classes.active}
       className={classes.button}
+      classes={{
+        startIcon: classes.startIcon,
+      }}
       component={RouterLink}
       to={routeTo}
       startIcon={<Icon
@@ -87,8 +90,8 @@ const NavItem = ({
         style={{fontSize:24}}
         fontSize="large"
       />}
-      onClick={handleMenuList}
-      endIcon={isExpandable ?  isExpand ?  <ExpandLessIcon  fontSize="large"/> : <ExpandMoreIcon  fontSize="large"/> : null }
+      
+      
     >
       <span className={classes.title}>
         {title}
@@ -96,45 +99,30 @@ const NavItem = ({
     </Button> : <Button 
       
       className={classes.button}
+      classes={{
+        startIcon: classes.startIcon,
+      }}
       startIcon={<Icon
         className={classes.icon}
         style={{fontSize:24}}
         fontSize="large"
       />}
-      onClick={handleMenuList}
-      endIcon={isExpandable ?  isExpand ?  <ExpandLessIcon   fontSize="large"/> : <ExpandMoreIcon  fontSize="large"/> : null }
+      
+      
     >
       <span className={classes.title}>
         {title}
       </span>        
     </Button> }
     
-               
+    </Tooltip>
   </ListItem>
   )
 
-  const MenuItemChildren = isExpandable ? (
-    <Collapse in={isExpand} timeout="auto" unmountOnExit>
-      <Divider  className={classes.dividerColor} />
-      <List component="div" disablePadding>
-        {children.map((item) => (
-         <NavItem
-          routeTo={item?.routeTo}
-          key={item.title}
-          title={item.title}
-          icon={iconMapping[item.icon]}
-          children={item?.children}
-        />
-        ))}
-      </List>
-      <Divider className={classes.dividerColor}  />
-    </Collapse>
-  ) : null
-
+  
   return (
     <>
       {MenuItemRoot}
-      {MenuItemChildren}
     </>
   )
   
@@ -144,7 +132,11 @@ NavItem.propTypes = {
   children:PropTypes.array,
   routeTo: PropTypes.string,
   icon: PropTypes.elementType,
-  title: PropTypes.string.isRequired
+  title: PropTypes.string.isRequired,
 };
+NavItem.defaultProps = {
+  isShowToolTip:true
+}
+
 
 export default NavItem;

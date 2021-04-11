@@ -8,7 +8,7 @@ import GlobalStyles from '../components/styles/GlobalStyles';
 import { Provider } from "react-redux";
 import { store } from "../store/reducers/store"; 
 
-
+// #fafafa
 const theme = createMuiTheme({
   palette: {
     primary: {
@@ -41,6 +41,7 @@ const theme = createMuiTheme({
 
 function App() {
   return (
+    <React.StrictMode>
     <ThemeProvider theme={theme}>
       <Router history={history}>
        <Provider store={store}>
@@ -49,6 +50,7 @@ function App() {
         </Provider >
       </Router>
     </ThemeProvider>
+    </React.StrictMode>
   );
 }
 

@@ -1,4 +1,4 @@
-import React,{lazy, Suspense,useEffect,useState } from 'react';
+import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { Redirect, Switch } from 'react-router-dom';
 import Route from './wrapper';
 
@@ -8,6 +8,8 @@ import CircularLoading from '../components/Circularloading'
 import Notification from "../components/Notification";
 import { useSelector } from "react-redux";
 import Auth from '../services/AuthenticationService';
+import { NavLink as RouterLink } from 'react-router-dom';
+import { Typography,Breadcrumbs, Link } from '@material-ui/core';
 // const routes = [
 //   { path: "/employeelist", component: "pages/Employee/Employeelist/Employeeslist" }
 // ];
@@ -16,59 +18,60 @@ import Auth from '../services/AuthenticationService';
 
 const Routes = () => {
   const selector = useSelector(state => state[Object.keys(state)[0]]);
-  const [routes,setRoutes] = useState(Auth.getitem("appConfigData")?.appRoutes || []);
-  const [sideMenu,setSideMenu] = useState(Auth.getitem("appConfigData")?.sideMenuData || []);
+  const [routes, setRoutes] = useState(Auth.getitem("appConfigData")?.appRoutes || []);
+  const [sideMenu, setSideMenu] = useState(Auth.getitem("appConfigData")?.sideMenuData || []);
   const [notify, setNotify] = useState({
     isOpen: false,
     message: "",
     type: "",
   });
 
-    
+
   useEffect(() => {
-      setNotify({
-        isOpen: (selector.error.flag || selector.status),
-        message:  selector.error.flag ? selector.error.msg : selector.message,
-        type:  selector.error.flag ? "error" : "success"
-      });
+    setNotify({
+      isOpen: (selector.error.flag || selector.status),
+      message: selector.error.flag ? selector.error.msg : selector.message,
+      type: selector.error.flag ? "error" : "success"
+    });
   }, [selector]);
 
-  
+
 
   return (
     <>
-     
-         <Switch>
-            <Route path='/' exact  component={() => <SignIn setRoutes={setRoutes} setSideMenu={setSideMenu}/>} />
-                 { Auth.getitem('appConfigData')?.appRoutes || routes.length ? 
-                    <Layout sideMenuData={sideMenu}>
-                          {routes.map((prop, key) => {
-                            
-                            return (
-                              <Route
-                                exact
-                                path={prop.routeTo}
-                                component={() => <DynamicLoader component={prop.path} />}
-                                isPrivate
-                                key={key}
-                              />
-                            );
-                          })}
-                          
-                      </Layout>
-                  : <Redirect to='/' />
-                 } 
-            </Switch>
-            <Notification notify={notify} setNotify={setNotify} />
+
+      <Switch>
+        <Route path='/' exact component={() => <SignIn setRoutes={setRoutes} setSideMenu={setSideMenu} />} />
+        {Auth.getitem('appConfigData')?.appRoutes || routes.length ?
+          <Layout sideMenuData={sideMenu}>
+            
+            {routes.map((prop, key) => {
+
+              return (
+                <Route
+                  exact
+                  path={prop.routeTo}
+                  component={() => <DynamicLoader component={prop.path} />}
+                  isPrivate
+                  key={key}
+                />
+              );
+            })}
+
+          </Layout>
+          : <Redirect to='/' />
+        }
+      </Switch>
+      <Notification notify={notify} setNotify={setNotify} />
     </>
   );
 };
 
 function DynamicLoader(props) {
-  
+
   const LazyComponent = lazy(() => import(`../${props.component}`));
   return (
-    <Suspense fallback={<CircularLoading/>}>
+    <Suspense fallback={<CircularLoading />}>
       <LazyComponent />
     </Suspense>
   );

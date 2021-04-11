@@ -77,11 +77,10 @@ export const handlePostActions = (url, data = {}) => dispatch => {
         type: POST_DATA,
         payload: null
       });
-debugger;
+
   httpService("POST",url,data).then(response => {
     if(response.status){
       const { result,message } = response.data;
-      
         dispatch({
           type: POST_DATA_SUCCESS,
           payload: result,
@@ -93,7 +92,7 @@ debugger;
     
     dispatch({
       type: POST_DATA_FAILED,
-      payload: err.response.data.message
+      payload: err.response?.data ? err.response.data.message : err.message
     })
   );
 
