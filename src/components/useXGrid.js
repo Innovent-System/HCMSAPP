@@ -12,22 +12,24 @@ LicenseInfo.setLicenseKey(
 
  
 
-export default function TableGrid () {
+export default function TableGrid ({rows, columns,loader,...other}) {
 
-    const { loading, data, setRowLength, loadNewData } = useDemoData({
-        dataSet: 'Commodity',
-        rowLength: 100,
-        maxColumns: 20,
-      });
-
+    // const { loading, data, setRowLength, loadNewData } = useDemoData({
+    //     dataSet: 'Commodity',
+    //     rowLength: 100,
+    //     maxColumns: 20,
+    //   });
+      
       
     return (
         <div >
             <XGrid
+            {...other}
             autoPageSize
             autoHeight
-            {...data}
-            loading={false}
+            rows={rows}
+            columns={columns}
+            loading={loader}
             components={{
                 Toolbar: GridToolbar,
               }}
@@ -41,7 +43,13 @@ export default function TableGrid () {
 }
 
 TableGrid.propTypes = {
-
+  columns:PropTypes.array.isRequired,
+  rows:PropTypes.array.isRequired,
+  
 }
 
+
+TableGrid.defaultProps = {
+  loader:false
+}
 

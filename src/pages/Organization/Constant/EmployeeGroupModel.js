@@ -2,8 +2,10 @@ import React, { useEffect } from "react";
 import { Grid,makeStyles } from "@material-ui/core";
 import Controls from "../../../components/controls/Controls";
 import { useForm, Form } from "../../../components/useForm";
-import * as employeeService from "../../../services/employeeService";
-
+// import * as employeeService from "../../../services/employeeService";
+import { API_CONSTANT_INSERTEMPLOYEEGROUP } from '../../../services/UrlService'; 
+import { handlePostActions } from '../../../store/actions/authactions';
+import { useSelector, useDispatch } from "react-redux";
 
 const initialFValues = {
   groupName: "",
@@ -18,6 +20,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function EmployeeGroupModel(props) {
+  const dispatch = useDispatch();
+  const selector = useSelector(state => state[Object.keys(state)[0]]);
   const { addOrEdit, recordForEdit } = props;
   const classes = useStyles();
   const validate = (fieldValues = values) => {
@@ -43,8 +47,14 @@ export default function EmployeeGroupModel(props) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
     if (validate()) {
       addOrEdit(values, resetForm);
+      const employeeGroupData = {
+        groupName:values.groupName, 
+      }
+     
+      dispatch(handlePostActions(API_CONSTANT_INSERTEMPLOYEEGROUP,employeeGroupData));
     }
   };
 
@@ -69,7 +79,7 @@ export default function EmployeeGroupModel(props) {
           />
             <Controls.Button type="submit" text="Submit" />
             <Controls.Button text="Reset" color="default" onClick={resetForm} />
-     
+
         </Grid>
      
       </Grid>
