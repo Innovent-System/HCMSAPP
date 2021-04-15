@@ -20,10 +20,12 @@ export default function TableGrid () {
         maxColumns: 20,
       });
 
-      console.table(data);
+      
     return (
-        <div style={{height:600}} >
+        <div >
             <XGrid
+            autoPageSize
+            autoHeight
             {...data}
             loading={false}
             components={{

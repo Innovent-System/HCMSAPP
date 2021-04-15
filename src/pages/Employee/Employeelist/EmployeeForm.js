@@ -3,6 +3,7 @@ import { Grid } from "@material-ui/core";
 import Controls from "../../../components/controls/Controls";
 import { useForm, Form } from "../../../components/useForm";
 import * as employeeService from "../../../services/employeeService";
+import { Send } from '@material-ui/icons'
 
 const genderItems = [
   { id: "male", title: "Male" },
@@ -80,6 +81,7 @@ export default function EmployeeForm(props) {
             value={values.fullName}
             onChange={handleInputChange}
             error={errors.fullName}
+            
           />
           <Controls.Input
             label="Email"
@@ -87,6 +89,7 @@ export default function EmployeeForm(props) {
             value={values.email}
             onChange={handleInputChange}
             error={errors.email}
+           
           />
           <Controls.Input
             label="Mobile"
@@ -132,7 +135,7 @@ export default function EmployeeForm(props) {
           />
 
           <div>
-            <Controls.Button type="submit" text="Submit" />
+            <Controls.Button icon={Send} type="submit" text="Submit" />
             <Controls.Button text="Reset" color="default" onClick={resetForm} />
           </div>
         </Grid>

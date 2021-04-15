@@ -6,7 +6,7 @@ export default function Select(props) {
     const { name, label, value,error=null, onChange, options } = props;
 
     return (
-        <FormControl variant="outlined"
+        <FormControl variant="standard"
         {...(error && {error:true})}>
             <InputLabel>{label}</InputLabel>
             <MuiSelect
