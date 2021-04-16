@@ -13,7 +13,7 @@ const useStyles = makeStyles(theme => ({
     pageIcon:{
         display:'inline-block',
         padding:theme.spacing(1),
-        color:'#3c44b1'
+        color:theme.palette.primary.main
     },
     pageTitle:{
         paddingLeft:theme.spacing(4),

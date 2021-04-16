@@ -58,7 +58,7 @@ const SignIn = ({setRoutes,setSideMenu}) => {
   
  
     useEffect(() => {
-      
+      debugger;
       const { info,status } = selector;
       if(status){
         Auth.setItem('employeeInfo',{signIn:status});

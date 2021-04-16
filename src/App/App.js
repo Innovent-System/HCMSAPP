@@ -12,7 +12,8 @@ import { store } from "../store/reducers/store";
 const theme = createMuiTheme({
   palette: {
     primary: {
-      main: "#333996",
+      dark:"#11a036",
+      main: "#37b057",
       light: "#3c44b126",
     },
     secondary: {
