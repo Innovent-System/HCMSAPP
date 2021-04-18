@@ -7,7 +7,7 @@ import { Visibility,VisibilityOff,Person } from '@material-ui/icons';
 import { green } from '@material-ui/core/colors';
 import bg from '../../../assests/images/bg-1.jpg';
 
-import { handlePostActions } from '../../../store/actions/authactions';
+import { handlePostActions } from '../../../store/actions/httpactions';
 import { useSelector, useDispatch } from "react-redux";
 import { API_USER_LOGIN } from '../../../services/UrlService'; 
 import Auth from '../../../services/AuthenticationService';
