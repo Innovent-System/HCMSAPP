@@ -1,7 +1,7 @@
 import Header from './header/Header';
 import Sidebar from './sidemenu/SideMenu';
 import { Box,makeStyles,Paper } from '@material-ui/core';
-import {  useState } from 'react';
+import {  useState,useEffect } from 'react';
 
 const drawerWidth = 220;
 
@@ -63,10 +63,16 @@ const headerStyles = makeStyles(theme => ({
 
 const Layout = ({sideMenuData,children}) => {
     const [open, setOpen] = useState(false);
+    const [stuff,setStuff] = useState([]);
+  useEffect(() => {
+    setStuff([<Header  isOpen={open} setOpen={setOpen} headerStyles={headerStyles}/>,
+      <Sidebar open={open} sideMenuData={sideMenuData}   sideMenuStyles={sideMenuStyles} />])
+  }, [])
+    
     return (
         <Box display='flex' flexWrap='wrap'>
-            <Header  isOpen={open} setOpen={setOpen} headerStyles={headerStyles}/>
-            <Sidebar open={open} sideMenuData={sideMenuData}   sideMenuStyles={sideMenuStyles} />
+            {stuff[0]}
+            {stuff[1]}
             <Box component={Paper} elevate={2}  m={1} flexGrow={1} >{children}</Box>
         </Box>
     )

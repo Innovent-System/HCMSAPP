@@ -11,7 +11,7 @@ const RouterWrapper = ({ component: Component, isPrivate, ...rest }) => {
 
   if (isPrivate && !signed) return <Redirect to='/' />;
 
-  if (!isPrivate && signed) return <Redirect to='/employeelist' />;
+  if (!isPrivate && signed) return <Redirect to='/dashboard' />;
 
 
   return <Route {...rest} component={Component} />;

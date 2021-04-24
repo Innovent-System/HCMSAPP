@@ -4,7 +4,7 @@ import Controls from "../../../components/controls/Controls";
 import { useForm, Form } from "../../../components/useForm";
 // import * as employeeService from "../../../services/employeeService";
 import { API_CONSTANT_INSERTEMPLOYEEGROUP } from '../../../services/UrlService'; 
-import { handlePostActions } from '../../../store/actions/authactions';
+import { handlePostActions } from '../../../store/actions/httpactions';
 import { useSelector, useDispatch } from "react-redux";
 
 const initialFValues = {

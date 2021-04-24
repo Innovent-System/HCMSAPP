@@ -69,7 +69,7 @@ const NavItem = ({
 }) => {
   
   const classes = useStyles();
-    
+    console.log("nav item");
   const MenuItemRoot = (
     <ListItem {...rest}
     button

@@ -31,7 +31,7 @@ const NavBar = ({ sideMenuStyles, open, sideMenuData }) => {
   
   const classes = sideMenuStyles();
   const [subMenu,setSubMenu] = useState([]);
-  const location = useLocation();
+  
   
   const handleSubMenu = (subMenuList = [],title = "") => {
     if(!subMenuList && !subMenuList.length > 0) return null;
@@ -41,11 +41,11 @@ const NavBar = ({ sideMenuStyles, open, sideMenuData }) => {
       <List subheader={ <Typography color='textSecondary' style={{paddingLeft:'3%'}} variant="h5" gutterBottom>
         {title}
       </Typography>} component="div" disablePadding>
-        {subMenuList.map((item) => (
+        {subMenuList.map((item,index) => (
           <>
          <NavItem
           routeTo={item?.routeTo}
-          key={item.title}
+          key={index}
           title={item.title}
           icon={iconMapping[item.icon]}
           children={item?.children}
@@ -63,7 +63,7 @@ const NavBar = ({ sideMenuStyles, open, sideMenuData }) => {
   }
 
   useEffect(() => {
-     const url = location.pathname;
+     const url = window.location.pathname;
      
     for (let index = 0; index < sideMenuData.length; index++) {
         const element = sideMenuData[index];
@@ -161,7 +161,7 @@ const NavBar = ({ sideMenuStyles, open, sideMenuData }) => {
         >
           {content}
         </Drawer>
-        {subMenu && location.pathname !== "/dashboard" &&  <Box component={Paper} minWidth={220} height='max-content' elevate={2} margin="8px 0 8px 8px" padding="12px">        
+        {subMenu && window.location.pathname !== "/dashboard" &&  <Box component={Paper} minWidth={220} height='max-content' elevate={2} margin="8px 0 8px 8px" padding="12px">        
           {subMenu}
         </Box> } 
       </Hidden>
