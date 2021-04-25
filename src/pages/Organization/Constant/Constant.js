@@ -1,31 +1,12 @@
 import React, { useState } from "react";
-import EmployeeForm from "./EmployeeForm";
 import PageHeader from "../../../components/PageHeader";
 import AccountTreeIcon from '@material-ui/icons/AccountTree';
-import ConstantTabs from './constantTabs'
+import ConstantTabs from './ConstantGeneral/constantTabs'
 import {
-  Paper,
   makeStyles,
-  TableBody,
-  TableRow,
-  TableCell,
-  Toolbar,
-  InputAdornment,
-  Grid,
-  IconButton
 } from "@material-ui/core";
 import useTable from "../../../components/useTable";
 import * as employeeService from "../../../services/employeeService";
-import Controls from "../../../components/controls/Controls";
-import { Search } from "@material-ui/icons";
-import AddIcon from "@material-ui/icons/Add";
-import Popup from "../../../components/Popup";
-import EditOutlinedIcon from "@material-ui/icons/EditOutlined";
-import CloseIcon from "@material-ui/icons/Close";
-import Notification from "../../../components/Notification";
-import ConfirmDialog from "../../../components/ConfirmDialog";
-import GridToolBar from '../../../components/GridToolBar';
-import TableGrid  from '../../../components/useXGrid';
 
 const useStyles = makeStyles((theme) => ({
   pageContent: {

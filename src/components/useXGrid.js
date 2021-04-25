@@ -14,11 +14,11 @@ LicenseInfo.setLicenseKey(
 // console.log(GridToolbar);
 export default function TableGrid ({rows, columns,loader,...other}) {
 
-    const { loading, data, setRowLength, loadNewData } = useDemoData({
-        dataSet: 'Commodity',
-        rowLength: 100,
-        maxColumns: 20,
-      });
+  const { loading, data, setRowLength, loadNewData } = useDemoData({
+    dataSet: 'Commodity',
+    rowLength: 100,
+    maxColumns: 20,
+  });
       
       
     return (
@@ -27,13 +27,14 @@ export default function TableGrid ({rows, columns,loader,...other}) {
             {...other}
             pageSize={10} rowsPerPageOptions={[10, 30, 50]} pagination
             autoHeight
-            {...data}
+            rows={rows}
+            columns={columns}
             loading={loading}
             components={{
                 Toolbar: GridToolbar
               }}
             rowHeight={38}
-            checkboxSelection
+            checkboxSelection={checkbox}
         />
             
         </div>

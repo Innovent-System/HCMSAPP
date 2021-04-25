@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles,Tabs,Tab,Typography,Box } from '@material-ui/core';
-import EmployeeGroup from './EmployeeGroup';
+import EmployeeGroup from '../EmployeeGroup';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;

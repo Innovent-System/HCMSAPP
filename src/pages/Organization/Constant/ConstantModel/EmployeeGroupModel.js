@@ -1,10 +1,9 @@
 import React, { useEffect } from "react";
 import { Grid,makeStyles } from "@material-ui/core";
-import Controls from "../../../components/controls/Controls";
-import { useForm, Form } from "../../../components/useForm";
-// import * as employeeService from "../../../services/employeeService";
-import { API_CONSTANT_INSERTEMPLOYEEGROUP } from '../../../services/UrlService'; 
-import { handlePostActions } from '../../../store/actions/httpactions';
+import Controls from "../../../../components/controls/Controls";
+import { useForm, Form } from "../../../../components/useForm";
+import { API_CONSTANT_INSERTEMPLOYEEGROUP } from '../../../../services/UrlService'; 
+import { handlePostActions } from '../../../../store/actions/httpactions';
 import { useSelector, useDispatch } from "react-redux";
 
 const initialFValues = {
