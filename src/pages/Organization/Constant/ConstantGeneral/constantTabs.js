@@ -43,9 +43,11 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     height: '90%',
     width: '100%',
+    
   },
   tabs: {
     borderRight: `1px solid ${theme.palette.divider}`,
+    padding:0
   },
   tabPanelStyle:{
     width: '80%',
@@ -60,6 +62,19 @@ export default function VerticalTabs() {
     setValue(newValue);
   };
 
+  const TabsName = [
+    "Manage Employee Group",
+    "Manage Designation",
+    "Manage Employee Status",
+    "Manage Employee Station",
+    "Manage Company",
+    "Manage Country",
+    "Manage Province",
+    "Manage City",
+    "Manage Area",
+    "Manage Vendor"
+  ];
+
   return (
     <div className={classes.root}>
       <Tabs
@@ -70,19 +85,10 @@ export default function VerticalTabs() {
         aria-label="Vertical tabs example"
         className={classes.tabs}
       >
-         <Tab label="Manage Employee Group" {...tabsProps(0)} />
-          <Tab label="Manage Designation" {...tabsProps(1)} />
-          <Tab label="Manage Employee Status" {...tabsProps(2)} />
-          <Tab label="Manage Employee Station" {...tabsProps(3)} />
-          <Tab label="Manage Country" {...tabsProps(4)} />
-          <Tab label="Manage Province" {...tabsProps(5)} />
-          <Tab label="Manage City" {...tabsProps(6)} />
-          <Tab label="Manage Area" {...tabsProps(7)} />
-          <Tab label="Manage Vendor" {...tabsProps(8)} />
+        {TabsName.map((m,index )=> <Tab key={index} label={m} {...tabsProps(index)} /> )  }
       </Tabs>
       <TabPanel className={classes.tabPanelStyle} value={value} index={0}>
-      Manage Employee Group
-      <EmployeeGroup></EmployeeGroup>
+         <EmployeeGroup/>
       </TabPanel>
       <TabPanel value={value} index={1}>
       Manage Designation

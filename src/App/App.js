@@ -42,7 +42,7 @@ const theme = createMuiTheme({
 
 function App() {
   return (
-    <React.StrictMode>
+    
     <ThemeProvider theme={theme}>
       <Router history={history}>
        <Provider store={store}>
@@ -51,7 +51,7 @@ function App() {
         </Provider >
       </Router>
     </ThemeProvider>
-    </React.StrictMode>
+   
   );
 }
 

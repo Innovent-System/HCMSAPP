@@ -68,12 +68,12 @@ const Layout = ({sideMenuData,children}) => {
     setStuff([<Header  isOpen={open} setOpen={setOpen} headerStyles={headerStyles}/>,
       <Sidebar open={open} sideMenuData={sideMenuData}   sideMenuStyles={sideMenuStyles} />])
   }, [])
-    
+    console.log("layout");
     return (
         <Box display='flex' flexWrap='wrap'>
             {stuff[0]}
             {stuff[1]}
-            <Box component={Paper} elevate={2}  m={1} flexGrow={1} >{children}</Box>
+            <Box component={Paper} elevate={2} minHeight='100vh' m={1} flexGrow={1} >{children}</Box>
         </Box>
     )
 }

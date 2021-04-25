@@ -27,6 +27,7 @@ export default function TableGrid ({rows, columns,loader,...other}) {
             {...other}
             pageSize={10} rowsPerPageOptions={[10, 30, 50]} pagination
             autoHeight
+           
             rows={rows}
             columns={columns}
             loading={loading}
@@ -34,7 +35,7 @@ export default function TableGrid ({rows, columns,loader,...other}) {
                 Toolbar: GridToolbar
               }}
             rowHeight={38}
-            checkboxSelection={checkbox}
+            checkboxSelection
         />
             
         </div>

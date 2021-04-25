@@ -60,6 +60,7 @@ export default (state = Object.assign({},{...INITIAL_STATE}) , action) => {
         ...state,
         status:false,
         loading:true,
+        info:null,
         message:"",
         error:{
             flag:false,
@@ -70,6 +71,7 @@ export default (state = Object.assign({},{...INITIAL_STATE}) , action) => {
         return {
             ...state,
             status:true,
+            message:action.message,
             info:action.payload,
             loading:false            
         };

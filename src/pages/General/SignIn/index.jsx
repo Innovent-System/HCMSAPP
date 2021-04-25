@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect,useState } from 'react';
 import  Controls  from '../../../components/controls/Controls';
 import { useForm, Form } from "../../../components/useForm";
 import { Link as RouterLink } from "react-router-dom";
@@ -6,7 +6,7 @@ import { InputAdornment,IconButton, Link,Box,Container,Typography,Paper,makeStyl
 import { Visibility,VisibilityOff,Person } from '@material-ui/icons';
 import { green } from '@material-ui/core/colors';
 import bg from '../../../assests/images/bg-1.jpg';
-
+import Notification from "../../../components/Notification";
 import { handlePostActions } from '../../../store/actions/httpactions';
 import { useSelector, useDispatch } from "react-redux";
 import { API_USER_LOGIN } from '../../../services/UrlService'; 
@@ -55,7 +55,12 @@ const initialFValues = {
 const SignIn = ({setRoutes,setSideMenu}) => {
   const dispatch = useDispatch();
   const selector = useSelector(state => state[Object.keys(state)[0]]);
-  
+
+  const [notify, setNotify] = useState({
+    isOpen: false,
+    message: "",
+    type: "",
+  });
  
     useEffect(() => {
       
@@ -67,6 +72,12 @@ const SignIn = ({setRoutes,setSideMenu}) => {
         setSideMenu(info.sideMenuData);
       }
       
+      setNotify({
+        isOpen: (selector.error.flag || status),
+        message: selector.error.flag ? selector.error.msg : selector.message,
+        type: selector.error.flag ? "error" : "success"
+      });
+
     }, [selector])
   
   
@@ -121,7 +132,7 @@ const SignIn = ({setRoutes,setSideMenu}) => {
     
 
     return (
-      
+      <>
       <Box className={classes.root}>
      
       <Box
@@ -226,10 +237,10 @@ const SignIn = ({setRoutes,setSideMenu}) => {
       </Container>
 
         </Box>
-       
-      </Box>
         
-      
+      </Box>
+        <Notification notify={notify} setNotify={setNotify} />
+      </>
     )
 }
 

@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState,useEffect, useCallback } from "react";
 import EmployeeGroupModel from "./ConstantModel/EmployeeGroupModel";
 import {
   makeStyles,
@@ -16,7 +16,7 @@ import GridToolBar from '../../../components/GridToolBar';
 import TableGrid  from '../../../components/useXGrid';
 import { API_CONSTANT_GETEMPLOYEEGROUP } from '../../../services/UrlService'; 
 import { handleGetActions } from '../../../store/actions/httpactions';
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector, useDispatch, shallowEqual } from "react-redux";
 
 
 const useStyles = makeStyles((theme) => ({
@@ -57,7 +57,7 @@ const columns = [
 export default function Employees() {
   const classes = useStyles();
   const dispatch = useDispatch();
-  const selector = useSelector(state => state[Object.keys(state)[0]]);
+  const selector = useSelector((state => state[Object.keys(state)[0]]));
   const [recordForEdit, setRecordForEdit] = useState(null);
   const [records, setRecords] = useState([]);
 
@@ -66,6 +66,7 @@ export default function Employees() {
       return items;
     },
   });
+
   const [openPopup, setOpenPopup] = useState(false);
   
   const [notify, setNotify] = useState({
@@ -80,12 +81,13 @@ export default function Employees() {
     subTitle: "",
   });
 
-  const {
-    TblContainer,
-    TblHead,
-    TblPagination,
-    recordsAfterPagingAndSorting,
-  } = useTable(records, headCells, filterFn);
+
+  // const {
+  //   TblContainer,
+  //   TblHead,
+  //   TblPagination,
+  //   recordsAfterPagingAndSorting,
+  // } = useTable(records, headCells, filterFn);
 
 
 
@@ -136,9 +138,19 @@ export default function Employees() {
   };
 
 
+
+useEffect(() => {
+  const fillEmployeeGroupData = {
+    groupName:"", 
+  }
+
+   dispatch(handleGetActions(API_CONSTANT_GETEMPLOYEEGROUP,fillEmployeeGroupData));
+  
+}, [])
+
   useEffect(() => {
     const { info,status } = selector;
-    console.log(status);
+   
     if(status && info){
       const setValue = [];
       if(Array.isArray(info.EmployeeGroupData)){
@@ -150,24 +162,29 @@ export default function Employees() {
 
       setRecords(setValue);
     }
+
+    setNotify({
+      isOpen: (selector.error.flag || selector.status),
+      message: selector.error.flag ? selector.error.msg : selector.message,
+      type: selector.error.flag ? "error" : "success"
+    });
+    
   }, [selector]);
 
-  const  fillGrid = (e) => {
-    e.preventDefault();
+  const fillGrid = (e) => {
+    
       const fillEmployeeGroupData = {
         groupName:"", 
       }
+      
        dispatch(handleGetActions(API_CONSTANT_GETEMPLOYEEGROUP,fillEmployeeGroupData));
   };
 
 
   return (
     <>
-
-
       <Grid className={classes.pageContent}>
         <GridToolBar/>
-
         <Toolbar style={{borderBottom:"1px solid #ddd"}}>
         <Controls.Button
             text="Apply"
@@ -196,7 +213,7 @@ export default function Employees() {
       >
         <EmployeeGroupModel recordForEdit={recordForEdit} addOrEdit={addOrEdit} />
       </Popup>
-      <Notification notify={notify} setNotify={setNotify} />
+      
       <ConfirmDialog
         confirmDialog={confirmDialog}
         setConfirmDialog={setConfirmDialog}

@@ -115,7 +115,7 @@ export default function Employees() {
         subTitle="Manage Constant"
         icon={<AccountTreeIcon fontSize="large" />}
       />
-      <ConstantTabs></ConstantTabs>
+      <ConstantTabs/>
     </>
   );
 }
