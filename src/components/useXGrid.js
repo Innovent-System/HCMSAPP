@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types';
-import { XGrid,GridToolbar,LicenseInfo } from '@material-ui/x-grid';
+import { XGrid,GridToolbar,LicenseInfo,GridDensitySelector } from '@material-ui/x-grid';
 import { useDemoData } from '@material-ui/x-grid-data-generator';
 
 
@@ -10,8 +10,8 @@ LicenseInfo.setLicenseKey(
 
  
 
- 
-
+//   GridDensityOption
+// console.log(GridToolbar);
 export default function TableGrid ({rows, columns,loader,...other}) {
 
     const { loading, data, setRowLength, loadNewData } = useDemoData({
@@ -30,7 +30,7 @@ export default function TableGrid ({rows, columns,loader,...other}) {
             {...data}
             loading={loading}
             components={{
-                Toolbar: GridToolbar,
+                Toolbar: GridToolbar
               }}
             rowHeight={38}
             checkboxSelection

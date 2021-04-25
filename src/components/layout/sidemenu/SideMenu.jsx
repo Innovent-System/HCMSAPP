@@ -13,11 +13,7 @@ import {
   List,
   Typography,Paper
 } from '@material-ui/core';
-import { useLocation } from 'react-router-dom';
-
 import avatar from '../../../assests/images/avatar_6.png';
-
-
 import NavItem from './NavItem';
 import { useEffect, useState } from 'react';
 
@@ -27,7 +23,7 @@ const user = {
   name: 'Faizan Siddiqui'
 };
 
-const NavBar = ({ sideMenuStyles, open, sideMenuData }) => {
+const SideBar = ({ sideMenuStyles, open, sideMenuData }) => {
   
   const classes = sideMenuStyles();
   const [subMenu,setSubMenu] = useState([]);
@@ -169,14 +165,12 @@ const NavBar = ({ sideMenuStyles, open, sideMenuData }) => {
   );
 };
 
-NavBar.propTypes = {
-  onMobileClose: PropTypes.func,
-  openMobile: PropTypes.bool
+SideBar.propTypes = {
+  sideMenuData: PropTypes.array.isRequired
 };
 
-NavBar.defaultProps = {
-  onMobileClose: () => { },
-  openMobile: false
+SideBar.defaultProps = {
+  sideMenuData:[]
 };
 
-export default NavBar;
+export default SideBar;

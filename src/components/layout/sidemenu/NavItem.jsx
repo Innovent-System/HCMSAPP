@@ -4,13 +4,10 @@ import PropTypes from 'prop-types';
 import {
   Button,
   ListItem,
-  makeStyles,List,Collapse, Divider,Tooltip
+  makeStyles,Tooltip
 } from '@material-ui/core';
-import { ExpandLess as ExpandLessIcon,ExpandMore as ExpandMoreIcon } from '@material-ui/icons';
-import * as iconMapping from '../../../assests/icons';
 
 const titleColor = "#7c828d";
-
 
 const useStyles = makeStyles((theme) => ({
   item: {

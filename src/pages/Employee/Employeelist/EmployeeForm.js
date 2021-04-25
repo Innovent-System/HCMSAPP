@@ -83,6 +83,15 @@ export default function EmployeeForm(props) {
             error={errors.fullName}
             
           />
+          <Controls.MultiSelect
+            name="fullName"
+            label="Full Name"
+            value={values.fullName}
+            onChange={handleInputChange}
+            error={errors.fullName}
+            
+          />
+
           <Controls.Input
             label="Email"
             name="email"
