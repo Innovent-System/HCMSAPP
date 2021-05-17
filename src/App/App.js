@@ -1,12 +1,13 @@
 import React from "react";
 import "./App.css";
 import { Router } from "react-router-dom";
-import history from "../config/history";
+import { history } from "../config/appconfig";
 import Routes from "../router";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core";
 import GlobalStyles from '../components/styles/GlobalStyles';
 import { Provider } from "react-redux";
-import { store } from "../store/reducers/store"; 
+import { store } from "../store/reducers/store";
+import {SocketContext,appsocket } from '../services/socketService';
 
 // #fafafa
 const theme = createMuiTheme({
@@ -46,8 +47,10 @@ function App() {
     <ThemeProvider theme={theme}>
       <Router history={history}>
        <Provider store={store}>
-          <GlobalStyles/>
-          <Routes />
+         <SocketContext.Provider value={appsocket}>
+              <GlobalStyles/>
+              <Routes />
+         </SocketContext.Provider>
         </Provider >
       </Router>
     </ThemeProvider>

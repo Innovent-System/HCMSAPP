@@ -18,6 +18,7 @@
     "chart.js": "^2.9.4",
     "crypto-js": "^4.0.0",
     "date-fns": "2.16.1",
+    "lodash": "^4.17.21",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-redux": "^7.2.2",
@@ -26,7 +27,8 @@
     "react-window": "^1.8.6",
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
-    "secure-web-storage": "^1.0.2"
+    "secure-web-storage": "^1.0.2",
+    "socket.io-client": "^4.0.1"
   },
   "scripts": {
     "start": "set PORT=3003 && react-scripts start",

@@ -1,10 +1,8 @@
-import React from 'react'
 import { AppBar, Toolbar, Grid, InputBase, IconButton, Badge } from '@material-ui/core'
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
 import PowerSettingsNewIcon from '@material-ui/icons/PowerSettingsNew';
 import SearchIcon from '@material-ui/icons/Search';
-import clsx from 'clsx';
 import SubjectIcon from '@material-ui/icons/Dashboard';
 import Auth from '../../../services/AuthenticationService';
 import { useHistory }  from 'react-router-dom';
@@ -17,8 +15,10 @@ export default function Header({headerStyles,isOpen,setOpen }) {
     const handleLogout = () => {
         Auth.remove("employeeInfo");
         Auth.remove("appConfigData");
-        history.push("/");
+        localStorage.clear();
+        history.replace({pathname:"/"})
     }
+
 
     return (
         <AppBar  className={classes.appBar} position="static" elevation={2}>

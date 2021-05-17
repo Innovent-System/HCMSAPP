@@ -23,33 +23,31 @@ import {
   UPLOAD_DATA_FAILED
 
 } from "./types";
+import {domain,headerOption} from '../../config/appconfig';
 
-const domain = 'http://localhost:5000/api/';
 
-const headerOption = {
-  token: document.cookie || '',
-  'Accept': 'application/json',
-  'Content-Type': 'application/json;charset=UTF-8'
-};
-
-export const handlePostActions = (url, data = {}) => dispatch => {
+export const handlePostActions = (url, data = {}) => dispatch  => {
 
   dispatch({
     type: POST_DATA,
     payload: null
   });
 
-  axios.post(domain.concat(url), data, {
-    headers:headerOption
+  return axios.post(domain.concat(url), data, {
+    headers:headerOption(),
+    withCredentials:true,
   })
     .then( response => {
       if (response.status) {
         const { result, message } = response.data;
+        
         dispatch({
           type: POST_DATA_SUCCESS,
           payload: result,
           message
         });
+
+        return result;
       }
     })
     .catch(function (err) {
@@ -69,8 +67,9 @@ export const handleUploadActions = (url, data = {}) => dispatch => {
     payload: null
   });
 
-  axios.post(domain.concat(url), data, {
-    headers:headerOption
+  return axios.post(domain.concat(url), data, {
+    headers:headerOption(),
+    withCredentials:true,
   })
     .then( response => {
       if (response.status) {
@@ -80,6 +79,9 @@ export const handleUploadActions = (url, data = {}) => dispatch => {
           payload: result,
           message
         });
+
+        return result;
+        
       }
     })
     .catch(function (err) {
@@ -98,21 +100,23 @@ export const handleGetActions = (url, params = {}) => dispatch => {
     payload: null
   });
 
-  axios.get(domain.concat(url), {
+ return axios.get(domain.concat(url), {
     params:params,
-    headers:headerOption
-  })
-    .then( response => {
+    headers:headerOption(),
+    withCredentials:true,
+  }).then( response => {
       if (response.status) {
         const { result, message } = response.data;
+        
         dispatch({
           type: GET_DATA_SUCCESS,
           payload: result,
           message
         });
+
+        return result;
       }
-    })
-    .catch(function (err) {
+    }).catch(function (err) {
       dispatch({
         type: GET_DATA_FAILED,
         payload: err.response?.data ? err.response.data.message : err.message
@@ -128,9 +132,10 @@ export const handleUpdateActions = (url, data ={}, params = {}) => dispatch => {
     payload: null
   });
   
-  axios.put(domain.concat(url), data,{
+  return axios.put(domain.concat(url), data,{
     params:params,
-    headers:headerOption
+    headers:headerOption(),
+    withCredentials:true,
   })
     .then( response => {
       if (response.status) {
@@ -140,6 +145,8 @@ export const handleUpdateActions = (url, data ={}, params = {}) => dispatch => {
           payload: result,
           message
         });
+
+        return result;
       }
     })
     .catch(function (err) {
@@ -159,9 +166,9 @@ export const handleDeleteActions = (url, params = {}) => dispatch => {
     payload: null
   });
  
-  axios.delete(domain.concat(url),{
+  return axios.delete(domain.concat(url),{
     params:params,
-    headers:headerOption
+    headers:headerOption(),
   })
     .then( response => {
       if (response.status) {
@@ -171,6 +178,8 @@ export const handleDeleteActions = (url, params = {}) => dispatch => {
           payload: result,
           message
         });
+
+        return result;
       }
     })
     .catch(function (err) {

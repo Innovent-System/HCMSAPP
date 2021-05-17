@@ -1,74 +1,68 @@
-import React, { lazy, Suspense, useEffect, useMemo, useState,useLayoutEffect } from 'react';
-import { Redirect, Switch } from 'react-router-dom';
-import Route from './wrapper';
-
+import React, { lazy, Suspense, useState } from 'react';
+import { Redirect, Switch,Route } from 'react-router-dom';
+import PrivateRoute from './wrapper';
 import SignIn from "../pages/General/SignIn";
 import Layout from '../components/layout';
 import CircularLoading from '../components/Circularloading'
-import Notification from "../components/Notification";
-import { useSelector } from "react-redux";
 import Auth from '../services/AuthenticationService';
-import { NavLink as RouterLink } from 'react-router-dom';
-import { Typography,Breadcrumbs, Link } from '@material-ui/core';
-// const routes = [
-//   { path: "/employeelist", component: "pages/Employee/Employeelist/Employeeslist" }
-// ];
+import StatusSnack from './StatusHandler';
+import {useHistory} from 'react-router-dom';
 
 
 
 const Routes = () => {
   
-  
+  const history =  useHistory();
   const [routes, setRoutes] = useState(Auth.getitem("appConfigData")?.appRoutes || []);
   const [sideMenu, setSideMenu] = useState(Auth.getitem("appConfigData")?.sideMenuData || []);
-  
-  const [notify, setNotify] = useState({
-    isOpen: false,
-    message: "",
-    type: "",
-  });
-  const [routeLayout, setRouteLayout] = useState([]);
-  const routeNotify = useSelector(state => state[Object.keys(state)[0]]);
-  
-  useEffect(() => {
-    setNotify({
-      isOpen: (routeNotify.error.flag || routeNotify.status),
-      message: routeNotify.error.flag ? routeNotify.error.msg : routeNotify.message,
-      type: routeNotify.error.flag ? "error" : "success"
-    });
-  }, [routeNotify]);
-  
 
-  useLayoutEffect(() => {
-   
-    setRouteLayout(<Switch>
-      <Route path='/' exact component={() => <SignIn setRoutes={setRoutes} setSideMenu={setSideMenu} />} />
-      {Auth.getitem('appConfigData')?.appRoutes || routes.length ?
+  const checkRoutes = (routes = []) => {
+    const url = window.location.pathname.split("/")[1];
+    //all routes shoulb be in array private or non-private
+    if(routes.find(f => f.routeTo.match(url))){
+      return true;
+    }
+    else{
+       history.push("/dashboard");
+    }
+
+    return true;
+  } 
+  
+  return (
+    <>
+      <Switch>
+      
+      <PrivateRoute path='/' exact component={() => <SignIn setRoutes={setRoutes} setSideMenu={setSideMenu} />} />
+      {/* <Route
+                exact
+                path="/jobopening"
+                component={() => <Emp />}
+                
+              /> */}
+       {/* publick route define before */}
+      {(routes?.length && checkRoutes(routes)) ? 
         <Layout sideMenuData={sideMenu}>
           
           {routes.map((prop, key) => {
             return (
-              <Route
+              <PrivateRoute
                 exact
-                path={prop.routeTo}
+                path={`${prop.routeTo}/:id`}
                 component={() => <DynamicLoader component={prop.path} />}
                 isPrivate
                 key={key}
               />
             );
-          })}
-
-        </Layout>
-        : <Redirect to='/' />
+          })
+          
+          }
+        </Layout> 
+         : <Redirect  to="/" />
       }
-    </Switch>)
-  }, [routes])
-  
-
-  return (
-    <>
-      {routeLayout}
-      <Notification notify={notify} setNotify={setNotify} />
+      <Route render={() => <Redirect to="/" />} />
+    </Switch>
+      <StatusSnack />
     </>
   );
 };

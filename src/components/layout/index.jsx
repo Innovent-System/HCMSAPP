@@ -3,6 +3,7 @@ import Sidebar from './sidemenu/SideMenu';
 import { Box,makeStyles,Paper } from '@material-ui/core';
 import {  useState,useEffect } from 'react';
 
+
 const drawerWidth = 220;
 
 const sideMenuStyles = makeStyles((theme) => ({
@@ -67,8 +68,8 @@ const Layout = ({sideMenuData,children}) => {
   useEffect(() => {
     setStuff([<Header  isOpen={open} setOpen={setOpen} headerStyles={headerStyles}/>,
       <Sidebar open={open} sideMenuData={sideMenuData}   sideMenuStyles={sideMenuStyles} />])
-  }, [])
-    console.log("layout");
+  }, []);
+
     return (
         <Box display='flex' flexWrap='wrap'>
             {stuff[0]}

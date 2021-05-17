@@ -8,13 +8,14 @@ const RouterWrapper = ({ component: Component, isPrivate, ...rest }) => {
 
   const signed = Auth.getitem('employeeInfo')?.signIn || false;
   
+  
 
   if (isPrivate && !signed) return <Redirect to='/' />;
 
   if (!isPrivate && signed) return <Redirect to='/dashboard' />;
 
-
-  return <Route {...rest} component={Component} />;
+                  
+  return  <Route {...rest} component={Component} />;
 };
 
 RouterWrapper.propTypes = {

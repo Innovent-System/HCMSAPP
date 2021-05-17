@@ -17,11 +17,13 @@ import avatar from '../../../assests/images/avatar_6.png';
 import NavItem from './NavItem';
 import { useEffect, useState } from 'react';
 
+
 const user = {
   avatar: avatar,
   jobTitle: 'Senior Developer',
   name: 'Faizan Siddiqui'
 };
+
 
 const SideBar = ({ sideMenuStyles, open, sideMenuData }) => {
   
@@ -32,34 +34,30 @@ const SideBar = ({ sideMenuStyles, open, sideMenuData }) => {
   const handleSubMenu = (subMenuList = [],title = "") => {
     if(!subMenuList && !subMenuList.length > 0) return null;
     const list = (
-     
-     
-      <List subheader={ <Typography color='textSecondary' style={{paddingLeft:'3%'}} variant="h5" gutterBottom>
+      <List subheader={<Typography   color='textSecondary' style={{paddingLeft:'3%'}} variant="h5" gutterBottom>
         {title}
       </Typography>} component="div" disablePadding>
         {subMenuList.map((item,index) => (
-          <>
-         <NavItem
-          routeTo={item?.routeTo}
-          key={index}
-          title={item.title}
-          icon={iconMapping[item.icon]}
-          children={item?.children}
-        />
-        <Divider className={classes.dividerColor}  />
-        </>
+          <div  key={item.title}>
+            <NavItem
+              routeTo={`${item?.routeTo}/${encodeURIComponent(item._id)}`}
+              title={item.title}
+              icon={iconMapping[item.icon]}
+              children={item?.children}
+            />
+            <Divider className={classes.dividerColor}  />
+        </div>
         ))}
         
       </List>
-     
-     
     );
 
     setSubMenu(list);
   }
 
   useEffect(() => {
-     const url = window.location.pathname;
+     const url = window.location.pathname.split("/")[1];
+     if(url.toLowerCase() === "dashboard") return;
      
     for (let index = 0; index < sideMenuData.length; index++) {
         const element = sideMenuData[index];
@@ -107,9 +105,9 @@ const SideBar = ({ sideMenuStyles, open, sideMenuData }) => {
 
         <List  component="nav" >
           {sideMenuData.length == 0 ? <UseSkeleton count={6} height={20} width="100%" style={{ marginBottom: 6 }} />
-            : sideMenuData.map((item) =>
+            : sideMenuData.map((item,index) =>
             (<NavItem
-              routeTo={item?.routeTo}
+              routeTo={(item?.children && item?.children.length) ? `${item?.routeTo}/${encodeURIComponent(item.children[0]._id)}` : item?.routeTo}
               key={item.title}
               title={item.title}
               icon={iconMapping[item.icon]}

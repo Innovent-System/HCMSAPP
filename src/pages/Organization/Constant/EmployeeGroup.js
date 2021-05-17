@@ -1,22 +1,23 @@
-import React, { useState,useEffect, useCallback } from "react";
+import React, { useState,useEffect, useCallback,useRef,forwardRef, useImperativeHandle,useContext } from "react";
 import EmployeeGroupModel from "./ConstantModel/EmployeeGroupModel";
 import {
   makeStyles,
   Toolbar,
   Grid,
 } from "@material-ui/core";
-import useTable from "../../../components/useTable";
 import * as employeeService from "../../../services/employeeService";
 import Controls from "../../../components/controls/Controls";
 import AddIcon from "@material-ui/icons/Add";
 import Popup from "../../../components/Popup";
-import Notification from "../../../components/Notification";
 import ConfirmDialog from "../../../components/ConfirmDialog";
 import GridToolBar from '../../../components/GridToolBar';
 import TableGrid  from '../../../components/useXGrid';
 import { API_CONSTANT_GETEMPLOYEEGROUP } from '../../../services/UrlService'; 
 import { handleGetActions } from '../../../store/actions/httpactions';
-import { useSelector, useDispatch, shallowEqual } from "react-redux";
+import { useDispatch } from "react-redux";
+import { SocketContext } from '../../../services/socketService';
+
+
 
 
 const useStyles = makeStyles((theme) => ({
@@ -47,33 +48,56 @@ const headCells = [
 const columns = [
   { field: 'id', hide: true},
   { field: 'groupName', headerName: 'Group Name', width: 200 },
-  { field: 'createdOn', headerName: 'Creted On', width: 200 },
-  { field: 'createdBy', headerName: 'Created By', width: 130 },
+  { field: 'createdOn', headerName: 'Creted On', width: 200, type: 'date' },
+  { field: 'createdBy', headerName: 'Created By', width: 130, },
   { field: 'modifiedBy', headerName: 'Modified By', width: 130 },
-  { field: 'modifiedOn', headerName: 'ModifiedOn On', width: 130 },
+  { field: 'modifiedOn', headerName: 'ModifiedOn On', width: 130 , type: 'date'},
   
 ];
 
+
+const EmployeeGroupGrid = forwardRef((props,ref) => {
+   const dispatch = useDispatch();
+   const [records, setRecords] = useState({
+    data:[],
+    loader:false,
+  });
+
+  
+  const fillGrid = () => {
+    
+    const fillEmployeeGroupData = {
+      groupName:"", 
+    }
+      setRecords({...records,loader:true});
+      dispatch(handleGetActions(API_CONSTANT_GETEMPLOYEEGROUP,fillEmployeeGroupData)).then((res)=>{
+        if(res){
+          setRecords({...records,data:res.EmployeeGroupData,loader:false});
+        }
+     });
+};
+
+    useImperativeHandle(ref,()=>({
+       fillGrid
+    }))
+
+   useEffect(fillGrid, []);
+
+  return <TableGrid rows={records.data} columns={columns} loader={records.loader}  pageSize={5} checkboxSelection />
+})
+
+
+
 export default function Employees() {
   const classes = useStyles();
-  const dispatch = useDispatch();
-  const selector = useSelector((state => state[Object.keys(state)[0]]));
+  const socket = useContext(SocketContext);
   const [recordForEdit, setRecordForEdit] = useState(null);
-  const [records, setRecords] = useState([]);
-
-  const [filterFn, setFilterFn] = useState({
-    fn: (items) => {
-      return items;
-    },
-  });
-
   const [openPopup, setOpenPopup] = useState(false);
+
+  const child = useRef();
   
-  const [notify, setNotify] = useState({
-    isOpen: false,
-    message: "",
-    type: "",
-  });
+  const fillGrid = () => child.current.fillGrid();
+
 
   const [confirmDialog, setConfirmDialog] = useState({
     isOpen: false,
@@ -81,28 +105,13 @@ export default function Employees() {
     subTitle: "",
   });
 
+ 
+  useEffect(() => {
+    
+    socket.on("CHANGE_REQUEST_ACCEPTED", fillGrid);
 
-  // const {
-  //   TblContainer,
-  //   TblHead,
-  //   TblPagination,
-  //   recordsAfterPagingAndSorting,
-  // } = useTable(records, headCells, filterFn);
-
-
-
-  const handleSearch = (e) => {
-    let target = e.target;
-    setFilterFn({
-      fn: (items) => {
-        if (target.value == "") return items;
-        else
-          return items.filter((x) =>
-            x.fullName.toLowerCase().includes(target.value)
-          );
-      },
-    });
-  };
+  
+  }, [socket])
 
   const addOrEdit = (employee, resetForm) => {
     if (employee.id == 0) employeeService.insertEmployee(employee);
@@ -110,12 +119,8 @@ export default function Employees() {
     resetForm();
     setRecordForEdit(null);
     setOpenPopup(false);
-    setRecords(employeeService.getAllEmployees());
-    setNotify({
-      isOpen: true,
-      message: "Submitted Successfully",
-      type: "success",
-    });
+    // setRecords(employeeService.getAllEmployees());
+    
   };
 
   const openInPopup = (item) => {
@@ -129,61 +134,15 @@ export default function Employees() {
       isOpen: false,
     });
     employeeService.deleteEmployee(id);
-    setRecords(employeeService.getAllEmployees());
-    setNotify({
-      isOpen: true,
-      message: "Deleted Successfully",
-      type: "error",
-    });
-  };
-
-
-
-useEffect(() => {
-  const fillEmployeeGroupData = {
-    groupName:"", 
-  }
-
-   dispatch(handleGetActions(API_CONSTANT_GETEMPLOYEEGROUP,fillEmployeeGroupData));
-  
-}, [])
-
-  useEffect(() => {
-    const { info,status } = selector;
-   
-    if(status && info){
-      const setValue = [];
-      if(Array.isArray(info.EmployeeGroupData)){
-        setValue.push(...info.EmployeeGroupData);
-      }else{
-        records.push(info);
-        setValue.push(...records);
-      } 
-
-      setRecords(setValue);
-    }
-
-    setNotify({
-      isOpen: (selector.error.flag || selector.status),
-      message: selector.error.flag ? selector.error.msg : selector.message,
-      type: selector.error.flag ? "error" : "success"
-    });
+    // setRecords(employeeService.getAllEmployees());
     
-  }, [selector]);
-
-  const fillGrid = (e) => {
-    
-      const fillEmployeeGroupData = {
-        groupName:"", 
-      }
-      
-       dispatch(handleGetActions(API_CONSTANT_GETEMPLOYEEGROUP,fillEmployeeGroupData));
   };
 
 
   return (
     <>
       <Grid className={classes.pageContent}>
+        {console.log("html")}
         <GridToolBar/>
         <Toolbar style={{borderBottom:"1px solid #ddd"}}>
         <Controls.Button
@@ -204,7 +163,7 @@ useEffect(() => {
             }}
           />
         </Toolbar>
-         <TableGrid rows={records} columns={columns} pageSize={5} checkboxSelection />
+        <EmployeeGroupGrid ref={child}/>
       </Grid>
       <Popup  
         title="Employee Group"
