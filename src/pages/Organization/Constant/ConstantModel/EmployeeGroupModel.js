@@ -2,11 +2,10 @@ import React, { useEffect } from "react";
 import { Grid,makeStyles } from "@material-ui/core";
 import Controls from "../../../../components/controls/Controls";
 import { useForm, Form } from "../../../../components/useForm";
-import { API_CONSTANT_INSERTEMPLOYEEGROUP } from '../../../../services/UrlService'; 
-import { handlePostActions } from '../../../../store/actions/httpactions';
-import { useSelector, useDispatch } from "react-redux";
+
 
 const initialFValues = {
+  id:0,
   groupName: "",
 };
 
@@ -19,10 +18,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function EmployeeGroupModel(props) {
-  const dispatch = useDispatch();
-  const selector = useSelector(state => state[Object.keys(state)[0]]);
+  
   const { addOrEdit, recordForEdit } = props;
   const classes = useStyles();
+  
   const validate = (fieldValues = values) => {
     let temp = { ...errors };
     if ("groupName" in fieldValues)
@@ -48,12 +47,7 @@ export default function EmployeeGroupModel(props) {
     e.preventDefault();
     
     if (validate()) {
-      addOrEdit(values, resetForm);
-      const employeeGroupData = {
-        groupName:values.groupName, 
-      }
-     
-      dispatch(handlePostActions(API_CONSTANT_INSERTEMPLOYEEGROUP,employeeGroupData));
+       addOrEdit(values, resetForm);
     }
   };
 

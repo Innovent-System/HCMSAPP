@@ -1,5 +1,6 @@
 import React from 'react'
-import { Paper, Card, Typography, makeStyles, Button } from '@material-ui/core'
+import { Paper, Card, Typography, makeStyles,Grid } from '@material-ui/core';
+import GridToolBar from './GridToolBar';
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -43,7 +44,10 @@ export default function PageHeader(props) {
                         component="div">
                         {subTitle}</Typography>
                 </div>
+                <Grid item sm></Grid>
+                <GridToolBar/>
             </div>
+            
         </Paper>
     )
 }

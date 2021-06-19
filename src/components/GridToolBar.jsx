@@ -1,9 +1,10 @@
 import PropTypes from 'prop-types';
 import { useRef,useState } from 'react';
-import {Toolbar,Grid,IconButton,InputAdornment,Drawer, Box,makeStyles,Typography } from '@material-ui/core';
+import {Tooltip,Grid,IconButton,InputAdornment,ButtonGroup,Drawer, Box,makeStyles,Typography,Button,Zoom } from '@material-ui/core';
 import  Controls from '../components/controls/Controls'; 
 import { Search,FilterList,CloudUpload} from '@material-ui/icons';
 import * as employeeService from "../services/employeeService";
+
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -30,35 +31,25 @@ const  GridToolBar = (props)  =>{
 
     return (
         <>
-             <Toolbar style={{borderBottom:"1px solid #ddd"}} disableGutters>
-                <Grid container
-                    alignItems="center">
-                    <Grid style={{display:'flex'}} item>
-                    <Controls.Input
-                        label="Search Employees"
-                        InputProps={{
-                        startAdornment: (
-                            <InputAdornment position="start">
-                              <Search />
-                            </InputAdornment>
-                        ),
-                        }}
-                    />
-                          
-                    </Grid>
-                    <Grid item sm></Grid>
-                    <Grid item>
-                         <IconButton>
-                            <CloudUpload />
-                         </IconButton>
-                         <IconButton onClick={() => setState(true)}>
-                            <FilterList />
-                         </IconButton>
-                    </Grid>
-                </Grid>
-            </Toolbar>
-            <Drawer  anchor="top"  open={state}  onClose={toggleDrawer(false)}>
-                <Box  minWidth={300} p={2}>
+        <Tooltip placement="top" TransitionComponent={Zoom} title="search">
+            <IconButton color="primary" aria-label="search" component="span">
+                <Search />
+            </IconButton>
+        </Tooltip>
+        <Tooltip placement="top" TransitionComponent={Zoom} title="Upload File">
+            <IconButton color="primary" aria-label="upload" component="span">
+            <CloudUpload />
+            </IconButton>
+        </Tooltip>
+        <Tooltip placement="top" TransitionComponent={Zoom} title="Filter">
+            <IconButton color="primary" aria-label="filter" onClick={() => setState(true)} component="span">
+            <FilterList />
+            </IconButton>
+        </Tooltip>
+        
+             
+            <Drawer style={{margin:'auto 0',width:300}} anchor="top"  open={state}  onClose={toggleDrawer(false)}>
+                <Box   minWidth={300} p={2}>
                 <Typography
                         variant="h6"
                         component="div">

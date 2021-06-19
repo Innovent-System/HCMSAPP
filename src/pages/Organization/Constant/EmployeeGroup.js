@@ -1,9 +1,9 @@
-import React, { useState,useEffect, useCallback,useRef,forwardRef, useImperativeHandle,useContext } from "react";
+import React, { useState,useEffect,useRef, useCallback } from "react";
 import EmployeeGroupModel from "./ConstantModel/EmployeeGroupModel";
 import {
   makeStyles,
   Toolbar,
-  Grid,
+  Grid,Typography
 } from "@material-ui/core";
 import * as employeeService from "../../../services/employeeService";
 import Controls from "../../../components/controls/Controls";
@@ -12,17 +12,14 @@ import Popup from "../../../components/Popup";
 import ConfirmDialog from "../../../components/ConfirmDialog";
 import GridToolBar from '../../../components/GridToolBar';
 import TableGrid  from '../../../components/useXGrid';
-import { API_CONSTANT_GETEMPLOYEEGROUP } from '../../../services/UrlService'; 
-import { handleGetActions } from '../../../store/actions/httpactions';
+import { API_INSERTEMPLOYEE_GROUP,API_GETEMPLOYEE_GROUP,API_UpdateEMPLOYEE_GROUP } from '../../../services/UrlService'; 
+import { handleGetActions,handlePostActions,handleUpdateActions } from '../../../store/actions/httpactions';
 import { useDispatch } from "react-redux";
-import { SocketContext } from '../../../services/socketService';
-
-
-
+import ActionToolKit from '../../../components/ActionToolKit';
+import { useSocketIo } from '../../../components/useSocketio';
 
 const useStyles = makeStyles((theme) => ({
   pageContent: {
-    
     padding: theme.spacing(2),
     width: "100%",
   },
@@ -33,95 +30,122 @@ const useStyles = makeStyles((theme) => ({
     position: "absolute",
     right: "10px",
   },
-}));
+  toggleContainer: {
+    margin: theme.spacing(2, 0),
+    '& .MuiToggleButton-root':{
+      padding:5
+    }
+  },
+}));  
 
-const headCells = [
-  { id: "fullName", label: "Employee Name" },
-  { id: "email", label: "Email Address (Personal)" },
-  { id: "mobile", label: "Mobile Number" },
-  { id: "department", label: "Department" },
-  { id: "actions", label: "Actions", disableSorting: true },
-];
 
+  function GetFullName(params) {
+    return (
+          <Typography variant="body2" gutterBottom>
+            <b>Created On:</b> {params.row['createdOn']}
+            <br/>
+            <b> Created By:</b> {params.row['createdBy']} 
+        </Typography> 
+      
+    )
+  }
 
 
 const columns = [
-  { field: 'id', hide: true},
-  { field: 'groupName', headerName: 'Group Name', width: 200 },
-  { field: 'createdOn', headerName: 'Creted On', width: 200, type: 'date' },
-  { field: 'createdBy', headerName: 'Created By', width: 130, },
-  { field: 'modifiedBy', headerName: 'Modified By', width: 130 },
-  { field: 'modifiedOn', headerName: 'ModifiedOn On', width: 130 , type: 'date'},
+  { field: 'id', headerName:'S#',editable:false},
+  { field: 'groupName', headerName: 'Group Name',flex: 1 ,editable:true},
+  { field: 'createdOn', headerName: 'Created On', width: 200, type: 'dateTime',editable:true },
+  { field: 'createdDetail', headerName: 'Created Detail', flex: 1,editable:false,
+  renderCell: GetFullName,
+  sortComparator: (v1, v2) => new Date(v2) - new Date(v1),
+  },
+  // { field: 'modifiedBy', headerName: 'Modified By', width: 130 },
+  // { field: 'modifiedOn', headerName: 'Modified On', width: 130 , type: 'date'},
+  
+    {
+      field: '',
+      headerName: 'Action',
+      editable:false,
+      flex: 1,
+      renderCell: ActionToolKit
+    }
+  
   
 ];
 
 
-const EmployeeGroupGrid = forwardRef((props,ref) => {
-   const dispatch = useDispatch();
-   const [records, setRecords] = useState({
-    data:[],
-    loader:false,
-  });
 
-  
-  const fillGrid = () => {
-    
-    const fillEmployeeGroupData = {
-      groupName:"", 
-    }
-      setRecords({...records,loader:true});
-      dispatch(handleGetActions(API_CONSTANT_GETEMPLOYEEGROUP,fillEmployeeGroupData)).then((res)=>{
-        if(res){
-          setRecords({...records,data:res.EmployeeGroupData,loader:false});
-        }
-     });
-};
-
-    useImperativeHandle(ref,()=>({
-       fillGrid
-    }))
-
-   useEffect(fillGrid, []);
-
-  return <TableGrid rows={records.data} columns={columns} loader={records.loader}  pageSize={5} checkboxSelection />
-})
-
-
-
-export default function Employees() {
+export default function EmplpoyeeGroup() {
   const classes = useStyles();
-  const socket = useContext(SocketContext);
+  const dispatch = useDispatch();
   const [recordForEdit, setRecordForEdit] = useState(null);
   const [openPopup, setOpenPopup] = useState(false);
-
-  const child = useRef();
-  
-  const fillGrid = () => child.current.fillGrid();
-
-
   const [confirmDialog, setConfirmDialog] = useState({
     isOpen: false,
     title: "",
     subTitle: "",
   });
 
+  const loader = useRef(false);
+
+  const [records, setRecords] = useState({
+    data:[],
+    loader:false,
+  });
+
  
-  useEffect(() => {
-    
-    socket.on("CHANGE_REQUEST_ACCEPTED", fillGrid);
 
+  useCallback(useSocketIo(records,setRecords,'employeegroups'),[records])
   
-  }, [socket])
 
-  const addOrEdit = (employee, resetForm) => {
-    if (employee.id == 0) employeeService.insertEmployee(employee);
-    else employeeService.updateEmployee(employee);
+  const fillGrid = (groupName = "") => {
+    
+    const fillEmployeeGroupData = {
+      groupName:groupName, 
+    }
+    
+      setRecords({...records,loader:true});
+      
+      dispatch(handleGetActions(API_GETEMPLOYEE_GROUP,fillEmployeeGroupData)).then((res)=>{
+        if(res){
+          setRecords({...records,data:res.EmployeeGroupData,loader:false});
+        }
+     });
+   };
+
+   const resetState = (resetForm = () => {}) => {
     resetForm();
     setRecordForEdit(null);
     setOpenPopup(false);
-    // setRecords(employeeService.getAllEmployees());
+  }
+
+   const addOrEdit = (values,resetForm) => {
+    if(values.id === 0){
+      const employeeGroupData = {
+        groupName:values.groupName, 
+      }
+     
+      dispatch(handlePostActions(API_INSERTEMPLOYEE_GROUP,employeeGroupData)).then(res => {
+         resetState(resetForm)
+      });
+    }
+    else{
+      const updateEmployeeGroupModel = {
+        id:values.id,
+        groupName:values.groupName, 
+      }
+      
+      dispatch(handleUpdateActions(API_UpdateEMPLOYEE_GROUP,updateEmployeeGroupModel)).then(res => {
+         resetState(resetForm)
+      });
+    }
     
   };
+
+  useEffect(fillGrid, []);
+
+  
+
 
   const openInPopup = (item) => {
     setRecordForEdit(item);
@@ -143,13 +167,13 @@ export default function Employees() {
     <>
       <Grid className={classes.pageContent}>
         {console.log("html")}
-        <GridToolBar/>
+        
         <Toolbar style={{borderBottom:"1px solid #ddd"}}>
         <Controls.Button
             text="Apply"
             variant="outlined"
             className={classes.applyButton}
-            onClick={fillGrid}
+            onClick={() => fillGrid()}
           />
 
           <Controls.Button
@@ -163,8 +187,9 @@ export default function Employees() {
             }}
           />
         </Toolbar>
-        <EmployeeGroupGrid ref={child}/>
+        <TableGrid rows={records.data} columns={columns} loader={records.loader}  pageSize={5} checkboxSelection />
       </Grid>
+     
       <Popup  
         title="Employee Group"
         openPopup={openPopup}

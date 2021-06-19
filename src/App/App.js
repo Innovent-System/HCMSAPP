@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./App.css";
 import { Router } from "react-router-dom";
 import { history } from "../config/appconfig";
@@ -42,6 +42,12 @@ const theme = createMuiTheme({
 
 
 function App() {
+  useEffect(() => {
+    
+    return () => {
+      appsocket.disconnect();
+    }
+  }, [])
   return (
     
     <ThemeProvider theme={theme}>

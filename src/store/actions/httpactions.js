@@ -53,7 +53,7 @@ export const handlePostActions = (url, data = {}) => dispatch  => {
     .catch(function (err) {
       dispatch({
         type: POST_DATA_FAILED,
-        payload: err.response?.data ? err.response.data.message : err.message
+        payload:{msg:(err.response?.data ? err.response.data.message : err.message),code:err.response.status} 
       })
     });
   
@@ -87,7 +87,7 @@ export const handleUploadActions = (url, data = {}) => dispatch => {
     .catch(function (err) {
       dispatch({
         type: UPLOAD_DATA_FAILED,
-        payload: err.response?.data ? err.response.data.message : err.message
+        payload:{msg:(err.response?.data ? err.response.data.message : err.message),code:err.response.status} 
       })
     });
   
@@ -119,7 +119,7 @@ export const handleGetActions = (url, params = {}) => dispatch => {
     }).catch(function (err) {
       dispatch({
         type: GET_DATA_FAILED,
-        payload: err.response?.data ? err.response.data.message : err.message
+        payload:{msg:(err.response?.data ? err.response.data.message : err.message),code:err.response.status} 
       })
     });
   
@@ -152,7 +152,7 @@ export const handleUpdateActions = (url, data ={}, params = {}) => dispatch => {
     .catch(function (err) {
       dispatch({
         type: UPDATE_DATA_FAILED,
-        payload: err.response?.data ? err.response.data.message : err.message
+        payload:{msg:(err.response?.data ? err.response.data.message : err.message),code:err.response.status} 
       })
     });
   
@@ -185,7 +185,7 @@ export const handleDeleteActions = (url, params = {}) => dispatch => {
     .catch(function (err) {
       dispatch({
         type: DELETE_DATA_FAILED,
-        payload: err.response?.data ? err.response.data.message : err.message
+        payload:{msg:(err.response?.data ? err.response.data.message : err.message),code:err.response.status} 
       })
     });
   

@@ -1,6 +1,7 @@
 import { useState,useEffect } from 'react'
 import Notification from "../components/Notification";
 import { useSelector } from "react-redux";
+import { history } from '../config/appconfig';
 
 
 
@@ -21,6 +22,10 @@ function StatusHanlder() {
           type: routeNotify.error.flag ? "error" : "success"
         });
 
+        if(routeNotify.error.code === 401){
+          localStorage.clear();
+          history.push("/");
+        }
        } 
         
       }, [routeNotify]);

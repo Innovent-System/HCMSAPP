@@ -86,6 +86,7 @@ export const downloadAndViewFile = (base64, fileName = 'test1', ext = 'pdf', isD
     document.body.removeChild(a);
 }
 
+
 const colorGenerator = (internalData) =>{
     const graphColors = [];
     const graphOutlines = [];

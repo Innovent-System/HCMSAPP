@@ -32,7 +32,8 @@ export default (state = Object.assign({},{...INITIAL_STATE}) , action) => {
         message:"",
         error:{
             flag:false,
-            msg:null
+            msg:null,
+            code:null
         },
         loading:true         
     };
@@ -51,7 +52,8 @@ export default (state = Object.assign({},{...INITIAL_STATE}) , action) => {
         status:false,
         error:{
             flag:true,
-            msg:action.payload
+            msg:action.payload.msg,
+            code:action.payload.code
         }  
     };
 
@@ -82,7 +84,8 @@ export default (state = Object.assign({},{...INITIAL_STATE}) , action) => {
         loading:false,
         error:{
             flag:true,
-            msg:action.payload
+            msg:action.payload.msg,
+            code:action.payload.code
         }  
     };
 
@@ -94,7 +97,8 @@ export default (state = Object.assign({},{...INITIAL_STATE}) , action) => {
         message:"",
         error:{
             flag:false,
-            msg:null
+            msg:null,
+            code:null
         },     
     };
     case DELETE_DATA_SUCCESS:
@@ -111,7 +115,8 @@ export default (state = Object.assign({},{...INITIAL_STATE}) , action) => {
         loading:false,
         error:{
             flag:true,
-            msg:action.payload
+            msg:action.payload.msg,
+            code:action.payload.code
         }  
     };
 
@@ -123,7 +128,8 @@ export default (state = Object.assign({},{...INITIAL_STATE}) , action) => {
         message:"",
         error:{
             flag:false,
-            msg:null
+            msg:null,
+            code:null
         },     
     };
     case UPDATE_DATA_SUCCESS:
@@ -140,7 +146,8 @@ export default (state = Object.assign({},{...INITIAL_STATE}) , action) => {
         loading:false,
         error:{
             flag:true,
-            msg:action.payload
+            msg:action.payload.msg,
+            code:action.payload.code
         }  
     };
 
@@ -151,7 +158,8 @@ export default (state = Object.assign({},{...INITIAL_STATE}) , action) => {
             ...state,        
             error:{
                 flag:false,
-                msg:null
+                msg:null,
+                code:null
             }            
         };
     default:

@@ -6,7 +6,7 @@ import Auth from '../services/AuthenticationService';
 const RouterWrapper = ({ component: Component, isPrivate, ...rest }) => {
   //Manage with Globaly
 
-  const signed = Auth.getitem('employeeInfo')?.signIn || false;
+  const signed = document.cookie === "is_Auth=true" || false;
   
   
 
