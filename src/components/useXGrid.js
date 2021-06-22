@@ -85,7 +85,7 @@ function CustomNoRowsOverlay() {
 }
 
 
-function TableGrid ({rows, columns,loader,...other}) {
+function TableGrid ({rows, columns,loader,pageing,isCheckBox,...other}) {
 
  console.log("grid");
 
@@ -119,11 +119,12 @@ const handleCellBlur = React.useCallback((params, event) => {
             <XGrid
             {...other}
             pageSize={10} 
-            rowsPerPageOptions={[10, 30, 50]} 
+            rowsPerPageOptions={pageing} 
             pagination
             autoHeight
             filterMode='server'
             disableColumnResize
+            checkboxSelection={isCheckBox}
             
           //  {...data}
             rows={rows}
@@ -133,7 +134,7 @@ const handleCellBlur = React.useCallback((params, event) => {
                 Toolbar: GridToolbar,
                 NoRowsOverlay:CustomNoRowsOverlay
               }}
-            checkboxSelection
+            checkboxSelection={isCheckBox}
             disableSelectionOnClick
             
             onCellDoubleClick={handleDoubleCellClick}
@@ -160,7 +161,8 @@ TableGrid.propTypes = {
 TableGrid.defaultProps = {
   loader:false,
   columns:[],
-  rows:[]
+  rows:[],
+  pageing:[10,30,50]
 }
 
 export default React.memo(TableGrid);
