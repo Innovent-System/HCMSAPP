@@ -45,9 +45,10 @@ const bindMethod = (dataSet = [],data = {},columnsName = {}) => {
     
 }
 
+const formId = window.location.pathname.substr(window.location.pathname.lastIndexOf("/") + 1);
+
 export const useSocketIo = (state = [],setState,emitCallName = '') => {
 
-    
     const socket = useContext(SocketContext);
     const recordsRef = useRef(state);
 
@@ -55,6 +56,13 @@ export const useSocketIo = (state = [],setState,emitCallName = '') => {
         recordsRef.current = state;
       });
     
+    useEffect(() => {
+      socket.emit("joinSession",formId);
+
+      return () => {
+        socket.emit("leaveSession",formId);
+      }
+    }, [])
  
     useEffect(() => {
       

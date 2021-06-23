@@ -47,7 +47,11 @@ export const handlePostActions = (url, data = {}) => dispatch  => {
           message
         });
 
-        return result;
+        return {
+          data:result,
+          isSuccess:true,
+          message
+         }
       }
     })
     .catch(function (err) {
@@ -80,7 +84,11 @@ export const handleUploadActions = (url, data = {}) => dispatch => {
           message
         });
 
-        return result;
+        return {
+          data:result,
+          isSuccess:true,
+          message
+         }
         
       }
     })
@@ -114,7 +122,11 @@ export const handleGetActions = (url, params = {}) => dispatch => {
           message
         });
 
-        return result;
+        return {
+         data:result,
+         isSuccess:true,
+         message
+        }
       }
     }).catch(function (err) {
       dispatch({
@@ -146,7 +158,11 @@ export const handleUpdateActions = (url, data ={}, params = {}) => dispatch => {
           message
         });
 
-        return result;
+        return {
+          data:result,
+          isSuccess:true,
+          message
+         }
       }
     })
     .catch(function (err) {
@@ -179,7 +195,11 @@ export const handleDeleteActions = (url, params = {}) => dispatch => {
           message
         });
 
-        return result;
+        return {
+          data:result,
+          isSuccess:true,
+          message
+         }
       }
     })
     .catch(function (err) {

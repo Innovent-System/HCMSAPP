@@ -1,3 +1,4 @@
+import {useContext} from 'react'
 import { AppBar, Toolbar, Grid, InputBase, IconButton, Badge } from '@material-ui/core'
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
@@ -5,18 +6,32 @@ import PowerSettingsNewIcon from '@material-ui/icons/PowerSettingsNew';
 import SearchIcon from '@material-ui/icons/Search';
 import SubjectIcon from '@material-ui/icons/Dashboard';
 import Auth from '../../../services/AuthenticationService';
+import { SocketContext } from '../../../services/socketService';
 import { useHistory }  from 'react-router-dom';
+import { API_USER_LOGOUT } from '../../../services/UrlService';
+import { handleGetActions } from '../../../store/actions/httpactions';
+import { useDispatch } from "react-redux";
+ 
+
 
 
 export default function Header({headerStyles,isOpen,setOpen }) {
     const history = useHistory();
     const classes = headerStyles();
-  
+    const dispatch = useDispatch();
+    const socket = useContext(SocketContext);
     const handleLogout = () => {
-        Auth.remove("employeeInfo");
-        Auth.remove("appConfigData");
-        localStorage.clear();
-        history.replace({pathname:"/"})
+        
+        dispatch(handleGetActions(API_USER_LOGOUT)).then(res => {
+            if(res.isSuccess){
+                Auth.remove("employeeInfo");
+                Auth.remove("appConfigData");
+                socket.emit("leave",1);
+                localStorage.clear();
+                history.replace({pathname:"/"})
+            }
+        })
+        
     }
 
 

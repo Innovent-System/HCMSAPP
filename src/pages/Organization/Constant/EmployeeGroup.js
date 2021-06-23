@@ -61,7 +61,6 @@ const columns = [
   },
   // { field: 'modifiedBy', headerName: 'Modified By', width: 130 },
   // { field: 'modifiedOn', headerName: 'Modified On', width: 130 , type: 'date'},
-  
     {
       field: '',
       headerName: 'Action',
@@ -69,8 +68,6 @@ const columns = [
       flex: 1,
       renderCell: ActionToolKit
     }
-  
-  
 ];
 
 
@@ -108,7 +105,8 @@ export default function EmplpoyeeGroup() {
       
       dispatch(handleGetActions(API_GETEMPLOYEE_GROUP,fillEmployeeGroupData)).then((res)=>{
         if(res){
-          setRecords({...records,data:res.EmployeeGroupData,loader:false});
+          const { data } = res;
+          setRecords({...records,data:data.EmployeeGroupData,loader:false});
         }
      });
    };

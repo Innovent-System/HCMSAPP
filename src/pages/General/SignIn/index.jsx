@@ -1,4 +1,4 @@
-import { useEffect,useState } from 'react';
+import { useEffect,useState,useContext,useRef } from 'react';
 import  Controls  from '../../../components/controls/Controls';
 import { useForm, Form } from "../../../components/useForm";
 import { Link as RouterLink } from "react-router-dom";
@@ -10,8 +10,8 @@ import { handlePostActions } from '../../../store/actions/httpactions';
 import { useSelector, useDispatch } from "react-redux";
 import { API_USER_LOGIN } from '../../../services/UrlService'; 
 import Auth from '../../../services/AuthenticationService';
-import { useHistory }  from 'react-router-dom';
-
+import { SocketContext } from '../../../services/socketService';
+ 
 
 
 const initialFValues = {
@@ -55,21 +55,20 @@ const initialFValues = {
 const SignIn = ({setRoutes,setSideMenu}) => {
   const dispatch = useDispatch();
   const selector = useSelector(state => state[Object.keys(state)[0]]);
-  const history = useHistory();
- 
-    useEffect(() => {
-      
-      const { info,status } = selector;
-      if(status){
-        Auth.setItem('employeeInfo',{signIn:status});
-        Auth.setItem("appConfigData",{"appRoutes":info.appRoutes,"sideMenuData":info.sideMenuData});
-        setRoutes(info.appRoutes);
-        setSideMenu(info.sideMenuData);
-      }
-      
-    }, [selector])
+
+  const socket = useContext(SocketContext);
   
+    // useEffect(() => {
+      
+    //   const { info,status } = selector;
+    //   if(status){
+        
+    //   }
+
+    // }, [selector])
   
+    
+
   const classes = useStyles();
     const validate = (fieldValues = values) => {
         let temp = { ...errors };
@@ -95,7 +94,16 @@ const SignIn = ({setRoutes,setSideMenu}) => {
            password:values.password
          }
 
-         dispatch(handlePostActions(API_USER_LOGIN,signInData));
+         dispatch(handlePostActions(API_USER_LOGIN,signInData)).then(res => {
+           if(res.isSuccess){
+            const { data } = res;
+            Auth.setItem('employeeInfo',{signIn:true});
+            Auth.setItem("appConfigData",{"appRoutes":data.appRoutes,"sideMenuData":data.sideMenuData});
+            setRoutes(data.appRoutes);
+            setSideMenu(data.sideMenuData);
+            socket.emit("join",data._id);
+           }
+         });
          
         }
       };
