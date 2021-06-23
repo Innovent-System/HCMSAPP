@@ -6,7 +6,6 @@ const bindMethod = (dataSet = [],data = {},columnsName = {}) => {
     const dataList = dataSet.slice();
     let newSet = {};
     if(data){
-            
             const {operationType,fullDocument,documentKey} = data;
             if(typeof(columnsName) === 'object' &&  Object.keys(columnsName).length)
             {
@@ -32,7 +31,6 @@ const bindMethod = (dataSet = [],data = {},columnsName = {}) => {
                 case "delete":
                     const deleteIndex = dataList.findIndex(f => f.id === documentKey._id);
                     dataList.splice(deleteIndex,1);
-                    
                     break;    
                 default:
                     dataList.unshift(newSet);

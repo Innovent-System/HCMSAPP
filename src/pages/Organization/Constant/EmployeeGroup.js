@@ -12,7 +12,7 @@ import Popup from "../../../components/Popup";
 import ConfirmDialog from "../../../components/ConfirmDialog";
 import GridToolBar from '../../../components/GridToolBar';
 import TableGrid  from '../../../components/useXGrid';
-import { API_INSERTEMPLOYEE_GROUP,API_GETEMPLOYEE_GROUP,API_UpdateEMPLOYEE_GROUP } from '../../../services/UrlService'; 
+import { API_INSERTEMPLOYEE_GROUP,API_GETEMPLOYEE_GROUP,API_UPDATEEMPLOYEE_GROUP } from '../../../services/UrlService'; 
 import { handleGetActions,handlePostActions,handleUpdateActions } from '../../../store/actions/httpactions';
 import { useDispatch } from "react-redux";
 import ActionToolKit from '../../../components/ActionToolKit';
@@ -50,23 +50,41 @@ const useStyles = makeStyles((theme) => ({
     )
   }
 
+  
+  function GetFullModifiedName(params) {
+    return (
+          <Typography variant="body2" gutterBottom>
+            <b>Modified On:</b> {params.row['modifiedOn']}
+            <br/>
+            <b> Modified By:</b> {params.row['modifiedBy']} 
+        </Typography> 
+      
+    )
+  }
 
 const columns = [
   { field: 'id', headerName:'S#',editable:false},
   { field: 'groupName', headerName: 'Group Name',flex: 1 ,editable:true},
-  { field: 'createdOn', headerName: 'Created On', width: 200, type: 'dateTime',editable:true },
+  // { field: 'createdOn', headerName: 'Created On', width: 200, type: 'dateTime'},
   { field: 'createdDetail', headerName: 'Created Detail', flex: 1,editable:false,
   renderCell: GetFullName,
   sortComparator: (v1, v2) => new Date(v2) - new Date(v1),
   },
+
+  { field: 'modifiedDetail', headerName: 'Modified Detail', flex: 1,editable:false,
+  renderCell: GetFullModifiedName,
+  sortComparator: (v1, v2) => new Date(v2) - new Date(v1),
+  },
+
   // { field: 'modifiedBy', headerName: 'Modified By', width: 130 },
   // { field: 'modifiedOn', headerName: 'Modified On', width: 130 , type: 'date'},
     {
-      field: '',
+      field: 'modifiedBy',
       headerName: 'Action',
       editable:false,
       flex: 1,
-      renderCell: ActionToolKit
+      renderCell: ActionToolKit,
+      align :'center',
     }
 ];
 
@@ -133,7 +151,7 @@ export default function EmplpoyeeGroup() {
         groupName:values.groupName, 
       }
       
-      dispatch(handleUpdateActions(API_UpdateEMPLOYEE_GROUP,updateEmployeeGroupModel)).then(res => {
+      dispatch(handleUpdateActions(API_UPDATEEMPLOYEE_GROUP,updateEmployeeGroupModel)).then(res => {
          resetState(resetForm)
       });
     }
@@ -185,7 +203,7 @@ export default function EmplpoyeeGroup() {
             }}
           />
         </Toolbar>
-        <TableGrid rows={records.data} columns={columns} loader={records.loader}  pageSize={5} checkboxSelection />
+        <TableGrid rows={records.data} columns={columns} loader={records.loader}  pageSize={5} isCheckBox={false} />
       </Grid>
      
       <Popup  

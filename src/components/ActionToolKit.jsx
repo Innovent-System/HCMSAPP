@@ -4,17 +4,22 @@ import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
+import SaveTwoToneIcon from '@material-ui/icons/SaveTwoTone';
+import EditTwoToneIcon from '@material-ui/icons/EditTwoTone';
 import SaveIcon from '@material-ui/icons/Save';
 import PhoneAndroidIcon from '@material-ui/icons/PhoneAndroid';
 import {makeStyles} from "@material-ui/core";
-
+import { API_UPDATEEMPLOYEE_GROUP } from '../services/UrlService'; 
+import { handleUpdateActions } from '../store/actions/httpactions';
+import { useDispatch } from "react-redux";
 
 
 const useStyles = makeStyles((theme) => ({
     toggleContainer: {
       margin: theme.spacing(2, 0),
       '& .MuiToggleButton-root':{
-        padding:5
+        padding:5,
+        color:"pitch"
       }
     },
   }));
@@ -24,6 +29,7 @@ function ActionToolKit ({isShowEditBtn = true,isShowActiveBtn = true,isShowDownl
     const { row,api } = props;
     const [formats, setFormats] = React.useState('');
     const [mode,setCellMode] = useState('view');
+    const dispatch = useDispatch();
     
     const handleFormat = React.useCallback(
       (event, newFormats) => {
@@ -31,6 +37,8 @@ function ActionToolKit ({isShowEditBtn = true,isShowActiveBtn = true,isShowDownl
       },
       [formats]
     );
+
+   
       
     const handleButtonEdit = React.useCallback(() => {
       if(mode === 'view'){
@@ -59,6 +67,16 @@ function ActionToolKit ({isShowEditBtn = true,isShowActiveBtn = true,isShowDownl
             }
           })
           setCellMode('view');
+          if(mode === "edit" && editedCellProps.props.value != row.groupName){
+            const updateEmployeeGroupModel = {
+              id:editedCellProps.id,
+              groupName:editedCellProps.props.value, 
+            }
+            dispatch(handleUpdateActions(API_UPDATEEMPLOYEE_GROUP,updateEmployeeGroupModel)).then(res => {
+              
+           });
+          
+          }
         }
         console.log(editedCellProps);
         
@@ -78,15 +96,15 @@ function ActionToolKit ({isShowEditBtn = true,isShowActiveBtn = true,isShowDownl
 
               {isShowEditBtn && 
                 <ToggleButton value="isEdit" onClick={handleButtonEdit} aria-label="isEdit">
-                {mode === 'view'? <EditIcon color='action' /> : <SaveIcon color='primary'/>}
+                {mode === 'view'? <EditTwoToneIcon color='action' /> : <SaveTwoToneIcon />}
                 </ToggleButton>
               } 
-              {
+              {/* {
                   isShowDownloadBtn && 
                   <ToggleButton value="isDownload" aria-label="isDownload">
                    <PhoneAndroidIcon />
                   </ToggleButton>
-              }
+              } */}
               
               
        </ToggleButtonGroup>
