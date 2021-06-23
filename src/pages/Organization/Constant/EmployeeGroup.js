@@ -1,4 +1,4 @@
-import React, { useState,useEffect,useRef, useCallback } from "react";
+import React, { useState,useEffect,useRef, useCallback, useContext } from "react";
 import EmployeeGroupModel from "./ConstantModel/EmployeeGroupModel";
 import {
   makeStyles,
@@ -17,6 +17,7 @@ import { handleGetActions,handlePostActions,handleUpdateActions } from '../../..
 import { useDispatch } from "react-redux";
 import ActionToolKit from '../../../components/ActionToolKit';
 import { useSocketIo } from '../../../components/useSocketio';
+import { SocketContext } from '../../../services/socketService'
 
 const useStyles = makeStyles((theme) => ({
   pageContent: {
@@ -95,6 +96,7 @@ export default function EmplpoyeeGroup() {
   const dispatch = useDispatch();
   const [recordForEdit, setRecordForEdit] = useState(null);
   const [openPopup, setOpenPopup] = useState(false);
+  // const socket = useContext(SocketContext)
   const [confirmDialog, setConfirmDialog] = useState({
     isOpen: false,
     title: "",
@@ -110,7 +112,7 @@ export default function EmplpoyeeGroup() {
 
  
 
-  useCallback(useSocketIo(records,setRecords,'employeegroups'),[records])
+
   
 
   const fillGrid = (groupName = "") => {
@@ -128,6 +130,8 @@ export default function EmplpoyeeGroup() {
         }
      });
    };
+
+   useCallback(useSocketIo(fillGrid),[])
 
    const resetState = (resetForm = () => {}) => {
     resetForm();

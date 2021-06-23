@@ -1,4 +1,4 @@
-import {useEffect,useRef,useContext, useState} from 'react';
+import {useEffect,useContext} from 'react';
 import { SocketContext } from '../services/socketService';
 
 const bindMethod = (dataSet = [],data = {},columnsName = {}) => {
@@ -43,38 +43,31 @@ const bindMethod = (dataSet = [],data = {},columnsName = {}) => {
     
 }
 
-const formId = window.location.pathname.substr(window.location.pathname.lastIndexOf("/") + 1);
 
-export const useSocketIo = (state = [],setState,emitCallName = '') => {
+export const useSocketIo = (gridMethod = () => {}) => {
 
     const socket = useContext(SocketContext);
-    const recordsRef = useRef(state);
+    // const recordsRef = useRef(state);
 
-    useEffect(() => {
-        recordsRef.current = state;
-      });
+    // useEffect(() => {
+    //     recordsRef.current = state;
+    //   });
     
-    useEffect(() => {
-      socket.emit("joinSession",formId);
-
-      return () => {
-        socket.emit("leaveSession",formId);
-      }
-    }, [])
  
     useEffect(() => {
       
       const handler =  (changes) => {
-        const newsets = bindMethod(recordsRef.current.data,changes);
-        setState({...recordsRef.current.data,data:newsets});
+        gridMethod();
+        // const newsets = bindMethod(recordsRef.current.data,changes);
+        // setState({...recordsRef.current.data,data:newsets});
       };
   
-      socket.on("changes_occures_" + emitCallName, handler);
+      socket.on("changes_occures", handler);
   
       return () => {
-        socket.off('changes_occures_' + emitCallName,handler);
+        socket.off('changes_occures',handler);
       }
-    }, [socket,state?.data,setState,emitCallName])
+    }, [socket,gridMethod])
     
 }
 

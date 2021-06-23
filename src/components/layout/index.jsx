@@ -1,7 +1,9 @@
 import Header from './header/Header';
 import Sidebar from './sidemenu/SideMenu';
 import { Box,makeStyles,Paper } from '@material-ui/core';
-import {  useState,useEffect } from 'react';
+import {  useState,useEffect,useContext } from 'react';
+import { SocketContext } from '../../services/socketService';
+
 
 
 const drawerWidth = 220;
@@ -65,10 +67,20 @@ const headerStyles = makeStyles(theme => ({
 const Layout = ({sideMenuData,children}) => {
     const [open, setOpen] = useState(false);
     const [stuff,setStuff] = useState([]);
+    const socket = useContext(SocketContext)
   useEffect(() => {
     setStuff([<Header  isOpen={open} setOpen={setOpen} headerStyles={headerStyles}/>,
       <Sidebar open={open} sideMenuData={sideMenuData}   sideMenuStyles={sideMenuStyles} />])
   }, []);
+
+  useEffect(() => {
+    const formId = window.location.pathname.substr(window.location.pathname.lastIndexOf("/") + 1);
+    socket.emit("joinSession",formId);
+
+    return () => {
+      socket.emit("leaveSession",formId);
+    }
+  });
 
     return (
         <Box display='flex' flexWrap='wrap'>

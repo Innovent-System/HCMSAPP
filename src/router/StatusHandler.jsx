@@ -1,13 +1,14 @@
-import { useState,useEffect } from 'react'
+import { useState,useEffect,useContext } from 'react'
 import Notification from "../components/Notification";
 import { useSelector } from "react-redux";
 import { history } from '../config/appconfig';
+import {SocketContext} from '../services/socketService'
 
 
 
 function StatusHanlder() {
     const routeNotify = useSelector((state => state[Object.keys(state)[0]]));
-
+    const socket = useContext(SocketContext);
     const [notify, setNotify] = useState({
         isOpen: false,
         message: "",
@@ -25,6 +26,7 @@ function StatusHanlder() {
         if(routeNotify.error.code === 401){
           localStorage.clear();
           history.push("/");
+          socket.emit("leave",1);
         }
        } 
         
