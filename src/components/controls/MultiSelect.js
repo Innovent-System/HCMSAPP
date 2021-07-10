@@ -30,6 +30,7 @@ export default function MultiSelect(props) {
       <Autocomplete
         multiple
         limitTags={2}
+        {...other}
         onChange={(event, value) => console.log(value.map(m => m.year).join(","))}
         size='small'
         id="multiple-limit-tags"

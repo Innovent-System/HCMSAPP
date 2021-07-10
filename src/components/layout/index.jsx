@@ -80,7 +80,7 @@ const Layout = ({sideMenuData,children}) => {
     return () => {
       socket.emit("leaveSession",formId);
     }
-  });
+  },[children]);
 
     return (
         <Box display='flex' flexWrap='wrap'>

@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { XGrid,GridToolbar,LicenseInfo,GridOverlay,useGridApiRef } from '@material-ui/x-grid';
+import { XGrid,GridToolbar,LicenseInfo,GridOverlay } from '@material-ui/x-grid';
 import { makeStyles } from '@material-ui/core/styles';
 
 
@@ -29,6 +29,8 @@ const useStyles = makeStyles((theme) => ({
       fillOpacity: theme.palette.type === 'light' ? '0.8' : '0.08',
       fill: theme.palette.type === 'light' ? '#f5f5f5' : '#fff',
     },
+    width:250,
+    height:250
   },
   label: {
     marginTop: theme.spacing(1),
@@ -85,7 +87,7 @@ function CustomNoRowsOverlay() {
 }
 
 
-function TableGrid ({rows, columns,loader,pageing,isCheckBox,...other}) {
+function TableGrid ({rows, columns,loader,paging,isCheckBox,...other}) {
 
  console.log("grid");
 
@@ -119,7 +121,7 @@ const handleCellBlur = React.useCallback((params, event) => {
             <XGrid
             {...other}
             pageSize={10} 
-            rowsPerPageOptions={pageing} 
+            rowsPerPageOptions={paging} 
             pagination
             autoHeight
             filterMode='server'
@@ -162,7 +164,7 @@ TableGrid.defaultProps = {
   loader:false,
   columns:[],
   rows:[],
-  pageing:[10,30,50]
+  paging:[10,30,50]
 }
 
 export default React.memo(TableGrid);

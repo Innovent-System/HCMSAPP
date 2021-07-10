@@ -69,7 +69,7 @@ function ActionToolKit ({isShowEditBtn = true,isShowActiveBtn = true,isShowDownl
           setCellMode('view');
           if(mode === "edit" && editedCellProps.props.value != row.groupName){
             const updateEmployeeGroupModel = {
-              id:editedCellProps.id,
+              id:row._id,
               groupName:editedCellProps.props.value, 
             }
             dispatch(handleUpdateActions(API_UPDATEEMPLOYEE_GROUP,updateEmployeeGroupModel)).then(res => {

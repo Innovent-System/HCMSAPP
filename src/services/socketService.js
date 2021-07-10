@@ -1,10 +1,9 @@
 import { createContext } from 'react';
 import socketio from 'socket.io-client';
+import {socketUrl} from '../config/appconfig';
 
 
-const SOCKET_URL = 'http://localhost:5000/';
-
-export const appsocket = socketio(SOCKET_URL);
+export const appsocket = socketio(socketUrl,{autoConnect:false});
 
 
 export const SocketContext = createContext();

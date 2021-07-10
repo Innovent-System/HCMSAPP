@@ -2,7 +2,8 @@ import { useState,useEffect,useContext } from 'react'
 import Notification from "../components/Notification";
 import { useSelector } from "react-redux";
 import { history } from '../config/appconfig';
-import {SocketContext} from '../services/socketService'
+import {SocketContext} from '../services/socketService';
+import Auth from '../services/AuthenticationService';
 
 
 
@@ -24,9 +25,12 @@ function StatusHanlder() {
         });
 
         if(routeNotify.error.code === 401){
+          const info = Auth.getitem('userInfo') || {};
+          const formId = window.location.pathname.substr(window.location.pathname.lastIndexOf("/") + 1);
           localStorage.clear();
           history.push("/");
-          socket.emit("leave",1);
+          socket.emit("leave",info.c_Id);
+          socket.emit("leaveSession",formId);
         }
        } 
         

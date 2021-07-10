@@ -24,9 +24,12 @@ export default function Header({headerStyles,isOpen,setOpen }) {
         
         dispatch(handleGetActions(API_USER_LOGOUT)).then(res => {
             if(res.isSuccess){
+                const info = Auth.getitem('userInfo') || {};
                 Auth.remove("employeeInfo");
                 Auth.remove("appConfigData");
-                socket.emit("leave",1);
+               
+
+                socket.emit("leave",info.c_Id);
                 localStorage.clear();
                 history.replace({pathname:"/"})
             }

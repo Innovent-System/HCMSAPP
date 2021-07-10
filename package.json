@@ -1,6 +1,6 @@
 {
   "name": "complete_mui_system",
-  "homepage": ".",
+  "homepage": "https://test.rajstore.org/",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -11,7 +11,6 @@
     "@material-ui/lab": "^4.0.0-alpha.58",
     "@material-ui/pickers": "^3.3.10",
     "@material-ui/x-grid": "^4.0.0-alpha.31",
-    "@material-ui/x-grid-data-generator": "^4.0.0-alpha.24",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",

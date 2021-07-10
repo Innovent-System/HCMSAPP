@@ -1,7 +1,7 @@
 import {useEffect,useContext} from 'react';
 import { SocketContext } from '../services/socketService';
 
-const bindMethod = (dataSet = [],data = {},columnsName = {}) => {
+export const bindMethod = (dataSet = [],data = {},columnsName = {}) => {
     if(!data || !Array.isArray(dataSet))  return;
     const dataList = dataSet.slice();
     let newSet = {};

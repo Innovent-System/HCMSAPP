@@ -1,4 +1,4 @@
-import { useEffect,useState,useContext,useRef } from 'react';
+import { useState,useContext } from 'react';
 import  Controls  from '../../../components/controls/Controls';
 import { useForm, Form } from "../../../components/useForm";
 import { Link as RouterLink } from "react-router-dom";
@@ -7,7 +7,7 @@ import { Visibility,VisibilityOff,Person } from '@material-ui/icons';
 import { green } from '@material-ui/core/colors';
 import bg from '../../../assests/images/bg-1.jpg';
 import { handlePostActions } from '../../../store/actions/httpactions';
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { API_USER_LOGIN } from '../../../services/UrlService'; 
 import Auth from '../../../services/AuthenticationService';
 import { SocketContext } from '../../../services/socketService';
@@ -54,21 +54,11 @@ const initialFValues = {
 
 const SignIn = ({setRoutes,setSideMenu}) => {
   const dispatch = useDispatch();
-  const selector = useSelector(state => state[Object.keys(state)[0]]);
+
+  const [loader, setLoader] = useState(false);
 
   const socket = useContext(SocketContext);
   
-    // useEffect(() => {
-      
-    //   const { info,status } = selector;
-    //   if(status){
-        
-    //   }
-
-    // }, [selector])
-  
-    
-
   const classes = useStyles();
     const validate = (fieldValues = values) => {
         let temp = { ...errors };
@@ -93,15 +83,20 @@ const SignIn = ({setRoutes,setSideMenu}) => {
            email:values.userName,
            password:values.password
          }
-
+         setLoader(true);
          dispatch(handlePostActions(API_USER_LOGIN,signInData)).then(res => {
-           if(res.isSuccess){
+           if(res){
             const { data } = res;
             Auth.setItem('employeeInfo',{signIn:true});
             Auth.setItem("appConfigData",{"appRoutes":data.appRoutes,"sideMenuData":data.sideMenuData});
+            Auth.setItem("userInfo",{"email":data.email,"c_Id":data.fkClientId,username:data.username});
             setRoutes(data.appRoutes);
             setSideMenu(data.sideMenuData);
-            socket.emit("join",data._id);
+            socket.emit("join",data.fkClientId);
+            setLoader(false);
+           }
+           else{
+            setLoader(false);
            }
          });
          
@@ -210,10 +205,10 @@ const SignIn = ({setRoutes,setSideMenu}) => {
                       <Controls.Button
                       text="Login"
                       type="submit"
-                      disabled={selector.loading}
+                      disabled={loader}
                       />
 
-                      {selector.loading && (
+                      {loader && (
                       <CircularProgress size={24} className={classes.buttonProgress} />
                     )}
                      </div>

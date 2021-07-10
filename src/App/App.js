@@ -43,7 +43,8 @@ const theme = createMuiTheme({
 
 function App() {
   useEffect(() => {
-    
+    appsocket.connect();
+
     return () => {
       appsocket.disconnect();
     }
