@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { makeStyles,Tabs,Tab,Typography,Box } from '@material-ui/core';
+import { makeStyles,Tabs,Tab,Box } from '@material-ui/core';
 import EmployeeGroup from '../EmployeeGroup';
 
 function TabPanel(props) {
@@ -16,7 +16,7 @@ function TabPanel(props) {
     >
       {value === index && (
         <Box>
-          <Typography>{children}</Typography>
+          {children}
         </Box>
       )}
     </div>
@@ -62,17 +62,15 @@ export default function VerticalTabs() {
     setValue(newValue);
   };
 
-  const TabsName = [
-    "Manage Employee Group",
-    "Manage Designation",
-    "Manage Employee Status",
-    "Manage Employee Station",
-    "Manage Company",
-    "Manage Country",
-    "Manage Province",
-    "Manage City",
-    "Manage Area",
-    "Manage Vendor"
+  const TabsConfig = [{name: "Manage Employee Group",panel:<EmployeeGroup/>},
+    {name:"Manage Designation",panel:null},
+    {name:"Manage Employee Status",panel:null},
+    {name:"Manage Employee Station",panel:null},
+    {name:"Manage Company",panel:null},
+    {name:"Manage Country",panel:null},
+    {name:"Manage City",panel:null},
+    {name:"Manage Area",panel:null},
+    {name:"Manage Vendor",panel:null}
   ];
 
   return (
@@ -85,35 +83,13 @@ export default function VerticalTabs() {
         aria-label="Vertical tabs example"
         className={classes.tabs}
       >
-        {TabsName.map((m,index )=> <Tab key={index} label={m} {...tabsProps(index)} /> )  }
+        {TabsConfig.map((m,index )=> <Tab key={index} label={m.name} {...tabsProps(index)} /> )  }
       </Tabs>
-      <TabPanel className={classes.tabPanelStyle} value={value} index={0}>
-         <EmployeeGroup/>
-      </TabPanel>
-      <TabPanel value={value} index={1}>
-      Manage Designation
-      </TabPanel>
-      <TabPanel value={value} index={2}>
-      Manage Employee Status
-      </TabPanel>
-      <TabPanel value={value} index={3}>
-      Manage Employee Station
-      </TabPanel>
-      <TabPanel value={value} index={4}>
-      Manage Country
-      </TabPanel>
-      <TabPanel value={value} index={5}>
-      Manage Province
-      </TabPanel>
-      <TabPanel value={value} index={6}>
-      Manage City
-      </TabPanel>
-      <TabPanel value={value} index={7}>
-      Manage Area
-      </TabPanel>
-      <TabPanel value={value} index={8}>
-      Manage Vendor
-      </TabPanel>
+
+       {TabsConfig.map((m,index )=> <TabPanel key={m.name} className={classes.tabPanelStyle} value={value} index={index}>
+         {m.panel}
+      </TabPanel> )  }
+      
     </div>
   );
 }

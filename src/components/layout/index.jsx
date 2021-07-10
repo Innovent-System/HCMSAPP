@@ -79,6 +79,7 @@ const Layout = ({sideMenuData,children}) => {
 
     return () => {
       socket.emit("leaveSession",formId);
+      socket.off('joinSession leaveSession',formId);
     }
   },[children]);
 

@@ -9,8 +9,8 @@ import EditTwoToneIcon from '@material-ui/icons/EditTwoTone';
 import SaveIcon from '@material-ui/icons/Save';
 import PhoneAndroidIcon from '@material-ui/icons/PhoneAndroid';
 import {makeStyles} from "@material-ui/core";
-import { API_UPDATEEMPLOYEE_GROUP } from '../services/UrlService'; 
-import { handleUpdateActions } from '../store/actions/httpactions';
+import { API_INSERT_UPDATE_EMPLOYEE_GROUP } from '../services/UrlService'; 
+import { handlePostActions } from '../store/actions/httpactions';
 import { useDispatch } from "react-redux";
 
 
@@ -72,7 +72,7 @@ function ActionToolKit ({isShowEditBtn = true,isShowActiveBtn = true,isShowDownl
               id:row._id,
               groupName:editedCellProps.props.value, 
             }
-            dispatch(handleUpdateActions(API_UPDATEEMPLOYEE_GROUP,updateEmployeeGroupModel)).then(res => {
+            dispatch(handlePostActions(API_INSERT_UPDATE_EMPLOYEE_GROUP,updateEmployeeGroupModel)).then(res => {
               
            });
           

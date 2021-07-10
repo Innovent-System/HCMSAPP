@@ -12,8 +12,8 @@ import Popup from "../../../components/Popup";
 import ConfirmDialog from "../../../components/ConfirmDialog";
 import GridToolBar from '../../../components/GridToolBar';
 import TableGrid  from '../../../components/useXGrid';
-import { API_INSERTEMPLOYEE_GROUP,API_GETEMPLOYEE_GROUP,API_UPDATEEMPLOYEE_GROUP } from '../../../services/UrlService'; 
-import { handleGetActions,handlePostActions,handleUpdateActions } from '../../../store/actions/httpactions';
+import { API_GETEMPLOYEE_GROUP,API_INSERT_UPDATE_EMPLOYEE_GROUP } from '../../../services/UrlService'; 
+import { handleGetActions,handlePostActions } from '../../../store/actions/httpactions';
 import { useDispatch } from "react-redux";
 import ActionToolKit from '../../../components/ActionToolKit';
 import { useSocketIo } from '../../../components/useSocketio';
@@ -86,6 +86,7 @@ const columns = [
       flex: 1,
       renderCell: ActionToolKit,
       align :'center',
+      sortable: false,
     }
 ];
 
@@ -142,10 +143,11 @@ export default function EmplpoyeeGroup() {
    const addOrEdit = (values,resetForm) => {
     if(values.id === 0){
       const employeeGroupData = {
+        id:0,
         groupName:values.groupName, 
       }
      
-      dispatch(handlePostActions(API_INSERTEMPLOYEE_GROUP,employeeGroupData)).then(res => {
+      dispatch(handlePostActions(API_INSERT_UPDATE_EMPLOYEE_GROUP,employeeGroupData)).then(res => {
          resetState(resetForm)
       });
     }
@@ -155,7 +157,7 @@ export default function EmplpoyeeGroup() {
         groupName:values.groupName, 
       }
       
-      dispatch(handleUpdateActions(API_UPDATEEMPLOYEE_GROUP,updateEmployeeGroupModel)).then(res => {
+      dispatch(handlePostActions(API_INSERT_UPDATE_EMPLOYEE_GROUP,updateEmployeeGroupModel)).then(res => {
          resetState(resetForm)
       });
     }
@@ -184,9 +186,9 @@ export default function EmplpoyeeGroup() {
 
 
   return (
-    <>
-      <Grid className={classes.pageContent}>
-        {console.log("html")}
+    
+      <div className={classes.pageContent}>
+        
         
         <Toolbar style={{borderBottom:"1px solid #ddd"}}>
         <Controls.Button
@@ -208,7 +210,7 @@ export default function EmplpoyeeGroup() {
           />
         </Toolbar>
         <TableGrid rows={records.data} columns={columns} loader={records.loader}  pageSize={5} isCheckBox={false} />
-      </Grid>
+      
      
       <Popup  
         title="Employee Group"
@@ -222,6 +224,6 @@ export default function EmplpoyeeGroup() {
         confirmDialog={confirmDialog}
         setConfirmDialog={setConfirmDialog}
       />
-    </>
+    </div>
   );
 }
