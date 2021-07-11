@@ -32,7 +32,11 @@ function StatusHanlder() {
           socket.emit("leave",info.c_Id);
           socket.emit("leaveSession",formId);
         }
-       } 
+       }
+       
+       return () => {
+        socket.off('leave leaveSession');
+       }
         
       }, [routeNotify]);
 

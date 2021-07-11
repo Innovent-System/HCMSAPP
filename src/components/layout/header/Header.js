@@ -1,4 +1,4 @@
-import {useContext} from 'react'
+import {useContext,useEffect} from 'react'
 import { AppBar, Toolbar, Grid, InputBase, IconButton, Badge } from '@material-ui/core'
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
@@ -7,7 +7,7 @@ import SearchIcon from '@material-ui/icons/Search';
 import SubjectIcon from '@material-ui/icons/Dashboard';
 import Auth from '../../../services/AuthenticationService';
 import { SocketContext } from '../../../services/socketService';
-import { useHistory }  from 'react-router-dom';
+import { history } from '../../../config/appconfig';
 import { API_USER_LOGOUT } from '../../../services/UrlService';
 import { handleGetActions } from '../../../store/actions/httpactions';
 import { useDispatch } from "react-redux";
@@ -16,10 +16,17 @@ import { useDispatch } from "react-redux";
 
 
 export default function Header({headerStyles,isOpen,setOpen }) {
-    const history = useHistory();
+
     const classes = headerStyles();
     const dispatch = useDispatch();
     const socket = useContext(SocketContext);
+    useEffect(() => {
+        return () => {
+            socket.off("leave");
+        }
+    })
+
+    console.log("header");
     const handleLogout = () => {
         
         dispatch(handleGetActions(API_USER_LOGOUT)).then(res => {

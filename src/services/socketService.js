@@ -5,6 +5,5 @@ import {socketUrl} from '../config/appconfig';
 
 export const appsocket = socketio(socketUrl,{autoConnect:false});
 
-
 export const SocketContext = createContext();
 

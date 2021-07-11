@@ -30,11 +30,10 @@ const SideBar = ({ sideMenuStyles, open, sideMenuData }) => {
   const classes = sideMenuStyles();
   const [subMenu,setSubMenu] = useState([]);
   
-  
   const handleSubMenu = (subMenuList = [],title = "") => {
     if(!subMenuList && !subMenuList.length > 0) return null;
     const list = (
-      <List subheader={<Typography   color='textSecondary' style={{paddingLeft:'3%'}} variant="h5" gutterBottom>
+      <List subheader={<Typography  color='textSecondary' style={{paddingLeft:'3%'}} variant="h5" gutterBottom>
         {title}
       </Typography>} component="div" disablePadding>
         {subMenuList.map((item,index) => (
@@ -104,7 +103,7 @@ const SideBar = ({ sideMenuStyles, open, sideMenuData }) => {
         <Divider />
 
         <List  component="nav" >
-          {sideMenuData.length == 0 ? <UseSkeleton count={6} height={20} width="100%" style={{ marginBottom: 6 }} />
+          {sideMenuData.length == 0 ? <UseSkeleton count={6} s_height={20} width="100%" style={{ marginBottom: 6 }} />
             : sideMenuData.map((item,index) =>
             (<NavItem
               routeTo={(item?.children && item?.children.length) ? `${item?.routeTo}/${encodeURIComponent(item.children[0]._id)}` : item?.routeTo}

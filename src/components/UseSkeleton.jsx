@@ -1,13 +1,20 @@
+import {useEffect,useState} from 'react';
 import PropTypes from 'prop-types';
 import Skeleton from '@material-ui/lab/Skeleton';
 
-function UseSkeleton({ width, heigth, count,...rest }) {
-    const skeletionSets = [];
-    for (let index = 0; index < count; index++) {
-        skeletionSets.push(<Skeleton animation="wave" {...rest} height={heigth} width={width} style={{ marginBottom: 6 }} />);
-    }
+function UseSkeleton({ width, s_height, count,...rest }) {
+    const [skeleton, setskeleton] = useState([]);
+    useEffect(() => {
+        for (let index = 0; index < count; index++) {
+            skeleton.push(<Skeleton animation="wave" {...rest} height={s_height} width={width} style={{ marginBottom: 6 }} />);
+        }
+        return () => {
+            setskeleton([]);
+        }
+    }, [width,s_height,count])
+    
 
-    return (<div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>{skeletionSets}</div>)
+    return (<div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>{skeleton}</div>)
 }
 
 UseSkeleton.propTypes = {
@@ -15,7 +22,7 @@ UseSkeleton.propTypes = {
         PropTypes.string,
         PropTypes.number
     ]).isRequired,
-    heigth: PropTypes.oneOfType([
+    s_height: PropTypes.oneOfType([
         PropTypes.string,
         PropTypes.number
     ]).isRequired,

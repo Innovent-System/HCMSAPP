@@ -80,11 +80,11 @@ const columns = [
   // { field: 'modifiedBy', headerName: 'Modified By', width: 130 },
   // { field: 'modifiedOn', headerName: 'Modified On', width: 130 , type: 'date'},
     {
-      field: 'modifiedBy',
+      field: 'Action',
       headerName: 'Action',
       editable:false,
       flex: 1,
-      renderCell: ActionToolKit,
+      renderCell:(row) =>  (<ActionToolKit apiName={API_INSERT_UPDATE_EMPLOYEE_GROUP} {...row}/>),
       align :'center',
       sortable: false,
     }

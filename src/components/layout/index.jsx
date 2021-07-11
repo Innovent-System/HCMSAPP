@@ -3,6 +3,7 @@ import Sidebar from './sidemenu/SideMenu';
 import { Box,makeStyles,Paper } from '@material-ui/core';
 import {  useState,useEffect,useContext } from 'react';
 import { SocketContext } from '../../services/socketService';
+import {history} from '../../config/appconfig'
 
 
 
@@ -65,13 +66,14 @@ const headerStyles = makeStyles(theme => ({
 
 
 const Layout = ({sideMenuData,children}) => {
-    const [open, setOpen] = useState(false);
-    const [stuff,setStuff] = useState([]);
+    
     const socket = useContext(SocketContext)
-  useEffect(() => {
-    setStuff([<Header  isOpen={open} setOpen={setOpen} headerStyles={headerStyles}/>,
-      <Sidebar open={open} sideMenuData={sideMenuData}   sideMenuStyles={sideMenuStyles} />])
-  }, []);
+    const [sideMenu, setSideMenu] = useState(null);
+    const [header, setHeader] = useState(<Header   headerStyles={headerStyles}/>);
+
+    useEffect(() => {
+      setSideMenu(<Sidebar sideMenuData={sideMenuData}   sideMenuStyles={sideMenuStyles} />)
+    }, [sideMenuData])
 
   useEffect(() => {
     const formId = window.location.pathname.substr(window.location.pathname.lastIndexOf("/") + 1);
@@ -79,14 +81,16 @@ const Layout = ({sideMenuData,children}) => {
 
     return () => {
       socket.emit("leaveSession",formId);
-      socket.off('joinSession leaveSession',formId);
+      socket.off("leaveSession");
+      socket.off("joinSession");
+      
     }
-  },[children]);
+  },[history.location.pathname]);
 
     return (
         <Box display='flex' flexWrap='wrap'>
-            {stuff[0]}
-            {stuff[1]}
+            {header}
+            {sideMenu}
             <Box component={Paper} elevate={2} minHeight='100vh' m={1} flexGrow={1} >{children}</Box>
         </Box>
     )

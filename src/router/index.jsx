@@ -6,16 +6,17 @@ import Layout from '../components/layout';
 import CircularLoading from '../components/Circularloading'
 import Auth from '../services/AuthenticationService';
 import StatusSnack from './StatusHandler';
-import {useHistory} from 'react-router-dom';
+import { history } from '../config/appconfig';
+
 
 
 
 const Routes = () => {
   
-  const history =  useHistory();
+
   const [routes, setRoutes] = useState(Auth.getitem("appConfigData")?.appRoutes || []);
   const [sideMenu, setSideMenu] = useState(Auth.getitem("appConfigData")?.sideMenuData || []);
-
+  ;
   const checkRoutes = (routes = []) => {
     const url = window.location.pathname.split("/")[1];
     //all routes shoulb be in array private or non-private
@@ -42,6 +43,7 @@ const Routes = () => {
               /> */}
        {/* publick route define before */}
       {(routes?.length && checkRoutes(routes)) ? 
+      
         <Layout sideMenuData={sideMenu}>
           
           {routes.map((prop, key) => {

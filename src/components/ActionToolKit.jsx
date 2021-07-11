@@ -1,15 +1,11 @@
-import React,{useState} from 'react'
+import React,{useState,useRef} from 'react'
 import PropTypes from 'prop-types'
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 import DeleteIcon from '@material-ui/icons/Delete';
-import EditIcon from '@material-ui/icons/Edit';
 import SaveTwoToneIcon from '@material-ui/icons/SaveTwoTone';
 import EditTwoToneIcon from '@material-ui/icons/EditTwoTone';
-import SaveIcon from '@material-ui/icons/Save';
-import PhoneAndroidIcon from '@material-ui/icons/PhoneAndroid';
 import {makeStyles} from "@material-ui/core";
-import { API_INSERT_UPDATE_EMPLOYEE_GROUP } from '../services/UrlService'; 
 import { handlePostActions } from '../store/actions/httpactions';
 import { useDispatch } from "react-redux";
 
@@ -24,11 +20,12 @@ const useStyles = makeStyles((theme) => ({
     },
   }));
 
-function ActionToolKit ({isShowEditBtn = true,isShowActiveBtn = true,isShowDownloadBtn = true,...props}) {
+function ActionToolKit ({isShowEditBtn = true,isShowActiveBtn = true,isShowDownloadBtn = true,apiName,...props}) {
     const classes = useStyles();
     const { row,api } = props;
     const [formats, setFormats] = React.useState('');
     const [mode,setCellMode] = useState('view');
+    const columnToBeEdit = useRef({});
     const dispatch = useDispatch();
     
     const handleFormat = React.useCallback(
@@ -41,44 +38,47 @@ function ActionToolKit ({isShowEditBtn = true,isShowActiveBtn = true,isShowDownl
    
       
     const handleButtonEdit = React.useCallback(() => {
+
       if(mode === 'view'){
         Object.keys(row).forEach((r,index) => {
           
           if(api.getColumn(r)?.editable){
             api.setCellMode(row.id, r, "edit");
+            columnToBeEdit.current = {
+              ...columnToBeEdit.current,[r]:row[r]
+            }
             index == 0 && api.setCellFocus(row.id, r);
           }
         })
         setCellMode('edit');
        }
        else{
-        const editedCellProps = api.getEditCellPropsParams(row.id, 'groupName');
-        
-        if(!editedCellProps.props.value){
-          api.setEditCellProps({ id: row.id, field:'groupName', props: { ...editedCellProps.props, error: true } });
-        }
-        else{
-          api.commitCellChange(editedCellProps);
+        let isValid = false;
+        Object.keys(columnToBeEdit.current).forEach((r,index) => {
 
-          Object.keys(row).forEach((r,index) => {
-            if(api.getColumn(r)?.editable){
-              api.setCellMode(row.id, r, "view");
-              index == 0 && api.setCellFocus(row.id, r);
-            }
-          })
-          setCellMode('view');
-          if(mode === "edit" && editedCellProps.props.value != row.groupName){
-            const updateEmployeeGroupModel = {
-              id:row._id,
-              groupName:editedCellProps.props.value, 
-            }
-            dispatch(handlePostActions(API_INSERT_UPDATE_EMPLOYEE_GROUP,updateEmployeeGroupModel)).then(res => {
-              
-           });
-          
+          const editedCellProps = api.getEditCellPropsParams(row.id, r);
+          if(!editedCellProps.props.value){
+            api.setEditCellProps({ id: row.id, field: r , props: { ...editedCellProps.props, error: true } });
+            isValid = false;
+            return false;
           }
+          else{
+            isValid = true;
+            api.commitCellChange(editedCellProps);
+            columnToBeEdit.current[r] = editedCellProps.props.value;
+            api.setCellMode(row.id, r, "view");
+            index == 0 && api.setCellFocus(row.id, r);
+          }
+      });
+
+      setCellMode('view');
+      if(isValid){
+        const updateModel = {
+          id:row._id,
+          ...columnToBeEdit.current, 
         }
-        console.log(editedCellProps);
+        dispatch(handlePostActions(apiName,updateModel));
+      }
         
        }
     },[mode])
@@ -115,7 +115,8 @@ function ActionToolKit ({isShowEditBtn = true,isShowActiveBtn = true,isShowDownl
 ActionToolKit.propTypes = {
     isShowEditBtn: PropTypes.bool,
     isShowActiveBtn: PropTypes.bool,
-    isShowDownloadBtn: PropTypes.bool
+    isShowDownloadBtn: PropTypes.bool,
+    apiName:PropTypes.string.isRequired
 }
 
 // ActionToolKit.defaultProps = {
