@@ -17,7 +17,7 @@ import { handleGetActions,handlePostActions } from '../../../store/actions/httpa
 import { useDispatch } from "react-redux";
 import ActionToolKit from '../../../components/ActionToolKit';
 import { useSocketIo } from '../../../components/useSocketio';
-import { SocketContext } from '../../../services/socketService'
+
 
 const useStyles = makeStyles((theme) => ({
   pageContent: {
@@ -64,9 +64,8 @@ const useStyles = makeStyles((theme) => ({
   }
 
 const columns = [
-  { field: 'id', headerName:'S#',editable:false},
+  { field: 'id', headerName:'S#',editable:false,filterable:false},
   { field: 'groupName', headerName: 'Group Name',flex: 1 ,editable:true},
-  // { field: 'createdOn', headerName: 'Created On', width: 200, type: 'dateTime'},
   { field: 'createdDetail', headerName: 'Created Detail', flex: 1,editable:false,
   renderCell: GetFullName,
   sortComparator: (v1, v2) => new Date(v2) - new Date(v1),
@@ -76,9 +75,6 @@ const columns = [
   renderCell: GetFullModifiedName,
   sortComparator: (v1, v2) => new Date(v2) - new Date(v1),
   },
-
-  // { field: 'modifiedBy', headerName: 'Modified By', width: 130 },
-  // { field: 'modifiedOn', headerName: 'Modified On', width: 130 , type: 'date'},
     {
       field: 'Action',
       headerName: 'Action',
@@ -87,6 +83,7 @@ const columns = [
       renderCell:(row) =>  (<ActionToolKit apiName={API_INSERT_UPDATE_EMPLOYEE_GROUP} {...row}/>),
       align :'center',
       sortable: false,
+      filterable:false
     }
 ];
 
@@ -97,7 +94,7 @@ export default function EmplpoyeeGroup() {
   const dispatch = useDispatch();
   const [recordForEdit, setRecordForEdit] = useState(null);
   const [openPopup, setOpenPopup] = useState(false);
-  // const socket = useContext(SocketContext)
+
   const [confirmDialog, setConfirmDialog] = useState({
     isOpen: false,
     title: "",

@@ -109,6 +109,10 @@ const handleCellKeyDown = React.useCallback((params, event) => {
   }
 }, []);
 
+const onFilterChange = React.useCallback((params) => {
+    console.log(params.filterModel.items[0].value);
+}, []);
+
 // Prevent from committing on blur
 const handleCellBlur = React.useCallback((params, event) => {
   if (params.cellMode === 'edit') {
@@ -138,7 +142,7 @@ const handleCellBlur = React.useCallback((params, event) => {
               }}
             checkboxSelection={isCheckBox}
             disableSelectionOnClick
-            
+            onFilterModelChange={onFilterChange}
             onCellDoubleClick={handleDoubleCellClick}
             onCellBlur={handleCellBlur}
             onCellKeyDown={handleCellKeyDown}
