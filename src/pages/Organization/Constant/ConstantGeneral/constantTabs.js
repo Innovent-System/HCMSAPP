@@ -2,6 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles,Tabs,Tab,Box } from '@material-ui/core';
 import EmployeeGroup from '../EmployeeGroup';
+import Company from '../Company';
+import Province from '../Province';
+import Country from '../Country';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -62,12 +65,14 @@ export default function VerticalTabs() {
     setValue(newValue);
   };
 
-  const TabsConfig = [{name: "Manage Employee Group",panel:<EmployeeGroup/>},
+  const TabsConfig = [
+    {name:"Manage Company",panel:<Company/>},
+    {name: "Manage Employee Group",panel:<EmployeeGroup/>},
     {name:"Manage Designation",panel:null},
     {name:"Manage Employee Status",panel:null},
     {name:"Manage Employee Station",panel:null},
-    {name:"Manage Company",panel:null},
-    {name:"Manage Country",panel:null},
+    {name:"Manage Country",panel:<Country/>},
+    {name:"Manage Province",panel:<Province/>},
     {name:"Manage City",panel:null},
     {name:"Manage Area",panel:null},
     {name:"Manage Vendor",panel:null}

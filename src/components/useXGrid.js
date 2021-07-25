@@ -29,8 +29,8 @@ const useStyles = makeStyles((theme) => ({
       fillOpacity: theme.palette.type === 'light' ? '0.8' : '0.08',
       fill: theme.palette.type === 'light' ? '#f5f5f5' : '#fff',
     },
-    width:250,
-    height:250
+    width:"100%",
+    height:100
   },
   label: {
     marginTop: theme.spacing(1),
