@@ -5,6 +5,7 @@ import EmployeeGroup from '../EmployeeGroup';
 import Company from '../Company';
 import Province from '../Province';
 import Country from '../Country';
+import Designation from '../Designation';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -68,7 +69,7 @@ export default function VerticalTabs() {
   const TabsConfig = [
     {name:"Manage Company",panel:<Company/>},
     {name: "Manage Employee Group",panel:<EmployeeGroup/>},
-    {name:"Manage Designation",panel:null},
+    {name:"Manage Designation",panel:<Designation/>},
     {name:"Manage Employee Status",panel:null},
     {name:"Manage Employee Station",panel:null},
     {name:"Manage Country",panel:<Country/>},

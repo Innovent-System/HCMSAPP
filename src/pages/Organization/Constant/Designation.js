@@ -1,5 +1,5 @@
 import React, { useState,useEffect,useRef, useCallback, useContext } from "react";
-import CountryModel from "./ConstantModel/CountryModel";
+import DesignationModel from "./ConstantModel/DesignationModel";
 import {
   makeStyles,
   Toolbar,
@@ -11,7 +11,7 @@ import AddIcon from "@material-ui/icons/Add";
 import Popup from "../../../components/Popup";
 import ConfirmDialog from "../../../components/ConfirmDialog";
 import TableGrid  from '../../../components/useXGrid';
-import { API_GETCOUNTRY,API_INSERT_UPDATE_COUNTRY } from '../../../services/UrlService'; 
+import { API_GETDESIGNATION,API_INSERT_UPDATE_DESIGNATION } from '../../../services/UrlService'; 
 import { handleGetActions,handlePostActions } from '../../../store/actions/httpactions';
 import { useDispatch } from "react-redux";
 import ActionToolKit from '../../../components/ActionToolKit';
@@ -20,7 +20,7 @@ import { useSocketIo } from '../../../components/useSocketio';
 
 const columns = [
     { field: 'id', headerName:'S#',editable:false,filterable:false},
-    { field: 'countryName', headerName: 'Country Name',flex: 1 ,editable:true},
+    { field: 'designationName', headerName: 'Designation Name',flex: 1 ,editable:true},
     { field: 'createdDetail', headerName: 'Created Detail', flex: 1,editable:false,
     renderCell: GetFullName,
     sortComparator: (v1, v2) => new Date(v2) - new Date(v1),
@@ -35,7 +35,7 @@ const columns = [
         headerName: 'Action',
         editable:false,
         flex: 1,
-        renderCell:(row) =>  (<ActionToolKit apiName={API_INSERT_UPDATE_COUNTRY} {...row}/>),
+        renderCell:(row) =>  (<ActionToolKit apiName={API_INSERT_UPDATE_DESIGNATION} {...row}/>),
         align :'center',
         sortable: false,
         filterable:false
@@ -89,7 +89,7 @@ const useStyles = makeStyles((theme) => ({
   }
 
 
-  export default function Country() {
+  export default function Designation() {
     const classes = useStyles();
     const dispatch = useDispatch();
     const [recordForEdit, setRecordForEdit] = useState(null);
@@ -109,15 +109,15 @@ const useStyles = makeStyles((theme) => ({
       loader:false,
     });
 
-  const fillGrid = (countryName = "") => {
-    const fillCountryData = {
-      countryName:countryName, 
+  const fillGrid = (designationName = "") => {
+    const fillDesignationData = {
+      designationName:designationName, 
     }
       setRecords({...records,loader:true});
-      dispatch(handleGetActions(API_GETCOUNTRY,fillCountryData)).then((res)=>{
+      dispatch(handleGetActions(API_GETDESIGNATION,fillDesignationData)).then((res)=>{
         if(res){
           const { data } = res;
-          setRecords({...records,data:data.CountryData,loader:false});
+          setRecords({...records,data:data.DesignationData,loader:false});
         }
      });
    };
@@ -134,20 +134,21 @@ const useStyles = makeStyles((theme) => ({
 
   const addOrEdit = (values,resetForm) => {
     if(values.id === 0){
-      const CountryData = {
+      const DesignationData = {
         id:0,
-        countryName:values.countryName, 
+        designationName:values.designationName, 
       }
-      dispatch(handlePostActions(API_INSERT_UPDATE_COUNTRY,CountryData)).then(res => {
+      dispatch(handlePostActions(API_INSERT_UPDATE_DESIGNATION,DesignationData)).then(res => {
          resetState(resetForm)
       });
+       
     }
     else{
-      const updateCountryModel = {
+      const updateDesignationModel = {
         id:values.id,
-        countryName:values.countryName, 
+        designationName:values.designationName, 
       }
-      dispatch(handlePostActions(API_INSERT_UPDATE_COUNTRY,updateCountryModel)).then(res => {
+      dispatch(handlePostActions(API_INSERT_UPDATE_DESIGNATION,updateDesignationModel)).then(res => {
          resetState(resetForm)
       });
     }
@@ -200,11 +201,11 @@ const useStyles = makeStyles((theme) => ({
       
      
       <Popup  
-        title="Country"
+        title="Designation"
         openPopup={openPopup}
         setOpenPopup={setOpenPopup}
       >
-        <CountryModel recordForEdit={recordForEdit} addOrEdit={addOrEdit} />
+        <DesignationModel recordForEdit={recordForEdit} addOrEdit={addOrEdit} />
       </Popup>
       
       <ConfirmDialog

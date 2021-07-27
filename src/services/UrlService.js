@@ -19,4 +19,7 @@ export const API_GETPROVINCE =  "orgnazation/getProvince";
 export const API_INSERT_UPDATE_COUNTRY =  "orgnazation/insertUpdateCountry";
 export const API_GETCOUNTRY =  "orgnazation/getCountry";
 
+export const API_INSERT_UPDATE_DESIGNATION =  "orgnazation/insertUpdateDesignation";
+export const API_GETDESIGNATION =  "orgnazation/getDesignation";
+
 //#endregion
