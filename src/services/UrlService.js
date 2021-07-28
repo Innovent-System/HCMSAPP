@@ -22,4 +22,7 @@ export const API_GETCOUNTRY =  "orgnazation/getCountry";
 export const API_INSERT_UPDATE_DESIGNATION =  "orgnazation/insertUpdateDesignation";
 export const API_GETDESIGNATION =  "orgnazation/getDesignation";
 
+export const API_INSERT_UPDATE_EMPLOYEESTATUS =  "orgnazation/insertUpdateEmployeeStatus";
+export const API_GETEMPLOYEESTATUS =  "orgnazation/getEmployeeStatus";
+
 //#endregion
