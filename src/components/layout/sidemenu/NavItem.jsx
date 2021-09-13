@@ -72,7 +72,7 @@ const NavItem = ({
     className={classes.item}
     disableGutters
   >
-    <Tooltip title={title} disableHoverListener={isShowToolTip} aria-label={title}>
+    <Tooltip placement="right" title={title} disableHoverListener={isShowToolTip} aria-label={title}>
     {routeTo ? <Button
       activeClassName={classes.active}
       className={classes.button}

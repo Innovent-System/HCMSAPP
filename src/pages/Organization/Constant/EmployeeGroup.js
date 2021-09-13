@@ -17,6 +17,7 @@ import { handleGetActions,handlePostActions } from '../../../store/actions/httpa
 import { useDispatch } from "react-redux";
 import ActionToolKit from '../../../components/ActionToolKit';
 import { useSocketIo } from '../../../components/useSocketio';
+import { Rating } from '@material-ui/lab';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -63,16 +64,60 @@ const useStyles = makeStyles((theme) => ({
     )
   }
 
+  function RatingInputValue(props) {
+    const classes = useStyles();
+    const { item, applyValue } = props;
+  
+    const handleFilterChange = (event) => {
+      applyValue({ ...item, value: event.target.value });
+    };
+  
+    return (
+      <div className={classes.root}>
+        <Rating
+          name="custom-rating-filter-operator"
+          placeholder="Filter value"
+          value={Number(item.value)}
+          onChange={handleFilterChange}
+          precision={0.5}
+        />
+      </div>
+    );
+  }
+
+  const ratingOnlyOperators = [
+    {
+      label: 'From',
+      value: 'from',
+      getApplyFilterFn: (filterItem) => {
+        if (
+          !filterItem.columnField ||
+          !filterItem.value ||
+          !filterItem.operatorValue
+        ) {
+          return null;
+        }
+  
+        return (params) => {
+          console.log(params,"params",filterItem,"filter")
+          return Number(params.value) >= Number(filterItem.value);
+        };
+      },
+      InputComponent: RatingInputValue,
+      InputComponentProps: { type: 'number' },
+    },
+  ];
+
 const columns = [
   { field: 'id', headerName:'S#',editable:false,filterable:false},
-  { field: 'groupName', headerName: 'Group Name',flex: 1 ,editable:true},
+  { field: 'groupName', headerName: 'Group Name',flex: 1 ,editable:true,filterOperators:ratingOnlyOperators},
   { field: 'createdDetail', headerName: 'Created Detail', flex: 1,editable:false,
   renderCell: GetFullName,
   sortComparator: (v1, v2) => new Date(v2) - new Date(v1),
   },
 
   { field: 'modifiedDetail', headerName: 'Modified Detail', flex: 1,editable:false,
-  renderCell: GetFullModifiedName,
+  renderCell: GetFullModifiedName,  
   sortComparator: (v1, v2) => new Date(v2) - new Date(v1),
   },
     {

@@ -8,7 +8,7 @@ import GlobalStyles from '../components/styles/GlobalStyles';
 import { Provider } from "react-redux";
 import { store } from "../store/reducers/store";
 import {SocketContext,appsocket } from '../services/socketService';
-
+import { SnackbarProvider } from 'notistack';
 // #fafafa
 const theme = createMuiTheme({
   palette: {
@@ -52,14 +52,16 @@ function App() {
   return (
     
     <ThemeProvider theme={theme}>
-      <Router history={history}>
-       <Provider store={store}>
-         <SocketContext.Provider value={appsocket}>
-              <GlobalStyles/>
-              <Routes />
-         </SocketContext.Provider>
-        </Provider >
-      </Router>
+      <SnackbarProvider maxSnack={3}>
+        <Router history={history}>
+        <Provider store={store}>
+          <SocketContext.Provider value={appsocket}>
+                <GlobalStyles/>
+                <Routes />
+          </SocketContext.Provider>
+          </Provider >
+        </Router>
+      </SnackbarProvider>
     </ThemeProvider>
    
   );

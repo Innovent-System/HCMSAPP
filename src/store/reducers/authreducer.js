@@ -33,7 +33,8 @@ export default (state = Object.assign({},{...INITIAL_STATE}) , action) => {
         error:{
             flag:false,
             msg:null,
-            code:null
+            code:null,
+            result:null
         },
         loading:true         
     };
@@ -53,7 +54,8 @@ export default (state = Object.assign({},{...INITIAL_STATE}) , action) => {
         error:{
             flag:true,
             msg:action.payload.msg,
-            code:action.payload.code
+            code:action.payload.code,
+            result:action.payload.result
         }  
     };
 
@@ -85,7 +87,8 @@ export default (state = Object.assign({},{...INITIAL_STATE}) , action) => {
         error:{
             flag:true,
             msg:action.payload.msg,
-            code:action.payload.code
+            code:action.payload.code,
+            result:action.payload.result
         }  
     };
 
@@ -98,7 +101,8 @@ export default (state = Object.assign({},{...INITIAL_STATE}) , action) => {
         error:{
             flag:false,
             msg:null,
-            code:null
+            code:null,
+            result:null
         },     
     };
     case DELETE_DATA_SUCCESS:
@@ -129,7 +133,8 @@ export default (state = Object.assign({},{...INITIAL_STATE}) , action) => {
         error:{
             flag:false,
             msg:null,
-            code:null
+            code:null,
+            result:null
         },     
     };
     case UPDATE_DATA_SUCCESS:
@@ -147,7 +152,8 @@ export default (state = Object.assign({},{...INITIAL_STATE}) , action) => {
         error:{
             flag:true,
             msg:action.payload.msg,
-            code:action.payload.code
+            code:action.payload.code,
+            result:action.payload.result
         }  
     };
 
@@ -159,7 +165,8 @@ export default (state = Object.assign({},{...INITIAL_STATE}) , action) => {
             error:{
                 flag:false,
                 msg:null,
-                code:null
+                code:null,
+                result:null
             }            
         };
     default:

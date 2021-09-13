@@ -26,7 +26,7 @@ export default function Header({headerStyles,isOpen,setOpen }) {
         }
     })
 
-    console.log("header");
+    
     const handleLogout = () => {
         
         dispatch(handleGetActions(API_USER_LOGOUT)).then(res => {

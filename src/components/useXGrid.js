@@ -1,7 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { XGrid,GridToolbar,LicenseInfo,GridOverlay } from '@material-ui/x-grid';
+import { XGrid,GridToolbar,LicenseInfo,GridOverlay,GridToolbarDensitySelector,
+  GridColumnsPanel,GridToolbarColumnsButton,GridToolbarExport,useGridApiRef  } from '@material-ui/x-grid';
 import { makeStyles } from '@material-ui/core/styles';
+import { Paper,Grid } from '@material-ui/core';
+import Control from './controls/Controls';
 
 
 LicenseInfo.setLicenseKey(
@@ -9,6 +12,24 @@ LicenseInfo.setLicenseKey(
   );
 
 const areEqual = (prevProps, nextProps) =>  (JSON.stringify(prevProps.rows) === JSON.stringify(nextProps.rows));
+
+
+ 
+
+
+const ToolBarOptions = () => {
+  
+  
+  return(
+    <>
+     <GridToolbarColumnsButton/>
+     <GridToolbarDensitySelector/>
+     <GridToolbarExport/>
+     
+    </>
+  )
+}
+
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -29,8 +50,8 @@ const useStyles = makeStyles((theme) => ({
       fillOpacity: theme.palette.type === 'light' ? '0.8' : '0.08',
       fill: theme.palette.type === 'light' ? '#f5f5f5' : '#fff',
     },
-    width:250,
-    height:250
+    width:'100%',
+    height:'auto'
   },
   label: {
     marginTop: theme.spacing(1),
@@ -109,9 +130,9 @@ const handleCellKeyDown = React.useCallback((params, event) => {
   }
 }, []);
 
-const onFilterChange = React.useCallback((params) => {
-    console.log(params.filterModel.items[0].value);
-}, []);
+// const onFilterChange = React.useCallback((params) => {
+//     console.log(params);
+// }, []);
 
 // Prevent from committing on blur
 const handleCellBlur = React.useCallback((params, event) => {
@@ -128,7 +149,7 @@ const handleCellBlur = React.useCallback((params, event) => {
             rowsPerPageOptions={paging} 
             pagination
             autoHeight
-            filterMode='server'
+            filterMode="server"
             disableColumnResize
             checkboxSelection={isCheckBox}
             
@@ -140,9 +161,14 @@ const handleCellBlur = React.useCallback((params, event) => {
                 Toolbar: GridToolbar,
                 NoRowsOverlay:CustomNoRowsOverlay
               }}
-            checkboxSelection={isCheckBox}
+            filterModel={
+              {
+                items: [{ columnField: 'groupName', value: '', operatorValue: 'contains' }],
+                
+              }
+            }
             disableSelectionOnClick
-            onFilterModelChange={onFilterChange}
+            // onFilterModelChange={onFilterChange}
             onCellDoubleClick={handleDoubleCellClick}
             onCellBlur={handleCellBlur}
             onCellKeyDown={handleCellKeyDown}
