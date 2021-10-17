@@ -2,8 +2,8 @@ import Header from './header/Header';
 import Sidebar from './sidemenu/SideMenu';
 import { Box,makeStyles,Paper } from '@material-ui/core';
 import {  useState,useEffect,useContext } from 'react';
-import { SocketContext } from '../../services/socketService';
-import {history} from '../../config/appconfig'
+import { SocketContext } from '../services/socketService';
+import {history} from '../config/appconfig'
 
 
 

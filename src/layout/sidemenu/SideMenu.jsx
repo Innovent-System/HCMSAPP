@@ -1,9 +1,9 @@
 
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import Controls from '../../controls/Controls';
-import UseSkeleton from '../../UseSkeleton';
-import * as iconMapping from '../../../assests/icons';
+import Controls from '../../components/controls/Controls';
+import UseSkeleton from '../../components/UseSkeleton';
+import * as iconMapping from '../../assests/icons';
 import {
   Avatar,
   Box,
@@ -13,7 +13,7 @@ import {
   List,
   Typography,Paper
 } from '@material-ui/core';
-import avatar from '../../../assests/images/avatar_6.png';
+import avatar from '../../assests/images/avatar_6.png';
 import NavItem from './NavItem';
 import { useEffect, useState } from 'react';
 

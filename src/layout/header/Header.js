@@ -5,11 +5,11 @@ import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
 import PowerSettingsNewIcon from '@material-ui/icons/PowerSettingsNew';
 import SearchIcon from '@material-ui/icons/Search';
 import SubjectIcon from '@material-ui/icons/Dashboard';
-import Auth from '../../../services/AuthenticationService';
-import { SocketContext } from '../../../services/socketService';
-import { history } from '../../../config/appconfig';
-import { API_USER_LOGOUT } from '../../../services/UrlService';
-import { handleGetActions } from '../../../store/actions/httpactions';
+import Auth from '../../services/AuthenticationService';
+import { SocketContext } from '../../services/socketService';
+import { history } from '../../config/appconfig';
+import { API_USER_LOGOUT } from '../../services/UrlService';
+import { handleGetActions } from '../../store/actions/httpactions';
 import { useDispatch } from "react-redux";
  
 

@@ -2,7 +2,7 @@ import React, { lazy, Suspense, useState } from 'react';
 import { Redirect, Switch,Route } from 'react-router-dom';
 import PrivateRoute from './wrapper';
 import SignIn from "../pages/General/SignIn";
-import Layout from '../components/layout';
+import Layout from '../layout';
 import CircularLoading from '../components/Circularloading'
 import Auth from '../services/AuthenticationService';
 import StatusSnack from './StatusHandler';

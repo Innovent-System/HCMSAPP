@@ -4,7 +4,7 @@ import { Router } from "react-router-dom";
 import { history } from "../config/appconfig";
 import Routes from "../router";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core";
-import GlobalStyles from '../components/styles/GlobalStyles';
+import GlobalStyles from '../layout/styles/GlobalStyles';
 import { Provider } from "react-redux";
 import { store } from "../store/reducers/store";
 import {SocketContext,appsocket } from '../services/socketService';
@@ -14,7 +14,7 @@ const theme = createMuiTheme({
   palette: {
     primary: {
       dark:"#11a036",
-      main: "#37b057",
+      main: "rgb(0, 171, 85)",
       light: "#3c44b126",
     },
     secondary: {
@@ -24,6 +24,7 @@ const theme = createMuiTheme({
     background: {
       default: "#f4f5fd",
     },
+    
   },
   overrides: {
     MuiAppBar: {
