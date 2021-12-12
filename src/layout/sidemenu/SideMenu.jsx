@@ -1,9 +1,10 @@
 
-import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import Controls from '../../components/controls/Controls';
 import UseSkeleton from '../../components/UseSkeleton';
 import * as iconMapping from '../../assests/icons';
+import {makeStyles,ClickAwayListener  } from '@material-ui/core';
+import ScrollBar from '../../components/ScrollButton'
 import {
   Avatar,
   Box,
@@ -11,11 +12,12 @@ import {
   Drawer,
   Hidden,
   List,
-  Typography,Paper
+  Typography,Paper,Fade
 } from '@material-ui/core';
 import avatar from '../../assests/images/avatar_6.png';
 import NavItem from './NavItem';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import  { useLocation } from 'react-router-dom';
 
 
 const user = {
@@ -24,16 +26,86 @@ const user = {
   name: 'Faizan Siddiqui'
 };
 
+const drawerWidth = 220;
 
-const SideBar = ({ sideMenuStyles, open, sideMenuData }) => {
+const sideMenuStyles = makeStyles((theme) => ({
+  SubMenu:{
+    position: 'fixed',
+    width: 200,
+    left: 45,
+    top: 70,
+    height: 'calc(100vh - 70px)',
+    overflowY: 'auto',
+    background: theme.palette.background.light,
+    zIndex: 99,
+    [theme.breakpoints.down('sm')]:{
+      top: 58,
+      height: 'calc(100vh - 58px)',
+    }
+  },
+  profile:{
+    padding: 0,
+    margin: 0,
+    borderRadius: 0,
+    background: 'none',
+    minWidth: 45,
+    boxShadow: 'none',
+    '& .MuiButton-label':{
+      padding: 0,
+    },
+    '& .MuiButton-startIcon':{
+      marginRight: 0,
+    }
+  }
+  
+}));
+
+const SubMenu = ({subMenuList,title}) => {
+  const classes = sideMenuStyles();
+  const [checked,setChecked] =  useState(true);
+
+return (
+  
+  <>
+  {title !== "DASHBOARD" && 
+  <Fade in={checked} timeout={500}>
+  <List className={classes.SubMenu} subheader={<Typography  color='textSecondary' style={{paddingLeft:'3%'}} variant="h5" gutterBottom>
+    {title}
+  </Typography>} component="div" disablePadding>
+    {subMenuList.map((item,index) => (
+      <div  key={item.title}>
+        <NavItem
+          routeTo={`${item?.routeTo}/${encodeURIComponent(item._id)}`}
+          title={item.title}
+          icon={iconMapping[item.icon]}
+          children={item?.children}
+        />
+        <Divider className={classes.dividerColor}  />
+    </div>
+    ))}
+    
+  </List>
+  </Fade>}
+  </> )
+}
+
+
+const SideBar = ({ open, sideMenuData }) => {
   
   const classes = sideMenuStyles();
   const [subMenu,setSubMenu] = useState([]);
+  const location = useLocation();
   
+  const handleCloseMenu = ()=>{
+    setSubMenu(null);
+  }
+   
   const handleSubMenu = (subMenuList = [],title = "") => {
-    if(!subMenuList && !subMenuList.length > 0) return null;
+    if(title === "DASHBOARD") return setSubMenu(null);
     const list = (
-      <List subheader={<Typography  color='textSecondary' style={{paddingLeft:'3%'}} variant="h5" gutterBottom>
+     
+      <Fade in={true} timeout={500}>
+      <List className={classes.SubMenu} subheader={<Typography  color='textSecondary' style={{paddingLeft:'3%'}} variant="h5" gutterBottom>
         {title}
       </Typography>} component="div" disablePadding>
         {subMenuList.map((item,index) => (
@@ -43,43 +115,45 @@ const SideBar = ({ sideMenuStyles, open, sideMenuData }) => {
               title={item.title}
               icon={iconMapping[item.icon]}
               children={item?.children}
+              onClick={handleCloseMenu}
             />
             <Divider className={classes.dividerColor}  />
         </div>
         ))}
         
       </List>
+      </Fade>
+      
     );
 
     setSubMenu(list);
   }
 
   useEffect(() => {
-     const url = window.location.pathname.split("/")[1];
-     if(url.toLowerCase() === "dashboard") return;
-     
-    for (let index = 0; index < sideMenuData.length; index++) {
-        const element = sideMenuData[index];
-        if(element.children && element.children.length && element.children.find(f => f.routeTo.match(url)))
-        {
-          handleSubMenu(element.children,element.title);
-          break;
-        }
-    }
-    
-  }, [])
+    /**
+     * Alert if clicked on outside of element
+    //  */
+    // function handleClickOutside(event) {
+    //     if (ref.current && !ref.current.contains(event.target)) {
+    //       ref.current.style.opacity = 0;
+    //     }
+    // }
+
+    // // Bind the event listener
+    // document.addEventListener("mousedown", handleClickOutside);
+    // return () => {
+    //     // Unbind the event listener on clean up
+    //     document.removeEventListener("mousedown", handleClickOutside);
+    // };
+}, []);
 
   const content = (
-    <Box
-      height="100%"
-      display="flex"
-      flexDirection="column"
-      style={{ backgroundColor: "#232329", color: "#c8c8c8" }}
-    >
-      
+    <ClickAwayListener onClickAway={handleCloseMenu}>
+    <Box className="sidebar-area">
+       
       <Controls.Button
-        size="small" style={{ minWidth: 49 }}
-        startIcon={<Avatar style={{ marginLeft: open ? 0 : 9 }}
+        size="small" className={classes.profile}
+        startIcon={<Avatar
           src={user.avatar}
         />} color="default" text={
           (open ?
@@ -99,14 +173,14 @@ const SideBar = ({ sideMenuStyles, open, sideMenuData }) => {
         } />
 
 
-      <Box padding="0 7px">
-        <Divider />
+      <Box>
 
         <List  component="nav" >
+          <ScrollBar>
           {sideMenuData.length == 0 ? <UseSkeleton count={6} s_height={20} width="100%" style={{ marginBottom: 6 }} />
             : sideMenuData.map((item,index) =>
             (<NavItem
-              routeTo={(item?.children && item?.children.length) ? `${item?.routeTo}/${encodeURIComponent(item.children[0]._id)}` : item?.routeTo}
+              routeTo={""}
               key={item.title}
               title={item.title}
               icon={iconMapping[item.icon]}
@@ -115,11 +189,13 @@ const SideBar = ({ sideMenuStyles, open, sideMenuData }) => {
               onClick={() => handleSubMenu(item?.children,item.title)}
             />)
             )}
+            </ScrollBar>
         </List>
       </Box>
-     
-            
+      {subMenu}
+      
       </Box>
+      </ClickAwayListener>
   );
 
 
@@ -127,37 +203,7 @@ const SideBar = ({ sideMenuStyles, open, sideMenuData }) => {
 
   return (
     <>
-      <Hidden lgUp>
-        <Drawer
-          anchor="left"
-          classes={{ paper: classes.mobileDrawer }}
-          variant="temporary"
-        >
-          {content}
-        </Drawer>
-      </Hidden>
-      <Hidden xsDown>
-        <Drawer
-          anchor="left"
-          open
-          variant="persistent"
-          className={clsx(classes.desktopDrawer, {
-            [classes.drawerOpen]: open,
-            [classes.drawerClose]: !open,
-          })}
-          classes={{
-            paper: clsx({
-              [classes.drawerOpen]: open,
-              [classes.drawerClose]: !open,
-            }),
-          }}
-        >
-          {content}
-        </Drawer>
-        {subMenu && window.location.pathname !== "/dashboard" &&  <Box component={Paper} minWidth={220} height='max-content' elevate={2} margin="8px 0 8px 8px" padding="12px">        
-          {subMenu}
-        </Box> } 
-      </Hidden>
+      {content}
     </>
   );
 };
