@@ -1,26 +1,30 @@
-import React, { lazy, Suspense, useState } from 'react';
-import { Redirect, Switch,Route } from 'react-router-dom';
+import React, { lazy, Suspense, useState,useCallback } from 'react';
+import { Navigate, Routes,Route } from 'react-router-dom';
 import PrivateRoute from './wrapper';
 import SignIn from "../pages/General/SignIn";
-import Layout from '../components/layout';
+import Layout from '../layout';
+import { Box } from '@material-ui/core';
 import CircularLoading from '../components/Circularloading'
 import Auth from '../services/AuthenticationService';
 import StatusSnack from './StatusHandler';
 import { history } from '../config/appconfig';
+import SideMenu from '../layout/sidemenu/SideMenu';
+import Header from '../layout/header/Header';
+import Dashboard from '../pages/General/Dashboard'
 
 
 
 
-const Routes = () => {
+const Routers = () => {
   
 
   const [routes, setRoutes] = useState(Auth.getitem("appConfigData")?.appRoutes || []);
   const [sideMenu, setSideMenu] = useState(Auth.getitem("appConfigData")?.sideMenuData || []);
-  ;
-  const checkRoutes = (routes = []) => {
+  
+  const checkRoutes = useCallback((_routes = []) => {
     const url = window.location.pathname.split("/")[1];
     //all routes shoulb be in array private or non-private
-    if(routes.find(f => f.routeTo.match(url))){
+    if(_routes.find(f => f.routeTo.match(url))){
       return true;
     }
     else{
@@ -28,13 +32,31 @@ const Routes = () => {
     }
 
     return true;
-  } 
+  },[routes]);
   
   return (
     <>
-      <Switch>
+
+      <Routes>
+          <Route path="/" index element={<SignIn setRoutes={setRoutes} setSideMenu={setSideMenu} />} />
+           <Route element={<PrivateRoute/>}>
+               <Route element={<Layout sideMenu={sideMenu}/> }>
+                         <Route  path="/dashboard" element={<Dashboard />} />
+                          {routes.map((prop, key) => {
+                                    return (
+                                      <Route  path={`${prop.routeTo}/:id`} key={key} element={<DynamicLoader component={prop.path} />} />
+                                    );
+                                })
+                            }
+                       <Route  path="*" element={<Dashboard />} />
+              </Route>
+              
+              
+          </Route>
+          {/* <Route path="*" element={<Navigate to="/dashboard"/>} /> */}
+      </Routes>
+     
       
-      <PrivateRoute path='/' exact component={() => <SignIn setRoutes={setRoutes} setSideMenu={setSideMenu} />} />
       {/* <Route
                 exact
                 path="/jobopening"
@@ -42,28 +64,22 @@ const Routes = () => {
                 
               /> */}
        {/* publick route define before */}
-      {(routes?.length && checkRoutes(routes)) ? 
+      {/* {(routes?.length && checkRoutes(routes)) ? 
       
         <Layout sideMenuData={sideMenu}>
+          <Routes>
           
-          {routes.map((prop, key) => {
-            return (
-              <PrivateRoute
-                exact
-                path={`${prop.routeTo}/:id`}
-                component={() => <DynamicLoader component={prop.path} />}
-                isPrivate
-                key={key}
-              />
-            );
-          })
-          
-          }
+            {routes.map((prop, key) => {
+              return (
+                <Route  path={`${prop.routeTo}/:id`} key={key} element={<DynamicLoader component={prop.path} />} />
+              );
+            })
+            }
+            
+          </Routes>
         </Layout> 
-         : <Redirect  to="/" />
-      }
-      <Route render={() => <Redirect to="/" />} />
-    </Switch>
+         :  null 
+      } */}
       <StatusSnack />
     </>
   );
@@ -99,4 +115,4 @@ function DynamicLoader(props) {
 //   );
 // }
 
-export default Routes;
+export default Routers;

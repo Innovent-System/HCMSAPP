@@ -1,222 +1,366 @@
-import React, { useState } from "react";
-import EmployeeForm from "./EmployeeForm";
-import PageHeader from "../../../components/PageHeader";
-import PeopleOutlineTwoToneIcon from "@material-ui/icons/PeopleOutlineTwoTone";
-import {
-  Paper,
-  makeStyles,
-  TableBody,
-  TableRow,
-  TableCell,
-  Toolbar,
-  InputAdornment,
-  Grid,
-  IconButton
-} from "@material-ui/core";
-import useTable from "../../../components/useTable";
-import * as employeeService from "../../../services/employeeService";
-import Controls from "../../../components/controls/Controls";
-import { Search } from "@material-ui/icons";
-import AddIcon from "@material-ui/icons/Add";
-import Popup from "../../../components/Popup";
-import EditOutlinedIcon from "@material-ui/icons/EditOutlined";
-import CloseIcon from "@material-ui/icons/Close";
-import Notification from "../../../components/Notification";
-import ConfirmDialog from "../../../components/ConfirmDialog";
-import GridToolBar from '../../../components/GridToolBar';
-import TableGrid  from '../../../components/useXGrid';
+import React, { useCallback } from 'react';
+import { makeStyles, Grid, Collapse } from '@material-ui/core';
+import Stepper from '@material-ui/core/Stepper';
+import Step from '@material-ui/core/Step';
+import StepLabel from '@material-ui/core/StepLabel';
+import Button from '@material-ui/core/Button';
+import Typography from '@material-ui/core/Typography';
+import { Form, useForm, AutoForm } from '../../../components/useForm';
+import Controls from '../../../components/controls/Controls';
+
+
 
 const useStyles = makeStyles((theme) => ({
-  pageContent: {
-    
-    padding: theme.spacing(2),
+  root: {
+    width: '100%',
   },
-  searchInput: {
-    width: "75%",
+  button: {
+    marginRight: theme.spacing(1),
   },
-  newButton: {
-    position: "absolute",
-    right: "10px",
+  instructions: {
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(1),
   },
-}));
+}))
 
-const headCells = [
-  { id: "fullName", label: "Employee Name" },
-  { id: "email", label: "Email Address (Personal)" },
-  { id: "mobile", label: "Mobile Number" },
-  { id: "department", label: "Department" },
-  { id: "actions", label: "Actions", disableSorting: true },
-];
+const genderItems = [
+  { id: "male", title: "Male" },
+  { id: "female", title: "Female" },
+  { id: "other", title: "Other" },
+]
 
-export default function Employees() {
+const initialFValues = {
+  id: 0,
+  emplyeeRefNo: "",
+  punchCode: "",
+  firstName: "",
+  lastName: "",
+  generalInfo: {
+    maritalstatus: 0,
+    nic: null,
+    email: "", addresses: ["", ""],
+    mobileNumber: "", gender: 0, dateofBirth: null, religion: 0
+  },
+  companyInfo: {
+    fkCompanyId: 0,
+    fkCountryId: 0,
+    fkStateId: 0,
+    fkCityId: 0,
+    fkAreaId: 0,
+    fkStationId: 0,
+    fkDepartmentId: 0,
+    fkEmployeeGroupId: 0,
+    fkDesignationId: null,
+    confirmationDate: null,
+    resignationDate: null
+  },
+  isAllowManualAttendance: false,
+  isAllowLogin: false,
+}
+
+const getSteps = () => {
+  return ['General Information', 'Additional Information', 'Company Information'];
+}
+
+const GeneralInfromation = ({ detail, onchange, errors }) => {
+  return (
+    <>
+      <h4>General Information</h4>
+      <Grid spacing={3} xs={8} container>
+        <Grid item sx={6}>
+          <Controls.Input
+            name="emplyeeRefNo"
+            label="Employee Code"
+            type="number"
+            InputProps={{
+              inputProps: { min: 0 }
+            }}
+            value={detail.emplyeeRefNo}
+            onChange={onchange}
+            error={errors.emplyeeRefNo}
+
+          />
+        </Grid>
+        <Grid item sx={6}>
+          <Controls.Input
+            name="punchCode"
+            label="Punch Code"
+            value={detail.punchCode}
+            onChange={onchange}
+            error={errors.punchCode}
+
+          />
+        </Grid>
+        <Grid item sx={6}>
+          <Controls.Input
+            name="firstName"
+            label="First Name"
+            value={detail.firstName}
+            onChange={onchange}
+            error={errors.firstName}
+
+          />
+        </Grid>
+        <Grid item sx={6}>
+          <Controls.Input
+            name="lastName"
+            label="Last Name"
+            value={detail.lastName}
+            onChange={onchange}
+            error={errors.lastName}
+
+          />
+        </Grid>
+        <Grid item sx={6}>
+          <Controls.Checkbox
+            name="isAllowManualAttendance"
+            label="Allow Manual Attendance"
+            value={detail.isAllowManualAttendance}
+            onChange={onchange}
+          />
+        </Grid>
+        <Grid item sx={6}>
+          <Controls.Checkbox
+            name="isAllowLogin"
+            label="Allow Login"
+            value={detail.isAllowLogin}
+            onChange={onchange}
+
+          />
+        </Grid>
+      </Grid>
+
+    </>
+
+
+  )
+}
+
+const AdditionalInfromation = ({ detail, onchange, errors }) => {
+  return (
+    <h4>Additional Information</h4>
+  )
+}
+
+const CompanyInfromation = ({ detail, onchange, errors }) => {
+  return (
+    <h4>Company Information</h4>
+  )
+}
+
+
+
+export default function HorizontalLinearStepper() {
   const classes = useStyles();
-  const [recordForEdit, setRecordForEdit] = useState(null);
-  const [records, setRecords] = useState(employeeService.getAllEmployees());
-  const [filterFn, setFilterFn] = useState({
-    fn: (items) => {
-      return items;
+  const [activeStep, setActiveStep] = React.useState(0);
+  const [skipped, setSkipped] = React.useState(new Set());
+  const steps = getSteps();
+
+  const formData = useCallback(
+    () => {
+      return [
+        {
+          Component: Collapse,
+          condition: {
+            in: activeStep === 0,
+            style: { width: 'inherit' }
+          },
+          fields: [
+            {
+              elementType: "inputfield",
+              name: "emplyeeRefNo",
+              label: "Employee Code",
+              type: 'number',
+              validate: {
+                errorMessage: "Employee Ref is required",
+              },
+              defaultValue: ""
+            },
+            {
+              elementType: "inputfield",
+              name: "punchCode",
+              label: "Punch Code",
+              type: 'number',
+              validate: {
+                errorMessage: "Punch Code is required"
+              },
+              defaultValue: ""
+            },
+            {
+              elementType: "inputfield",
+              name: "firstName",
+              label: "First Name",
+              validate: {
+                errorMessage: "First Name is required",
+              },
+              defaultValue: ""
+            },
+            {
+              elementType: "inputfield",
+              name: "lastName",
+              label: "Last Name",
+              validate: {
+                errorMessage: "Last Name is required",
+                type: "string"
+              },
+              defaultValue: ""
+            },
+            {
+              elementType: "checkbox",
+              name: "isAllowManualAttendance",
+              label: "Manual Attendance",
+              defaultValue: false,
+            }
+          ]
+        },
+        
+      ]
     },
-  });
-  
-  const [openPopup, setOpenPopup] = useState(false);
-  
-  const [notify, setNotify] = useState({
-    isOpen: false,
-    message: "",
-    type: "",
-  });
+    [activeStep],
+  )
 
-  const [confirmDialog, setConfirmDialog] = useState({
-    isOpen: false,
-    title: "",
-    subTitle: "",
-  });
+  const getStepContent = useCallback((step, objectValues, onChange, errors) => {
+    switch (step) {
+      case 0:
+        return <GeneralInfromation detail={objectValues} onchange={onChange} errors={errors} />;
+      case 1:
+        return <AdditionalInfromation detail={objectValues.companyInfo} onchange={onChange} errors={errors} />;
+      case 2:
+        return <CompanyInfromation detail={objectValues} onchange={onChange} errors={errors} />;
+      default:
+        return 'Unknown step';
+    }
+  },
+    [activeStep],
+  )
 
-  const {
-    TblContainer,
-    TblHead,
-    TblPagination,
-    recordsAfterPagingAndSorting,
-  } = useTable(records, headCells, filterFn);
+  const isStepOptional = (step) => {
+    return step === 1;
+  }
+  const validate = (fieldValues = values) => {
+    let temp = { ...errors };
+    if ("fullName" in fieldValues)
+      temp.fullName = fieldValues.fullName ? "" : "This field is required.";
+    if ("email" in fieldValues)
+      temp.email = /$^|.+@.+..+/.test(fieldValues.email)
+        ? ""
+        : "Email is not valid.";
+    if ("mobile" in fieldValues)
+      temp.mobile =
+        fieldValues.mobile.length > 9 ? "" : "Minimum 10 numbers required.";
+    if ("departmentId" in fieldValues)
+      temp.departmentId =
+        fieldValues.departmentId.length != 0 ? "" : "This field is required.";
+
+    setErrors({
+      ...temp,
+    });
+
+    if (fieldValues == values) return Object.values(temp).every((x) => x == "");
+  };
 
 
 
-  const handleSearch = (e) => {
-    let target = e.target;
-    setFilterFn({
-      fn: (items) => {
-        if (target.value == "") return items;
-        else
-          return items.filter((x) =>
-            x.fullName.toLowerCase().includes(target.value)
-          );
-      },
+
+  const { errors, setValues, values, resetForm, setErrors, handleInputChange } = useForm(initialFValues, true, validate);
+
+  const isStepSkipped = (step) => {
+    return skipped.has(step);
+  }
+
+  const handleNext = () => {
+    let newSkipped = skipped;
+    if (isStepSkipped(activeStep)) {
+      newSkipped = new Set(newSkipped.values());
+      newSkipped.delete(activeStep);
+    }
+
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    setSkipped(newSkipped);
+  }
+
+  const handleBack = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
+
+  const handleSkip = () => {
+    if (!isStepOptional(activeStep)) {
+      // You probably want to guard against something like this,
+      // it should never occur unless someone's actively trying to break something.
+      throw new Error("You can't skip a step that isn't optional.");
+    }
+
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    setSkipped((prevSkipped) => {
+      const newSkipped = new Set(prevSkipped.values());
+      newSkipped.add(activeStep);
+      return newSkipped;
     });
   };
 
-  const addOrEdit = (employee, resetForm) => {
-    if (employee.id == 0) employeeService.insertEmployee(employee);
-    else employeeService.updateEmployee(employee);
-    resetForm();
-    setRecordForEdit(null);
-    setOpenPopup(false);
-    setRecords(employeeService.getAllEmployees());
-    setNotify({
-      isOpen: true,
-      message: "Submitted Successfully",
-      type: "success",
-    });
-  };
-
-  const openInPopup = (item) => {
-    setRecordForEdit(item);
-    setOpenPopup(true);
-  };
-
-  const onDelete = (id) => {
-    setConfirmDialog({
-      ...confirmDialog,
-      isOpen: false,
-    });
-    employeeService.deleteEmployee(id);
-    setRecords(employeeService.getAllEmployees());
-    setNotify({
-      isOpen: true,
-      message: "Deleted Successfully",
-      type: "error",
-    });
+  const handleReset = () => {
+    setActiveStep(0);
   };
 
   return (
-    <>
-      <PageHeader
-        title="Employee List"
-        subTitle="Manage Employees"
-        icon={<PeopleOutlineTwoToneIcon fontSize="large" />}
-      />
+    <div className={classes.root}>
+      <Stepper activeStep={activeStep}>
+        {steps.map((label, index) => {
+          const stepProps = {};
+          const labelProps = {};
+          if (isStepOptional(index)) {
+            labelProps.optional = <Typography variant="caption">Optional</Typography>;
+          }
+          if (isStepSkipped(index)) {
+            stepProps.completed = false;
+          }
+          return (
+            <Step key={label} {...stepProps}>
+              <StepLabel {...labelProps}>{label}</StepLabel>
+            </Step>
+          );
+        })}
+      </Stepper>
+      <div>
+        {activeStep === steps.length ? (
+          <div>
+            <Typography className={classes.instructions}>
+              All steps completed - you&apos;re finished
+            </Typography>
+            <Button onClick={handleReset} className={classes.button}>
+              Reset
+            </Button>
+          </div>
+        ) : (
+          <div>
+            {<AutoForm formData={formData()} isValidate={true} />}
+            <div>
+              <Button disabled={activeStep === 0} onClick={handleBack} className={classes.button}>
+                Back
+              </Button>
+              {isStepOptional(activeStep) && (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleSkip}
+                  className={classes.button}
+                >
+                  Skip
+                </Button>
+              )}
 
-      <Grid className={classes.pageContent}>
-        <GridToolBar/>
-      
-        
-        <Toolbar style={{borderBottom:"1px solid #ddd"}}>
-          {/* <Controls.Input
-            label="Search Employees"
-            className={classes.searchInput}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Search />
-                </InputAdornment>
-              ),
-            }}
-            onChange={handleSearch}
-          /> */}
-
-          <Controls.Button
-            text="Add New"
-            variant="outlined"
-            startIcon={<AddIcon />}
-            className={classes.newButton}
-            onClick={() => {
-              setOpenPopup(true);
-              setRecordForEdit(null);
-            }}
-          />
-        </Toolbar>
-         <TableGrid/>
-        {/* <TblContainer>
-          <TblHead />
-          <TableBody>
-            {recordsAfterPagingAndSorting().map((item) => (
-              <TableRow key={item.id}>
-                <TableCell>{item.fullName}</TableCell>
-                <TableCell>{item.email}</TableCell>
-                <TableCell>{item.mobile}</TableCell>
-                <TableCell>{item.department}</TableCell>
-                <TableCell>
-                  <Controls.ActionButton
-                    color="primary"
-                    onClick={() => {
-                      openInPopup(item);
-                    }}
-                  >
-                    <EditOutlinedIcon fontSize="small" />
-                  </Controls.ActionButton>
-                  <Controls.ActionButton
-                    color="secondary"
-                    onClick={() => {
-                      setConfirmDialog({
-                        isOpen: true,
-                        title: "Are you sure to delete this record?",
-                        subTitle: "You can't undo this operation",
-                        onConfirm: () => {
-                          onDelete(item.id);
-                        },
-                      });
-                    }}
-                  >
-                    <CloseIcon fontSize="small" />
-                  </Controls.ActionButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </TblContainer>
-        <TblPagination /> */}
-      </Grid>
-      <Popup
-        title="Employee Form"
-        openPopup={openPopup}
-        setOpenPopup={setOpenPopup}
-      >
-        <EmployeeForm recordForEdit={recordForEdit} addOrEdit={addOrEdit} />
-      </Popup>
-      <Notification notify={notify} setNotify={setNotify} />
-      <ConfirmDialog
-        confirmDialog={confirmDialog}
-        setConfirmDialog={setConfirmDialog}
-      />
-    </>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleNext}
+                className={classes.button}
+              >
+                {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

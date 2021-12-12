@@ -1,17 +1,20 @@
 import React, { useEffect } from "react";
 import "./App.css";
-import { Router } from "react-router-dom";
+import { BrowserRouter as Router } from "react-router-dom";
 import { history } from "../config/appconfig";
 import Routes from "../router";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core";
-import GlobalStyles from '../components/styles/GlobalStyles';
+import GlobalStyles from '../layout/styles/GlobalStyles';
 import { Provider } from "react-redux";
 import { store } from "../store/reducers/store";
 import {SocketContext,appsocket } from '../services/socketService';
+import { SnackbarProvider } from 'notistack';
+
 
 // #fafafa
 const theme = createMuiTheme({
   palette: {
+    type:"light",
     primary: {
       dark:"#11a036",
       main: "#37b057",
@@ -23,6 +26,7 @@ const theme = createMuiTheme({
     },
     background: {
       default: "#f4f5fd",
+      light: '#fff',
     },
   },
   overrides: {
@@ -52,14 +56,16 @@ function App() {
   return (
     
     <ThemeProvider theme={theme}>
-      <Router history={history}>
-       <Provider store={store}>
-         <SocketContext.Provider value={appsocket}>
-              <GlobalStyles/>
-              <Routes />
-         </SocketContext.Provider>
-        </Provider >
-      </Router>
+      <SnackbarProvider maxSnack={3}>
+        <Router history={history}>
+        <Provider store={store}>
+          <SocketContext.Provider value={appsocket}>
+                <GlobalStyles/>
+                <Routes />
+          </SocketContext.Provider>
+          </Provider >
+        </Router>
+      </SnackbarProvider>
     </ThemeProvider>
    
   );

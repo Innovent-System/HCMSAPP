@@ -1,7 +1,7 @@
 import { useState,useContext,useEffect } from 'react';
 import  Controls  from '../../../components/controls/Controls';
 import { useForm, Form } from "../../../components/useForm";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink,useNavigate } from "react-router-dom";
 import { InputAdornment,IconButton, Link,Box,Container,Typography,Paper,makeStyles,CircularProgress } from "@material-ui/core";
 import { Visibility,VisibilityOff,Person } from '@material-ui/icons';
 import { green } from '@material-ui/core/colors';
@@ -11,7 +11,7 @@ import { useDispatch } from "react-redux";
 import { API_USER_LOGIN } from '../../../services/UrlService'; 
 import Auth from '../../../services/AuthenticationService';
 import { SocketContext } from '../../../services/socketService';
- 
+
 
 
 const initialFValues = {
@@ -54,7 +54,7 @@ const initialFValues = {
 
 const SignIn = ({setRoutes,setSideMenu}) => {
   const dispatch = useDispatch();
-
+  const navigate = useNavigate();
   const [loader, setLoader] = useState(false);
 
   const socket = useContext(SocketContext);
@@ -94,6 +94,7 @@ const SignIn = ({setRoutes,setSideMenu}) => {
             setRoutes(data.appRoutes);
             setSideMenu(data.sideMenuData);
             socket.emit("join",data.fkClientId);
+            navigate("/dashboard");
             setLoader(false);
            }
            else{

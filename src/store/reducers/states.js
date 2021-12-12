@@ -6,6 +6,7 @@ export const INITIAL_STATE = {
     error:{
         flag:false,
         msg: null,
-        code:null
+        code:null,
+        result:null
     }
 }

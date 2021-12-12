@@ -1,4 +1,4 @@
-import React,{useState,useRef} from 'react'
+import React,{useState,useRef,useEffect} from 'react'
 import PropTypes from 'prop-types'
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
@@ -34,7 +34,6 @@ function ActionToolKit ({isShowEditBtn = true,isShowActiveBtn = true,isShowDownl
       },
       [formats]
     );
-
    
       
     const handleButtonEdit = React.useCallback(() => {

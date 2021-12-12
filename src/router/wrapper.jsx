@@ -1,31 +1,29 @@
 import PropTypes from 'prop-types';
-import { Route, Redirect, } from 'react-router-dom';
+import { Route, Navigate,Outlet,useLocation } from 'react-router-dom';
 import Auth from '../services/AuthenticationService';
 
 
-const RouterWrapper = ({ component: Component, isPrivate, ...rest }) => {
+
+const RouterWrapper = () => {
   //Manage with Globaly
-
+  let location = useLocation();
   const signed = document.cookie === "is_Auth=true" || false;
-  
-  
 
-  if (isPrivate && !signed) return <Redirect to='/' />;
-
-  if (!isPrivate && signed) return <Redirect to='/dashboard' />;
-
-                  
-  return  <Route {...rest} component={Component} />;
+  if(!signed){
+    return <Navigate to="/" state={{ from: location }} />;
+  }
+  // if (!signed) return <Route element={<Navigate to='/' />}  />;
+   return <Outlet />;   
 };
 
-RouterWrapper.propTypes = {
-  isPrivate: PropTypes.bool,
-  component: PropTypes.oneOfType([PropTypes.element, PropTypes.func])
-    .isRequired,
-};
+// RouterWrapper.propTypes = {
+//   isPrivate: PropTypes.bool,
+//   component: PropTypes.oneOfType([PropTypes.element, PropTypes.func])
+//     .isRequired,
+// };
 
-RouterWrapper.defaultProps = {
-  isPrivate: false,
-};
+// RouterWrapper.defaultProps = {
+//   isPrivate: false,
+// };
 
 export default RouterWrapper;
