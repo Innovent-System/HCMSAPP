@@ -9,15 +9,18 @@ import { Provider } from "react-redux";
 import { store } from "../store/reducers/store";
 import {SocketContext,appsocket } from '../services/socketService';
 import { SnackbarProvider } from 'notistack';
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> c37140075721b87a33d59c4399b5a56d5c631f5f
 // #fafafa
 const theme = createMuiTheme({
   palette: {
     type:"light",
     primary: {
       dark:"#11a036",
-      main: "#37b057",
+      main: "rgb(0, 171, 85)",
       light: "#3c44b126",
     },
     secondary: {
@@ -28,6 +31,7 @@ const theme = createMuiTheme({
       default: "#f4f5fd",
       light: '#fff',
     },
+    
   },
   overrides: {
     MuiAppBar: {
