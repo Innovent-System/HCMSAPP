@@ -60,7 +60,7 @@ export default function MultiSelect(props) {
     <div className={classes.root}>
       <Autocomplete
         multiple={isMultiple}
-        PopperComponent={MyPopper}
+        {...(isMultiple && {PopperComponent:MyPopper})}
         limitTags={2}
         {...other}
         onChange={(event, value) => onChange(convertToDefEventPara(name,value))}
