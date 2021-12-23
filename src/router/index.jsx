@@ -3,13 +3,10 @@ import { Navigate, Routes,Route } from 'react-router-dom';
 import PrivateRoute from './wrapper';
 import SignIn from "../pages/General/SignIn";
 import Layout from '../layout';
-import { Box } from '@material-ui/core';
 import CircularLoading from '../components/Circularloading'
 import Auth from '../services/AuthenticationService';
 import StatusSnack from './StatusHandler';
 import { history } from '../config/appconfig';
-import SideMenu from '../layout/sidemenu/SideMenu';
-import Header from '../layout/header/Header';
 import Dashboard from '../pages/General/Dashboard'
 
 

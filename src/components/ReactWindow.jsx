@@ -56,7 +56,7 @@ const ListboxComponent = React.forwardRef(function ListboxComponent(props, ref) 
   };
 
   const getHeight = () => {
-      debugger;
+     
     if (itemCount > 8) {
       return 8 * itemSize;
     }

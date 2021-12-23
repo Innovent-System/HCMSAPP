@@ -1,9 +1,8 @@
-import React, {  useEffect, useRef, useState,lazy,Suspense } from 'react'
+import React, { useEffect, useRef, useState,forwardRef,useImperativeHandle } from 'react'
 import { makeStyles, Grid } from "@material-ui/core";
 import clsx from 'clsx';
-import { Element,ElementType } from '../components/controls/Controls';
+import { Element, ElementType } from '../components/controls/Controls';
 import PropTypes from 'prop-types'
-import CircularLoading from '../components/Circularloading'
 
 export function useForm(initialFValues, validateOnChange = false, validate) {
 
@@ -12,27 +11,32 @@ export function useForm(initialFValues, validateOnChange = false, validate) {
 
     const handleInputChange = e => {
         const { name, value } = e.target
-        
-        if(name.includes(".")){
+        let _value = value;
+
+        if(typeof _value === "string"){
+            _value =  _value.trimStart()
+        }
+
+        if (name.includes(".")) {
             const childe = name.split(".");
             setValues({
                 ...values,
-                [childe[0]]: {[childe[1]]:value} 
+                [childe[0]]: { [childe[1]]: _value }
             })
             if (validateOnChange)
-                validate({ [childe[0]]: {[childe[1]]:value} })
+                validate({ [childe[0]]: { [childe[1]]: _value } })
         }
-        else{
+        else {
             setValues({
                 ...values,
-                [name]: value
+                [name]: _value
             })
             if (validateOnChange)
-                validate({ [name]: value })
+                validate({ [name]: _value })
         }
-        
+
     }
-     
+
     const resetForm = () => {
         setValues(initialFValues);
         setErrors({})
@@ -53,7 +57,7 @@ export function useForm(initialFValues, validateOnChange = false, validate) {
 const useStyles = makeStyles(theme => ({
     root: {
         '& .MuiFormControl-root': {
-            width: '80%',
+            width: '90%',
             margin: theme.spacing(1)
         }
     }
@@ -71,65 +75,19 @@ export function Form(props) {
     )
 }
 
-// function DynamicLoader(Component) {
-
-//     const LazyComponent = lazy(() => import(`@material-ui/core/${Component}`));
-//     return (
-//       <Suspense fallback={<CircularLoading />}>
-//         <LazyComponent />
-//       </Suspense>
-//     );
-//   }
-export function AutoForm(props) {
+const DEFAULT_BREAK_POINTS = { md: 2, xs: 6,xl:4 };
+export const AutoForm = forwardRef(function (props,ref) {
 
     const classes = useStyles();
-    const { formData, children,isValidate = false, ...other } = props;
+    const { formData, breakpoints, children, isValidate = false,isEdit = false, ...other } = props;
     const formStates = useRef({
-        formValue: null,
+        formValue: {},
         errorProps: []
     });
     const { errorProps } = formStates.current;
 
-    useEffect(() => {
-
-        formStates.current.formValue = formData.reduce((obj, item) => {
-            if("Component" in item){
-                return item.fields.reduce((o,childItem)=> {
-                    if ("validate" in childItem) {
-                        errorProps.push({
-                            [childItem.name]: "",
-                            validate: childItem.validate?.validate,
-                            message: childItem.validate.errorMessage,
-                            type:childItem.validate.type
-                        })
-
-                        delete childItem.validate;
-                    }
-                    const value = childItem.defaultValue;
-                    delete childItem.defaultValue;
-                    return Object.assign(o, { [childItem.name]: value })
-                },{})
-                
-            } 
-            if ("validate" in item) {
-                errorProps.push({
-                    [item.name]: "",
-                    validate: item.validate?.validate,
-                    message: item.validate.errorMessage,
-                    type:item.validate.type
-                })
-
-                delete item.validate;
-            }
-            const value = item.defaultValue;
-            delete item.defaultValue;
-            return Object.assign(obj, { [item.name]: value })
-        }, {});
-        setValues(formStates.current.formValue)
-    }, [formData])
-
     const validateFields = (fieldValues = errorProps) => {
-        let temp = { ...errors }, singleField = null;  
+        let temp = { ...errors }, singleField = null;
 
         if (!Array.isArray(fieldValues)) {
             const key = Object.keys(fieldValues)[0];
@@ -137,24 +95,17 @@ export function AutoForm(props) {
             fieldValues = errorProps.filter(f => key in f);
         }
         for (const errorItem of fieldValues) {
-            const key = Object.keys(errorItem)[0], itemValue = singleField ?? values[key];
+            if(errorItem.required){
+                const key = Object.keys(errorItem)[0], itemValue = singleField ?? values[key];
 
-            if (itemValue)
-            temp[key] = "";
-            else
-            temp[key] = typeof errorItem?.validate === "function" ? (!errorItem.validate(itemValue) && errorItem.message) : errorItem.message;
-            // switch (errorItem.type) {
-            //     case "string":
-            //         if (itemValue)
-            //             temp[key] = "";
-            //         else
-            //             temp[key] = typeof errorItem?.validate === "function" ? (!errorItem.validate(itemValue) && errorItem.message) : errorItem.message;
-            //         break;
-
-            //     //    default:
-            //     //     temp[key] = typeof errorItem.validate === "function" ? (!errorItem.validate(itemValue) && errorItem.message):  errorItem.message;
-            //     //        break;
-            // }
+                if(typeof errorItem?.validate === "function"){
+                    temp[key] = !errorItem.validate(itemValue) ? errorItem.message  : itemValue ? "" : errorItem.message 
+                }
+                else if (itemValue)
+                    temp[key] = "";
+                else
+                    temp[key] = typeof errorItem?.validate === "function" ? (!errorItem.validate(itemValue) && errorItem.message) : errorItem.message;
+            }
         }
 
         setErrors({
@@ -172,79 +123,151 @@ export function AutoForm(props) {
         handleInputChange,
         resetForm
     } = useForm(formStates.current.formValue, isValidate, validateFields);
-   
+
+    useEffect(() => {
+        if(!isEdit && Object.keys(formStates.current.formValue).length === Object.keys(values).length) return 
+        formStates.current.formValue = formData.filter(f => !Boolean(f["name"])).reduce((obj, item) => {
+            if ("Component" in item) {
+                return item._children.reduce((o, childItem) => {
+                    if ("validate" in childItem) {
+                        errorProps.push({
+                            [childItem.name]: "",
+                            validate: childItem.validate?.validate,
+                            message: childItem.validate.errorMessage,
+                            required: true,
+                            isOptional:(typeof childItem["required"] === "function" ? childItem["required"] : undefined)
+                        })
+                        delete childItem.validate;
+                    }
+                    const value = childItem.defaultValue;
+                    delete childItem.defaultValue;
+                    return Object.assign(o, { [childItem.name]: value })
+                }, {})
+
+            }
+            if ("validate" in item) {
+                    errorProps.push({
+                        [item.name]: "",
+                        validate: item.validate?.validate,
+                        message: item.validate.errorMessage,
+                        required: true,
+                        isOptional:(typeof item["required"] === "function" ? item["required"] : undefined)
+                    })
+                
+                delete item.validate;
+            }
+            const value = item.defaultValue;
+            delete item.defaultValue;
+            return Object.assign(obj, { [item.name]: value })
+        }, {});
+        setValues(formStates.current.formValue)
+    }, [formData])
+
+    
+    useImperativeHandle(ref, () => ({
+        resetForm,
+        getValue() {
+            return values
+        }
+      }));
+
+    useEffect(() => {
+        if(values && typeof values === "object" && errorProps.filter(f => typeof f.isOptional === "function").length){   
+            let errorTobeRemove = {};
+            formStates.current.errorProps =  errorProps.map(m =>{
+                if(typeof m.isOptional === "function"){
+                    const isTrue = m.isOptional(values);
+                    if(!isTrue){
+                        Object.assign(errorTobeRemove,{[Object.keys(m)[0]]:""});
+                    }
+                    return {...m,required:isTrue}
+                }
+                else
+                return {...m}
+            });
+            setErrors({...errors,...errorTobeRemove});
+        }
+    }, [values])
 
     return (
         <>
-         <form className={classes.root} autoComplete="off" {...other}>
-             <Grid  container>
-                {formStates.current.formValue && formData.map(({ name, label, elementType,Component = null,condition = null, classes,fields = null, ...others }, index) => (
-                   Component ? <Component {...(condition && {...condition})} key={index}>
-                        <Grid  container>
-                       {Array.isArray(fields) ? fields.map(({name,elementType ,label,classes,..._others},innerIndex) => (
-                                <Grid xs={6} key={innerIndex}  item>
+            <form className={classes.root} autoComplete="off" {...other}>
+                <Grid {...breakpoints} container>
+                    {formStates.current.formValue && formData.map(({ name, label,required, elementType, Component = null, disabled , classes, _children, breakpoints = DEFAULT_BREAK_POINTS, ...others }, index) => (
+                        Component ? <Component {...others} key={index}>
+                            <Grid spacing={3} container>
+                                {Array.isArray(_children) ? _children.map(({ name,label,required, elementType, breakpoints = DEFAULT_BREAK_POINTS, classes, disabled , ..._others }, innerIndex) => (
+                                    <Grid  {...(breakpoints && { ...breakpoints })} key={innerIndex} item>
+                                        <Element elementType={elementType}
+                                            name={name}
+                                            label={label}
+                                            {...(required && {required:(typeof required === "function" ? required(values) : required)})}
+                                            value={values[name]}
+                                            {...(disabled && { disabled:(typeof disabled === "function" ? disabled(values) : required) })}
+                                            onChange={handleInputChange}
+                                            {...(errors[name] && { error: errors[name] })}
+                                            {...(classes && { className: clsx(classes) })}
+                                            {..._others}
+                                        />
+                                    </Grid>
+
+                                )) : null}
+                            </Grid>
+                        </Component> :
+                            <Grid {...(breakpoints && { ...breakpoints })} key={index} item>
                                 <Element elementType={elementType}
                                     name={name}
                                     label={label}
                                     value={values[name]}
+                                    {...(required && {required:(typeof required === "function" ? required(values) : required)})}
+                                    {...(disabled && { disabled:(typeof disabled === "function" ? disabled(values) : required) })}
                                     onChange={handleInputChange}
                                     {...(errors[name] && { error: errors[name] })}
                                     {...(classes && { className: clsx(classes) })}
-                                    {..._others}
+                                    {...others}
                                 />
                             </Grid>
-
-                       )):null}
-                     </Grid>
-                   </Component> :
-                        <Grid xs={6} key={index} item>
-                        <Element elementType={elementType}
-                            name={name}
-                            label={label}
-                            value={values[name]}
-                            onChange={handleInputChange}
-                            {...(errors[name] && { error: errors[name] })}
-                            {...(classes && { className: clsx(classes) })}
-                            {...others}
-                        />
-                    </Grid>
                     ))
-                }
-                 {children}
-             </Grid>
-         </form>
+                    }
+                    {children}
+                </Grid>
+            </form>
         </>
     )
-}
+})
 
 
 AutoForm.propTypes = {
-    formData:PropTypes.oneOfType([
+    formData: PropTypes.oneOfType([
         PropTypes.arrayOf(
             PropTypes.shape({
                 elementType: PropTypes.oneOf(ElementType),
-                name:  PropTypes.string,
+                name: PropTypes.string,
                 label: PropTypes.string,
-                defaultValue :PropTypes.any,
-                [PropTypes.string]:PropTypes.any
+                defaultValue: PropTypes.any,
+                [PropTypes.string]: PropTypes.any
             }).isRequired
         ),
         PropTypes.arrayOf(
             PropTypes.shape({
                 Component: PropTypes.node,
-                fields:PropTypes.arrayOf(
+                _children: PropTypes.arrayOf(
                     PropTypes.shape({
                         elementType: PropTypes.oneOf(ElementType),
-                        name:  PropTypes.string,
+                        name: PropTypes.string,
                         label: PropTypes.string,
-                        defaultValue :PropTypes.any,
-                        [PropTypes.string]:PropTypes.any
+                        defaultValue: PropTypes.any,
+                        [PropTypes.string]: PropTypes.any
                     })
                 ),
-                [PropTypes.string]:PropTypes.any
+                [PropTypes.string]: PropTypes.any
             }).isRequired
         )
 
     ]).isRequired,
-    isValidate:PropTypes.bool,
+    isValidate: PropTypes.bool,
+    isEdit:PropTypes.bool.isRequired,
+    breakpoints: PropTypes.objectOf({
+        [PropTypes.string]: PropTypes.number.isRequired
+    })
 }

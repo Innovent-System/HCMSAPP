@@ -39,6 +39,13 @@ const useStyles = makeStyles(() => createStyles({
      height: '100%',
       width: '100%'
     },
+    '.clearfix': {
+      '&::after':{
+        content: "",
+        clear: 'both',
+        display: 'table'
+      }
+    },
     '.main-content':{
       height: 'calc(100vh - 64px)',
       overflow: 'hidden',

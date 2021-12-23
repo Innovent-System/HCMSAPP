@@ -5,7 +5,7 @@ import { history } from '../config/appconfig';
 import {SocketContext} from '../services/socketService';
 import Auth from '../services/AuthenticationService';
 import { useSnackbar } from 'notistack';
-import { Button,IconButton } from '@material-ui/core';
+import { IconButton } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 
 function StatusHanlder() {

@@ -5,16 +5,16 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(0.5),
   },
   small: {
-    width: theme.spacing(3),
-    height: theme.spacing(3),
+    width: theme.spacing(4),
+    height: theme.spacing(4),
   },
   medium: {
-    width: theme.spacing(6),
-    height: theme.spacing(6),
+    width: theme.spacing(8),
+    height: theme.spacing(8),
   },
   large: {
-    width: theme.spacing(20),
-    height: theme.spacing(20),
+    width: theme.spacing(12),
+    height: theme.spacing(12),
   },
 }));
 
@@ -28,7 +28,7 @@ export default function Avatar(props) {
       color={color || "primary"}
       {...other}
       classes={{ root: classes.root }}
-      className={classes.large}
+      className={size && classes[size]}
     />
   );
 }

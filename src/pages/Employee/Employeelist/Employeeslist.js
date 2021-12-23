@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { makeStyles, Grid, Collapse } from '@material-ui/core';
+import { makeStyles, Grid, Collapse, Box } from '@material-ui/core';
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
@@ -7,7 +7,7 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import { Form, useForm, AutoForm } from '../../../components/useForm';
 import Controls from '../../../components/controls/Controls';
-
+import avatar from '../../../assests/images/avatar_6.png'
 
 
 const useStyles = makeStyles((theme) => ({
@@ -35,25 +35,22 @@ const initialFValues = {
   punchCode: "",
   firstName: "",
   lastName: "",
-  generalInfo: {
-    maritalstatus: 0,
-    nic: null,
-    email: "", addresses: ["", ""],
-    mobileNumber: "", gender: 0, dateofBirth: null, religion: 0
-  },
-  companyInfo: {
-    fkCompanyId: 0,
-    fkCountryId: 0,
-    fkStateId: 0,
-    fkCityId: 0,
-    fkAreaId: 0,
-    fkStationId: 0,
-    fkDepartmentId: 0,
-    fkEmployeeGroupId: 0,
-    fkDesignationId: null,
-    confirmationDate: null,
-    resignationDate: null
-  },
+
+  maritalstatus: 0,
+  nic: null,
+  email: "", addresses: ["", ""],
+  mobileNumber: "", gender: 0, dateofBirth: null, religion: 0,
+
+  fkCompanyId: 0,
+  fkCountryId: 0,
+  fkStateId: 0,
+  fkCityId: 0,
+  fkAreaId: 0,
+  fkDepartmentId: 0,
+  fkEmployeeGroupId: 0,
+  fkDesignationId: null,
+  confirmationDate: null,
+  resignationDate: null,
   isAllowManualAttendance: false,
   isAllowLogin: false,
 }
@@ -161,15 +158,20 @@ export default function HorizontalLinearStepper() {
       return [
         {
           Component: Collapse,
-          condition: {
-            in: activeStep === 0,
-            style: { width: 'inherit' }
-          },
-          fields: [
+          in: activeStep === 0,
+          style: { width: 'inherit' },
+          _children: [
+            {
+              elementType: "uploadavatar",
+              name: "employeeImage",
+              breakpoints: { md: 12 ,sm:12,xs:12},
+              defaultValue: null,
+            },
             {
               elementType: "inputfield",
               name: "emplyeeRefNo",
               label: "Employee Code",
+              required: true,
               type: 'number',
               validate: {
                 errorMessage: "Employee Ref is required",
@@ -180,6 +182,7 @@ export default function HorizontalLinearStepper() {
               elementType: "inputfield",
               name: "punchCode",
               label: "Punch Code",
+              required: true,
               type: 'number',
               validate: {
                 errorMessage: "Punch Code is required"
@@ -199,9 +202,31 @@ export default function HorizontalLinearStepper() {
               elementType: "inputfield",
               name: "lastName",
               label: "Last Name",
+              required: true,
               validate: {
                 errorMessage: "Last Name is required",
                 type: "string"
+              },
+              defaultValue: ""
+            },
+            {
+              elementType: "inputfield",
+              name: "email",
+              label: "Email",
+              required:(value) => value["isAllowManualAttendance"],
+              type: "email",
+              validate: {
+                errorMessage: "Email is required",
+                validate:(val) => /$^|.+@.+..+/.test(val)
+              },
+              defaultValue: ""
+            },
+            {
+              elementType: "inputfield",
+              name: "mobileNumber",
+              label: "Mobile No",
+              validate: {
+                errorMessage: "Mobile No is required",
               },
               defaultValue: ""
             },
@@ -210,7 +235,112 @@ export default function HorizontalLinearStepper() {
               name: "isAllowManualAttendance",
               label: "Manual Attendance",
               defaultValue: false,
+            },
+            {
+              elementType: "dropdown",
+              name: "templateId",
+              label: "User Template",
+              disabled:(value) => value["isAllowManualAttendance"] === false,
+              defaultValue: 2,
+              options: [{
+                id: 0, title: "Manager"
+              },
+              { id: 1, title: "Hr Manager" },
+              { id: 2, title: "SubOrdinates" }
+              ]
+            },
+            {
+              elementType: "dropdown",
+              name: "maritalstatus",
+              label: "Marital Status",
+              defaultValue: 2,
+              options: [{
+                id: 0, title: "Single"
+              },
+              { id: 1, title: "Married" },
+              { id: 2, title: "Widowed" },
+              { id: 3, title: "Divorced" }
+              ]
+            },
+            {
+              elementType: "dropdown",
+              name: "gender",
+              label: "Gender",
+              defaultValue: 1,
+              options: [{
+                id: 1, title: "Male"
+              },
+              { id: 2, title: "Female" },
+              { id: 3, title: "Others" }
+              ]
+            },
+            {
+              elementType: "dropdown",
+              name: "religion",
+              label: "Religion",
+              defaultValue: "",
+              options: [{
+                id: 1, title: "Islam"
+              },
+              { id: 2, title: "Hindu" },
+              { id: 3, title: "Christain" },
+              { id: 4, title: "Others" }
+              ]
+            },
+            {
+              elementType: "datetimepicker",
+              name: "dateofBirth",
+              label: "D.O.B",
+              defaultValue: null
             }
+          ]
+        },
+        {
+          Component: Collapse,
+          in: activeStep === 1,
+          style: { width: 'inherit' },
+          _children: [
+            {
+              elementType: "dropdown",
+              name: "fkCompanyId",
+              label: "Organization",
+              required: true,
+              validate: {
+                errorMessage: "Company is required",
+              },
+              options:[{id:0,title:"Biltexco"},
+              {id:1,title:"Spursole"}],
+              defaultValue: 0
+            },
+            {
+              elementType: "ad_dropdown",
+              name: "fkCountryId",
+              label: "Country",
+              required: true,
+              dataId:"id",
+              dataName:"title",
+              validate: {
+                errorMessage: "Country is required",
+              },
+              options:[{id:0,title:"Pakistan"},
+              {id:1,title:"America"}],
+              defaultValue: 0
+            },
+            {
+              elementType: "ad_dropdown",
+              name: "fkStateId",
+              label: "State",
+              required: true,
+              dataId:"id",
+              dataName:"title",
+              validate: {
+                errorMessage: "State is required",
+              },
+              options:[{id:0,title:"Sindh"},
+              {id:1,title:"Punjab"}],
+              defaultValue: 0
+            },
+            
           ]
         },
         
@@ -332,9 +462,9 @@ export default function HorizontalLinearStepper() {
             </Button>
           </div>
         ) : (
-          <div>
-            {<AutoForm formData={formData()} isValidate={true} />}
-            <div>
+            <Box display='flex' flexDirection='column' justifyContent='space-between'>
+             <AutoForm formData={formData()} isValidate={true} />
+             <div>
               <Button disabled={activeStep === 0} onClick={handleBack} className={classes.button}>
                 Back
               </Button>
@@ -358,7 +488,7 @@ export default function HorizontalLinearStepper() {
                 {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
               </Button>
             </div>
-          </div>
+          </Box>
         )}
       </div>
     </div>

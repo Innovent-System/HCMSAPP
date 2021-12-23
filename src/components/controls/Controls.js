@@ -5,7 +5,7 @@ import Checkbox from "./Checkbox";
 import DatePicker from "./DatePicker";
 import Button from "./Button";
 import ActionButton from "./ActionButton";
-import Avatar from "./Avatar";
+import Avatar from "./AvatarUpload";
 import MultiSelect from "./MultiSelect";
 import PropTypes from 'prop-types'
 
@@ -24,7 +24,7 @@ const Controls = {
 export default Controls;
 
 
-export const ElementType = Object.freeze(["inputfield","radio_group" ,"checkbox", "s_dropdown", "m_dropdown", "datetimepicker"]);
+export const ElementType = Object.freeze(["inputfield","radiogroup" ,"checkbox", "dropdown","clearfix", "ad_dropdown", "datetimepicker","uploadavatar"]);
 
 
 export function Element(props) {
@@ -32,23 +32,29 @@ export function Element(props) {
     
     const { elementType,...others } = props;
     switch (elementType) {
-        case "inputField":
+        case "inputfield":
             nodeElement = <Input {...others}/>
             break;
         case "checkbox":
             nodeElement = <Checkbox {...others}/>
             break;
-        case "radio_group":
+        case "radiogroup":
             nodeElement = <RadioGroup {...others}/>
             break;
         case "datetimepicker":
             nodeElement = <DatePicker {...others}/>
             break;
-        case "s_dropdown":
+        case "dropdown":
             nodeElement = <Select  {...others}/>
             break;
-        case "m_dropdown":
+        case "ad_dropdown":
             nodeElement = <MultiSelect {...others}/>
+            break;
+        case "uploadavatar":
+            nodeElement = <Avatar {...others}/>
+            break;
+        case "clearfix":
+            nodeElement = <div className="clearfix"></div>
             break;
         default:
             nodeElement = <Input {...others}/>
@@ -58,10 +64,11 @@ export function Element(props) {
     return nodeElement;
 }
 
-// Element.propTypes = {
-//     elementType: PropTypes.oneOf(ElementType).isRequired,
-//     name:  PropTypes.string.isRequired,
-//     label: PropTypes.string.isRequired,
-//     // defaultValue: PropTypes.any.isRequired,
-//     onChange: PropTypes.func.isRequired,
-// }
+Element.propTypes = {
+    elementType: PropTypes.oneOf(ElementType).isRequired,
+    name:  PropTypes.string,
+    label: PropTypes.string,
+    // defaultValue: PropTypes.any.isRequired,
+    onChange: PropTypes.func,
+    [PropTypes.string]: PropTypes.any
+}
