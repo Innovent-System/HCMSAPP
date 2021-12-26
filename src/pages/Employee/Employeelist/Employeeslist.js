@@ -53,6 +53,7 @@ const initialFValues = {
   resignationDate: null,
   isAllowManualAttendance: false,
   isAllowLogin: false,
+  templateId:0
 }
 
 const getSteps = () => {
@@ -164,8 +165,8 @@ export default function HorizontalLinearStepper() {
             {
               elementType: "uploadavatar",
               name: "employeeImage",
-              breakpoints: { md: 12 ,sm:12,xs:12},
-              defaultValue: null,
+              breakpoints: { md: 12, sm: 12, xs: 12 },
+              defaultValue:null
             },
             {
               elementType: "inputfield",
@@ -213,11 +214,11 @@ export default function HorizontalLinearStepper() {
               elementType: "inputfield",
               name: "email",
               label: "Email",
-              required:(value) => value["isAllowManualAttendance"],
+              required: (value) => value["isAllowManualAttendance"],
               type: "email",
               validate: {
                 errorMessage: "Email is required",
-                validate:(val) => /$^|.+@.+..+/.test(val)
+                validate: (val) => /$^|.+@.+..+/.test(val)
               },
               defaultValue: ""
             },
@@ -240,8 +241,8 @@ export default function HorizontalLinearStepper() {
               elementType: "dropdown",
               name: "templateId",
               label: "User Template",
-              disabled:(value) => value["isAllowManualAttendance"] === false,
-              defaultValue: 2,
+              disabled: (value) => value["isAllowManualAttendance"] === false,
+              defaultValue: '1',
               options: [{
                 id: 0, title: "Manager"
               },
@@ -253,7 +254,7 @@ export default function HorizontalLinearStepper() {
               elementType: "dropdown",
               name: "maritalstatus",
               label: "Marital Status",
-              defaultValue: 2,
+              defaultValue: '2',
               options: [{
                 id: 0, title: "Single"
               },
@@ -266,7 +267,7 @@ export default function HorizontalLinearStepper() {
               elementType: "dropdown",
               name: "gender",
               label: "Gender",
-              defaultValue: 1,
+              defaultValue: '1',
               options: [{
                 id: 1, title: "Male"
               },
@@ -278,7 +279,7 @@ export default function HorizontalLinearStepper() {
               elementType: "dropdown",
               name: "religion",
               label: "Religion",
-              defaultValue: "",
+              defaultValue: 1,
               options: [{
                 id: 1, title: "Islam"
               },
@@ -308,42 +309,42 @@ export default function HorizontalLinearStepper() {
               validate: {
                 errorMessage: "Company is required",
               },
-              options:[{id:0,title:"Biltexco"},
-              {id:1,title:"Spursole"}],
-              defaultValue: 0
+              options: [{ id: 0, title: "Biltexco" },
+              { id: 1, title: "Spursole" }],
+              defaultValue: { id: 0, title: "Biltexco" }
             },
             {
               elementType: "ad_dropdown",
               name: "fkCountryId",
               label: "Country",
               required: true,
-              dataId:"id",
-              dataName:"title",
+              dataId: "id",
+              dataName: "title",
               validate: {
                 errorMessage: "Country is required",
               },
-              options:[{id:0,title:"Pakistan"},
-              {id:1,title:"America"}],
-              defaultValue: 0
+              options: [{ id: 0, title: "Pakistan" },
+              { id: 1, title: "America" }],
+              defaultValue: { id: 0, title: "Pakistan" }
             },
             {
               elementType: "ad_dropdown",
               name: "fkStateId",
               label: "State",
               required: true,
-              dataId:"id",
-              dataName:"title",
+              dataId: "id",
+              dataName: "title",
               validate: {
                 errorMessage: "State is required",
               },
-              options:[{id:0,title:"Sindh"},
-              {id:1,title:"Punjab"}],
-              defaultValue: 0
+              options: [{ id: 0, title: "Sindh" },
+              { id: 1, title: "Punjab" }],
+              defaultValue: { id: 0, title: "Sindh" }
             },
-            
+
           ]
         },
-        
+
       ]
     },
     [activeStep],
@@ -462,9 +463,9 @@ export default function HorizontalLinearStepper() {
             </Button>
           </div>
         ) : (
-            <Box display='flex' flexDirection='column' justifyContent='space-between'>
-             <AutoForm formData={formData()} isValidate={true} />
-             <div>
+          <Box display='flex' flexDirection='column' justifyContent='space-between'>
+            <AutoForm formData={formData()} isValidate={true} />
+            <div>
               <Button disabled={activeStep === 0} onClick={handleBack} className={classes.button}>
                 Back
               </Button>
