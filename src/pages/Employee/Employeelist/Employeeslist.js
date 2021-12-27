@@ -309,38 +309,38 @@ export default function HorizontalLinearStepper() {
               validate: {
                 errorMessage: "Company is required",
               },
-              options: [{ id: 0, title: "Biltexco" },
-              { id: 1, title: "Spursole" }],
-              defaultValue: { id: 0, title: "Biltexco" }
+              options: [{ id: 1, title: "Biltexco" },
+              { id: 2, title: "Spursole" }],
+              defaultValue: ''
             },
-            {
-              elementType: "ad_dropdown",
-              name: "fkCountryId",
-              label: "Country",
-              required: true,
-              dataId: "id",
-              dataName: "title",
-              validate: {
-                errorMessage: "Country is required",
-              },
-              options: [{ id: 0, title: "Pakistan" },
-              { id: 1, title: "America" }],
-              defaultValue: { id: 0, title: "Pakistan" }
-            },
-            {
-              elementType: "ad_dropdown",
-              name: "fkStateId",
-              label: "State",
-              required: true,
-              dataId: "id",
-              dataName: "title",
-              validate: {
-                errorMessage: "State is required",
-              },
-              options: [{ id: 0, title: "Sindh" },
-              { id: 1, title: "Punjab" }],
-              defaultValue: { id: 0, title: "Sindh" }
-            },
+            // {
+            //   elementType: "ad_dropdown",
+            //   name: "fkCountryId",
+            //   label: "Country",
+            //   required: true,
+            //   dataId: "id",
+            //   dataName: "title",
+            //   validate: {
+            //     errorMessage: "Country is required",
+            //   },
+            //   options: [{ id: 0, title: "Pakistan" },
+            //   { id: 1, title: "America" }],
+            //   defaultValue: { id: 0, title: "Pakistan" }
+            // },
+            // {
+            //   elementType: "ad_dropdown",
+            //   name: "fkStateId",
+            //   label: "State",
+            //   required: true,
+            //   dataId: "id",
+            //   dataName: "title",
+            //   validate: {
+            //     errorMessage: "State is required",
+            //   },
+            //   options: [{ id: 0, title: "Sindh" },
+            //   { id: 1, title: "Punjab" }],
+            //   defaultValue: { id: 0, title: "Sindh" }
+            // },
 
           ]
         },
