@@ -1,5 +1,5 @@
 import {useContext,useEffect} from 'react'
-import { AppBar, Toolbar, Grid, InputBase, IconButton, Badge,makeStyles } from '../../deps/ui'
+import { AppBar, Toolbar, Grid, InputBase, IconButton, Badge } from '../../deps/ui'
 import {NotificationsNone as NotificationsNoneIcon,
     ChatBubbleOutline as ChatBubbleOutlineIcon,
     PowerSettingsNew as PowerSettingsNewIcon,
@@ -15,26 +15,25 @@ import { handleGetActions } from '../../store/actions/httpactions';
 import { useDispatch } from "react-redux";
  
 const headerStyles = {
-    
     appBar: {
-        zIndex: theme.zIndex.drawer + 1,
+        zIndex: 'zIndex.drawer' + 1,
         backgroundColor: '#fff'
       },
     searchInput: {
         opacity: '0.6',
-        padding: `0px ${theme.spacing(1)}px`,
+        padding: `0px 1px`,
         fontSize: '0.8rem',
         '&:hover': {
             backgroundColor: '#f2f2f2'
         },
         '& .MuiSvgIcon-root': {
-            marginRight: theme.spacing(1)
+            marginRight: 1
         }
     }
 }
 
 
-export default function Header({isOpen,setOpen }) {
+export default function Header() {
 
     const dispatch = useDispatch();
     const socket = useContext(SocketContext);

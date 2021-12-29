@@ -47,36 +47,9 @@ const Routers = () => {
                             }
                        <Route  path="*" element={<Dashboard />} />
               </Route>
-              
-              
           </Route>
           {/* <Route path="*" element={<Navigate to="/dashboard"/>} /> */}
       </Routes>
-     
-      
-      {/* <Route
-                exact
-                path="/jobopening"
-                component={() => <Emp />}
-                
-              /> */}
-       {/* publick route define before */}
-      {/* {(routes?.length && checkRoutes(routes)) ? 
-      
-        <Layout sideMenuData={sideMenu}>
-          <Routes>
-          
-            {routes.map((prop, key) => {
-              return (
-                <Route  path={`${prop.routeTo}/:id`} key={key} element={<DynamicLoader component={prop.path} />} />
-              );
-            })
-            }
-            
-          </Routes>
-        </Layout> 
-         :  null 
-      } */}
       <StatusSnack />
     </>
   );
@@ -84,7 +57,8 @@ const Routers = () => {
 
 function DynamicLoader(props) {
 
-  const LazyComponent = lazy(() => import(`../${props.component}`));
+  const LazyComponent = lazy(() => import(`../${props.component}`)
+  .catch(() => ({ default: () => <div>Not found</div> })));
   return (
     <Suspense fallback={<CircularLoading />}>
       <LazyComponent />
