@@ -14,22 +14,8 @@ import Dashboard from '../pages/General/Dashboard'
 
 const Routers = () => {
   
-
   const [routes, setRoutes] = useState(Auth.getitem("appConfigData")?.appRoutes || []);
   const [sideMenu, setSideMenu] = useState(Auth.getitem("appConfigData")?.sideMenuData || []);
-  
-  const checkRoutes = useCallback((_routes = []) => {
-    const url = window.location.pathname.split("/")[1];
-    //all routes shoulb be in array private or non-private
-    if(_routes.find(f => f.routeTo.match(url))){
-      return true;
-    }
-    else{
-       history.push("/dashboard");
-    }
-
-    return true;
-  },[routes]);
   
   return (
     <>

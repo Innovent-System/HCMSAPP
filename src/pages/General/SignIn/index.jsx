@@ -1,10 +1,10 @@
-import { useState,useContext,useEffect } from 'react';
+import { useState,useContext } from 'react';
 import  Controls  from '../../../components/controls/Controls';
 import { useForm, Form } from "../../../components/useForm";
 import { Link as RouterLink,useNavigate } from "react-router-dom";
-import { InputAdornment,IconButton, Link,Box,Container,Typography,Paper,makeStyles,CircularProgress } from "@material-ui/core";
-import { Visibility,VisibilityOff,Person } from '@material-ui/icons';
-import { green } from '@material-ui/core/colors';
+import { InputAdornment,IconButton, Link,Box,Container,Typography,Paper,CircularProgress } from "../../../deps/ui";
+import { Visibility,VisibilityOff,Person } from '../../../deps/ui/icons';
+import { green } from '../../../deps/ui/colorschema';
 import bg from '../../../assests/images/bg-1.jpg';
 import { handlePostActions } from '../../../store/actions/httpactions';
 import { useDispatch } from "react-redux";
@@ -13,33 +13,32 @@ import Auth from '../../../services/AuthenticationService';
 import { SocketContext } from '../../../services/socketService';
 
 
-
 const initialFValues = {
     userName:"",
     password:"",
     isShowPassword: false,
   };
 
-  const useStyles = makeStyles((theme) => ({
+  const styles = {
     root: {
-      backgroundColor: theme.palette.background.dark,
+      backgroundColor: 'background.dark',
       background:`url(${bg})`,
       backgroundPosition: 'center center',
       backgroundSize: 'cover',
       backgroundRepeat: 'no-repeat',
       backgroundAttachment: 'fixed',
       height: '100%',
-      paddingBottom: theme.spacing(3),
-      paddingTop: theme.spacing(3)
+      paddingBottom: 2,
+      paddingTop: 3
     },
     transparent:{
       opacity:0.9,
       textAlign:'center',
-      paddingBottom: theme.spacing(2),
-      paddingTop: theme.spacing(1)
+      paddingBottom: 2,
+      paddingTop: 1
     },
     wrapper: {
-      margin: theme.spacing(1),
+      margin: 1,
       position: 'relative',
     },
     buttonProgress: {
@@ -50,7 +49,7 @@ const initialFValues = {
       marginTop: -12,
       marginLeft: -12,
     }
-  }));
+  }
 
 const SignIn = ({setRoutes,setSideMenu}) => {
   const dispatch = useDispatch();
@@ -59,8 +58,6 @@ const SignIn = ({setRoutes,setSideMenu}) => {
 
   const socket = useContext(SocketContext);
   
-
-  const classes = useStyles();
     const validate = (fieldValues = values) => {
         let temp = { ...errors };
         if ("userName" in fieldValues)
@@ -127,7 +124,7 @@ const SignIn = ({setRoutes,setSideMenu}) => {
 
     return (
       <>
-      <Box className={classes.root}>
+      <Box sx={styles.root}>
      
       <Box
       display="flex"
@@ -135,7 +132,7 @@ const SignIn = ({setRoutes,setSideMenu}) => {
       height="100%"
       justifyContent="center"
     >
-      <Container className={classes.transparent} component={Paper}
+      <Container sx={styles.transparent} component={Paper}
       elevate={3} maxWidth="sm">
 
       <Box  display='flex' alignItems='center' flexDirection='column'>
@@ -203,7 +200,7 @@ const SignIn = ({setRoutes,setSideMenu}) => {
 
                    <Box mb={2} display='flex' justifyContent='center' alignItems='center'> 
 
-                     <div className={classes.wrapper}>
+                     <Box sx={styles.wrapper}>
                       <Controls.Button
                       text="Login"
                       type="submit"
@@ -211,9 +208,9 @@ const SignIn = ({setRoutes,setSideMenu}) => {
                       />
 
                       {loader && (
-                      <CircularProgress size={24} className={classes.buttonProgress} />
+                      <CircularProgress size={24} sx={styles.buttonProgress} />
                     )}
-                     </div>
+                     </Box>
                    
                     <Controls.Button text="Reset"   color="default"  onClick={resetForm} />
                    </Box>

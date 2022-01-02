@@ -1,24 +1,18 @@
 import Chart from '../../../components/Chart';
-import { Grid,makeStyles } from '@material-ui/core';
-import Container from '../../../components/ContainerWrapper';
+import { Grid } from '../../../deps/ui';
 import Amchart from '../../../components/Amchart';
 
-const useStyles = makeStyles((theme) => ({
-    pageContent: {
-        margin: theme.spacing(2),
-        padding: theme.spacing(1),
-      },
-   
-  }));
 
 const DashBoard = () => {
-    const classes = useStyles();
+    
 
     const label = ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'];
     const data = [{ "label": "Amount", "data": [12, 19, 3, 5, 2, 3] }];
     return (
-       <Grid className={classes.pageContent}>
-
+       <Grid sx={{
+           m:2,
+           p:1
+       }} >
       
            <Grid  container spacing={3}>
 
@@ -36,12 +30,8 @@ const DashBoard = () => {
                 }} />
             </Grid>
 
-        
-           
-            
         </Grid>
-        </Grid>
-        
+        </Grid>        
     )
 }
 

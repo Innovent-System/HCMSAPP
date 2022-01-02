@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import {
   Button,
   ListItem,
-  Tooltip
+  Tooltip,
+  Box
 } from '../../deps/ui';
 
 const titleColor = "#7c828d";
@@ -64,20 +65,16 @@ const NavItem = ({
   const MenuItemRoot = (
     <ListItem {...rest}
     button
-    className={classes.item}
+    sx={classes.item}
     disableGutters
   >
     <Tooltip placement="right" title={title} disableHoverListener={isShowToolTip} aria-label={title}>
     {routeTo ? <Button
-      activeClassName={classes.active}
-      className={classes.button}
-      classes={{
-        startIcon: classes.startIcon,
-      }}
+      sx={{...classes.button,startIcon:classes.startIcon}}
       component={RouterLink}
       to={routeTo}
       startIcon={<Icon
-        className={classes.icon}
+        sx={classes.icon}
         style={{fontSize:24}}
         fontSize="large"
       />}
@@ -90,23 +87,18 @@ const NavItem = ({
        </span> 
       }       
     </Button> : <Button 
-      
-      className={classes.button}
-      classes={{
-        startIcon: classes.startIcon,
-      }}
+      sx={{...classes.button,startIcon:classes.startIcon}}
       startIcon={<Icon
-        className={classes.icon}
+        sx={classes.icon}
         style={{fontSize:24}}
         fontSize="large"
       />}
       
-      
     >
        {isShowToolTip &&
-      <span className={classes.title}>
+      <Box component="span"  className={classes.title}>
       {title}
-       </span> 
+       </Box> 
       }        
     </Button> }
     
