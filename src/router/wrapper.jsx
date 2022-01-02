@@ -1,6 +1,4 @@
-import PropTypes from 'prop-types';
-import { Route, Navigate,Outlet,useLocation } from 'react-router-dom';
-import Auth from '../services/AuthenticationService';
+import { Navigate,Outlet,useLocation } from 'react-router-dom';
 
 
 
@@ -15,15 +13,5 @@ const RouterWrapper = () => {
   // if (!signed) return <Route element={<Navigate to='/' />}  />;
    return <Outlet />;   
 };
-
-// RouterWrapper.propTypes = {
-//   isPrivate: PropTypes.bool,
-//   component: PropTypes.oneOfType([PropTypes.element, PropTypes.func])
-//     .isRequired,
-// };
-
-// RouterWrapper.defaultProps = {
-//   isPrivate: false,
-// };
 
 export default RouterWrapper;

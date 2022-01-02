@@ -5,8 +5,8 @@ import { history } from '../config/appconfig';
 import {SocketContext} from '../services/socketService';
 import Auth from '../services/AuthenticationService';
 import { useSnackbar } from 'notistack';
-import { IconButton } from '@material-ui/core';
-import CloseIcon from '@material-ui/icons/Close';
+import { IconButton } from '../deps/ui';
+import { Close as CloseIcon }  from '../deps/ui/icons';
 
 function StatusHanlder() {
     const routeNotify = useSelector((state => state[Object.keys(state)[0]]));

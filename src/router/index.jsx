@@ -14,22 +14,8 @@ import Dashboard from '../pages/General/Dashboard'
 
 const Routers = () => {
   
-
   const [routes, setRoutes] = useState(Auth.getitem("appConfigData")?.appRoutes || []);
   const [sideMenu, setSideMenu] = useState(Auth.getitem("appConfigData")?.sideMenuData || []);
-  
-  const checkRoutes = useCallback((_routes = []) => {
-    const url = window.location.pathname.split("/")[1];
-    //all routes shoulb be in array private or non-private
-    if(_routes.find(f => f.routeTo.match(url))){
-      return true;
-    }
-    else{
-       history.push("/dashboard");
-    }
-
-    return true;
-  },[routes]);
   
   return (
     <>
@@ -41,42 +27,15 @@ const Routers = () => {
                          <Route  path="/dashboard" element={<Dashboard />} />
                           {routes.map((prop, key) => {
                                     return (
-                                      <Route  path={`${prop.routeTo}/:id`} key={key} element={<DynamicLoader component={prop.path} />} />
+                                      <Route  path={`${prop.path.substring(5).toLowerCase()}/:id`} key={key} element={<DynamicLoader component={prop.path} />} />
                                     );
                                 })
                             }
                        <Route  path="*" element={<Dashboard />} />
               </Route>
-              
-              
           </Route>
           {/* <Route path="*" element={<Navigate to="/dashboard"/>} /> */}
       </Routes>
-     
-      
-      {/* <Route
-                exact
-                path="/jobopening"
-                component={() => <Emp />}
-                
-              /> */}
-       {/* publick route define before */}
-      {/* {(routes?.length && checkRoutes(routes)) ? 
-      
-        <Layout sideMenuData={sideMenu}>
-          <Routes>
-          
-            {routes.map((prop, key) => {
-              return (
-                <Route  path={`${prop.routeTo}/:id`} key={key} element={<DynamicLoader component={prop.path} />} />
-              );
-            })
-            }
-            
-          </Routes>
-        </Layout> 
-         :  null 
-      } */}
       <StatusSnack />
     </>
   );
@@ -84,7 +43,8 @@ const Routers = () => {
 
 function DynamicLoader(props) {
 
-  const LazyComponent = lazy(() => import(`../${props.component}`));
+  const LazyComponent = lazy(() => import(`../${props.component}`)
+  .catch(() => ({ default: () => <div>Not found</div> })));
   return (
     <Suspense fallback={<CircularLoading />}>
       <LazyComponent />

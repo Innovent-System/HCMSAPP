@@ -3,7 +3,7 @@ import "./App.css";
 import { BrowserRouter as Router } from "react-router-dom";
 import { history } from "../config/appconfig";
 import Routes from "../router";
-import { createMuiTheme, ThemeProvider } from "@material-ui/core";
+import { createTheme, ThemeProvider } from "../deps/ui";
 import GlobalStyles from '../layout/styles/GlobalStyles';
 import { Provider } from "react-redux";
 import { store } from "../store/reducers/store";
@@ -12,7 +12,7 @@ import { SnackbarProvider } from 'notistack';
 
 
 // #fafafa
-const theme = createMuiTheme({
+const theme = createTheme({
   palette: {
     type:"light",
     primary: {

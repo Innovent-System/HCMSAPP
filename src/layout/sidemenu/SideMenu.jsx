@@ -3,20 +3,18 @@ import PropTypes from 'prop-types';
 import Controls from '../../components/controls/Controls';
 import UseSkeleton from '../../components/UseSkeleton';
 import * as iconMapping from '../../assests/icons';
-import {makeStyles,ClickAwayListener  } from '@material-ui/core';
 import ScrollBar from '../../components/ScrollButton'
 import {
   Avatar,
   Box,
   Divider,
-  Drawer,
-  Hidden,
+  ClickAwayListener,
   List,
-  Typography,Paper,Fade
-} from '@material-ui/core';
+  Typography,Fade
+} from '../../deps/ui';
 import avatar from '../../assests/images/avatar_6.png';
 import NavItem from './NavItem';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import  { useLocation } from 'react-router-dom';
 
 
@@ -28,7 +26,7 @@ const user = {
 
 const drawerWidth = 220;
 
-const sideMenuStyles = makeStyles((theme) => ({
+const sideMenuStyles = {
   SubMenu:{
     position: 'fixed',
     width: 200,
@@ -36,9 +34,9 @@ const sideMenuStyles = makeStyles((theme) => ({
     top: 70,
     height: 'calc(100vh - 70px)',
     overflowY: 'auto',
-    background: theme.palette.background.light,
+    background: 'background.light',
     zIndex: 99,
-    [theme.breakpoints.down('sm')]:{
+    [`theme.breakpoints.down('sm')`]:{
       top: 58,
       height: 'calc(100vh - 58px)',
     }
@@ -58,10 +56,10 @@ const sideMenuStyles = makeStyles((theme) => ({
     }
   }
   
-}));
+};
 
 const SubMenu = ({subMenuList,title}) => {
-  const classes = sideMenuStyles();
+  const classes = sideMenuStyles;
   const [checked,setChecked] =  useState(true);
 
 return (
@@ -92,7 +90,7 @@ return (
 
 const SideBar = ({ open, sideMenuData }) => {
   
-  const classes = sideMenuStyles();
+  const classes = sideMenuStyles;
   const [subMenu,setSubMenu] = useState([]);
   const location = useLocation();
   
@@ -111,7 +109,7 @@ const SideBar = ({ open, sideMenuData }) => {
         {subMenuList.map((item,index) => (
           <div  key={item.title}>
             <NavItem
-              routeTo={`${item?.routeTo}/${encodeURIComponent(item._id)}`}
+              routeTo={`${item?.path.substring(5).toLowerCase()}/${encodeURIComponent(item._id)}`}
               title={item.title}
               icon={iconMapping[item.icon]}
               children={item?.children}

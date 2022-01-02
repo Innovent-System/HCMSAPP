@@ -1,27 +1,22 @@
 import React, { useCallback } from 'react';
-import { makeStyles, Grid, Collapse, Box } from '@material-ui/core';
-import Stepper from '@material-ui/core/Stepper';
-import Step from '@material-ui/core/Step';
-import StepLabel from '@material-ui/core/StepLabel';
-import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
-import { Form, useForm, AutoForm } from '../../../components/useForm';
-import Controls from '../../../components/controls/Controls';
-import avatar from '../../../assests/images/avatar_6.png'
+import { Stepper, Collapse, Box,Step,StepLabel,Typography } from '../../deps/ui';
+import { AutoForm } from '../../components/useForm';
+import Controls from '../../components/controls/Controls';
+import avatar from '../../assests/images/avatar_6.png'
 
 
-const useStyles = makeStyles((theme) => ({
+const Styles = {
   root: {
     width: '100%',
   },
   button: {
-    marginRight: theme.spacing(1),
+    marginRight: 1,
   },
   instructions: {
-    marginTop: theme.spacing(1),
-    marginBottom: theme.spacing(1),
+    marginTop: 1,
+    marginBottom: 1,
   },
-}))
+}
 
 const genderItems = [
   { id: "male", title: "Male" },
@@ -60,96 +55,9 @@ const getSteps = () => {
   return ['General Information', 'Additional Information', 'Company Information'];
 }
 
-const GeneralInfromation = ({ detail, onchange, errors }) => {
-  return (
-    <>
-      <h4>General Information</h4>
-      <Grid spacing={3} xs={8} container>
-        <Grid item sx={6}>
-          <Controls.Input
-            name="emplyeeRefNo"
-            label="Employee Code"
-            type="number"
-            InputProps={{
-              inputProps: { min: 0 }
-            }}
-            value={detail.emplyeeRefNo}
-            onChange={onchange}
-            error={errors.emplyeeRefNo}
 
-          />
-        </Grid>
-        <Grid item sx={6}>
-          <Controls.Input
-            name="punchCode"
-            label="Punch Code"
-            value={detail.punchCode}
-            onChange={onchange}
-            error={errors.punchCode}
-
-          />
-        </Grid>
-        <Grid item sx={6}>
-          <Controls.Input
-            name="firstName"
-            label="First Name"
-            value={detail.firstName}
-            onChange={onchange}
-            error={errors.firstName}
-
-          />
-        </Grid>
-        <Grid item sx={6}>
-          <Controls.Input
-            name="lastName"
-            label="Last Name"
-            value={detail.lastName}
-            onChange={onchange}
-            error={errors.lastName}
-
-          />
-        </Grid>
-        <Grid item sx={6}>
-          <Controls.Checkbox
-            name="isAllowManualAttendance"
-            label="Allow Manual Attendance"
-            value={detail.isAllowManualAttendance}
-            onChange={onchange}
-          />
-        </Grid>
-        <Grid item sx={6}>
-          <Controls.Checkbox
-            name="isAllowLogin"
-            label="Allow Login"
-            value={detail.isAllowLogin}
-            onChange={onchange}
-
-          />
-        </Grid>
-      </Grid>
-
-    </>
-
-
-  )
-}
-
-const AdditionalInfromation = ({ detail, onchange, errors }) => {
-  return (
-    <h4>Additional Information</h4>
-  )
-}
-
-const CompanyInfromation = ({ detail, onchange, errors }) => {
-  return (
-    <h4>Company Information</h4>
-  )
-}
-
-
-
-export default function HorizontalLinearStepper() {
-  const classes = useStyles();
+export default function List() {
+  const classes = Styles;
   const [activeStep, setActiveStep] = React.useState(0);
   const [skipped, setSkipped] = React.useState(new Set());
   const steps = getSteps();
@@ -350,50 +258,10 @@ export default function HorizontalLinearStepper() {
     [activeStep],
   )
 
-  const getStepContent = useCallback((step, objectValues, onChange, errors) => {
-    switch (step) {
-      case 0:
-        return <GeneralInfromation detail={objectValues} onchange={onChange} errors={errors} />;
-      case 1:
-        return <AdditionalInfromation detail={objectValues.companyInfo} onchange={onChange} errors={errors} />;
-      case 2:
-        return <CompanyInfromation detail={objectValues} onchange={onChange} errors={errors} />;
-      default:
-        return 'Unknown step';
-    }
-  },
-    [activeStep],
-  )
 
   const isStepOptional = (step) => {
     return step === 1;
   }
-  const validate = (fieldValues = values) => {
-    let temp = { ...errors };
-    if ("fullName" in fieldValues)
-      temp.fullName = fieldValues.fullName ? "" : "This field is required.";
-    if ("email" in fieldValues)
-      temp.email = /$^|.+@.+..+/.test(fieldValues.email)
-        ? ""
-        : "Email is not valid.";
-    if ("mobile" in fieldValues)
-      temp.mobile =
-        fieldValues.mobile.length > 9 ? "" : "Minimum 10 numbers required.";
-    if ("departmentId" in fieldValues)
-      temp.departmentId =
-        fieldValues.departmentId.length != 0 ? "" : "This field is required.";
-
-    setErrors({
-      ...temp,
-    });
-
-    if (fieldValues == values) return Object.values(temp).every((x) => x == "");
-  };
-
-
-
-
-  const { errors, setValues, values, resetForm, setErrors, handleInputChange } = useForm(initialFValues, true, validate);
 
   const isStepSkipped = (step) => {
     return skipped.has(step);
@@ -458,36 +326,21 @@ export default function HorizontalLinearStepper() {
             <Typography className={classes.instructions}>
               All steps completed - you&apos;re finished
             </Typography>
-            <Button onClick={handleReset} className={classes.button}>
-              Reset
-            </Button>
+            <Controls.Button onClick={handleReset} className={classes.button} text="Reset"/>
           </div>
         ) : (
           <Box display='flex' flexDirection='column' justifyContent='space-between'>
             <AutoForm formData={formData()} isValidate={true} />
             <div>
-              <Button disabled={activeStep === 0} onClick={handleBack} className={classes.button}>
-                Back
-              </Button>
+
+              <Controls.Button onClick={handleBack} disabled={activeStep === 0} className={classes.button} text="Back"/>
               {isStepOptional(activeStep) && (
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleSkip}
-                  className={classes.button}
-                >
-                  Skip
-                </Button>
+
+               <Controls.Button onClick={handleSkip} className={classes.button} text="Skip"/>
               )}
 
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleNext}
-                className={classes.button}
-              >
-                {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
-              </Button>
+               <Controls.Button onClick={handleNext} className={classes.button} text={activeStep === steps.length - 1 ? 'Finish' : 'Next'}/>
+
             </div>
           </Box>
         )}
