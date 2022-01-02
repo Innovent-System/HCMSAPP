@@ -10,11 +10,11 @@ import {
   Divider,
   ClickAwayListener,
   List,
-  Typography,Paper,Fade
+  Typography,Fade
 } from '../../deps/ui';
 import avatar from '../../assests/images/avatar_6.png';
 import NavItem from './NavItem';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import  { useLocation } from 'react-router-dom';
 
 
@@ -90,7 +90,7 @@ return (
 
 const SideBar = ({ open, sideMenuData }) => {
   
-  const classes = sideMenuStyles();
+  const classes = sideMenuStyles;
   const [subMenu,setSubMenu] = useState([]);
   const location = useLocation();
   
@@ -109,7 +109,7 @@ const SideBar = ({ open, sideMenuData }) => {
         {subMenuList.map((item,index) => (
           <div  key={item.title}>
             <NavItem
-              routeTo={`${item?.routeTo}/${encodeURIComponent(item._id)}`}
+              routeTo={`${item?.path.substring(5).toLowerCase()}/${encodeURIComponent(item._id)}`}
               title={item.title}
               icon={iconMapping[item.icon]}
               children={item?.children}

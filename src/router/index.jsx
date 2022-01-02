@@ -41,7 +41,7 @@ const Routers = () => {
                          <Route  path="/dashboard" element={<Dashboard />} />
                           {routes.map((prop, key) => {
                                     return (
-                                      <Route  path={`${prop.routeTo}/:id`} key={key} element={<DynamicLoader component={prop.path} />} />
+                                      <Route  path={`${prop.path.substring(5).toLowerCase()}/:id`} key={key} element={<DynamicLoader component={prop.path} />} />
                                     );
                                 })
                             }
