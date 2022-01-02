@@ -14,8 +14,7 @@ import {
 } from '../../deps/ui';
 import avatar from '../../assests/images/avatar_6.png';
 import NavItem from './NavItem';
-import { useEffect, useState } from 'react';
-import  { useLocation } from 'react-router-dom';
+import {  useState } from 'react';
 
 
 const user = {
@@ -67,7 +66,7 @@ return (
   <>
   {title !== "DASHBOARD" && 
   <Fade in={checked} timeout={500}>
-  <List className={classes.SubMenu} subheader={<Typography  color='textSecondary' style={{paddingLeft:'3%'}} variant="h5" gutterBottom>
+  <List sx={classes.SubMenu} subheader={<Typography  color='textSecondary' style={{paddingLeft:'3%'}} variant="h5" gutterBottom>
     {title}
   </Typography>} component="div" disablePadding>
     {subMenuList.map((item,index) => (
@@ -78,7 +77,7 @@ return (
           icon={iconMapping[item.icon]}
           children={item?.children}
         />
-        <Divider className={classes.dividerColor}  />
+        <Divider sx={classes.dividerColor}  />
     </div>
     ))}
     
@@ -92,7 +91,6 @@ const SideBar = ({ open, sideMenuData }) => {
   
   const classes = sideMenuStyles;
   const [subMenu,setSubMenu] = useState([]);
-  const location = useLocation();
   
   const handleCloseMenu = ()=>{
     setSubMenu(null);
@@ -103,7 +101,7 @@ const SideBar = ({ open, sideMenuData }) => {
     const list = (
      
       <Fade in={true} timeout={500}>
-      <List className={classes.SubMenu} subheader={<Typography  color='textSecondary' style={{paddingLeft:'3%'}} variant="h5" gutterBottom>
+      <List sx={classes.SubMenu} subheader={<Typography  color='textSecondary' style={{paddingLeft:'3%'}} variant="h5" gutterBottom>
         {title}
       </Typography>} component="div" disablePadding>
         {subMenuList.map((item,index) => (
@@ -115,7 +113,7 @@ const SideBar = ({ open, sideMenuData }) => {
               children={item?.children}
               onClick={handleCloseMenu}
             />
-            <Divider className={classes.dividerColor}  />
+            <Divider sx={classes.dividerColor}  />
         </div>
         ))}
         
@@ -127,36 +125,18 @@ const SideBar = ({ open, sideMenuData }) => {
     setSubMenu(list);
   }
 
-  useEffect(() => {
-    /**
-     * Alert if clicked on outside of element
-    //  */
-    // function handleClickOutside(event) {
-    //     if (ref.current && !ref.current.contains(event.target)) {
-    //       ref.current.style.opacity = 0;
-    //     }
-    // }
-
-    // // Bind the event listener
-    // document.addEventListener("mousedown", handleClickOutside);
-    // return () => {
-    //     // Unbind the event listener on clean up
-    //     document.removeEventListener("mousedown", handleClickOutside);
-    // };
-}, []);
-
   const content = (
     <ClickAwayListener onClickAway={handleCloseMenu}>
     <Box className="sidebar-area">
        
       <Controls.Button
-        size="small" className={classes.profile}
+        size="small" sx={classes.profile}
         startIcon={<Avatar
           src={user.avatar}
         />} color="default" text={
           (open ?
             <Typography
-              className={classes.name}
+              sx={classes.name}
               color="initial"
               variant="h6"
             >

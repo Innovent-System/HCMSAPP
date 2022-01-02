@@ -1,0 +1,1 @@
+export const GET_REGULAR_DROPDOWN =  "common/getregulardropdown";

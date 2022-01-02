@@ -82,9 +82,9 @@ const NavItem = ({
       
     >
       {isShowToolTip &&
-      <span className={classes.title}>
+      <Box component="span" sx={classes.title}>
       {title}
-       </span> 
+       </Box> 
       }       
     </Button> : <Button 
       sx={{...classes.button,startIcon:classes.startIcon}}
@@ -96,7 +96,7 @@ const NavItem = ({
       
     >
        {isShowToolTip &&
-      <Box component="span"  className={classes.title}>
+      <Box component="span"  sx={classes.title}>
       {title}
        </Box> 
       }        

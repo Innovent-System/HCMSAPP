@@ -9,7 +9,7 @@ import {NotificationsNone as NotificationsNoneIcon,
 from '../../deps/ui/icons';
 import Auth from '../../services/AuthenticationService';
 import { SocketContext } from '../../services/socketService';
-import { history } from '../../config/appconfig';
+import { useNavigate } from 'react-router-dom';
 import { API_USER_LOGOUT } from '../../services/UrlService';
 import { handleGetActions } from '../../store/actions/httpactions';
 import { useDispatch } from "react-redux";
@@ -36,6 +36,7 @@ const headerStyles = {
 export default function Header() {
 
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const socket = useContext(SocketContext);
     useEffect(() => {
         return () => {
@@ -55,7 +56,7 @@ export default function Header() {
 
                 socket.emit("leave",info.c_Id);
                 localStorage.clear();
-                history.replace({pathname:"/"})
+                navigate("/");
             }
         })
         
@@ -63,7 +64,7 @@ export default function Header() {
 
 
     return (
-        <AppBar  className={headerStyles.appBar} position="static" elevation={2}>
+        <AppBar  sx={headerStyles.appBar} position="static" elevation={2}>
             <Toolbar disableGutters>
                 <Grid container
                     alignItems="center">
@@ -74,7 +75,7 @@ export default function Header() {
                           
                         <InputBase
                             placeholder="Search topics"
-                            className={headerStyles.searchInput}
+                            sx={headerStyles.searchInput}
                             startAdornment={<SearchIcon fontSize="small" />}
                         />
                     </Grid>

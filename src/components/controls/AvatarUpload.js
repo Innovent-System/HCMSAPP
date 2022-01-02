@@ -39,7 +39,7 @@ const AvatarUpload = (props) => {
 
     return (
         <Badge
-        overlap="circle"
+        overlap="circular"
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         badgeContent={
           <>
