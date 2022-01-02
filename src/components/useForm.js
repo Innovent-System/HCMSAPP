@@ -1,9 +1,11 @@
-import React, { useEffect, useRef, useState,forwardRef,useImperativeHandle } from 'react'
+import React, { useEffect, useRef, useState,forwardRef,useImperativeHandle,useCallback } from 'react'
 import { makeStyles, Grid } from "@material-ui/core";
 import clsx from 'clsx';
 import { Element, ElementType } from '../components/controls/Controls';
 import PropTypes from 'prop-types'
+import {debounce} from '../util/common';
 
+const INTERVAL = 250;
 export function useForm(initialFValues, validateOnChange = false, validate) {
 
     const [values, setValues] = useState(initialFValues);
@@ -36,6 +38,7 @@ export function useForm(initialFValues, validateOnChange = false, validate) {
         }
 
     }
+
 
     const resetForm = () => {
         setValues(initialFValues);
@@ -84,9 +87,9 @@ export const AutoForm = forwardRef(function (props,ref) {
         formValue: {},
         errorProps: []
     });
-    const { errorProps } = formStates.current;
+    const { errorProps,formValue } = formStates.current;
 
-    const validateFields = (fieldValues = errorProps) => {
+    const validateFields = useCallback(debounce((fieldValues = errorProps) => {
         let temp = { ...errors }, singleField = null;
 
         if (!Array.isArray(fieldValues)) {
@@ -113,7 +116,7 @@ export const AutoForm = forwardRef(function (props,ref) {
         });
 
         return Object.values(temp).every((x) => x == "");
-    }
+    },INTERVAL),[])
 
     const {
         values,
@@ -122,13 +125,13 @@ export const AutoForm = forwardRef(function (props,ref) {
         setErrors,
         handleInputChange,
         resetForm
-    } = useForm(formStates.current.formValue, isValidate, validateFields);
+    } = useForm(formValue, isValidate, validateFields);
 
     useEffect(() => {
-        if(!isEdit && Object.keys(formStates.current.formValue).length === Object.keys(values).length) return 
-        formStates.current.formValue = formData.filter(f => !Boolean(f["name"])).reduce((obj, item) => {
+        // if(!isEdit && Object.keys(formValue).length === Object.keys(values).length) return 
+         formData.reduce((obj, item) => {
             if ("Component" in item) {
-                return item._children.reduce((o, childItem) => {
+                 return item._children.reduce((o, childItem) => {
                     if ("validate" in childItem) {
                         errorProps.push({
                             [childItem.name]: "",
@@ -141,11 +144,12 @@ export const AutoForm = forwardRef(function (props,ref) {
                     }
                     const value = childItem.defaultValue;
                     delete childItem.defaultValue;
-                    return Object.assign(o, { [childItem.name]: value })
-                }, {})
+                    return Object.assign(formValue, { [childItem.name]: value })
+                }, formValue)
 
             }
-            if ("validate" in item) {
+            
+                if ("validate" in item) {
                     errorProps.push({
                         [item.name]: "",
                         validate: item.validate?.validate,
@@ -154,14 +158,18 @@ export const AutoForm = forwardRef(function (props,ref) {
                         isOptional:(typeof item["required"] === "function" ? item["required"] : undefined)
                     })
                 
-                delete item.validate;
-            }
-            const value = item.defaultValue;
-            delete item.defaultValue;
-            return Object.assign(obj, { [item.name]: value })
-        }, {});
-        setValues(formStates.current.formValue)
-    }, [formData])
+                  delete item.validate;
+                }
+                const value = item.defaultValue;
+                delete item.defaultValue;
+                return Object.assign(formValue, { [item.name]: value })
+            
+
+            
+        }, formValue);
+        Object.keys(formValue).forEach(key => formValue[key] === undefined && delete formValue[key])
+        setValues(formValue);
+    }, [])
 
     
     useImperativeHandle(ref, () => ({
@@ -172,7 +180,7 @@ export const AutoForm = forwardRef(function (props,ref) {
       }));
 
     useEffect(() => {
-        if(values && typeof values === "object" && errorProps.filter(f => typeof f.isOptional === "function").length){   
+        if(typeof values === "object" && errorProps.filter(f => typeof f.isOptional === "function").length){   
             let errorTobeRemove = {};
             formStates.current.errorProps =  errorProps.map(m =>{
                 if(typeof m.isOptional === "function"){
@@ -193,7 +201,7 @@ export const AutoForm = forwardRef(function (props,ref) {
         <>
             <form className={classes.root} autoComplete="off" {...other}>
                 <Grid {...breakpoints} container>
-                    {formStates.current.formValue && formData.map(({ name, label,required, elementType, Component = null, disabled , classes, _children, breakpoints = DEFAULT_BREAK_POINTS, ...others }, index) => (
+                    {Object.keys(formValue).length  && formData.map(({ name, label,required, elementType, Component = null, disabled , classes, _children, breakpoints = DEFAULT_BREAK_POINTS, ...others }, index) => (
                         Component ? <Component {...others} key={index}>
                             <Grid spacing={3} container>
                                 {Array.isArray(_children) ? _children.map(({ name,label,required, elementType, breakpoints = DEFAULT_BREAK_POINTS, classes, disabled , ..._others }, innerIndex) => (
@@ -236,6 +244,9 @@ export const AutoForm = forwardRef(function (props,ref) {
     )
 })
 
+AutoForm.defaultProps = {
+    isEdit:false
+}
 
 AutoForm.propTypes = {
     formData: PropTypes.oneOfType([
