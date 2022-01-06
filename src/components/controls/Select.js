@@ -1,6 +1,5 @@
-import React, { useRef } from 'react'
+import React from 'react'
 import { FormControl,makeStyles, InputLabel, Select as MuiSelect,ListItem,IconButton, MenuItem, FormHelperText,ListItemIcon,ListItemText,Checkbox } from '@material-ui/core';
-import Autocomplete from '@material-ui/lab/Autocomplete';
 import {Clear,Check} from '@material-ui/icons'
 
 const useStyles = makeStyles((theme) => ({
@@ -28,14 +27,8 @@ const MenuProps = {
   },
 };
 
-const IgnoreDisabledListItem = React.forwardRef(function IgnoreDisabledListItem(
-  { disabled, ...other },
-  ref
-) {
-  return <ListItem  divider {...other} ref={ref} />;
-});
 
-export default function Select(props) {
+function Select(props) {
 
     const { name, label, value,error=null, onChange,dataId = "",dataName = "",isMultiple = false, options,...others } = props;
     const classes = useStyles();
@@ -129,3 +122,5 @@ export default function Select(props) {
         </FormControl>
     )
 }
+
+export default React.memo(Select); 

@@ -11,7 +11,7 @@ export function useForm(initialFValues, validateOnChange = false, validate) {
     const [values, setValues] = useState(initialFValues);
     const [errors, setErrors] = useState({});
 
-    const handleInputChange = e => {
+    const handleInputChange = (e,exec) => {
         const { name, value } = e.target
         let _value = value;
 
@@ -33,10 +33,12 @@ export function useForm(initialFValues, validateOnChange = false, validate) {
                 ...values,
                 [name]: _value
             })
+            typeof exec === "function" && exec(_value); 
             if (validateOnChange)
                 validate({ [name]: _value })
         }
 
+         
     }
 
 
@@ -201,10 +203,10 @@ export const AutoForm = forwardRef(function (props,ref) {
         <>
             <form className={classes.root} autoComplete="off" {...other}>
                 <Grid {...breakpoints} container>
-                    {Object.keys(formValue).length  && formData.map(({ name, label,required, elementType, Component = null, disabled , classes, _children, breakpoints = DEFAULT_BREAK_POINTS, ...others }, index) => (
+                    {Object.keys(formValue).length  && formData.map(({ name, label,required, elementType, Component = null, disabled , classes, _children, breakpoints = DEFAULT_BREAK_POINTS,onChange, ...others }, index) => (
                         Component ? <Component {...others} key={index}>
                             <Grid spacing={3} container>
-                                {Array.isArray(_children) ? _children.map(({ name,label,required, elementType, breakpoints = DEFAULT_BREAK_POINTS, classes, disabled , ..._others }, innerIndex) => (
+                                {Array.isArray(_children) ? _children.map(({ name,label,required, elementType, breakpoints = DEFAULT_BREAK_POINTS, classes, disabled , onChange, ..._others }, innerIndex) => (
                                     <Grid  {...(breakpoints && { ...breakpoints })} key={innerIndex} item>
                                         <Element elementType={elementType}
                                             name={name}
@@ -212,7 +214,7 @@ export const AutoForm = forwardRef(function (props,ref) {
                                             {...(required && {required:(typeof required === "function" ? required(values) : required)})}
                                             value={values[name]}
                                             {...(disabled && { disabled:(typeof disabled === "function" ? disabled(values) : required) })}
-                                            onChange={handleInputChange}
+                                            onChange={(e) => handleInputChange(e,onChange)}
                                             {...(errors[name] && { error: errors[name] })}
                                             {...(classes && { className: clsx(classes) })}
                                             {..._others}
@@ -229,7 +231,7 @@ export const AutoForm = forwardRef(function (props,ref) {
                                     value={values[name]}
                                     {...(required && {required:(typeof required === "function" ? required(values) : required)})}
                                     {...(disabled && { disabled:(typeof disabled === "function" ? disabled(values) : required) })}
-                                    onChange={handleInputChange}
+                                    onChange={(e) => handleInputChange(e,onChange)}
                                     {...(errors[name] && { error: errors[name] })}
                                     {...(classes && { className: clsx(classes) })}
                                     {...others}

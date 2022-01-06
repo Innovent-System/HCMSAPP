@@ -1,8 +1,11 @@
-import React, { useCallback } from 'react';
+import React, { useCallback,useEffect,useState } from 'react';
 import { Stepper, Collapse, Box,Step,StepLabel,Typography } from '../../deps/ui';
 import { AutoForm } from '../../components/useForm';
 import Controls from '../../components/controls/Controls';
-import avatar from '../../assests/images/avatar_6.png'
+import {useDispatch} from 'react-redux';
+import avatar from '../../assests/images/avatar_6.png';
+import { API } from './_Service';
+import { handleGetActions } from '../../store/actions/httpactions';
 
 
 const Styles = {
@@ -55,12 +58,36 @@ const getSteps = () => {
   return ['General Information', 'Additional Information', 'Company Information'];
 }
 
+let DROPDOWN_DATA = {};
 
 export default function List() {
   const classes = Styles;
   const [activeStep, setActiveStep] = React.useState(0);
   const [skipped, setSkipped] = React.useState(new Set());
+  const formRef = React.useRef(null);
   const steps = getSteps();
+  const dispatch = useDispatch();
+  const [countries, setCountries] = useState([]);
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]); 
+  
+  useEffect(() => {
+    dispatch(handleGetActions(API.GET_REGULAR_DROPDOWN)).then(res => {
+      if(res){
+        DROPDOWN_DATA = res.data;
+        setCountries(res.data.Countries);
+      }
+    });
+  }, []);
+
+
+  const filterState = (data) => {
+    setStates([...DROPDOWN_DATA.States.filter(f => f.country_id === data.id)]);
+  }
+
+  const filterCity = (data) => {
+    setCities([...DROPDOWN_DATA.Cities.filter(f => f.state_id === data.id)]);
+  }
 
   const formData = useCallback(
     () => {
@@ -210,53 +237,53 @@ export default function List() {
           style: { width: 'inherit' },
           _children: [
             {
-              elementType: "dropdown",
+              elementType: "ad_dropdown",
               name: "fkCompanyId",
-              label: "Organization",
+              label: "Country",
               required: true,
               validate: {
                 errorMessage: "Company is required",
               },
-              options: [{ id: 1, title: "Biltexco" },
-              { id: 2, title: "Spursole" }],
+              dataName:'name',
+              options: countries,
+              onChange:filterState,
               defaultValue: ''
             },
-            // {
-            //   elementType: "ad_dropdown",
-            //   name: "fkCountryId",
-            //   label: "Country",
-            //   required: true,
-            //   dataId: "id",
-            //   dataName: "title",
-            //   validate: {
-            //     errorMessage: "Country is required",
-            //   },
-            //   options: [{ id: 0, title: "Pakistan" },
-            //   { id: 1, title: "America" }],
-            //   defaultValue: { id: 0, title: "Pakistan" }
-            // },
-            // {
-            //   elementType: "ad_dropdown",
-            //   name: "fkStateId",
-            //   label: "State",
-            //   required: true,
-            //   dataId: "id",
-            //   dataName: "title",
-            //   validate: {
-            //     errorMessage: "State is required",
-            //   },
-            //   options: [{ id: 0, title: "Sindh" },
-            //   { id: 1, title: "Punjab" }],
-            //   defaultValue: { id: 0, title: "Sindh" }
-            // },
+            {
+              elementType: "ad_dropdown",
+              name: "fkStateId",
+              label: "State",
+              required: true,
+              dataName: "name",
+              validate: {
+                errorMessage: "State is required",
+              },
+              options: states,
+              onChange:filterCity,
+              defaultValue: ''
+            },
+            {
+              elementType: "ad_dropdown",
+              name: "fkCityId",
+              label: "City",
+              required: true,
+              dataName: "name",
+              validate: {
+                errorMessage: "City is required",
+              },
+              options: cities,
+              onChange:filterCity,
+              defaultValue: ''
+            }
 
           ]
         },
 
       ]
     },
-    [activeStep],
+    [activeStep,states,cities],
   )
+
 
 
   const isStepOptional = (step) => {
@@ -330,7 +357,7 @@ export default function List() {
           </div>
         ) : (
           <Box display='flex' flexDirection='column' justifyContent='space-between'>
-            <AutoForm formData={formData()} isValidate={true} />
+            <AutoForm formData={formData()} ref={formRef} isValidate={true} />
             <div>
 
               <Controls.Button onClick={handleBack} disabled={activeStep === 0} className={classes.button} text="Back"/>
