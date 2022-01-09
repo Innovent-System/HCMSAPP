@@ -1,8 +1,8 @@
 import React from 'react'
-import { FormControl,makeStyles, InputLabel, Select as MuiSelect,ListItem,IconButton, MenuItem, FormHelperText,ListItemIcon,ListItemText,Checkbox } from '@material-ui/core';
-import {Clear,Check} from '@material-ui/icons'
+import { FormControl, InputLabel, Select as MuiSelect, MenuItem, FormHelperText,ListItemIcon,ListItemText,Checkbox } from '../../deps/ui';
+import {Clear,Check} from '../../deps/ui/icons'
 
-const useStyles = makeStyles((theme) => ({
+const Styles = {
 
     firstItem: {
       
@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme) => ({
 
     }
     
-  }));
+  };
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -31,7 +31,7 @@ const MenuProps = {
 function Select(props) {
 
     const { name, label, value,error=null, onChange,dataId = "",dataName = "",isMultiple = false, options,...others } = props;
-    const classes = useStyles();
+    
     const isAllSelected =
     options.length > 0 && value?.length === options.length;
     
@@ -93,7 +93,7 @@ function Select(props) {
         
         
         {options.map((option,index) => (
-          <MenuItem key={index} value={option[dataId]}>
+          <MenuItem key={index} value={option[dataId] || ""}>
             <ListItemIcon>
               <Checkbox color="primary" checked={value.findIndex(f => f === option[dataId]) > -1} />
             </ListItemIcon>
@@ -109,7 +109,7 @@ function Select(props) {
                 <MenuItem value="">None</MenuItem>
                 {
                     options.map(
-                        item => (<MenuItem {...(value && { selected: value })} key={item.id} value={item.id}>{item.title}</MenuItem>)
+                        item => (<MenuItem  {...(value && { selected: true  })} key={item.id} value={item.id}>{item.title}</MenuItem>)
                     )
                 }
             </MuiSelect>

@@ -1,23 +1,21 @@
-import PropTypes from 'prop-types';
 import { useRef,useState } from 'react';
-import {Tooltip,Grid,IconButton,InputAdornment,ButtonGroup,Drawer, Box,makeStyles,Typography,Button,Zoom } from '@material-ui/core';
+import {Tooltip,Grid,IconButton,Drawer, Box,Typography,Zoom } from '../deps/ui';
 import  Controls from '../components/controls/Controls'; 
-import { Search,FilterList,CloudUpload} from '@material-ui/icons';
+import { Search,FilterList,CloudUpload} from '../deps/ui/icons';
 import * as employeeService from "../services/employeeService";
 
 
-const useStyles = makeStyles(theme => ({
+const Styles = {
     root: {
         '& .MuiFormControl-root': {
-            width: '80%',
-            margin: theme.spacing(1)
+            w: '80%',
+            m: 1
         }
     }
-}))
+}
 
 
 const  GridToolBar = (props)  =>{
-    const classes = useStyles();
     let departmentId = useRef("");
     const [state, setState] = useState(false);
     
@@ -54,7 +52,7 @@ const  GridToolBar = (props)  =>{
                         variant="h6"
                         component="div">
                         Filters</Typography>
-                                <Grid className={classes.root} container spacing={1}>
+                                <Grid sx={Styles.root} container spacing={1}>
 
                         <Grid item lg={6} sm={6}>
                                 <Controls.Select ref={departmentId}
@@ -92,10 +90,6 @@ const  GridToolBar = (props)  =>{
             </Drawer>
             </>
     )
-}
-
-GridToolBar.propTypes = {
-
 }
 
 export default GridToolBar

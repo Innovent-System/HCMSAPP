@@ -1,19 +1,19 @@
-import { Box,makeStyles } from '@material-ui/core';
+import { Box } from '../deps/ui';
 
 
 
-const useStyles = makeStyles((theme) => ({
+const Styles = {
     root: {
       backgroundColor: "#eee",
       height: '100%'
     }
-  }));
+  };
 
 function ContainerWrapper(props) {
-const classes = useStyles();
+
     const { children } = props;
     return (
-        <Box  className={classes.root}>
+        <Box  sx={Styles.root}>
             {children}
         </Box>
     )

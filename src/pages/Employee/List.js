@@ -61,7 +61,7 @@ const getSteps = () => {
 let DROPDOWN_DATA = {};
 
 export default function List() {
-  const classes = Styles;
+  
   const [activeStep, setActiveStep] = React.useState(0);
   const [skipped, setSkipped] = React.useState(new Set());
   const formRef = React.useRef(null);
@@ -177,7 +177,7 @@ export default function List() {
               name: "templateId",
               label: "User Template",
               disabled: (value) => value["isAllowManualAttendance"] === false,
-              defaultValue: '1',
+              defaultValue: 1,
               options: [{
                 id: 0, title: "Manager"
               },
@@ -189,20 +189,20 @@ export default function List() {
               elementType: "dropdown",
               name: "maritalstatus",
               label: "Marital Status",
-              defaultValue: '2',
+              defaultValue: 2,
               options: [{
                 id: 0, title: "Single"
               },
               { id: 1, title: "Married" },
               { id: 2, title: "Widowed" },
-              { id: 3, title: "Divorced" }
+              { id: 3, title: "Boxorced" }
               ]
             },
             {
               elementType: "dropdown",
               name: "gender",
               label: "Gender",
-              defaultValue: '1',
+              defaultValue: 1,
               options: [{
                 id: 1, title: "Male"
               },
@@ -329,7 +329,7 @@ export default function List() {
   };
 
   return (
-    <div className={classes.root}>
+    <Box sx={Styles.root}>
       <Stepper activeStep={activeStep}>
         {steps.map((label, index) => {
           const stepProps = {};
@@ -347,31 +347,31 @@ export default function List() {
           );
         })}
       </Stepper>
-      <div>
+      <Box>
         {activeStep === steps.length ? (
-          <div>
-            <Typography className={classes.instructions}>
+          <Box>
+            <Typography sx={Styles.instructions}>
               All steps completed - you&apos;re finished
             </Typography>
-            <Controls.Button onClick={handleReset} className={classes.button} text="Reset"/>
-          </div>
+            <Controls.Button onClick={handleReset} sx={Styles.button} text="Reset"/>
+          </Box>
         ) : (
           <Box display='flex' flexDirection='column' justifyContent='space-between'>
             <AutoForm formData={formData()} ref={formRef} isValidate={true} />
-            <div>
+            <Box>
 
-              <Controls.Button onClick={handleBack} disabled={activeStep === 0} className={classes.button} text="Back"/>
+              <Controls.Button onClick={handleBack} disabled={activeStep === 0} sx={Styles.button} text="Back"/>
               {isStepOptional(activeStep) && (
 
-               <Controls.Button onClick={handleSkip} className={classes.button} text="Skip"/>
+               <Controls.Button onClick={handleSkip} sx={Styles.button} text="Skip"/>
               )}
 
-               <Controls.Button onClick={handleNext} className={classes.button} text={activeStep === steps.length - 1 ? 'Finish' : 'Next'}/>
+               <Controls.Button onClick={handleNext} sx={Styles.button} text={activeStep === steps.length - 1 ? 'Finish' : 'Next'}/>
 
-            </div>
+            </Box>
           </Box>
         )}
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 }

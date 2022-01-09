@@ -1,25 +1,21 @@
 /* eslint-disable no-use-before-define */
 import React from 'react';
-import Autocomplete from '@material-ui/lab/Autocomplete';
-import { makeStyles } from '@material-ui/core/styles';
-import {TextField,Checkbox,Popper,ButtonGroup,Button} from '@material-ui/core';
-import CheckBoxOutlineBlankIcon from "@material-ui/icons/CheckBoxOutlineBlank";
-import CheckBoxIcon from "@material-ui/icons/CheckBox";
-import {Check,Clear} from "@material-ui/icons";
+import {Autocomplete,TextField,Checkbox,Popper,ButtonGroup,Button,Box} from '../../deps/ui'
+import { Check,Clear,CheckBox as CheckBoxIcon,CheckBoxOutlineBlank as CheckBoxOutlineBlankIcon } from '../../deps/ui/icons'
 import ListboxComponent from '../ReactWindow';
 import PropTypes from 'prop-types'
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
-const useStyles = makeStyles((theme) => ({
+const Styles = {
   root: {
     '& > * + *': {
-      marginTop: theme.spacing(3),
+      mt: 3,
     },
     
-  },
-}));
+  }
+};
 
 const MyPopper = function (props) {
   const addAllClick = (e) => {
@@ -46,7 +42,6 @@ const MyPopper = function (props) {
 }
 
 function MultiSelect(props) {
-  const classes = useStyles();
 
   const { name, label, value,error=null, onChange,options,dataName = "",isMultiple = false ,...other } = props;
 
@@ -57,7 +52,7 @@ function MultiSelect(props) {
   })
 
   return (
-    <div className={classes.root}>
+    <Box sx={Styles.root}>
       <Autocomplete
         multiple={isMultiple}
         {...(isMultiple && {PopperComponent:MyPopper})}
@@ -91,7 +86,7 @@ function MultiSelect(props) {
           <TextField {...params}  {...(error && {error:true,helperText:error})}  variant="outlined" label={label} />
         )}
       />
-    </div>
+    </Box>
   );
 }
 

@@ -1,27 +1,22 @@
-import React,{useState,useRef,useEffect} from 'react'
+import React,{useState,useRef} from 'react'
 import PropTypes from 'prop-types'
-import ToggleButton from '@material-ui/lab/ToggleButton';
-import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
-import DeleteIcon from '@material-ui/icons/Delete';
-import SaveTwoToneIcon from '@material-ui/icons/SaveTwoTone';
-import EditTwoToneIcon from '@material-ui/icons/EditTwoTone';
-import {makeStyles} from "@material-ui/core";
+import {ToggleButton,ToggleButtonGroup} from '../deps/ui'
+import {Delete as DeleteIcon,SaveTwoTone as SaveTwoToneIcon,EditTwoTone as EditTwoToneIcon} from '../deps/ui/icons'
 import { handlePostActions } from '../store/actions/httpactions';
 import { useDispatch } from "react-redux";
 
 
-const useStyles = makeStyles((theme) => ({
+const Styles = {
     toggleContainer: {
-      margin: theme.spacing(2, 0),
+      m: '2 0',
       '& .MuiToggleButton-root':{
-        padding:5,
+        p:5,
         color:"pitch"
       }
     },
-  }));
+  };
 
 function ActionToolKit ({isShowEditBtn = true,isShowActiveBtn = true,isShowDownloadBtn = true,apiName,...props}) {
-    const classes = useStyles();
     const { row,api } = props;
     const [formats, setFormats] = React.useState('');
     const [mode,setCellMode] = useState('view');
@@ -86,7 +81,7 @@ function ActionToolKit ({isShowEditBtn = true,isShowActiveBtn = true,isShowDownl
   
     return (
      
-        <ToggleButtonGroup exclusive className={classes.toggleContainer} value={formats} onChange={handleFormat} aria-label="device">
+        <ToggleButtonGroup exclusive sx={Styles.toggleContainer} value={formats} onChange={handleFormat} aria-label="device">
              {isShowActiveBtn && 
                 <ToggleButton value="isActive" aria-label="isActive">
                  <DeleteIcon />

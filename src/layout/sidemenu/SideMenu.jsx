@@ -133,7 +133,7 @@ const SideBar = ({ open, sideMenuData }) => {
         size="small" sx={classes.profile}
         startIcon={<Avatar
           src={user.avatar}
-        />} color="default" text={
+        />} color="inherit" text={
           (open ?
             <Typography
               sx={classes.name}

@@ -50,10 +50,7 @@ export default function Header() {
         dispatch(handleGetActions(API_USER_LOGOUT)).then(res => {
             if(res.isSuccess){
                 const info = Auth.getitem('userInfo') || {};
-                Auth.remove("employeeInfo");
                 Auth.remove("appConfigData");
-               
-
                 socket.emit("leave",info.c_Id);
                 localStorage.clear();
                 navigate("/");

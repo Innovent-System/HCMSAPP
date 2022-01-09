@@ -1,5 +1,5 @@
 import React from 'react'
-import { FormControl, FormControlLabel, Checkbox as MuiCheckbox } from '@material-ui/core';
+import { FormControl, FormControlLabel, Checkbox as MuiCheckbox } from '../../deps/ui';
 
 export default  function Checkbox(props) {
 

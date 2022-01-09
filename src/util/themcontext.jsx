@@ -1,5 +1,5 @@
 import React, { createContext } from 'react';
-import { blueGrey } from '@material-ui/core/colors'
+import { blueGrey } from '../deps/ui/colorschema'
 
 export const ThemeContext = createContext();
 

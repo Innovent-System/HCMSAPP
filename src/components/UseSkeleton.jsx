@@ -1,6 +1,6 @@
 import {useEffect,useState} from 'react';
 import PropTypes from 'prop-types';
-import Skeleton from '@material-ui/lab/Skeleton';
+import {Skeleton} from '../deps/ui';
 
 function UseSkeleton({ width, s_height, count,...rest }) {
     const [skeleton, setskeleton] = useState([]);

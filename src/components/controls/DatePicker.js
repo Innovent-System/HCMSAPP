@@ -1,11 +1,15 @@
 import React from 'react'
-import { MuiPickersUtilsProvider, KeyboardDatePicker } from "@material-ui/pickers";
-import DateFnsUtils from "@date-io/date-fns";
+import { LocalizationProvider,TextField ,DesktopDatePicker,MobileDatePicker} from "../../deps/ui";
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import  DateAdapter from '@mui/lab/AdapterDateFns';
 
 
 export default function DatePicker(props) {
 
     const { name, label, value, onChange } = props
+    const theme = useTheme();
+    const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
 
 
     const convertToDefEventPara = (name, value) => ({
@@ -13,17 +17,31 @@ export default function DatePicker(props) {
             name, value
         }
     })
-
+    
     return (
-        <MuiPickersUtilsProvider utils={DateFnsUtils}>
-            <KeyboardDatePicker  variant="inline"  inputVariant="standard"
+        <LocalizationProvider dateAdapter={DateAdapter}>
+            {isDesktop ? 
+            <DesktopDatePicker  
+            label={label}
+            inputFormat="MM/dd/yyyy"
+            mask='__/__/____'
+            name={name}
+            value={value} 
+            onChange={date => onChange(convertToDefEventPara(name,date))}
+            renderInput={(params) => <TextField variant="standard"  {...params} />}
+
+        />
+            :
+            <MobileDatePicker  
                 label={label}
-                format="MMM/dd/yyyy"
+                inputFormat="MMM/dd/yyyy"
                 name={name}
-                value={value}
+                value={value} 
                 onChange={date => onChange(convertToDefEventPara(name,date))}
+                renderInput={(params) => <TextField variant="standard"  {...params} />}
 
             />
-        </MuiPickersUtilsProvider>
+    }
+        </LocalizationProvider>
     )
 }
