@@ -82,10 +82,12 @@ export default function List() {
 
 
   const filterState = (data) => {
+    if(!data) return;
     setStates([...DROPDOWN_DATA.States.filter(f => f.country_id === data.id)]);
   }
 
   const filterCity = (data) => {
+    if(!data) return;
     setCities([...DROPDOWN_DATA.Cities.filter(f => f.state_id === data.id)]);
   }
 
@@ -247,7 +249,7 @@ export default function List() {
               dataName:'name',
               options: countries,
               onChange:filterState,
-              defaultValue: ''
+              defaultValue: countries[0] ?? null
             },
             {
               elementType: "ad_dropdown",
@@ -260,7 +262,7 @@ export default function List() {
               },
               options: states,
               onChange:filterCity,
-              defaultValue: ''
+              defaultValue: null
             },
             {
               elementType: "ad_dropdown",
@@ -272,8 +274,7 @@ export default function List() {
                 errorMessage: "City is required",
               },
               options: cities,
-              onChange:filterCity,
-              defaultValue: ''
+              defaultValue:null
             }
 
           ]
@@ -281,7 +282,7 @@ export default function List() {
 
       ]
     },
-    [activeStep,states,cities],
+    [activeStep,countries,states,cities],
   )
 
 

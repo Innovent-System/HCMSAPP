@@ -131,9 +131,10 @@ export const AutoForm = forwardRef(function (props,ref) {
 
     useEffect(() => {
         // if(!isEdit && Object.keys(formValue).length === Object.keys(values).length) return 
-         formData.reduce((obj, item) => {
+
+        for (const item of formData) {
             if ("Component" in item) {
-                 return item._children.reduce((o, childItem) => {
+                for (const childItem of item._children) {
                     if ("validate" in childItem) {
                         errorProps.push({
                             [childItem.name]: "",
@@ -146,30 +147,27 @@ export const AutoForm = forwardRef(function (props,ref) {
                     }
                     const value = childItem.defaultValue;
                     delete childItem.defaultValue;
-                    return Object.assign(formValue, { [childItem.name]: value })
-                }, formValue)
-
-            }
-            
-                if ("validate" in item) {
-                    errorProps.push({
-                        [item.name]: "",
-                        validate: item.validate?.validate,
-                        message: item.validate.errorMessage,
-                        required: true,
-                        isOptional:(typeof item["required"] === "function" ? item["required"] : undefined)
-                    })
-                
-                  delete item.validate;
+                    childItem.name && Object.assign(formValue, { [childItem.name]: value })
                 }
-                const value = item.defaultValue;
-                delete item.defaultValue;
-                return Object.assign(formValue, { [item.name]: value })
-            
+                continue;
+           }
+           
+               if ("validate" in item) {
+                   errorProps.push({
+                       [item.name]: "",
+                       validate: item.validate?.validate,
+                       message: item.validate.errorMessage,
+                       required: true,
+                       isOptional:(typeof item["required"] === "function" ? item["required"] : undefined)
+                   })
+                 delete item.validate;
+               }
 
-            
-        }, formValue);
-        Object.keys(formValue).forEach(key => formValue[key] === undefined && delete formValue[key])
+               const value = item.defaultValue;
+               delete item.defaultValue;
+               item.name && Object.assign(formValue, { [item.name]: value })
+        }
+
         setValues(formValue);
     }, [])
 
@@ -203,7 +201,7 @@ export const AutoForm = forwardRef(function (props,ref) {
         <>
             <form className={classes.root} autoComplete="off" {...other}>
                 <Grid {...breakpoints} container>
-                    {Object.keys(formValue).length  && formData.map(({ name, label,required, elementType, Component = null, disabled , classes, _children, breakpoints = DEFAULT_BREAK_POINTS,onChange, ...others }, index) => (
+                    {Object.keys(values).length  && formData.map(({ name, label,required, elementType, Component = null, disabled , classes, _children, breakpoints = DEFAULT_BREAK_POINTS,onChange, ...others }, index) => (
                         Component ? <Component {...others} key={index}>
                             <Grid spacing={3} container>
                                 {Array.isArray(_children) ? _children.map(({ name,label,required, elementType, breakpoints = DEFAULT_BREAK_POINTS, classes, disabled , onChange, ..._others }, innerIndex) => (

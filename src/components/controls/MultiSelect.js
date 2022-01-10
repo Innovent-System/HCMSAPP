@@ -42,7 +42,7 @@ const MyPopper = function (props) {
 }
 
 function MultiSelect(props) {
-
+  console.log(props,"Auto")
   const { name, label, value,error=null, onChange,options,dataName = "",isMultiple = false ,...other } = props;
 
   const convertToDefEventPara = (name, value) => ({
@@ -58,13 +58,12 @@ function MultiSelect(props) {
         {...(isMultiple && {PopperComponent:MyPopper})}
         limitTags={2}
         {...other}
+        value={value}
         onChange={(event, value) => onChange(convertToDefEventPara(name,value))}
         size='small'
         id="multiple-limit-tags"
         options={options}
-        getOptionLabel={(option) => option[dataName] || ""}
-        // defaultValue={value}
-        disableCloseOnSelect
+        getOptionLabel={option => option[dataName] ? option[dataName] : ''}
         ListboxComponent={ListboxComponent}
         {...(isMultiple && {renderOption:(option, state) => {
          
@@ -94,4 +93,4 @@ MultiSelect.propTypes = {
   dataName: PropTypes.string.isRequired
 }
 
-export default React.memo(MultiSelect);
+export default React.memo(MultiSelect,(prev,next) => JSON.stringify(prev) === JSON.stringify(next));
