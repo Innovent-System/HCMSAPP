@@ -69,7 +69,6 @@ const SignIn = ({setRoutes,setSideMenu}) => {
         setErrors({
           ...temp,
         });
-    
         if (fieldValues == values) return Object.values(temp).every((x) => x == "");
       };
 
@@ -105,10 +104,10 @@ const SignIn = ({setRoutes,setSideMenu}) => {
         values,
         setValues,
         errors,
-        setErrors,
         handleInputChange,
+        setErrors,
         resetForm,
-      } = useForm(initialFValues, true, validate);
+      } = useForm(initialFValues);
 
 
       const handleClickShowPassword = () => {

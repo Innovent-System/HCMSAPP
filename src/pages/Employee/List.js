@@ -1,11 +1,15 @@
-import React, { useCallback,useEffect,useState } from 'react';
-import { Stepper, Collapse, Box,Step,StepLabel,Typography } from '../../deps/ui';
+import React, { useEffect,useState } from 'react';
+import { Stepper, Collapse, Box,Step,StepLabel,Typography,IconButton } from '../../deps/ui';
+import { Launch } from '../../deps/ui/icons';
 import { AutoForm } from '../../components/useForm';
 import Controls from '../../components/controls/Controls';
 import {useDispatch} from 'react-redux';
 import avatar from '../../assests/images/avatar_6.png';
 import { API } from './_Service';
-import { handleGetActions } from '../../store/actions/httpactions';
+import { handleGetActions,handlePostActions } from '../../store/actions/httpactions';
+import Popup from '../../components/Popup';
+import DepartmentModel from './components/DepartmentModal'
+
 
 
 const Styles = {
@@ -19,6 +23,25 @@ const Styles = {
     marginTop: 1,
     marginBottom: 1,
   },
+}
+
+const AddDepartmentModal = () => {
+  const [openPopup, setOpenPopup] = useState(false);
+  return (
+    <>
+    <IconButton  size='small' onClick={() => setOpenPopup(true)}>
+      <Launch/>
+    </IconButton>
+    <Popup  
+        title="Add Department"
+        openPopup={openPopup}
+        setOpenPopup={setOpenPopup}
+      >
+       <DepartmentModel /> 
+      </Popup>
+
+      </>
+  )
 }
 
 const genderItems = [
@@ -36,7 +59,7 @@ const initialFValues = {
 
   maritalstatus: 0,
   nic: null,
-  email: "", addresses: ["", ""],
+  email: "", z: ["", ""],
   mobileNumber: "", gender: 0, dateofBirth: null, religion: 0,
 
   fkCompanyId: 0,
@@ -91,199 +114,287 @@ export default function List() {
     setCities([...DROPDOWN_DATA.Cities.filter(f => f.state_id === data.id)]);
   }
 
-  const formData = useCallback(
-    () => {
-      return [
+  const formData = [
+    {
+      Component: Collapse,
+      in: activeStep === 0,
+      style: { width: 'inherit' },
+      _children: [
         {
-          Component: Collapse,
-          in: activeStep === 0,
-          style: { width: 'inherit' },
-          _children: [
-            {
-              elementType: "uploadavatar",
-              name: "employeeImage",
-              breakpoints: { md: 12, sm: 12, xs: 12 },
-              defaultValue:null
-            },
-            {
-              elementType: "inputfield",
-              name: "emplyeeRefNo",
-              label: "Employee Code",
-              required: true,
-              type: 'number',
-              validate: {
-                errorMessage: "Employee Ref is required",
-              },
-              defaultValue: ""
-            },
-            {
-              elementType: "inputfield",
-              name: "punchCode",
-              label: "Punch Code",
-              required: true,
-              type: 'number',
-              validate: {
-                errorMessage: "Punch Code is required"
-              },
-              defaultValue: ""
-            },
-            {
-              elementType: "inputfield",
-              name: "firstName",
-              label: "First Name",
-              validate: {
-                errorMessage: "First Name is required",
-              },
-              defaultValue: ""
-            },
-            {
-              elementType: "inputfield",
-              name: "lastName",
-              label: "Last Name",
-              required: true,
-              validate: {
-                errorMessage: "Last Name is required",
-                type: "string"
-              },
-              defaultValue: ""
-            },
-            {
-              elementType: "inputfield",
-              name: "email",
-              label: "Email",
-              required: (value) => value["isAllowManualAttendance"],
-              type: "email",
-              validate: {
-                errorMessage: "Email is required",
-                validate: (val) => /$^|.+@.+..+/.test(val)
-              },
-              defaultValue: ""
-            },
-            {
-              elementType: "inputfield",
-              name: "mobileNumber",
-              label: "Mobile No",
-              validate: {
-                errorMessage: "Mobile No is required",
-              },
-              defaultValue: ""
-            },
-            {
-              elementType: "checkbox",
-              name: "isAllowManualAttendance",
-              label: "Manual Attendance",
-              defaultValue: false,
-            },
-            {
-              elementType: "dropdown",
-              name: "templateId",
-              label: "User Template",
-              disabled: (value) => value["isAllowManualAttendance"] === false,
-              defaultValue: 1,
-              options: [{
-                id: 0, title: "Manager"
-              },
-              { id: 1, title: "Hr Manager" },
-              { id: 2, title: "SubOrdinates" }
-              ]
-            },
-            {
-              elementType: "dropdown",
-              name: "maritalstatus",
-              label: "Marital Status",
-              defaultValue: 2,
-              options: [{
-                id: 0, title: "Single"
-              },
-              { id: 1, title: "Married" },
-              { id: 2, title: "Widowed" },
-              { id: 3, title: "Boxorced" }
-              ]
-            },
-            {
-              elementType: "dropdown",
-              name: "gender",
-              label: "Gender",
-              defaultValue: 1,
-              options: [{
-                id: 1, title: "Male"
-              },
-              { id: 2, title: "Female" },
-              { id: 3, title: "Others" }
-              ]
-            },
-            {
-              elementType: "dropdown",
-              name: "religion",
-              label: "Religion",
-              defaultValue: 1,
-              options: [{
-                id: 1, title: "Islam"
-              },
-              { id: 2, title: "Hindu" },
-              { id: 3, title: "Christain" },
-              { id: 4, title: "Others" }
-              ]
-            },
-            {
-              elementType: "datetimepicker",
-              name: "dateofBirth",
-              label: "D.O.B",
-              defaultValue: null
-            }
+          elementType: "uploadavatar",
+          name: "employeeImage",
+          breakpoints: { md: 12, sm: 12, xs: 12 },
+          defaultValue:null
+        },
+        {
+          elementType: "inputfield",
+          name: "emplyeeRefNo",
+          label: "Employee Code",
+          required: true,
+          type: 'number',
+          validate: {
+            errorMessage: "Employee Ref is required",
+          },
+          defaultValue: ""
+        },
+        {
+          elementType: "inputfield",
+          name: "punchCode",
+          label: "Punch Code",
+          required: true,
+          type: 'number',
+          validate: {
+            errorMessage: "Punch Code is required"
+          },
+          defaultValue: ""
+        },
+        {
+          elementType: "inputfield",
+          name: "firstName",
+          label: "First Name",
+          validate: {
+            errorMessage: "First Name is required",
+          },
+          defaultValue: ""
+        },
+        {
+          elementType: "inputfield",
+          name: "lastName",
+          label: "Last Name",
+          required: true,
+          validate: {
+            errorMessage: "Last Name is required",
+            type: "string"
+          },
+          defaultValue: ""
+        },
+        {
+          elementType:"clearfix",
+          breakpoints:{ md: 12, sm: 12, xs: 12 }
+        },
+        {
+          elementType: "inputfield",
+          name: "email",
+          label: "Email",
+          required: (value) => value["isAllowManualAttendance"],
+          type: "email",
+          validate: {
+            errorMessage: "Email is required",
+            validate: (val) => /$^|.+@.+..+/.test(val)
+          },
+          defaultValue: ""
+        },
+        {
+          elementType: "inputfield",
+          name: "mobileNumber",
+          label: "Mobile No",
+          validate: {
+            errorMessage: "Mobile No is required",
+          },
+          defaultValue: ""
+        },
+        {
+          elementType: "checkbox",
+          name: "isAllowManualAttendance",
+          label: "Manual Attendance",
+          defaultValue: false,
+        },
+        {
+          elementType: "dropdown",
+          name: "templateId",
+          label: "User Template",
+          disabled: (value) => value["isAllowManualAttendance"] === false,
+          defaultValue: 1,
+          options: [{
+            id: 0, title: "Manager"
+          },
+          { id: 1, title: "Hr Manager" },
+          { id: 2, title: "SubOrdinates" }
           ]
         },
         {
-          Component: Collapse,
-          in: activeStep === 1,
-          style: { width: 'inherit' },
-          _children: [
-            {
-              elementType: "ad_dropdown",
-              name: "fkCompanyId",
-              label: "Country",
-              required: true,
-              validate: {
-                errorMessage: "Company is required",
-              },
-              dataName:'name',
-              options: countries,
-              onChange:filterState,
-              defaultValue: countries[0] ?? null
-            },
-            {
-              elementType: "ad_dropdown",
-              name: "fkStateId",
-              label: "State",
-              required: true,
-              dataName: "name",
-              validate: {
-                errorMessage: "State is required",
-              },
-              options: states,
-              onChange:filterCity,
-              defaultValue: null
-            },
-            {
-              elementType: "ad_dropdown",
-              name: "fkCityId",
-              label: "City",
-              required: true,
-              dataName: "name",
-              validate: {
-                errorMessage: "City is required",
-              },
-              options: cities,
-              defaultValue:null
-            }
-
+          elementType:"clearfix",
+          breakpoints:{ md: 12, sm: 12, xs: 12 }
+        },
+        {
+          elementType: "dropdown",
+          name: "maritalstatus",
+          label: "Marital Status",
+          defaultValue: 2,
+          options: [{
+            id: 0, title: "Single"
+          },
+          { id: 1, title: "Married" },
+          { id: 2, title: "Widowed" },
+          { id: 3, title: "Boxorced" }
           ]
         },
-
+        {
+          elementType: "dropdown",
+          name: "gender",
+          label: "Gender",
+          defaultValue: 1,
+          options: [{
+            id: 1, title: "Male"
+          },
+          { id: 2, title: "Female" },
+          { id: 3, title: "Others" }
+          ]
+        },
+        {
+          elementType: "dropdown",
+          name: "religion",
+          label: "Religion",
+          defaultValue: 1,
+          options: [{
+            id: 1, title: "Islam"
+          },
+          { id: 2, title: "Hindu" },
+          { id: 3, title: "Christain" },
+          { id: 4, title: "Others" }
+          ]
+        },
+        {
+          elementType: "datetimepicker",
+          name: "dateofBirth",
+          label: "D.O.B",
+          defaultValue: null
+        }
       ]
     },
-    [activeStep,countries,states,cities],
-  )
+    {
+      Component: Collapse,
+      in: activeStep === 1,
+      style: { width: 'inherit' },
+      _children: [
+        {
+          elementType: "ad_dropdown",
+          name: "fkCompanyId",
+          label: "Country",
+          required: true,
+          validate: {
+            errorMessage: "Company is required",
+          },
+          dataName:'name',
+          options: countries,
+          onChange:filterState,
+          defaultValue: countries.length ? countries[0] : null
+        },
+        {
+          elementType: "ad_dropdown",
+          name: "fkStateId",
+          label: "State",
+          required: true,
+          dataName: "name",
+          validate: {
+            errorMessage: "State is required",
+          },
+          options: states,
+          onChange:filterCity,
+          defaultValue: null
+        },
+        {
+          elementType: "ad_dropdown",
+          name: "fkCityId",
+          label: "City",
+          required: true,
+          dataName: "name",
+          validate: {
+            errorMessage: "City is required",
+          },
+          options: cities,
+          defaultValue:null
+        },
+        {
+          elementType: "ad_dropdown",
+          name: "fkAreaId",
+          label: "Area",
+          required: true,
+          dataName: "name",
+          validate: {
+            errorMessage: "Area is required",
+          },
+          options: [{
+            id:10,name:"Malir"},
+          {id:11, name:"Johar"},
+          {id:12, name:"NorthKarachi"},
+          {id:13, name:"RashidMinhas"}
+          ],
+          defaultValue:null
+        },
+        {
+          elementType: "ad_dropdown",
+          name: "fkEmployeeGroupId",
+          label: "Group",
+          required: true,
+          dataName: "name",
+          validate: {
+            errorMessage: "City is required",
+          },
+          options: [{
+            id:21,name:"Malir"},
+          {id:22, name:"Johar"},
+          {id:23, name:"NorthKarachi"},
+          {id:24, name:"RashidMinhas"}
+          ],
+          defaultValue:null
+        },
+        {
+          elementType: "ad_dropdown",
+          name: "fkDepartmentId",
+          label: "Department",
+          required: true,
+          dataName: "name",
+          modal:{
+            Component:<AddDepartmentModal/>,
+          },
+          validate: {
+            errorMessage: "Department is required",
+          },
+          options: [{
+            id:31,name:"IT"},
+          {id:32, name:"Development"},
+          {id:33, name:"Admin"},
+          {id:34, name:"Electric"}
+          ],
+          defaultValue:null
+        },
+        {
+          elementType: "ad_dropdown",
+          name: "fkDesignationId",
+          label: "Designation",
+          dataName: "name",
+          options: [{
+            id:41,name:"Software Engineer"},
+          {id:42, name:"Team Lead"},
+          {id:43, name:"IT Officer"},
+          {id:44, name:"CEO"}
+          ],
+          defaultValue:null
+        }, 
+        // {
+        //   elementType: "inputfield",
+        //   name: "address",
+        //   label: "Address",
+        //   multiline:true,
+        //   defaultValue: ""
+        // },
+        {
+          elementType: "datetimepicker",
+          name: "confirmationDate",
+          label: "Confrimation Date",
+          defaultValue: null
+        },
+        {
+          elementType: "datetimepicker",
+          name: "resignationDate",
+          label: "Resign Date",
+          defaultValue: null
+        }
+      ]
+    },
+
+  ];
 
 
 
@@ -329,6 +440,17 @@ export default function List() {
     setActiveStep(0);
   };
 
+  const handleSubmit = (e) => {
+    const {resetForm,getValue,validateFields} = formRef.current
+    const values = getValue();
+    if(validateFields()){
+      dispatch(handlePostActions(API.INSERT_EMPLOYEE,[values])).then(res => {
+            console.log(res);
+      });
+    }
+  }
+
+
   return (
     <Box sx={Styles.root}>
       <Stepper activeStep={activeStep}>
@@ -358,7 +480,7 @@ export default function List() {
           </Box>
         ) : (
           <Box display='flex' flexDirection='column' justifyContent='space-between'>
-            <AutoForm formData={formData()} ref={formRef} isValidate={true} />
+            <AutoForm formData={formData} ref={formRef} isValidate={true} />
             <Box>
 
               <Controls.Button onClick={handleBack} disabled={activeStep === 0} sx={Styles.button} text="Back"/>
@@ -366,9 +488,8 @@ export default function List() {
 
                <Controls.Button onClick={handleSkip} sx={Styles.button} text="Skip"/>
               )}
-
                <Controls.Button onClick={handleNext} sx={Styles.button} text={activeStep === steps.length - 1 ? 'Finish' : 'Next'}/>
-
+               {activeStep === steps.length - 1 && <Controls.Button onClick={handleSubmit} sx={Styles.button} text="Submit"/>}
             </Box>
           </Box>
         )}

@@ -42,7 +42,7 @@ const MyPopper = function (props) {
 }
 
 function MultiSelect(props) {
-  console.log(props,"Auto")
+  
   const { name, label, value,error=null, onChange,options,dataName = "",isMultiple = false ,...other } = props;
 
   const convertToDefEventPara = (name, value) => ({
@@ -82,7 +82,7 @@ function MultiSelect(props) {
         } })}
 
         renderInput={(params) => (
-          <TextField {...params}  {...(error && {error:true,helperText:error})}  variant="outlined" label={label} />
+          <TextField {...params}  {...(error && {error:true,helperText:error})}  variant="standard" label={label} />
         )}
       />
     </Box>

@@ -7,7 +7,7 @@ function CircularLoading() {
   return (
     <Grid
       container
-      spacing={0}
+      gap={0}
       alignItems="center"
       justify="center"
       style={{ minHeight: '100vh' }}

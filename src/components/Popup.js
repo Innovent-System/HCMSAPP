@@ -2,6 +2,7 @@ import React from 'react'
 import { Dialog, DialogTitle, DialogContent, Typography } from '../deps/ui';
 import Controls from "./controls/Controls";
 import {Close as CloseIcon} from '../deps/ui/icons';
+import PropTypes from 'prop-types'
 
 const Styles = {
     dialogWrapper: {
@@ -38,4 +39,11 @@ export default function Popup(props) {
             </DialogContent>
         </Dialog>
     )
+}
+
+Popup.propTypes = {
+    title:PropTypes.string.isRequired,
+    openPopup:PropTypes.bool.isRequired,
+    setOpenPopup:PropTypes.func.isRequired,
+    children:PropTypes.node.isRequired
 }
