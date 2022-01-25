@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useState,useCallback } from 'react';
+import React, { lazy, Suspense, useState } from 'react';
 import { Navigate, Routes,Route } from 'react-router-dom';
 import PrivateRoute from './wrapper';
 import SignIn from "../pages/General/SignIn";
@@ -6,7 +6,6 @@ import Layout from '../layout';
 import CircularLoading from '../components/Circularloading'
 import Auth from '../services/AuthenticationService';
 import StatusSnack from './StatusHandler';
-import { history } from '../config/appconfig';
 import Dashboard from '../pages/General/Dashboard'
 
 

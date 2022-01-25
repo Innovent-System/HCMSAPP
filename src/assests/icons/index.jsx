@@ -5,6 +5,6 @@ export {
     AccountTree, Tune,SupervisedUserCircle, TransferWithinAStation, 
     SupervisorAccount,BusinessTwoTone,LocalAtm,EqualizerTwoTone,
     AllInbox,RotateLeft,AccountBalanceWallet
-} from '@material-ui/icons';
+} from '../../deps/ui/icons';
 
 

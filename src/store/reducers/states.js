@@ -8,5 +8,12 @@ export const INITIAL_STATE = {
         msg: null,
         code:null,
         result:null
+    },
+    DropDown:{
+        Countries:[],
+        States:[],
+        Cities:[]
     }
+    
+    
 }

@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { XGrid,GridToolbar,LicenseInfo,GridOverlay,GridToolbarDensitySelector,
-  GridColumnsPanel,GridToolbarColumnsButton,GridToolbarExport,useGridApiRef  } from '@material-ui/x-grid';
-import { makeStyles } from '@material-ui/core/styles';
-import { Paper,Grid } from '@material-ui/core';
-import Control from './controls/Controls';
+import { DataGridPro as  XGrid,GridToolbar,LicenseInfo,GridOverlay,GridToolbarDensitySelector,
+  GridColumnsPanel,GridToolbarColumnsButton,GridToolbarExport,useGridApiRef  } from '@mui/x-data-grid-pro';
+import { makeStyles } from '../deps/ui';
+import {} from '@mui/utils/'
+
 
 
 LicenseInfo.setLicenseKey(

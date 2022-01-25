@@ -16,6 +16,7 @@ import {
     UPDATE_DATA,
     UPDATE_DATA_SUCCESS,
     UPDATE_DATA_FAILED,
+    SET_COMMON_DROPDOWN
 
   } from "../actions/types";
 
@@ -25,6 +26,11 @@ import { INITIAL_STATE } from "./states";
 export default (state = Object.assign({},{...INITIAL_STATE}) , action) => {
     
   switch (action.type) {
+case SET_COMMON_DROPDOWN:
+    return{
+        ...state,
+        ...action.payload
+    };
     case POST_DATA:
         return {
         ...state,
@@ -154,7 +160,7 @@ export default (state = Object.assign({},{...INITIAL_STATE}) , action) => {
             msg:action.payload.msg,
             code:action.payload.code,
             result:action.payload.result
-        }  
+        }
     };
 
     case USER_SIGN_OUT:

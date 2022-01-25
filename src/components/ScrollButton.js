@@ -1,11 +1,10 @@
 import React, { useRef } from 'react'
-import { IconButton, makeStyles,Button } from '@material-ui/core';
-import ExpandLessIcon from '@material-ui/icons/ExpandLess';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { Button,Box } from '../deps/ui';
+import {ExpandLess as ExpandLessIcon,ExpandMore as ExpandMoreIcon } from '../deps/ui/icons';
 
-const useStyles = makeStyles(theme => ({
+const Styles = {
     root: {
-        top: theme.spacing(9)
+        top: 9
     },
     button: {
         padding: '10px 8px',
@@ -22,11 +21,10 @@ const useStyles = makeStyles(theme => ({
             margin: 0,
           }
       },
-}))
+}
 
 export default function Scroll({direction="right",orientaion="vertical",children,...others}) {
 
-    const classes = useStyles();
     const scrollref = useRef(null);
 
     const handleButton = (_direction) => {
@@ -40,13 +38,13 @@ export default function Scroll({direction="right",orientaion="vertical",children
 
     return (
         <>
-        <Button className={classes.button} startIcon={
+        <Button sx={Styles.button} startIcon={
             <ExpandLessIcon  />
         } onClick={() => handleButton("left")}/>
-            <div ref={scrollref} style={{height:500,overflow:'hidden'}}>
+            <Box ref={scrollref} style={{height:500,overflow:'hidden'}}>
                {children}
-            </div>
-            <Button className={classes.button} startIcon={ <ExpandMoreIcon />} 
+            </Box>
+            <Button sx={Styles.button} startIcon={ <ExpandMoreIcon />} 
             onClick={() => handleButton("right")}  aria-label="down"/>
               
             

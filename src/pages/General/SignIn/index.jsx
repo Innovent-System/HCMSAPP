@@ -28,17 +28,17 @@ const initialFValues = {
       backgroundRepeat: 'no-repeat',
       backgroundAttachment: 'fixed',
       height: '100%',
-      paddingBottom: 2,
-      paddingTop: 3
+      pb: 2,
+      pt: 3
     },
     transparent:{
       opacity:0.9,
       textAlign:'center',
-      paddingBottom: 2,
-      paddingTop: 1
+      pb: 2,
+      pt: 1
     },
     wrapper: {
-      margin: 1,
+      m: 1,
       position: 'relative',
     },
     buttonProgress: {
@@ -46,8 +46,8 @@ const initialFValues = {
       position: 'absolute',
       top: '50%',
       left: '50%',
-      marginTop: -12,
-      marginLeft: -12,
+      mt: -12,
+      ml: -12,
     }
   }
 
@@ -69,7 +69,6 @@ const SignIn = ({setRoutes,setSideMenu}) => {
         setErrors({
           ...temp,
         });
-    
         if (fieldValues == values) return Object.values(temp).every((x) => x == "");
       };
 
@@ -85,7 +84,6 @@ const SignIn = ({setRoutes,setSideMenu}) => {
          dispatch(handlePostActions(API_USER_LOGIN,signInData)).then(res => {
            if(res){
             const { data } = res;
-            Auth.setItem('employeeInfo',{signIn:true});
             Auth.setItem("appConfigData",{"appRoutes":data.appRoutes,"sideMenuData":data.sideMenuData});
             Auth.setItem("userInfo",{"email":data.email,"c_Id":data.fkClientId,username:data.username});
             setRoutes(data.appRoutes);
@@ -106,10 +104,10 @@ const SignIn = ({setRoutes,setSideMenu}) => {
         values,
         setValues,
         errors,
-        setErrors,
         handleInputChange,
+        setErrors,
         resetForm,
-      } = useForm(initialFValues, true, validate);
+      } = useForm(initialFValues);
 
 
       const handleClickShowPassword = () => {
@@ -212,7 +210,7 @@ const SignIn = ({setRoutes,setSideMenu}) => {
                     )}
                      </Box>
                    
-                    <Controls.Button text="Reset"   color="default"  onClick={resetForm} />
+                    <Controls.Button text="Reset"   color="inherit"  onClick={() => {setLoader(false); resetForm()} } />
                    </Box>
                 
                   <Link

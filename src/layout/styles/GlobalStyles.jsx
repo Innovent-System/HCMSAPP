@@ -41,7 +41,7 @@ const useStyles = makeStyles(() => createStyles({
     },
     '.clearfix': {
       '&::after':{
-        content: "",
+        content: '""',
         clear: 'both',
         display: 'table'
       }

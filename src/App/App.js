@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import "./App.css";
 import { BrowserRouter as Router } from "react-router-dom";
-import { history } from "../config/appconfig";
 import Routes from "../router";
 import { createTheme, ThemeProvider } from "../deps/ui";
 import GlobalStyles from '../layout/styles/GlobalStyles';
@@ -58,7 +57,7 @@ function App() {
     
     <ThemeProvider theme={theme}>
       <SnackbarProvider maxSnack={3}>
-        <Router history={history}>
+        <Router>
         <Provider store={store}>
           <SocketContext.Provider value={appsocket}>
                 <GlobalStyles/>

@@ -1,7 +1,7 @@
-import React, { useRef,useState } from 'react'
+import React, { useRef } from 'react'
 import Avatar from './Avatar';
-import { Badge,Input,IconButton} from '@material-ui/core'
-import {PhotoCamera,Delete} from '@material-ui/icons'
+import { Badge,Input,IconButton} from '../../deps/ui'
+import {PhotoCamera,Delete} from '../../deps/ui/icons'
 
 
 const AvatarUpload = (props) => {
@@ -39,12 +39,12 @@ const AvatarUpload = (props) => {
 
     return (
         <Badge
-        overlap="circle"
+        overlap="circular"
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         badgeContent={
           <>
             <label style={{display: value && 'none'}} htmlFor="icon-button-file">
-              <Input style={{display:'none'}}  name={name} innerRef={inputFileRef}  onChange={async (e) => onChange(await onImageChange(e))} accept="image/*"  id="icon-button-file" type="file" />
+              <Input style={{display:'none'}}  name={name} ref={inputFileRef}  onChange={async (e) => onChange(await onImageChange(e))} accept="image/*"  id="icon-button-file" type="file" />
                 <IconButton size='medium' color="primary" aria-label="upload picture" component="span">
                 <PhotoCamera />
               </IconButton> 

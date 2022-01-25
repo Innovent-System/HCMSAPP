@@ -1,7 +1,7 @@
 import React from 'react'
-import { Dialog, DialogTitle, DialogContent, DialogActions, Typography, makeStyles, IconButton } from '@material-ui/core'
+import { Dialog, DialogTitle, DialogContent, DialogActions, Typography, makeStyles, IconButton } from '../deps/ui'
 import Controls from "./controls/Controls";
-import NotListedLocationIcon from '@material-ui/icons/NotListedLocation';
+import {NotListedLocation as NotListedLocationIcon}  from '../deps/ui/icons';
 
 
 const useStyles = makeStyles(theme => ({
@@ -55,7 +55,7 @@ export default function ConfirmDialog(props) {
             <DialogActions className={classes.dialogAction}>
                 <Controls.Button
                     text="No"
-                    color="default"
+                    color="inherit"
                     onClick={() => setConfirmDialog({ ...confirmDialog, isOpen: false })} />
                 <Controls.Button
                     text="Yes"

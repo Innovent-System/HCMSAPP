@@ -1,52 +1,52 @@
 import React from 'react'
-import { Paper, Card, Typography, makeStyles,Grid } from '@material-ui/core';
+import { Paper, Card, Typography,Grid,Box } from '../deps/ui';
 import GridToolBar from './GridToolBar';
 
-const useStyles = makeStyles(theme => ({
+const Styles = {
     root: {
-        backgroundColor: '#fdfdff'
+        bgcolor: '#fdfdff'
     },
     pageHeader:{
-        padding:theme.spacing(2),
+        p:2,
         display:'flex',
-        marginBottom:theme.spacing(1)
+        mb:1
     },
     pageIcon:{
         display:'inline-block',
-        padding:theme.spacing(1),
-        color:theme.palette.primary.main
+        p:1,
+        color:'primary.main'
     },
     pageTitle:{
-        paddingLeft:theme.spacing(4),
+        pl:4,
         '& .MuiTypography-subtitle2':{
             opacity:'0.6'
         }
     }
-}))
+}
 
 export default function PageHeader(props) {
 
-    const classes = useStyles();
+    
     const { title, subTitle, icon } = props;
     return (
-        <Paper elevation={0} square className={classes.root}>
-            <div className={classes.pageHeader}>
-                <Card className={classes.pageIcon}>
+        <Paper elevation={0} square sx={Styles.root}>
+            <Box sx={Styles.pageHeader}>
+                <Card sx={Styles.pageIcon}>
                     {icon}
                 </Card>
-                <div className={classes.pageTitle}>
+                <Box sx={Styles.pageTitle}>
                     <Typography
                         variant="h6"
-                        component="div">
+                        component="Box">
                         {title}</Typography>
                     <Typography
                         variant="subtitle2"
-                        component="div">
+                        component="Box">
                         {subTitle}</Typography>
-                </div>
+                </Box>
                 <Grid item sm></Grid>
                 <GridToolBar/>
-            </div>
+            </Box>
             
         </Paper>
     )
