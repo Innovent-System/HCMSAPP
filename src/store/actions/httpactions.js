@@ -20,7 +20,11 @@ import {
 
   UPLOAD_DATA,
   UPLOAD_DATA_SUCCESS,
-  UPLOAD_DATA_FAILED
+  UPLOAD_DATA_FAILED,
+
+  GET_COMMON_DD_FAILED,
+  GET_COMMON_DD_SUCCESS,
+  GET_COMMON_DD_REQUEST
 
 } from "./types";
 import {domain,headerOption} from '../../config/appconfig';
@@ -131,6 +135,42 @@ export const handleGetActions = (url, params = {}) => dispatch => {
     }).catch(function (err) {
       dispatch({
         type: GET_DATA_FAILED,
+        payload:{msg:(err.response?.data ? err.response.data.message : err.message),code:err.response.status} 
+      })
+    });
+  
+};
+
+export const handleGetCommonDropDown = (url, params = {}) => dispatch => {
+
+  dispatch({
+    type: GET_COMMON_DD_REQUEST,
+    payload: null
+  });
+
+ return axios.get(domain.concat(url), {
+    params:params,
+    headers:headerOption(),
+    withCredentials:true,
+  }).then( response => {
+      if (response.status) {
+        const { result, message } = response.data;
+        
+        dispatch({
+          type: GET_COMMON_DD_SUCCESS,
+          payload: result,
+          message
+        });
+
+        return {
+         data:result,
+         isSuccess:true,
+         message
+        }
+      }
+    }).catch(function (err) {
+      dispatch({
+        type: GET_COMMON_DD_FAILED,
         payload:{msg:(err.response?.data ? err.response.data.message : err.message),code:err.response.status} 
       })
     });

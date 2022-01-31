@@ -41,7 +41,6 @@ export function useForm(initialFValues, validateOnChange = false, validate) {
         }
     }
 
-
     const resetForm = () => {
         changeErrors.current = {};
         setErrors({});

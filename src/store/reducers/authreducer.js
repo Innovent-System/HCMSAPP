@@ -16,34 +16,63 @@ import {
     UPDATE_DATA,
     UPDATE_DATA_SUCCESS,
     UPDATE_DATA_FAILED,
-    SET_COMMON_DROPDOWN
+
+    GET_COMMON_DD_FAILED,
+    GET_COMMON_DD_SUCCESS,
+    GET_COMMON_DD_REQUEST
 
   } from "../actions/types";
 
 import { INITIAL_STATE } from "./states";
 
-
+const initReq =  {
+    status:false,
+    message:"",
+    error:{
+        flag:false,
+        msg:null,
+        code:null,
+        result:null
+    },
+    loading:true  
+}
 export default (state = Object.assign({},{...INITIAL_STATE}) , action) => {
     
   switch (action.type) {
-case SET_COMMON_DROPDOWN:
-    return{
+case GET_COMMON_DD_REQUEST:
+    return {
         ...state,
-        ...action.payload
-    };
+        ...initReq
+    }   
+    case GET_COMMON_DD_SUCCESS:
+        return{
+            ...state,
+            DropDownData:action.payload,
+            status:true,
+            message:action.message,
+            loading:false            
+        } 
+        case GET_COMMON_DD_FAILED:return {
+            ...state,
+            info:null,
+            DropDownData:{},
+            loading:false,
+            status:false,
+            error:{
+                flag:true,
+                msg:action.payload.msg,
+                code:action.payload.code,
+                result:action.payload.result
+            }  
+        };
+    
+
     case POST_DATA:
         return {
         ...state,
-        status:false,
-        message:"",
-        error:{
-            flag:false,
-            msg:null,
-            code:null,
-            result:null
-        },
-        loading:true         
+        ...initReq        
     };
+    
     case POST_DATA_SUCCESS:
         return {
             ...state,

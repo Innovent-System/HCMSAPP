@@ -3,7 +3,7 @@ import { Stepper, Collapse, Box,Step,StepLabel,Typography,IconButton } from '../
 import { Launch } from '../../deps/ui/icons';
 import { AutoForm } from '../../components/useForm';
 import Controls from '../../components/controls/Controls';
-import {useDispatch} from 'react-redux';
+import {useDispatch,useSelector} from 'react-redux';
 import avatar from '../../assests/images/avatar_6.png';
 import { API } from './_Service';
 import { handleGetActions,handlePostActions } from '../../store/actions/httpactions';
@@ -93,15 +93,16 @@ export default function List() {
   const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]); 
+  const commonDropDown = useSelector(e => e.app.DropDownData);
   
   useEffect(() => {
-    dispatch(handleGetActions(API.GET_REGULAR_DROPDOWN)).then(res => {
-      if(res){
-        DROPDOWN_DATA = res.data;
-        setCountries(res.data.Countries);
+    
+      if(commonDropDown){
+        DROPDOWN_DATA = commonDropDown;
+        setCountries(commonDropDown.Countries);
       }
-    });
-  }, []);
+  
+  }, [commonDropDown]);
 
 
   const filterState = (data) => {
