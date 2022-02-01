@@ -18,9 +18,6 @@ const useStyles = makeStyles({
         },
     }
 });
-
-
-
 export default function AddCountryModal(props) {
     const formRef = React.useRef(null);
     const [countries, setCountries] = useState([]);
