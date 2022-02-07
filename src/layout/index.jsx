@@ -27,7 +27,7 @@ const Layout = ({sideMenu}) => {
       <>
             <Header/>
             <Box className={"main-content"}>        
-               <SideMenu sideMenuData={sideMenu}/>
+               {/* <SideMenu sideMenuData={sideMenu}/> */}
                <Box className={"content-area"}>
                   <Outlet/>
                </Box>

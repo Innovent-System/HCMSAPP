@@ -1,13 +1,13 @@
 import React, { createContext } from 'react';
-import { blueGrey } from '../deps/ui/colorschema'
+//import { blueGrey } from '../deps/ui/colorschema'
 
 export const ThemeContext = createContext();
 
 const ThemeContextProvider = (props) => {
   const layout = {
-    primaryColor: '#f3f2f7',
-    fontColor: 'black',
-    headerbgColor : blueGrey[900]
+    primaryColor: '#006884',
+    secondaryColor: '#053D57',
+    fontColor: '#000000',
   };
 
   return (

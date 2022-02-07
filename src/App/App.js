@@ -13,7 +13,7 @@ import { SnackbarProvider } from 'notistack';
 // #fafafa
 const theme = createTheme({
   palette: {
-    type:"light",
+    type:"dark",
     primary: {
       dark:"#11a036",
       main: "#37b057",
