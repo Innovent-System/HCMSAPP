@@ -3,29 +3,25 @@ import "./App.css";
 import { BrowserRouter as Router } from "react-router-dom";
 import Routes from "../router";
 import { createTheme, ThemeProvider } from "../deps/ui";
-import GlobalStyles from '../layout/styles/GlobalStyles';
+import GlobalStyles from "../layout/styles/GlobalStyles";
 import { Provider } from "react-redux";
 import { store } from "../store/reducers/store";
-import {SocketContext,appsocket } from '../services/socketService';
-import { SnackbarProvider } from 'notistack';
+import { SocketContext, appsocket } from "../services/socketService";
+import { SnackbarProvider } from "notistack";
 
-
-// #fafafa
 const theme = createTheme({
   palette: {
-    type:"dark",
     primary: {
-      dark:"#11a036",
-      main: "#37b057",
-      light: "#3c44b126",
+      light: "#9162e4",
+      main: "#5e35b1",
+      dark: "#280680",
+      contrastText: "#ffffff",
     },
     secondary: {
-      main: "#f83245",
-      light: "#f8324526",
-    },
-    background: {
-      default: "#f4f5fd",
-      light: '#fff',
+      light: "#e7b9ff",
+      main: "#b388ff",
+      dark: "#805acb",
+      contrastText: "#000000",
     },
   },
   overrides: {
@@ -42,32 +38,27 @@ const theme = createTheme({
   },
 });
 
-
-
-
 function App() {
   useEffect(() => {
     appsocket.connect();
 
     return () => {
       appsocket.disconnect();
-    }
-  }, [])
+    };
+  }, []);
   return (
-    
     <ThemeProvider theme={theme}>
       <SnackbarProvider maxSnack={3}>
         <Router>
-        <Provider store={store}>
-          <SocketContext.Provider value={appsocket}>
-                <GlobalStyles/>
-                <Routes />
-          </SocketContext.Provider>
-          </Provider >
+          <Provider store={store}>
+            <SocketContext.Provider value={appsocket}>
+              <GlobalStyles />
+              <Routes />
+            </SocketContext.Provider>
+          </Provider>
         </Router>
       </SnackbarProvider>
     </ThemeProvider>
-   
   );
 }
 

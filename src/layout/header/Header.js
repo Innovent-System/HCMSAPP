@@ -6,6 +6,7 @@ import {
   InputBase,
   IconButton,
   Badge,
+  TextField,
 } from "../../deps/ui";
 import {
   NotificationsNone as NotificationsNoneIcon,
@@ -47,34 +48,55 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import GridViewIcon from "@mui/icons-material/GridView";
 
 const headerStyles = {
-  appBar: {
-    zIndex: "zIndex.drawer" + 1,
-    backgroundColor: "#fff",
+  Appbar: {
+    "& button, & input": {
+      color: "#fff",
+      borderColor: "#fff",
+    },
     '& img[alt="Logo"]': {
-      maxWidth: 100,
-      marginRight: 20,
+      width: 130,
+      height: 45,
+      filter: "grayscale(1) invert(1)",
+    },
+    "& .left": {
+      display: "inline-flex",
+    },
+    "& .right": {
+      display: "inline-flex",
+      justifyContent: "flex-end",
     },
   },
-  searchInput: {
-    opacity: "0.6",
-    padding: `0px 1px`,
-    fontSize: "0.8rem",
-    "&:hover": {
-      backgroundColor: "#f2f2f2",
-    },
-    "& .MuiSvgIcon-root": {
-      marginRight: 1,
-    },
-  },
-
-  root: {
-    '& .sidebar':{
-      opacity: 0.5,
-      '& .MuiAccordionDetails-root':{
+  Drawer: {
+    "& .MuiAccordion-root": {
+      boxShadow: "none",
+      "&.Mui-expanded": {
+        margin: 0,
+      },
+      "& .MuiAccordionSummary-root": {
+        "&.Mui-expanded": {
+          minHeight: 0,
+          backgroundColor: "#eee",
+        },
+        "& .MuiAccordionSummary-content": {
+          "&.Mui-expanded": {
+            margin: "15px 0",
+          },
+          "& svg": {
+            marginRight: "5px",
+          },
+        },
+      },
+      "& .MuiAccordionDetails-root": {
         padding: 0,
-      }
-    }
-  }
+        "& .MuiList-root": {
+          padding: 0,
+          "& .MuiListItemIcon-root": {
+            minWidth: "30px",
+          },
+        },
+      },
+    },
+  },
 };
 
 export default function Header() {
@@ -116,30 +138,41 @@ export default function Header() {
   };
 
   return (
-    <div className={headerStyles.root}>
-      <AppBar sx={headerStyles.appBar} position="static" elevation={2}>
+    <div sx={headerStyles.root}>
+      <AppBar
+        sx={headerStyles.Appbar}
+        position="static"
+        elevation={2}
+        color="primary">
         <Toolbar disableGutters>
           <Grid container alignItems="center">
-            <Grid style={{ display: "flex" }} item>
-              <IconButton onClick={toggleSidebar("left", true)}>
+            <Grid item xs className="left">
+              <IconButton
+                onClick={toggleSidebar("left", true)}
+                color="secondary">
                 <FormatListBulletedIcon />
               </IconButton>
               <img src={Logo} alt="Logo" />
+            </Grid>
+            <Grid item xs className="center">
               <InputBase
-                placeholder="Search topics"
-                sx={headerStyles.searchInput}
-                startAdornment={<SearchIcon fontSize="small" />}
+                placeholder="Search"
+                startAdornment={
+                  <SearchIcon fontSize="small" color="secondary" />
+                }
+                fullWidth
+                color="inherit"
+                variant="outlined"
               />
             </Grid>
-            <Grid item sm></Grid>
-            <Grid item>
+            <Grid item xs className="right">
               <IconButton>
-                <Badge badgeContent={4} color="secondary">
+                <Badge badgeContent={4}>
                   <NotificationsNoneIcon fontSize="small" />
                 </Badge>
               </IconButton>
               <IconButton>
-                <Badge badgeContent={3} color="primary">
+                <Badge badgeContent={3}>
                   <ChatBubbleOutlineIcon fontSize="small" />
                 </Badge>
               </IconButton>
@@ -153,8 +186,9 @@ export default function Header() {
           </Grid>
         </Toolbar>
       </AppBar>
-      <div sx="sidebar">
+      <div className="sidebar">
         <Drawer
+          sx={headerStyles.Drawer}
           anchor={"left"}
           open={state.left}
           onClose={toggleSidebar("left", false)}>
@@ -168,8 +202,8 @@ export default function Header() {
                 expandIcon={<ExpandMoreIcon />}
                 aria-controls="panel1a-content"
                 id="panel1a-header">
-                <GridViewIcon style={{ marginRight: 5 }} />
-                <Typography> Dashboard</Typography>
+                <GridViewIcon />
+                <Typography> Attendance</Typography>
               </AccordionSummary>
               <AccordionDetails>
                 <List>
@@ -205,14 +239,36 @@ export default function Header() {
                 expandIcon={<ExpandMoreIcon />}
                 aria-controls="panel2a-content"
                 id="panel2a-header">
-                <Typography>Accordion 2</Typography>
+                <GridViewIcon />
+                <Typography> Dashboard</Typography>
               </AccordionSummary>
               <AccordionDetails>
-                <Typography>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Suspendisse malesuada lacus ex, sit amet blandit leo lobortis
-                  eget.
-                </Typography>
+                <List>
+                  <ListItem>
+                    <ListItemIcon>
+                      <InboxIcon />
+                    </ListItemIcon>
+                    <ListItemText primary={"Option One"} />
+                  </ListItem>
+                  <ListItem>
+                    <ListItemIcon>
+                      <InboxIcon />
+                    </ListItemIcon>
+                    <ListItemText primary={"Option One"} />
+                  </ListItem>
+                  <ListItem>
+                    <ListItemIcon>
+                      <InboxIcon />
+                    </ListItemIcon>
+                    <ListItemText primary={"Option One"} />
+                  </ListItem>
+                  <ListItem>
+                    <ListItemIcon>
+                      <InboxIcon />
+                    </ListItemIcon>
+                    <ListItemText primary={"Option One"} />
+                  </ListItem>
+                </List>
               </AccordionDetails>
             </Accordion>
           </Box>
@@ -220,6 +276,7 @@ export default function Header() {
       </div>
       <div className="filterbar">
         <Drawer
+          sx={headerStyles.Drawer}
           anchor={"right"}
           open={state.right}
           onClose={toggleSidebar("right", false)}>
@@ -227,7 +284,60 @@ export default function Header() {
             sx={{ width: 250 }}
             role="presentation"
             //onClick={toggleSidebar("right", false)}
-            onKeyDown={toggleSidebar("right", false)}></Box>
+            onKeyDown={toggleSidebar("right", false)}>
+            <Accordion>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel11a-content"
+                id="panel1a-header">
+                <GridViewIcon />
+                <Typography> Dates:</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <div style={{ padding: 15 }}>
+                  <TextField
+                    label="From"
+                    id="outlined-size-small"
+                    defaultValue="Enter Date"
+                    size="small"
+                    style={{ marginBottom: 15 }}
+                  />
+                  <TextField
+                    label="To"
+                    id="outlined-size-small"
+                    defaultValue="Enter Date"
+                    size="small"
+                  />
+                </div>
+              </AccordionDetails>
+            </Accordion>
+            <Accordion>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel12a-content"
+                id="panel2a-header">
+                <GridViewIcon />
+                <Typography> Amount</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <div style={{ padding: 15 }}>
+                  <TextField
+                    label="From"
+                    id="outlined-size-small"
+                    defaultValue="4200"
+                    size="small"
+                    style={{ marginBottom: 15 }}
+                  />
+                  <TextField
+                    label="To"
+                    id="outlined-size-small"
+                    defaultValue="4600"
+                    size="small"
+                  />
+                </div>
+              </AccordionDetails>
+            </Accordion>
+          </Box>
         </Drawer>
       </div>
     </div>
