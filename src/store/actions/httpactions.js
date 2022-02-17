@@ -20,7 +20,11 @@ import {
 
   UPLOAD_DATA,
   UPLOAD_DATA_SUCCESS,
-  UPLOAD_DATA_FAILED
+  UPLOAD_DATA_FAILED,
+
+  ROUTE_DATA,
+  ROUTE_DATA_SUCCESS,
+  ROUTE_DATA_FAILED
 
 } from "./types";
 import {domain,headerOption} from '../../config/appconfig';
@@ -62,7 +66,6 @@ export const handlePostActions = (url, data = {}) => dispatch  => {
     });
   
 };
-
 
 export const handleUploadActions = (url, data = {}) => dispatch => {
 
@@ -205,6 +208,43 @@ export const handleDeleteActions = (url, params = {}) => dispatch => {
     .catch(function (err) {
       dispatch({
         type: DELETE_DATA_FAILED,
+        payload:{msg:(err.response?.data ? err.response.data.message : err.message),code:err.response.status} 
+      })
+    });
+  
+};
+
+export const handleAppRoutes = (url, data = {}) => dispatch  => {
+
+  dispatch({
+    type: ROUTE_DATA,
+    payload: null
+  });
+
+  return axios.post(domain.concat(url), data, {
+    headers:headerOption(),
+    withCredentials:true,
+  })
+    .then( response => {
+      if (response.status) {
+        const { result, message } = response.data;
+        
+        dispatch({
+          type: ROUTE_DATA_SUCCESS,
+          payload: result,
+          message
+        });
+
+        return {
+          data:result,
+          isSuccess:true,
+          message
+         }
+      }
+    })
+    .catch(function (err) {
+      dispatch({
+        type:ROUTE_DATA_FAILED,
         payload:{msg:(err.response?.data ? err.response.data.message : err.message),code:err.response.status} 
       })
     });

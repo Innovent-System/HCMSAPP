@@ -4,10 +4,11 @@ import GridToolBar from './GridToolBar';
 
 const Styles = {
     root: {
-        bgcolor: '#fdfdff'
+        bgcolor: '#fdfdff',
+        borderRadius:1
     },
     pageHeader:{
-        p:2,
+        p:1,
         display:'flex',
         mb:1
     },
@@ -17,6 +18,8 @@ const Styles = {
         color:'primary.main'
     },
     pageTitle:{
+        display:'flex',
+        flexDirection:'column',
         pl:4,
         '& .MuiTypography-subtitle2':{
             opacity:'0.6'
@@ -29,7 +32,7 @@ export default function PageHeader(props) {
     
     const { title, subTitle, icon } = props;
     return (
-        <Paper elevation={0} square sx={Styles.root}>
+        <Paper elevation={1} square sx={Styles.root}>
             <Box sx={Styles.pageHeader}>
                 <Card sx={Styles.pageIcon}>
                     {icon}
@@ -37,11 +40,11 @@ export default function PageHeader(props) {
                 <Box sx={Styles.pageTitle}>
                     <Typography
                         variant="h6"
-                        component="Box">
+                        >
                         {title}</Typography>
                     <Typography
                         variant="subtitle2"
-                        component="Box">
+                        >
                         {subTitle}</Typography>
                 </Box>
                 <Grid item sm></Grid>

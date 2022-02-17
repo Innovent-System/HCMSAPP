@@ -16,14 +16,17 @@ import {
     UPDATE_DATA,
     UPDATE_DATA_SUCCESS,
     UPDATE_DATA_FAILED,
-    SET_COMMON_DROPDOWN
+    SET_COMMON_DROPDOWN,
+    ROUTE_DATA_FAILED,
+    ROUTE_DATA_SUCCESS,
+    ROUTE_DATA
 
   } from "../actions/types";
 
 import { INITIAL_STATE } from "./states";
 
 
-export default (state = Object.assign({},{...INITIAL_STATE}) , action) => {
+export default (state = INITIAL_STATE , action) => {
     
   switch (action.type) {
 case SET_COMMON_DROPDOWN:
@@ -35,7 +38,7 @@ case SET_COMMON_DROPDOWN:
         return {
         ...state,
         status:false,
-        message:"",
+        message:emptyString,
         error:{
             flag:false,
             msg:null,
@@ -64,14 +67,47 @@ case SET_COMMON_DROPDOWN:
             result:action.payload.result
         }  
     };
-
+    case ROUTE_DATA:
+        return {
+        ...state,
+        status:false,
+        message:emptyString,
+        error:{
+            flag:false,
+            msg:null,
+            code:null,
+            result:null
+        },
+        loading:true         
+    };
+    case ROUTE_DATA_SUCCESS:
+        return {
+            ...state,
+            routeData:action.payload,
+            status:true,
+            message:action.message,
+            loading:false            
+        };
+    case ROUTE_DATA_FAILED:return {
+        ...state,
+        info:null,
+        routeData:[],
+        loading:false,
+        status:false,
+        error:{
+            flag:true,
+            msg:action.payload.msg,
+            code:action.payload.code,
+            result:action.payload.result
+        }  
+    };
     case GET_DATA:
         return {
         ...state,
         status:false,
         loading:true,
         info:null,
-        message:"",
+        message:emptyString,
         error:{
             flag:false,
             msg:null
@@ -103,7 +139,7 @@ case SET_COMMON_DROPDOWN:
         ...state,
         status:false,
         loading:true,
-        message:"",
+        message:emptyString,
         error:{
             flag:false,
             msg:null,
@@ -135,7 +171,7 @@ case SET_COMMON_DROPDOWN:
         ...state,
         status:false,
         loading:true,
-        message:"",
+        message:emptyString,
         error:{
             flag:false,
             msg:null,
