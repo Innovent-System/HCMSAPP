@@ -1,9 +1,10 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import PageHeader from '../../components/PageHeader'
 import { PeopleOutline } from '../../deps/ui/icons'
 import Tabs from '../../components/Tabs'
 import Country from './components/Country'
+import Area from './components/Area'
+import State from './components/State'
 
 
 const tab = [
@@ -12,12 +13,23 @@ const tab = [
     panel: <Country />
   },
   {
-    title: "City",
-    panel: <h1>Country</h1>
+    title: "State",
+    panel: <State />
   },
   {
-    title: "State",
-    panel: <h1>Country</h1>
+    title: "City",
+    panel: <h1>City</h1>
+  },
+  {
+    title: "Area",
+    panel: <Area />
+  },
+  {
+    title: "Vendor",
+    panel: <h1>Vendor</h1>
+  },{
+    title: "AddCity",
+    panel: <h1>Add City</h1>
   }
 ]
 

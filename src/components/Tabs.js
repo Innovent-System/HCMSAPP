@@ -46,7 +46,7 @@ const Styles = {
 
 function Tabs({ TabsConfig }) {
     const [value, setValue] = React.useState(0);
-    const handleChange = (newValue) => {
+    const handleChange = (event, newValue) => {
         setValue(newValue);
     };
 
@@ -60,17 +60,11 @@ function Tabs({ TabsConfig }) {
                 aria-label="Vertical tabs example"
                 sx={Styles.tabStyle}
             >
-                {TabsConfig.map((m, index) => <Tab key={index} label={m.title} {...changeTabs(index)} />)}
+                {TabsConfig.map((m, index) => <Tab label={m.title}  {...changeTabs(index)} />)}
             </MuiTabs>
-
             {
-                TabsConfig.map((m, index) =>
-                    <TabPanel key={m.title} value={value} index={index}>
-                        {m.panel}
-                    </TabPanel>
-                )
+                TabsConfig.map((m, index) => <TabPanel value={value} index={index}> {m.panel}</TabPanel>)
             }
-
         </Box>
     );
 }
