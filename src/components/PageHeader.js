@@ -1,56 +1,22 @@
 import React from 'react'
-import { Paper, Card, Typography,Grid,Box } from '../deps/ui';
-import GridToolBar from './GridToolBar';
+import { Paper, Typography,Grid, } from '../deps/ui';
+import PropTypes from 'prop-types';
+import Controls from './controls/Controls';
 
-const Styles = {
-    root: {
-        bgcolor: '#fdfdff',
-        borderRadius:1
-    },
-    pageHeader:{
-        p:1,
-        display:'flex',
-        mb:1
-    },
-    pageIcon:{
-        display:'inline-block',
-        p:1,
-        color:'primary.main'
-    },
-    pageTitle:{
-        display:'flex',
-        flexDirection:'column',
-        pl:4,
-        '& .MuiTypography-subtitle2':{
-            opacity:'0.6'
-        }
-    }
-}
 
 export default function PageHeader(props) {
-
-    
-    const { title, subTitle, icon } = props;
+    const { title, subTitle, icon,handleAdd } = props;
     return (
-        <Paper elevation={1} square sx={Styles.root}>
-            <Box sx={Styles.pageHeader}>
-                <Card sx={Styles.pageIcon}>
-                    {icon}
-                </Card>
-                <Box sx={Styles.pageTitle}>
-                    <Typography
-                        variant="h6"
-                        >
-                        {title}</Typography>
-                    <Typography
-                        variant="subtitle2"
-                        >
-                        {subTitle}</Typography>
-                </Box>
-                <Grid item sm></Grid>
-                <GridToolBar/>
-            </Box>
-            
-        </Paper>
-    )
+        <Grid component={Paper} evaluation={5} container justifyContent="space-between" alignItems="center" className='page-heading'>
+    <Grid item className='left' ><Typography variant="h1"> {title} </Typography></Grid> 
+    {typeof handleAdd === "function" && <Grid item className='right'><Controls.Button onClick={handleAdd} text="+ Add" /></Grid> } 
+  </Grid>     )
 }
+
+
+PageHeader.propTypes = {
+    title: PropTypes.string.isRequired,
+    subTitle:PropTypes.string,
+    icon:PropTypes.node,
+    handleAdd:PropTypes.func
+  };

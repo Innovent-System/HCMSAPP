@@ -1,23 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {Grid,Paper,Typography,Button} from '../../deps/ui';
 import PageHeader from '../../components/PageHeader';
 import { PeopleOutline } from '../../deps/ui/icons';
 import DataGrid from '../../components/useDataGrid';
 import Controls from '../../components/controls/Controls';
+import Popup from '../../components/Popup';
+import EmpoyeeModal from './components/AddEditEmployee'
 
 
 const List = () => {
+  const [openPopup,setOpenPopup] = useState(false);
   return <>
-  
-  <Grid component={Paper} evaluation={5} container justifyContent="space-between" alignItems="center" className='page-heading'>
-    <Grid item className='left' ><Typography variant="h1"> Employee List </Typography></Grid> 
-    <Grid item className='right'><Controls.Button  text="+ Add" /></Grid> 
-  </Grid>  
-     {/* <PageHeader
+     <PageHeader
       title="Employee List"
       subTitle="Manage Employees"
-      icon={<PeopleOutline fontSize="large" />}
-    /> */}
+      handleAdd={()=> setOpenPopup(true)}
+    />
+    <Popup title='Add Employee' maxWidth='xl' openPopup={openPopup} setOpenPopup={setOpenPopup} >
+      <EmpoyeeModal />
+    </Popup>
     <DataGrid/> 
   </>;
 };

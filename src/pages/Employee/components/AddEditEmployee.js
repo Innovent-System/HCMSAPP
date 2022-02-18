@@ -278,7 +278,7 @@ export default function List() {
           dataName:'name',
           options: countries,
           onChange:filterState,
-          defaultValue: countries.length ? countries[0] : null
+          defaultValue: countries?.length ? countries[0] : null
         },
         {
           elementType: "ad_dropdown",
