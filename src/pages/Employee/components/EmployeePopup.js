@@ -1,7 +1,7 @@
 import React from 'react'
-import { Dialog, DialogTitle, DialogContent, Typography } from '../deps/ui';
-import Controls from "./controls/Controls";
-import {Close as CloseIcon} from '../deps/ui/icons';
+import { Dialog, DialogTitle, DialogContent, Typography } from '../../../deps/ui';
+import Controls from "../../../components/controls/Controls";
+import {Close as CloseIcon} from '../../../deps/ui/icons';
 import PropTypes from 'prop-types'
 
 const Styles = {
@@ -22,18 +22,6 @@ export default function Popup(props) {
 
     return (
         <Dialog open={openPopup} maxWidth={maxWidth} sx={{ paper: Styles.dialogWrapper }}>
-            <DialogTitle sx={Styles.dialogTitle}>
-                <div style={{ display: 'flex' }}>
-                    <Typography variant="h6" component="div" sx={{ flexGrow: 1,p:0.6 }}>
-                        {title}
-                    </Typography>
-                    <Controls.ActionButton
-                        color="secondary"
-                        onClick={()=>{setOpenPopup(false)}}>
-                        <CloseIcon />
-                    </Controls.ActionButton>
-                </div>
-            </DialogTitle>
             <DialogContent dividers>
                 {children}
             </DialogContent>

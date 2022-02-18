@@ -1,12 +1,11 @@
-import { Box } from '../deps/ui';
+import { Box,Paper } from '../deps/ui';
 import { useEffect,useContext } from 'react';
 import { SocketContext } from '../services/socketService';
 import { history } from '../config/appconfig'
 import { Outlet,useLocation } from 'react-router-dom';
-import SideMenu from '../layout/sidemenu/SideMenu';
 import Header  from '../layout/header/Header';
 
-const Layout = ({sideMenu}) => {
+const Layout = () => {
     
     const socket = useContext(SocketContext);
     const location = useLocation();
@@ -26,12 +25,9 @@ const Layout = ({sideMenu}) => {
     return (
       <>
             <Header/>
-            <Box className={"main-content"}>        
-               <SideMenu sideMenuData={sideMenu}/>
-               <Box className={"content-area"}>
+               <Paper className={"content-area"}>
                   <Outlet/>
-               </Box>
-            </Box>
+               </Paper>
        </>
     )
 }

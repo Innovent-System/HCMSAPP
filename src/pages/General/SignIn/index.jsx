@@ -6,7 +6,7 @@ import { InputAdornment,IconButton, Link,Box,Container,Typography,Paper,Circular
 import { Visibility,VisibilityOff,Person } from '../../../deps/ui/icons';
 import { green } from '../../../deps/ui/colorschema';
 import bg from '../../../assests/images/bg-1.jpg';
-import { handlePostActions } from '../../../store/actions/httpactions';
+import { handleAppRoutes } from '../../../store/actions/httpactions';
 import { useDispatch } from "react-redux";
 import { API_USER_LOGIN } from '../../../services/UrlService'; 
 import Auth from '../../../services/AuthenticationService';
@@ -81,7 +81,7 @@ const SignIn = ({setRoutes,setSideMenu}) => {
            password:values.password
          }
          setLoader(true);
-         dispatch(handlePostActions(API_USER_LOGIN,signInData)).then(res => {
+         dispatch(handleAppRoutes(API_USER_LOGIN,signInData)).then(res => {
            if(res){
             const { data } = res;
             Auth.setItem("appConfigData",{"appRoutes":data.appRoutes,"sideMenuData":data.sideMenuData});

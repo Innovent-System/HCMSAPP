@@ -16,6 +16,10 @@ import {
     UPDATE_DATA,
     UPDATE_DATA_SUCCESS,
     UPDATE_DATA_FAILED,
+    SET_COMMON_DROPDOWN,
+    ROUTE_DATA_FAILED,
+    ROUTE_DATA_SUCCESS,
+    ROUTE_DATA
 
     GET_COMMON_DD_FAILED,
     GET_COMMON_DD_SUCCESS,
@@ -25,18 +29,8 @@ import {
 
 import { INITIAL_STATE } from "./states";
 
-const initReq =  {
-    status:false,
-    message:"",
-    error:{
-        flag:false,
-        msg:null,
-        code:null,
-        result:null
-    },
-    loading:true  
-}
-export default (state = Object.assign({},{...INITIAL_STATE}) , action) => {
+
+export default (state = INITIAL_STATE , action) => {
     
   switch (action.type) {
 case GET_COMMON_DD_REQUEST:
@@ -70,7 +64,15 @@ case GET_COMMON_DD_REQUEST:
     case POST_DATA:
         return {
         ...state,
-        ...initReq        
+        status:false,
+        message:emptyString,
+        error:{
+            flag:false,
+            msg:null,
+            code:null,
+            result:null
+        },
+        loading:true         
     };
     
     case POST_DATA_SUCCESS:
@@ -93,14 +95,47 @@ case GET_COMMON_DD_REQUEST:
             result:action.payload.result
         }  
     };
-
+    case ROUTE_DATA:
+        return {
+        ...state,
+        status:false,
+        message:emptyString,
+        error:{
+            flag:false,
+            msg:null,
+            code:null,
+            result:null
+        },
+        loading:true         
+    };
+    case ROUTE_DATA_SUCCESS:
+        return {
+            ...state,
+            routeData:action.payload,
+            status:true,
+            message:action.message,
+            loading:false            
+        };
+    case ROUTE_DATA_FAILED:return {
+        ...state,
+        info:null,
+        routeData:[],
+        loading:false,
+        status:false,
+        error:{
+            flag:true,
+            msg:action.payload.msg,
+            code:action.payload.code,
+            result:action.payload.result
+        }  
+    };
     case GET_DATA:
         return {
         ...state,
         status:false,
         loading:true,
         info:null,
-        message:"",
+        message:emptyString,
         error:{
             flag:false,
             msg:null
@@ -132,7 +167,7 @@ case GET_COMMON_DD_REQUEST:
         ...state,
         status:false,
         loading:true,
-        message:"",
+        message:emptyString,
         error:{
             flag:false,
             msg:null,
@@ -164,7 +199,7 @@ case GET_COMMON_DD_REQUEST:
         ...state,
         status:false,
         loading:true,
-        message:"",
+        message:emptyString,
         error:{
             flag:false,
             msg:null,

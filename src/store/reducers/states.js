@@ -2,7 +2,7 @@ export const INITIAL_STATE = {
     info:null,
     loading: false,
     status:false,
-    message:"",
+    message:emptyString,
     error:{
         flag:false,
         msg: null,
@@ -13,7 +13,6 @@ export const INITIAL_STATE = {
         Countries:[],
         States:[],
         Cities:[]
-    }
-    
-    
+    },
+    routeData:[]
 }
