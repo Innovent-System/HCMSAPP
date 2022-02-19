@@ -56,6 +56,14 @@ export const debounce = (func, wait, immediate) => {
     };
 };
 
+export class WorkerBuilder extends Worker {
+    constructor(worker) {
+      const code = worker.toString();
+      const blob = new Blob([`(${code})()`]);
+      return new Worker(URL.createObjectURL(blob));
+    }
+  }
+
 // const nativeMax = Math.max;
 // const nativeMin = Math.min;
 // const FUNC_ERROR_TEXT = "something went wrong"

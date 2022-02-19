@@ -1,12 +1,12 @@
-import React, { useEffect,useState } from 'react';
-import { Stepper, Collapse, Box,Step,StepLabel,Typography,IconButton } from '../../../deps/ui';
+import React, { useEffect, useState } from 'react';
+import { Stepper, Collapse, Box, Step, StepLabel, Typography, IconButton } from '../../../deps/ui';
 import { Launch } from '../../../deps/ui/icons';
 import { AutoForm } from '../../../components/useForm';
 import Controls from '../../../components/controls/Controls';
-import {useDispatch} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import avatar from '../../../assests/images/avatar_6.png';
 import { API } from '../_Service';
-import { handleGetActions,handlePostActions } from '../../../store/actions/httpactions';
+import { handleGetActions, handlePostActions } from '../../../store/actions/httpactions';
 import Popup from '../../../components/Popup';
 import DepartmentModel from './DepartmentModal'
 
@@ -29,18 +29,18 @@ const AddDepartmentModal = () => {
   const [openPopup, setOpenPopup] = useState(false);
   return (
     <>
-    <IconButton  size='small' onClick={() => setOpenPopup(true)}>
-      <Launch/>
-    </IconButton>
-    <Popup  
+      <IconButton size='small' onClick={() => setOpenPopup(true)}>
+        <Launch />
+      </IconButton>
+      <Popup
         title="Add Department"
         openPopup={openPopup}
         setOpenPopup={setOpenPopup}
       >
-       <DepartmentModel /> 
+        <DepartmentModel />
       </Popup>
 
-      </>
+    </>
   )
 }
 
@@ -74,7 +74,7 @@ const initialFValues = {
   resignationDate: null,
   isAllowManualAttendance: false,
   isAllowLogin: false,
-  templateId:0
+  templateId: 0
 }
 
 const getSteps = () => {
@@ -84,34 +84,32 @@ const getSteps = () => {
 let DROPDOWN_DATA = {};
 
 export default function List() {
-  
+
   const [activeStep, setActiveStep] = React.useState(0);
   const [skipped, setSkipped] = React.useState(new Set());
   const formRef = React.useRef(null);
+  const DropDown = useSelector(e => e.app.DropDownData);
   const steps = getSteps();
   const dispatch = useDispatch();
   const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
-  const [cities, setCities] = useState([]); 
-  
-  useEffect(() => {
-    dispatch(handleGetActions(API.GET_REGULAR_DROPDOWN)).then(res => {
-      if(res){
-        DROPDOWN_DATA = res.data;
-        setCountries(res.data.Countries);
-      }
-    });
-  }, []);
+  const [cities, setCities] = useState([]);
 
+  useEffect(() => {
+    if (DropDown) {
+      DROPDOWN_DATA = DropDown;
+      setCountries(DropDown.Countries);
+    }
+  }, [DropDown]);
 
   const filterState = (data) => {
-    if(!data) return;
-    setStates([...DROPDOWN_DATA.States.filter(f => f.country_id === data.id)]);
+    if (!data) return;
+    setStates(DROPDOWN_DATA.States.filter(f => f.country_id === data.id));
   }
 
   const filterCity = (data) => {
-    if(!data) return;
-    setCities([...DROPDOWN_DATA.Cities.filter(f => f.state_id === data.id)]);
+    if (!data) return;
+    setCities(DROPDOWN_DATA.Cities.filter(f => f.state_id === data.id));
   }
 
   const formData = [
@@ -124,7 +122,7 @@ export default function List() {
           elementType: "uploadavatar",
           name: "employeeImage",
           breakpoints: { md: 12, sm: 12, xs: 12 },
-          defaultValue:null
+          defaultValue: null
         },
         {
           elementType: "inputfield",
@@ -169,8 +167,8 @@ export default function List() {
           defaultValue: ""
         },
         {
-          elementType:"clearfix",
-          breakpoints:{ md: 12, sm: 12, xs: 12 }
+          elementType: "clearfix",
+          breakpoints: { md: 12, sm: 12, xs: 12 }
         },
         {
           elementType: "inputfield",
@@ -213,8 +211,8 @@ export default function List() {
           ]
         },
         {
-          elementType:"clearfix",
-          breakpoints:{ md: 12, sm: 12, xs: 12 }
+          elementType: "clearfix",
+          breakpoints: { md: 12, sm: 12, xs: 12 }
         },
         {
           elementType: "dropdown",
@@ -275,9 +273,9 @@ export default function List() {
           validate: {
             errorMessage: "Company is required",
           },
-          dataName:'name',
+          dataName: 'name',
           options: countries,
-          onChange:filterState,
+          onChange: filterState,
           defaultValue: countries?.length ? countries[0] : null
         },
         {
@@ -290,7 +288,7 @@ export default function List() {
             errorMessage: "State is required",
           },
           options: states,
-          onChange:filterCity,
+          onChange: filterCity,
           defaultValue: null
         },
         {
@@ -303,7 +301,7 @@ export default function List() {
             errorMessage: "City is required",
           },
           options: cities,
-          defaultValue:null
+          defaultValue: null
         },
         {
           elementType: "ad_dropdown",
@@ -315,12 +313,13 @@ export default function List() {
             errorMessage: "Area is required",
           },
           options: [{
-            id:10,name:"Malir"},
-          {id:11, name:"Johar"},
-          {id:12, name:"NorthKarachi"},
-          {id:13, name:"RashidMinhas"}
+            id: 10111, name: "Malir"
+          },
+          { id: 11222, name: "Johar" },
+          { id: 12333, name: "NorthKarachi" },
+          { id: 13444, name: "RashidMinhas" }
           ],
-          defaultValue:null
+          defaultValue: null
         },
         {
           elementType: "ad_dropdown",
@@ -332,12 +331,13 @@ export default function List() {
             errorMessage: "City is required",
           },
           options: [{
-            id:21,name:"Malir"},
-          {id:22, name:"Johar"},
-          {id:23, name:"NorthKarachi"},
-          {id:24, name:"RashidMinhas"}
+            id: 21555, name: "Malir"
+          },
+          { id: 22666, name: "Johar" },
+          { id: 23777, name: "NorthKarachi" },
+          { id: 24888, name: "RashidMinhas" }
           ],
-          defaultValue:null
+          defaultValue: null
         },
         {
           elementType: "ad_dropdown",
@@ -345,19 +345,20 @@ export default function List() {
           label: "Department",
           required: true,
           dataName: "name",
-          modal:{
-            Component:<AddDepartmentModal/>,
+          modal: {
+            Component: <AddDepartmentModal />,
           },
           validate: {
             errorMessage: "Department is required",
           },
           options: [{
-            id:31,name:"IT"},
-          {id:32, name:"Development"},
-          {id:33, name:"Admin"},
-          {id:34, name:"Electric"}
+            id: 31999, name: "IT"
+          },
+          { id: 321010, name: "Development" },
+          { id: 33321, name: "Admin" },
+          { id: 348745, name: "Electric" }
           ],
-          defaultValue:null
+          defaultValue: null
         },
         {
           elementType: "ad_dropdown",
@@ -365,13 +366,14 @@ export default function List() {
           label: "Designation",
           dataName: "name",
           options: [{
-            id:41,name:"Software Engineer"},
-          {id:42, name:"Team Lead"},
-          {id:43, name:"IT Officer"},
-          {id:44, name:"CEO"}
+            id: 41225, name: "Software Engineer"
+          },
+          { id: 42654, name: "Team Lead" },
+          { id: 43789, name: "IT Officer" },
+          { id: 44158, name: "CEO" }
           ],
-          defaultValue:null
-        }, 
+          defaultValue: null
+        },
         // {
         //   elementType: "inputfield",
         //   name: "address",
@@ -393,10 +395,7 @@ export default function List() {
         }
       ]
     },
-
   ];
-
-
 
   const isStepOptional = (step) => {
     return step === 1;
@@ -441,11 +440,11 @@ export default function List() {
   };
 
   const handleSubmit = (e) => {
-    const {resetForm,getValue,validateFields} = formRef.current
+    const { resetForm, getValue, validateFields } = formRef.current
     const values = getValue();
-    if(validateFields()){
-      dispatch(handlePostActions(API.INSERT_EMPLOYEE,[values])).then(res => {
-            console.log(res);
+    if (validateFields()) {
+      dispatch(handlePostActions(API.INSERT_EMPLOYEE, [values])).then(res => {
+        console.log(res);
       });
     }
   }
@@ -476,20 +475,20 @@ export default function List() {
             <Typography sx={Styles.instructions}>
               All steps completed - you&apos;re finished
             </Typography>
-            <Controls.Button onClick={handleReset} sx={Styles.button} text="Reset"/>
+            <Controls.Button onClick={handleReset} sx={Styles.button} text="Reset" />
           </Box>
         ) : (
           <Box display='flex' flexDirection='column' justifyContent='space-between'>
             <AutoForm formData={formData} ref={formRef} isValidate={true} />
             <Box>
 
-              <Controls.Button onClick={handleBack} disabled={activeStep === 0} sx={Styles.button} text="Back"/>
+              <Controls.Button onClick={handleBack} disabled={activeStep === 0} sx={Styles.button} text="Back" />
               {isStepOptional(activeStep) && (
 
-               <Controls.Button onClick={handleSkip} sx={Styles.button} text="Skip"/>
+                <Controls.Button onClick={handleSkip} sx={Styles.button} text="Skip" />
               )}
-               <Controls.Button onClick={handleNext} sx={Styles.button} text={activeStep === steps.length - 1 ? 'Finish' : 'Next'}/>
-               {activeStep === steps.length - 1 && <Controls.Button onClick={handleSubmit} sx={Styles.button} text="Submit"/>}
+              <Controls.Button onClick={handleNext} sx={Styles.button} text={activeStep === steps.length - 1 ? 'Finish' : 'Next'} />
+              {activeStep === steps.length - 1 && <Controls.Button onClick={handleSubmit} sx={Styles.button} text="Submit" />}
             </Box>
           </Box>
         )}

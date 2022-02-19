@@ -68,7 +68,6 @@ const useStyles = makeStyles(theme => ({
 }))
 
 export function Form(props) {
-    debugger;
     const classes = useStyles();
     const { children, ...other } = props;
 
@@ -146,7 +145,7 @@ export const AutoForm = forwardRef(function (props,ref) {
         resetForm
     } = useForm(initialValues, isValidate, validateField);
     
-        
+        console.log({values,initialValues});
 
     useEffect(() => {
         // if(!isEdit && Object.keys(initialValues).length === Object.keys(values).length) return 
@@ -225,7 +224,7 @@ export const AutoForm = forwardRef(function (props,ref) {
                                 {Array.isArray(_children) ? _children.map(({ name,label,required, elementType, breakpoints = DEFAULT_BREAK_POINTS, classes, disabled , onChange,modal,defaultValue, ..._others }, innerIndex) => (
                                     <Grid  {...(breakpoints && { ...breakpoints })} key={innerIndex} item>
                                         {modal && <Box display="flex">{modal.Component}</Box>}
-                                        <Element elementType={elementType}
+                                        <Element key={innerIndex + name} elementType={elementType}
                                             name={name}
                                             label={label}
                                             {...(required && {required:handleConditionalField(name,required)})}

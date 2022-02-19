@@ -24,7 +24,11 @@ import {
 
   ROUTE_DATA,
   ROUTE_DATA_SUCCESS,
-  ROUTE_DATA_FAILED
+  ROUTE_DATA_FAILED,
+  
+  GET_COMMON_DD_FAILED,
+  GET_COMMON_DD_SUCCESS,
+  GET_COMMON_DD_REQUEST
 
 } from "./types";
 import {domain,headerOption} from '../../config/appconfig';

@@ -1,3 +1,5 @@
+// eslint-disable-next-line import/no-anonymous-default-export
+// eslint-disable-next-line no-restricted-globals
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';

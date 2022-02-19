@@ -57,6 +57,7 @@ function MultiSelect(props) {
         multiple={isMultiple}
         {...(isMultiple && {PopperComponent:MyPopper})}
         limitTags={2}
+        isOptionEqualToValue={(option, value) => option[dataName] === value[dataName]}
         {...other}
         value={value}
         onChange={(event, value) => onChange(convertToDefEventPara(name,value))}
@@ -93,4 +94,4 @@ MultiSelect.propTypes = {
   dataName: PropTypes.string.isRequired
 }
 
-export default React.memo(MultiSelect,(prev,next) => JSON.stringify(prev) === JSON.stringify(next));
+export default React.memo(MultiSelect);

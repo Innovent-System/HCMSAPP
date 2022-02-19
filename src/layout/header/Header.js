@@ -8,9 +8,8 @@ import {
     Badge,
     TextField,
     Box,
-    Drawer, List, ListItem, ListItemIcon, ListItemText, Typography
+    Drawer, Typography
 } from "../../deps/ui";
-import { NavLink as RouterLink } from 'react-router-dom';
 import * as iconMapping from '../../assests/icons';
 import NavItem from './NavItem';
 
@@ -19,13 +18,12 @@ import {
     ChatBubbleOutline as ChatBubbleOutlineIcon,
     PowerSettingsNew as PowerSettingsNewIcon,
     Search as SearchIcon,
-    Dashboard as SubjectIcon,
 } from "../../deps/ui/icons";
 import Auth from "../../services/AuthenticationService";
 import { SocketContext } from "../../services/socketService";
 import { useNavigate } from "react-router-dom";
-import { API_USER_LOGOUT } from "../../services/UrlService";
-import { handleGetActions } from "../../store/actions/httpactions";
+import { API_USER_LOGOUT,GET_REGULAR_DROPDOWN } from "../../services/UrlService";
+import { handleGetActions,handleGetCommonDropDown } from "../../store/actions/httpactions";
 import { useDispatch } from "react-redux";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import Logo from "../../assests/images/Logo.png";
@@ -101,7 +99,7 @@ export default function Header() {
     const navigate = useNavigate();
     const socket = useContext(SocketContext);
     const sideMenuData = useSelector(e => {
-        return e.auth.routeData?.sideMenuData ||
+        return e.app.routeData?.sideMenuData ||
             (Auth.getitem("appConfigData")?.sideMenuData || [])
     });
     useEffect(() => {
@@ -109,7 +107,7 @@ export default function Header() {
         return () => {
             socket.off("leave");
         };
-    });
+    },[]);
 
     const [state, setState] = React.useState({
         left: false,

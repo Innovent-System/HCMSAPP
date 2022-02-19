@@ -7,7 +7,7 @@ export {
    Collapse,Step,StepLabel,Stepper,Link,Input,ButtonGroup,Popper,ListItemIcon,ListItemText,Drawer,Zoom,Snackbar,
    Card,Dialog, DialogTitle, DialogContent,ListSubheader,
    Table, TableHead, TableRow, TableCell, TablePagination, TableSortLabel,Autocomplete,
-   DialogActions,Stack
+   DialogActions,Stack,Tab,Tabs
 } from '@mui/material';
 
 

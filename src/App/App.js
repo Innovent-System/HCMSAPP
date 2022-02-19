@@ -8,7 +8,6 @@ import { Provider } from "react-redux";
 import { store } from "../store/reducers/store";
 import {SocketContext,appsocket } from '../services/socketService';
 import { SnackbarProvider } from 'notistack';
-
 // #fafafa
 const theme = createTheme({
   palette: {

@@ -19,7 +19,7 @@ import {
     SET_COMMON_DROPDOWN,
     ROUTE_DATA_FAILED,
     ROUTE_DATA_SUCCESS,
-    ROUTE_DATA
+    ROUTE_DATA,
 
     GET_COMMON_DD_FAILED,
     GET_COMMON_DD_SUCCESS,
@@ -36,12 +36,20 @@ export default (state = INITIAL_STATE , action) => {
 case GET_COMMON_DD_REQUEST:
     return {
         ...state,
-        ...initReq
-    }   
+        status:false,
+        message:emptyString,
+        error:{
+            flag:false,
+            msg:null,
+            code:null,
+            result:null
+        },
+        loading:true         
+    };   
     case GET_COMMON_DD_SUCCESS:
         return{
             ...state,
-            DropDownData:action.payload,
+            DropDownData:action.payload.RegularDropDown,
             status:true,
             message:action.message,
             loading:false            
