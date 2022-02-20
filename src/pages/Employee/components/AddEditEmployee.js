@@ -108,7 +108,7 @@ export default function List() {
   }
 
   const filterCity = (data) => {
-    if (!data) return;
+    if (!data) return ;
     setCities(DROPDOWN_DATA.Cities.filter(f => f.state_id === data.id));
   }
 

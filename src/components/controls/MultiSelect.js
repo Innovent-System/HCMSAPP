@@ -1,7 +1,7 @@
 /* eslint-disable no-use-before-define */
 import React from 'react';
-import {Autocomplete,TextField,Checkbox,Popper,ButtonGroup,Button,Box} from '../../deps/ui'
-import { Check,Clear,CheckBox as CheckBoxIcon,CheckBoxOutlineBlank as CheckBoxOutlineBlankIcon } from '../../deps/ui/icons'
+import { Autocomplete, TextField, Checkbox, Popper, ButtonGroup, Button, Box } from '../../deps/ui'
+import { Check, Clear, CheckBox as CheckBoxIcon, CheckBoxOutlineBlank as CheckBoxOutlineBlankIcon } from '../../deps/ui/icons'
 import ListboxComponent from '../ReactWindow';
 import PropTypes from 'prop-types'
 
@@ -13,7 +13,7 @@ const Styles = {
     '& > * + *': {
       mt: 3,
     },
-    
+
   }
 };
 
@@ -29,10 +29,10 @@ const MyPopper = function (props) {
   return (
     <Popper {...props}>
       <ButtonGroup color="primary" aria-label="outlined primary button group">
-        <Button startIcon={<Check/>} color="primary" onClick={addAllClick}>
+        <Button startIcon={<Check />} color="primary" onClick={addAllClick}>
           Add All
         </Button>
-        <Button startIcon={<Clear/>} color="primary" onClick={clearClick}>
+        <Button startIcon={<Clear />} color="primary" onClick={clearClick}>
           Clear
         </Button>
       </ButtonGroup>
@@ -42,12 +42,12 @@ const MyPopper = function (props) {
 }
 
 function MultiSelect(props) {
-  
-  const { name, label, value,error=null, onChange,options,dataName = "",isMultiple = false ,...other } = props;
+
+  const { name, label, value, error = null, onChange, options, dataName = "", isMultiple = false, ...other } = props;
 
   const convertToDefEventPara = (name, value) => ({
     target: {
-        name, value
+      name, value
     }
   })
 
@@ -55,35 +55,37 @@ function MultiSelect(props) {
     <Box sx={Styles.root}>
       <Autocomplete
         multiple={isMultiple}
-        {...(isMultiple && {PopperComponent:MyPopper})}
+        {...(isMultiple && { PopperComponent: MyPopper })}
         limitTags={2}
         isOptionEqualToValue={(option, value) => option[dataName] === value[dataName]}
         {...other}
         value={value}
-        onChange={(event, value) => onChange(convertToDefEventPara(name,value))}
+        onChange={(event, value) => onChange(convertToDefEventPara(name, value))}
         size='small'
         id="multiple-limit-tags"
         options={options}
         getOptionLabel={option => option[dataName] ? option[dataName] : ''}
         ListboxComponent={ListboxComponent}
-        {...(isMultiple && {renderOption:(option, state) => {
-         
-          return (
-            <React.Fragment>
-              <Checkbox
-                icon={icon}
-                color='primary'
-                checkedIcon={checkedIcon}
-                style={{ marginRight: 8 }}
-                checked={state.selected}
-              />
-              {option[dataName]}
-            </React.Fragment>
-          );
-        } })}
+        {...(isMultiple && {
+          renderOption: (option, state) => {
+
+            return (
+              <React.Fragment>
+                <Checkbox
+                  icon={icon}
+                  color='primary'
+                  checkedIcon={checkedIcon}
+                  style={{ marginRight: 8 }}
+                  checked={state.selected}
+                />
+                {option[dataName]}
+              </React.Fragment>
+            );
+          }
+        })}
 
         renderInput={(params) => (
-          <TextField {...params}  {...(error && {error:true,helperText:error})}  variant="standard" label={label} />
+          <TextField {...params}  {...(error && { error: true, helperText: error })} variant="standard" label={label} />
         )}
       />
     </Box>
@@ -91,7 +93,13 @@ function MultiSelect(props) {
 }
 
 MultiSelect.propTypes = {
-  dataName: PropTypes.string.isRequired
+  dataName: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+  value: PropTypes.any,
+  onChange: PropTypes.func,
+  isMultiple:PropTypes.bool,
+  option:PropTypes.array.isRequired
 }
 
 export default React.memo(MultiSelect);

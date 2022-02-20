@@ -1,4 +1,5 @@
 import { Button as MuiButton } from "../../deps/ui";
+import PropTypes from 'prop-types';
 
 const Styles = {
   root: {
@@ -10,7 +11,7 @@ const Styles = {
 }
 
 export default function Button(props) {
-  const { text, size, color, variant, onClick, icon:Icon = null,...other } = props;
+  const { text, size, color, variant, onClick, icon:Icon = null,sx={},...other } = props;
   
   return (
     <MuiButton
@@ -20,10 +21,28 @@ export default function Button(props) {
       onClick={onClick}
       {...(Icon && {startIcon:<Icon/>})}
       {...other}
-      sx={[Styles.root,Styles.label]}
+      sx={[Styles.root,Styles.label,{...sx}]}
     >
     
   {text}
     </MuiButton>
   );
+}
+
+Button.propTypes = {
+  text:PropTypes.string,
+  onClick:PropTypes.func.isRequired,
+  color:PropTypes.string,
+  icon:PropTypes.any,
+  variant:PropTypes.string,
+  size:PropTypes.string,
+  sx:PropTypes.oneOfType([
+    PropTypes.object,
+    PropTypes.func,
+    PropTypes.arrayOf(
+      PropTypes.func,
+      PropTypes.object,
+      PropTypes.bool
+    )
+  ])
 }

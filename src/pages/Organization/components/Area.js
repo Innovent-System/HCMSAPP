@@ -1,39 +1,99 @@
-import React, { useState } from "react";
-import PropTypes from 'prop-types'
+import React, {  useState,useEffect } from "react";
 import Controls from '../../../components/controls/Controls';
 import Popup from '../../../components/Popup';
-import AreaModal from './AddAreaModal'
-import { Style } from "@mui/icons-material";
-
-const Styles = {
-    root: {
-        width: '100%',
-    },
-    button: {
-        marginRight: 1,
-    },
-    instructions: {
-        marginTop: 1,
-        marginBottom: 1,
-    },
-}
+import {AutoForm} from '../../../components/useForm';
+import { API } from '../_Service';
+import {useDispatch,useSelector} from 'react-redux';
+import { handlePostActions } from '../../../store/actions/httpactions';
+import useDropDownData from "../../../components/useDropDownData";
 
 export default function Area() {
     const [openPopup, setOpenPopup] = useState(false);
+    const formRef = React.useRef(null);
+    
+    const dispatch = useDispatch();
+    const {countries,cities,states,setOption} = useDropDownData();
+    
+
+    const filterState = (data) => {
+        setOption({type:"country",data:[data],matchWith:"id"});
+      }
+    
+      const filterCity = (data) => {
+        setOption({type:"state",data:[data],matchWith:"id"});
+      }
+
+    const handleSubmit = (e) => {
+        const { getValue, validateFields } = formRef.current
+        const values = getValue();
+        if (validateFields()) {
+            dispatch(handlePostActions(API.INSERT_COUNTRY, values)).then(res => {
+                console.log(res);
+            });
+        }
+    }
+    const formData = [
+        {
+            elementType: "ad_dropdown",
+            name: "fkCompanyId",
+            label: "Country",
+            required: true,
+            validate: {
+              errorMessage: "Company is required",
+            },
+            dataName: 'name',
+            options: countries,
+            onChange: filterState,
+            defaultValue: countries?.length ? countries[0] : null
+          },
+          {
+            elementType: "ad_dropdown",
+            name: "fkStateId",
+            label: "State",
+            required: true,
+            dataName: "name",
+            validate: {
+              errorMessage: "State is required",
+            },
+            options: states,
+            onChange: filterCity,
+            defaultValue: null
+          },
+          {
+            elementType: "ad_dropdown",
+            name: "fkCityId",
+            label: "City",
+            required: true,
+            dataName: "name",
+            validate: {
+              errorMessage: "City is required",
+            },
+            options: cities,
+            defaultValue: null
+          },
+          {
+            elementType: "inputfield",
+            name: "areaName",
+            label: "Area",
+            required: true,
+            validate: {
+              errorMessage: "Area is required"
+            },
+            defaultValue: ""
+          },
+
+    ];
     return (
         <>
-            <Popup sx={Style.root}
-                title="Add Area"
+            <Popup
+                title="Add Country"
                 openPopup={openPopup}
+                maxWidth="sm"
+                addOrEditFunc={handleSubmit}
                 setOpenPopup={setOpenPopup}>
-                <AreaModal />
+                <AutoForm formData={formData} ref={formRef} isValidate={true} />
             </Popup>
-            <Controls.Button onClick={() => { setOpenPopup(true) }} sx={Styles.button} text="Add Area" />
+            <Controls.Button onClick={() => { setOpenPopup(true) }} text="Add Area" />
         </>
     );
-}
-
-Area.propTypes = {
-    addOrEdit: PropTypes.func,
-    recordForEdit: PropTypes.object
 }

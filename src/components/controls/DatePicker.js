@@ -3,6 +3,8 @@ import { LocalizationProvider,TextField ,DesktopDatePicker,MobileDatePicker} fro
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import  DateAdapter from '@mui/lab/AdapterDateFns';
+import PropTypes from 'prop-types';
+
 
 
 export default function DatePicker(props) {
@@ -45,3 +47,23 @@ export default function DatePicker(props) {
         </LocalizationProvider>
     )
 }
+
+DatePicker.defaultProps = {
+    value:null
+}
+
+DatePicker.propTypes = {
+    name:PropTypes.string.isRequired,
+    label:PropTypes.string.isRequired,
+    value:PropTypes.any,
+    onChange:PropTypes.func,
+    sx:PropTypes.oneOfType([
+      PropTypes.object,
+      PropTypes.func,
+      PropTypes.arrayOf(
+        PropTypes.func,
+        PropTypes.object,
+        PropTypes.bool
+      )
+    ])
+  }

@@ -60,10 +60,10 @@ function Tabs({ TabsConfig }) {
                 aria-label="Vertical tabs example"
                 sx={Styles.tabStyle}
             >
-                {TabsConfig.map((m, index) => <Tab label={m.title}  {...changeTabs(index)} />)}
+                {TabsConfig.map((m, index) => <Tab label={m.title} key={index} index={index} {...changeTabs(index)} />)}
             </MuiTabs>
             {
-                TabsConfig.map((m, index) => <TabPanel value={value} index={index}> {m.panel}</TabPanel>)
+                TabsConfig.map((m, index) => <TabPanel value={value} key={index} index={index}> {m.panel}</TabPanel>)
             }
         </Box>
     );

@@ -1,5 +1,6 @@
 import React from 'react'
 import { FormControl, FormLabel, RadioGroup as MuiRadioGroup, FormControlLabel, Radio } from '../../deps/ui';
+import PropTypes from 'prop-types';
 
 export default function RadioGroup(props) {
 
@@ -23,3 +24,25 @@ export default function RadioGroup(props) {
         </FormControl>
     )
 }
+
+
+RadioGroup.defaultProps = {
+    value:null
+}
+
+RadioGroup.propTypes = {
+    name:PropTypes.string.isRequired,
+    label:PropTypes.string.isRequired,
+    value:PropTypes.any,
+    onChange:PropTypes.func,
+    items:PropTypes.array,
+    sx:PropTypes.oneOfType([
+      PropTypes.object,
+      PropTypes.func,
+      PropTypes.arrayOf(
+        PropTypes.func,
+        PropTypes.object,
+        PropTypes.bool
+      )
+    ])
+  }

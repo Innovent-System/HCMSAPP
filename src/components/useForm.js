@@ -4,9 +4,7 @@ import clsx from 'clsx';
 import { Element, ElementType } from '../components/controls/Controls';
 import Loader from '../components/Circularloading';
 import PropTypes from 'prop-types'
-import {debounce} from '../util/common';
 
-const INTERVAL = 250;
 export function useForm(initialFValues, validateOnChange = false, validate) {
 
     const [values, setValues] = useState(initialFValues);
@@ -172,7 +170,8 @@ export const AutoForm = forwardRef(function (props,ref) {
                    errorProps.push({
                        [item.name]: "",
                        validate: item.validate?.validate,
-                       message: item.validate.errorMessage
+                       message: item.validate.errorMessage,
+                       required: typeof item["required"] === "function" ? item["required"]: true
                    })
                  delete item.validate;
                }
@@ -182,8 +181,10 @@ export const AutoForm = forwardRef(function (props,ref) {
                item.name && Object.assign(initialValues, { [item.name]: value })
         }
 
-        setValues(initialValues);
-    }, [])
+        setValues(currentValues => {
+            return Object.assign({}, initialValues, currentValues)
+        });
+    }, [formData])
 
     const setFormValue = (properties = {}) => {
         if(!isEdit) return console.warn("set Values only in Edit mode");

@@ -1,6 +1,7 @@
 import React from 'react'
 import { FormControl, InputLabel, Select as MuiSelect, MenuItem, FormHelperText,ListItemIcon,ListItemText,Checkbox } from '../../deps/ui';
-import {Clear,Check} from '../../deps/ui/icons'
+import {Clear,Check} from '../../deps/ui/icons';
+import PropTypes from 'prop-types';
 
 const Styles = {
 
@@ -122,5 +123,18 @@ function Select(props) {
         </FormControl>
     )
 }
+
+Select.propTypes = {
+  dataId: PropTypes.string.isRequired,
+  dataName: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+  value: PropTypes.any,
+  onChange: PropTypes.func,
+  isMultiple:PropTypes.bool,
+  option:PropTypes.array.isRequired
+}
+
+
 
 export default React.memo(Select); 
