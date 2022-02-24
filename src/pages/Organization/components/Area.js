@@ -34,17 +34,6 @@ export default function Area() {
     }
   }
   const formData = [
-
-    {
-      elementType: "inputfield",
-      name: "areaName",
-      label: "Area",
-      required: true,
-      validate: {
-        errorMessage: "Area is required"
-      },
-      defaultValue: ""
-    },
     {
       elementType: "ad_dropdown",
       name: "fkCountryId",
@@ -82,7 +71,17 @@ export default function Area() {
       },
       options: cities,
       defaultValue: null
-    }
+      },
+      {
+          elementType: "inputfield",
+          name: "areaName",
+          label: "Area",
+          required: true,
+          validate: {
+              errorMessage: "Area is required"
+          },
+          defaultValue: ""
+      },
 
   ];
   return (
