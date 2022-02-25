@@ -31,7 +31,7 @@ export default function Button(props) {
 
 Button.propTypes = {
   text:PropTypes.string,
-  onClick:PropTypes.func.isRequired,
+  onClick:PropTypes.func,
   color:PropTypes.string,
   icon:PropTypes.any,
   variant:PropTypes.string,

@@ -1,4 +1,4 @@
-import { useState,useContext } from 'react';
+import { useState,useContext, useEffect } from 'react';
 import  Controls  from '../../../components/controls/Controls';
 import { useForm, Form } from "../../../components/useForm";
 import { Link as RouterLink,useNavigate } from "react-router-dom";
@@ -51,7 +51,8 @@ const initialFValues = {
     }
   }
 
-const SignIn = ({setRoutes,setSideMenu}) => {
+let clientId;
+const SignIn = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [loader, setLoader] = useState(false);
@@ -72,6 +73,13 @@ const SignIn = ({setRoutes,setSideMenu}) => {
         if (fieldValues == values) return Object.values(temp).every((x) => x == "");
       };
 
+      useEffect(()=>{
+        socket.emit("join",clientId);
+        return () => {
+          socket.emit("leave",clientId);
+        }
+      },[socket]);
+
       const handleSubmit = (e) => {
         e.preventDefault();
         if (validate()) {
@@ -86,12 +94,9 @@ const SignIn = ({setRoutes,setSideMenu}) => {
             const { data } = res;
             Auth.setItem("appConfigData",{"appRoutes":data.appRoutes,"sideMenuData":data.sideMenuData});
             Auth.setItem("userInfo",{"email":data.email,"c_Id":data.fkClientId,username:data.username});
-            setRoutes(data.appRoutes);
-            setSideMenu(data.sideMenuData);
-            socket.emit("join",data.fkClientId);
+            clientId = data.fkClientId;
             navigate("/dashboard");
             setLoader(false);
-     
            }
            else{
             setLoader(false);

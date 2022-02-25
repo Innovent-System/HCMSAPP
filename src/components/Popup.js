@@ -24,7 +24,7 @@ const Styles = {
 
 export default function Popup(props) {
 
-    const { title, children, openPopup, setOpenPopup, maxWidth = "md",isEdit,addOrEditFunc } = props;
+    const { title, children, openPopup, setOpenPopup, maxWidth = "md",isEdit,addOrEditFunc,footer } = props;
 
 
     return (
@@ -41,7 +41,7 @@ export default function Popup(props) {
                 {children}
             </DialogContent>
             <DialogActions>
-                <Controls.Button text={isEdit ? "Update":"+Add"} onClick={addOrEditFunc}/> 
+                {footer ? footer : <Controls.Button text={isEdit ? "Update":"+Add"} onClick={addOrEditFunc}/>}  
             </DialogActions>
         </Dialog>
     )
@@ -54,10 +54,11 @@ Popup.propTypes = {
     children: PropTypes.node.isRequired,
     addOrEditFunc:PropTypes.func,
     isEdit:PropTypes.bool,
-    maxWidth: PropTypes.oneOf(["xm", "sm", "md", "lg", "xl",])
+    maxWidth: PropTypes.oneOf(["xm", "sm", "md", "lg", "xl",]),
+    footer:PropTypes.node
 }
 
 Popup.defaultProps = {
     isEdit:false,
-    addOrEditFunc:() => {}
+    addOrEditFunc:() => {},
 }

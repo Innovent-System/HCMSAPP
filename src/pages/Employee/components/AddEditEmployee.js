@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, {  useState } from 'react';
 import { Stepper, Collapse, Box, Step, StepLabel, Typography, IconButton } from '../../../deps/ui';
 import { Launch } from '../../../deps/ui/icons';
 import { AutoForm } from '../../../components/useForm';
 import Controls from '../../../components/controls/Controls';
-import { useDispatch, useSelector } from 'react-redux';
-import avatar from '../../../assests/images/avatar_6.png';
+import { useDispatch } from 'react-redux';
 import { API } from '../_Service';
 import { handleGetActions, handlePostActions } from '../../../store/actions/httpactions';
 import Popup from '../../../components/Popup';
 import DepartmentModel from './DepartmentModal'
+import useDropDownData from '../../../components/useDropDownData';
 
 
 
@@ -81,35 +81,22 @@ const getSteps = () => {
   return ['General Information', 'Additional Information', 'Company Information'];
 }
 
-let DROPDOWN_DATA = {};
 
 export default function List() {
 
   const [activeStep, setActiveStep] = React.useState(0);
   const [skipped, setSkipped] = React.useState(new Set());
   const formRef = React.useRef(null);
-  const DropDown = useSelector(e => e.app.DropDownData);
   const steps = getSteps();
   const dispatch = useDispatch();
-  const [countries, setCountries] = useState([]);
-  const [states, setStates] = useState([]);
-  const [cities, setCities] = useState([]);
-
-  useEffect(() => {
-    if (DropDown) {
-      DROPDOWN_DATA = DropDown;
-      setCountries(DropDown.Countries);
-    }
-  }, [DropDown]);
+  const {countries,states,cities,setOption} = useDropDownData();
 
   const filterState = (data) => {
-    if (!data) return;
-    setStates(DROPDOWN_DATA.States.filter(f => f.country_id === data.id));
+    setOption({type:"country",data:[data],matchWith :'id'});
   }
 
   const filterCity = (data) => {
-    if (!data) return ;
-    setCities(DROPDOWN_DATA.Cities.filter(f => f.state_id === data.id));
+    setOption({type:"state",data:[data],matchWith :'id'});
   }
 
   const formData = [
@@ -147,6 +134,10 @@ export default function List() {
           defaultValue: ""
         },
         {
+          elementType: "clearfix",
+          breakpoints: { md: 12, sm: 12, xs: 12 }
+        },
+        {
           elementType: "inputfield",
           name: "firstName",
           label: "First Name",
@@ -165,10 +156,6 @@ export default function List() {
             type: "string"
           },
           defaultValue: ""
-        },
-        {
-          elementType: "clearfix",
-          breakpoints: { md: 12, sm: 12, xs: 12 }
         },
         {
           elementType: "inputfield",

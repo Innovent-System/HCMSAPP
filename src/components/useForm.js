@@ -99,7 +99,7 @@ const validateAllFields = (fieldValues,values) => {
 
     return temp;
 }
-const DEFAULT_BREAK_POINTS = { md: 2, xs: 6,xl:4 };
+const DEFAULT_BREAK_POINTS = { md: 4 };
 export const AutoForm = forwardRef(function (props,ref) {
 
     const classes = useStyles();
@@ -143,7 +143,6 @@ export const AutoForm = forwardRef(function (props,ref) {
         resetForm
     } = useForm(initialValues, isValidate, validateField);
     
-        console.log({values,initialValues});
 
     useEffect(() => {
         // if(!isEdit && Object.keys(initialValues).length === Object.keys(values).length) return 

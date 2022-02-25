@@ -1,5 +1,5 @@
 /* eslint-disable no-use-before-define */
-import React from 'react';
+import React, { useRef } from 'react';
 import { Autocomplete, TextField, Checkbox, Popper, ButtonGroup, Button, Box } from '../../deps/ui'
 import { Check, Clear, CheckBox as CheckBoxIcon, CheckBoxOutlineBlank as CheckBoxOutlineBlankIcon } from '../../deps/ui/icons'
 import ListboxComponent from '../ReactWindow';
@@ -44,17 +44,38 @@ const MyPopper = function (props) {
 function MultiSelect(props) {
 
   const { name, label, value, error = null, onChange, options, dataName = "", isMultiple = false, ...other } = props;
-
+  const autoCompleteRef = useRef(null);
   const convertToDefEventPara = (name, value) => ({
     target: {
       name, value
     }
   })
 
+
+  const getOptionLabel = (option) => {
+    if(Array.isArray(options) && options.indexOf(option) !== -1){
+      return option[dataName]
+    }
+    return emptyString
+  }
+
+  const handleInputeChange = (e,newValue) => {
+    if(e === null && !newValue){
+      const close = autoCompleteRef.current.getElementsByClassName(
+        "MuiAutocomplete-clearIndicator"
+      )[0];
+      close.click();
+      // const event = new Event('change',{ bubbles: true});
+      // autoCompleteRef.current.querySelector("input").dispatchEvent(event);
+    }
+  }
+  
+
   return (
     <Box sx={Styles.root}>
       <Autocomplete
         multiple={isMultiple}
+        ref={autoCompleteRef}
         {...(isMultiple && { PopperComponent: MyPopper })}
         limitTags={2}
         isOptionEqualToValue={(option, value) => option[dataName] === value[dataName]}
@@ -64,7 +85,8 @@ function MultiSelect(props) {
         size='small'
         id="multiple-limit-tags"
         options={options}
-        getOptionLabel={option => option[dataName] ? option[dataName] : ''}
+        getOptionLabel={getOptionLabel}
+        onInputChange={handleInputeChange}
         ListboxComponent={ListboxComponent}
         {...(isMultiple && {
           renderOption: (option, state) => {

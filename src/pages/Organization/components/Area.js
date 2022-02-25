@@ -86,14 +86,14 @@ export default function Area() {
     return (
         <>
             <Popup
-                title="Add Country"
+                title="Add Area"
                 openPopup={openPopup}
                 maxWidth="sm"
                 addOrEditFunc={handleSubmit}
                 setOpenPopup={setOpenPopup}>
                 <AutoForm formData={formData} ref={formRef} isValidate={true} />
             </Popup>
-            <Controls.Button onClick={() => { setOpenPopup(true) }} text="Add Area" />
+            <Controls.Button onClick={() => { setOpenPopup(true) }} text="+Add" />
         </>
     );
 }

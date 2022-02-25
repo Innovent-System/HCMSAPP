@@ -8,7 +8,6 @@ import Header  from '../layout/header/Header';
 const Layout = () => {
     
     const socket = useContext(SocketContext);
-    const location = useLocation();
    
   useEffect(() => {
     const formId = window.location.pathname.substr(window.location.pathname.lastIndexOf("/") + 1);
