@@ -7,7 +7,7 @@ const useDropDownData = () => {
 
     const DropDownData = useSelector(e => e.app.DropDownData);
 
-    const [option, setOption] = useState({
+    const [filter, setFilter] = useState({
         type: "default",
         data: null,
         matchWith: null
@@ -17,17 +17,22 @@ const useDropDownData = () => {
     const [states, setStates] = useState([]);
     const [cities, setCities] = useState([]);
 
+    const getDefaultState = () => {
+        setCountries(DropDownData.Countries);
+        setStates(DropDownData.States);
+        setCities(DropDownData.Cities);
+    }
 
     useEffect(() => {
         if (!DropDownData) return;
-        if(option.type === "default"){
-            setCountries(DropDownData.Countries);
+        if(filter.type === "default"){
+            getDefaultState();
             return;
         }
         
-        const ids = option.data[0] ? option.data?.map(d => d[option.matchWith]) : [];
+        const ids = filter.data[0] ? filter.data?.map(d => d[filter.matchWith]) : [];
         const  states = [],cities = [];
-        switch (option.type) {
+        switch (filter.type) {
             case "country":{
                 if(ids.length){
                     for (let index = 0; index < DropDownData.States.length; index++) {
@@ -63,18 +68,18 @@ const useDropDownData = () => {
                 break;
         }
 
-    }, [DropDownData, option])
+    }, [DropDownData, filter])
 
     return {
         countries,
         states,
         cities,
-        setOption
+        setFilter
     }
 }
 
 useDropDownData.propTypes = {
-    option: PropTypes.objectOf({
+    filter: PropTypes.objectOf({
         type: PropTypes.oneOf(["default", "country", "state", "city", "area"]).isRequired,
         data: PropTypes.oneOfType([
             PropTypes.array,

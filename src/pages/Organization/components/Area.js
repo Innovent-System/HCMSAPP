@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Controls from '../../../components/controls/Controls';
 import Popup from '../../../components/Popup';
 import { AutoForm } from '../../../components/useForm';
 import { API } from '../_Service';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { handlePostActions } from '../../../store/actions/httpactions';
 import useDropDownData from "../../../components/useDropDownData";
 import DataGrid from '../../../components/useDataGrid';
@@ -13,15 +13,15 @@ export default function Area() {
   const formRef = React.useRef(null);
 
   const dispatch = useDispatch();
-  const { countries, cities, states, setOption } = useDropDownData();
+  const { countries, cities, states, setFilter } = useDropDownData();
 
 
   const filterState = (data) => {
-    setOption({ type: "country", data: [data], matchWith: "id" });
+    setFilter({ type: "country", data: [data], matchWith: "id" });
   }
 
   const filterCity = (data) => {
-    setOption({ type: "state", data: [data], matchWith: "id" });
+    setFilter({ type: "state", data: [data], matchWith: "id" });
   }
 
   const handleSubmit = (e) => {
