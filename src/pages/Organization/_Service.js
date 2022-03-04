@@ -1,6 +1,4 @@
 export const API = {
-    GET_REGULAR_DROPDOWN: "common/getregulardropdown",
-
     INSERT_COUNTRY: "orgnization/insertCountry",
     UPDATE_COUNTRY: "orgnization/updateCountry",
     GET_COUNTRY: "orgnization/getCountry",
@@ -11,4 +9,3 @@ export const API = {
     GET_AREA: "orgnization/getArea",
     DELETE_AREA: "orgnization/getArea",
 }
-

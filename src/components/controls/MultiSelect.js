@@ -65,8 +65,6 @@ function MultiSelect(props) {
         "MuiAutocomplete-clearIndicator"
       )[0];
       close.click();
-      // const event = new Event('change',{ bubbles: true});
-      // autoCompleteRef.current.querySelector("input").dispatchEvent(event);
     }
   }
   

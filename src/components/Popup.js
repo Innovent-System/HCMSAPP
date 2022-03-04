@@ -24,11 +24,11 @@ const Styles = {
 
 export default function Popup(props) {
 
-    const { title, children, openPopup, setOpenPopup, maxWidth = "md",isEdit,addOrEditFunc,footer } = props;
+    const { title, children, openPopup, setOpenPopup, maxWidth = "md",isEdit,addOrEditFunc,footer,keepMounted } = props;
 
 
     return (
-        <Dialog open={openPopup} fullWidth maxWidth={maxWidth} sx={{ paper: Styles.dialogWrapper }}>
+        <Dialog open={openPopup} keepMounted={keepMounted} fullWidth maxWidth={maxWidth} sx={{ paper: Styles.dialogWrapper }}>
             <DialogTitle sx={Styles.dialogTitle}>
                 <div style={{ display: 'flex' }}>
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1, p: 0.6 }}>
@@ -41,7 +41,7 @@ export default function Popup(props) {
                 {children}
             </DialogContent>
             <DialogActions>
-                {footer ? footer : <Controls.Button text={isEdit ? "Update":"+Add"} onClick={addOrEditFunc}/>}  
+                {footer ? footer : <Controls.Button text={isEdit ? "Update":"Submit"} onClick={addOrEditFunc}/>}  
             </DialogActions>
         </Dialog>
     )
@@ -55,10 +55,12 @@ Popup.propTypes = {
     addOrEditFunc:PropTypes.func,
     isEdit:PropTypes.bool,
     maxWidth: PropTypes.oneOf(["xm", "sm", "md", "lg", "xl",]),
-    footer:PropTypes.node
+    footer:PropTypes.node,
+    keepMounted:PropTypes.bool
 }
 
 Popup.defaultProps = {
     isEdit:false,
+    keepMounted:false,
     addOrEditFunc:() => {},
 }

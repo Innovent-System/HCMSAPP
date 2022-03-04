@@ -1,4 +1,5 @@
 import { useState,useEffect,useContext } from 'react'
+import {useNavigate} from 'react-router-dom'
 import Notification from "../components/Notification";
 import { useSelector } from "react-redux";
 import { history } from '../config/appconfig';
@@ -11,6 +12,7 @@ import { Close as CloseIcon }  from '../deps/ui/icons';
 function StatusHanlder() {
     const routeNotify = useSelector((state => state[Object.keys(state)[0]]));
     const socket = useContext(SocketContext);
+    const navigate = useNavigate();
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
     const [notify, setNotify] = useState({
         isOpen: false,
@@ -47,7 +49,7 @@ function StatusHanlder() {
           const info = Auth.getitem('userInfo') || {};
           const formId = window.location.pathname.substr(window.location.pathname.lastIndexOf("/") + 1);
           localStorage.clear();
-          history.push("/");
+          navigate("/");
           socket.emit("leave",info.c_Id);
           socket.emit("leaveSession",formId);
         }

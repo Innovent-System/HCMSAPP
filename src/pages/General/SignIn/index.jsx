@@ -74,11 +74,10 @@ const SignIn = () => {
       };
 
       useEffect(()=>{
-        socket.emit("join",clientId);
         return () => {
-          socket.emit("leave",clientId);
+          socket.off("join");
         }
-      },[socket]);
+      },[]);
 
       const handleSubmit = (e) => {
         e.preventDefault();
@@ -95,6 +94,7 @@ const SignIn = () => {
             Auth.setItem("appConfigData",{"appRoutes":data.appRoutes,"sideMenuData":data.sideMenuData});
             Auth.setItem("userInfo",{"email":data.email,"c_Id":data.fkClientId,username:data.username});
             clientId = data.fkClientId;
+            socket.emit("join",clientId);
             navigate("/dashboard");
             setLoader(false);
            }

@@ -1,38 +1,109 @@
-import React, { useState } from "react";
+// eslint-disable-next-line react-hooks/exhaustive-deps
+import React, { useEffect, useState } from "react";
 import Controls from '../../../components/controls/Controls';
 import Popup from '../../../components/Popup';
 import { AutoForm } from '../../../components/useForm';
 import { API } from '../_Service';
 import { useDispatch } from 'react-redux';
-import { handlePostActions } from '../../../store/actions/httpactions';
-import useDropDownData from "../../../components/useDropDownData";
-import DataGrid from '../../../components/useDataGrid';
+import { handleGetActions, handlePostActions } from '../../../store/actions/httpactions';
+import useDropDownData from "../../../components/useDropDown";
+import { Typography, Stack } from "../../../deps/ui";
+import DataGrid, { useGridApi, getActions } from '../../../components/useDataGrid';
 
-export default function Area() {
-  const [openPopup, setOpenPopup] = useState(false);
-  const formRef = React.useRef(null);
+function CombineDetail(params) {
+  return (
+    <Stack flexWrap="wrap" flex="1 0 20%">
+      <Typography variant="caption"><strong>Create On:</strong> {params.row['createdOn']}</Typography>
+      <Typography variant="caption"><strong>Created By:</strong> {params.row['createdBy']}</Typography>
+      <Typography variant="caption"><strong>Modified On:</strong> {params.row['modifiedOn']}</Typography>
+      <Typography variant="caption"><strong>Modified By:</strong> {params.row['modifiedBy']}</Typography>
+    </Stack>
+  )
+}
 
+const getColumns = (apiRef, onEdit, onActive) => {
+  const actionKit = {
+    onActive: onActive,
+    onEdit: onEdit
+  }
+  return [
+    { field: '_id', headerName: 'Id', hide: true },
+    {
+      field: 'areaName', headerName: 'Area', width: 180
+      // preProcessEditCellProps: (params) => {
+      //   const hasError = params.props.value.length < 3;
+      //   return { ...params.props, error: hasError };
+      // },
+    },
+    { field: 'countryName', headerName: 'Country' },
+    { field: 'stateName', headerName: 'State' },
+    { field: 'cityName', headerName: 'City' },
+    { field: 'isActive', headerName: 'Active' },
+    {
+      field: 'detail',
+      headerName: 'Detail',
+      width: 180,
+      renderCell: CombineDetail
+    },
+    getActions(apiRef, actionKit)
+  ]
+}
+let editId = 0;
+const Area = () => {
   const dispatch = useDispatch();
-  const { countries, cities, states, setFilter } = useDropDownData();
+  const [openPopup, setOpenPopup] = useState(false);
+  const isEdit = React.useRef(false);
+  const formRef = React.useRef(null);
+  const gridApiRef = useGridApi();
+  const [areas, setArea] = useState([]);
+  const { countries, cities, states, filterType, setFilter } = useDropDownData();
 
+  const handleEdit = (id) => {
+    isEdit.current = true;
+    editId = id;
+    const { setFormValue } = formRef.current;
+    const area = areas.find(a => a.id === id);
+    setFormValue({
+      fkCountryId: countries.find(c => c._id === area.country_id),
+      fkStateId: states.find(s => s._id === area.state_id),
+      fkCityId: cities.find(ct => ct._id === area.city_id),
+      areaName: area.areaName
+    });
+    setOpenPopup(true);
+  }
+  const handleActiveInActive = (id) => {
 
-  const filterState = (data) => {
-    setFilter({ type: "country", data: [data], matchWith: "id" });
+  }
+  const getAreaData = () => {
+    dispatch(handleGetActions(API.GET_AREA)).then(res => {
+      // console.log({res});
+      if (res.data) {
+        setArea(res.data);
+      }
+    });
   }
 
-  const filterCity = (data) => {
-    setFilter({ type: "state", data: [data], matchWith: "id" });
-  }
+  useEffect(() => {
+    getAreaData();
+  }, [dispatch])
+
+  const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive);
 
   const handleSubmit = (e) => {
     const { getValue, validateFields } = formRef.current
-    const values = getValue();
     if (validateFields()) {
+      let values = getValue();
+      if(isEdit.current)
+        values.id = editId;
+      else
+        values.id = 0;
+
       dispatch(handlePostActions(API.INSERT_AREA, values)).then(res => {
         console.log(res);
       });
     }
   }
+
   const formData = [
     {
       elementType: "ad_dropdown",
@@ -44,8 +115,8 @@ export default function Area() {
       },
       dataName: 'name',
       options: countries,
-      onChange: filterState,
-      defaultValue: countries?.length ? countries[0] : null
+      onChange: (data) => setFilter(data, filterType.COUNTRY, "id"),
+      defaultValue: null
     },
     {
       elementType: "ad_dropdown",
@@ -57,7 +128,7 @@ export default function Area() {
         errorMessage: "State is required",
       },
       options: states,
-      onChange: filterCity,
+      onChange: (data) => setFilter(data, filterType.STATE, "id"),
       defaultValue: null
     },
     {
@@ -84,14 +155,22 @@ export default function Area() {
     },
 
   ];
+
   return (
-    <><Popup
-      title="Add Country"
-      openPopup={openPopup}
-      maxWidth="sm"
-      addOrEditFunc={handleSubmit}
-      setOpenPopup={setOpenPopup}>
-      <AutoForm formData={formData} ref={formRef} isValidate={true} />
-    </Popup><Controls.Button onClick={() => { setOpenPopup(true); }} text="Add Area" /><DataGrid /></>
+    <>
+      <Popup
+        title="Add Area"
+        openPopup={openPopup}
+        maxWidth="sm"
+        isEdit={isEdit.current}
+        keepMounted={true}
+        addOrEditFunc={handleSubmit}
+        setOpenPopup={setOpenPopup}>
+        <AutoForm formData={formData} ref={formRef} isValidate={true} />
+      </Popup>
+      <Controls.Button onClick={() => { isEdit.current = false; setOpenPopup(true) }} text="Add Record" />
+      <DataGrid columns={columns} apiRef={gridApiRef} rows={areas} />
+    </>
   );
 }
+export default Area;

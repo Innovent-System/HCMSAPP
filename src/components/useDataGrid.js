@@ -7,6 +7,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Close';
+import {ToggleOff,ToggleOn} from '../deps/ui/icons'
 import {
   useGridApiRef,
   DataGridPro,
@@ -15,49 +16,9 @@ import {
   LicenseInfo
 } from '@mui/x-data-grid-pro';
 
-
 LicenseInfo.setLicenseKey(
-    '0f94d8b65161817ca5d7f7af8ac2f042T1JERVI6TVVJLVN0b3J5Ym9vayxFWFBJUlk9MTY1NDg1ODc1MzU1MCxLRVlWRVJTSU9OPTE=',
-  );
-
-
-const rows = [
-  {
-    id: 1,
-    name: "first",
-    age: 25,
-    dateCreated: new Date(),
-    lastLogin: new Date(),
-  },
-  {
-    id: 2,
-    name: "second",
-    age: 36,
-    dateCreated: new Date(),
-    lastLogin: new Date(),
-  },
-  {
-    id: 3,
-    name: "third",
-    age: 19,
-    dateCreated: new Date(),
-    lastLogin: new Date(),
-  },
-  {
-    id: 4,
-    name: "four",
-    age: 28,
-    dateCreated: new Date(),
-    lastLogin: new Date(),
-  },
-  {
-    id: 5,
-    name: "five",
-    age: 23,
-    dateCreated: new Date(),
-    lastLogin: new Date(),
-  },
-];
+  '0f94d8b65161817ca5d7f7af8ac2f042T1JERVI6TVVJLVN0b3J5Ym9vayxFWFBJUlk9MTY1NDg1ODc1MzU1MCxLRVlWRVJTSU9OPTE=',
+);
 
 function EditToolbar(props) {
   const { apiRef } = props;
@@ -94,7 +55,7 @@ EditToolbar.propTypes = {
   }).isRequired,
 };
 
-export const useAction = (apiRef) => {
+export const getCrudActions = (apiRef, onSave, onDelete) => {
 
   const handleEditClick = (id) => (event) => {
     event.stopPropagation();
@@ -108,14 +69,16 @@ export const useAction = (apiRef) => {
     if (isValid) {
       apiRef.current.setRowMode(id, 'view');
       const row = apiRef.current.getRow(id);
-      apiRef.current.updateRows([{ ...row, isNew: false }]);
+      onSave(row, () => {
+        apiRef.current.updateRows([{ ...row, isNew: false }]);
+      })
     }
   };
 
   const handleDeleteClick = (id) => (event) => {
     event.stopPropagation();
     apiRef.current.updateRows([{ id, _action: 'delete' }]);
-  };
+  }
 
   const handleCancelClick = (id) => (event) => {
     event.stopPropagation();
@@ -125,7 +88,7 @@ export const useAction = (apiRef) => {
     if (row.isNew) {
       apiRef.current.updateRows([{ id, _action: 'delete' }]);
     }
-  };
+  }
 
   return {
     field: 'actions',
@@ -135,7 +98,7 @@ export const useAction = (apiRef) => {
     cellClassName: 'actions',
     getActions: ({ id }) => {
       const isInEditMode = apiRef.current.getRowMode(id) === 'edit';
-      
+
       if (isInEditMode) {
         return [
           <GridActionsCellItem
@@ -173,9 +136,51 @@ export const useAction = (apiRef) => {
   }
 }
 
-export default function FullFeaturedCrudGrid({}) {
-  const apiRef = useGridApiRef();
+export const getActions = (apiRef, actionKit = {onActive:null,onApproval:null,onEdit:null} ) => {
   
+  return {
+    field: 'actions',
+    type: 'actions',
+    headerName: 'Actions',
+    width: 100,
+    cellClassName: 'actions',
+    getActions: ({ id }) => {
+      const toolKit = [];
+      const {onActive,onApproval,onEdit} = actionKit;
+      if(typeof onActive === "function"){
+        toolKit.push(<GridActionsCellItem
+          icon={<ToggleOn />}
+          label="Active"
+          onClick={() => onActive(id)}
+          color={"primary"}
+        />)
+      }
+      if(typeof onEdit === "function"){
+        toolKit.push(<GridActionsCellItem
+          icon={<EditIcon />}
+          label="Active"
+          onClick={() => onEdit(id)}
+          color={"primary"}
+        />)
+      }
+      if(typeof onApproval === "function"){
+        toolKit.push(<GridActionsCellItem
+          icon={<SaveIcon />}
+          label="Active"
+          onClick={() => onApproval(id)}
+          color={"primary"}
+        />)
+      }
+
+     return toolKit;
+    },
+  }
+}
+
+export const useGridApi = () => useGridApiRef();
+
+export default function FeaturedCrudGrid({ apiRef, columns, rows,loading,editable }) {
+
   const handleRowEditStart = (params, event) => {
     event.defaultMuiPrevented = true;
   };
@@ -187,34 +192,6 @@ export default function FullFeaturedCrudGrid({}) {
   const handleCellFocusOut = (params, event) => {
     event.defaultMuiPrevented = true;
   };
-
-
-  
-  const columns = [
-    { field: 'name', headerName: 'Name', width: 180, editable: true,
-    preProcessEditCellProps: (params) => {
-      const hasError = params.props.value.length < 3;
-      return { ...params.props, error: hasError };
-    },
-  },
-    { field: 'age', headerName: 'Age', type: 'number', editable: true },
-    {
-      field: 'dateCreated',
-      headerName: 'Date Created',
-      type: 'date',
-      width: 180,
-      editable: true,
-    },
-    {
-      field: 'lastLogin',
-      headerName: 'Last Login',
-      type: 'dateTime',
-      width: 220,
-      editable: true,
-      
-    },
-    useAction(apiRef)
-  ];
 
   return (
     <Box
@@ -231,19 +208,35 @@ export default function FullFeaturedCrudGrid({}) {
     >
       <DataGridPro
         rows={rows}
+        loading={loading}
         columns={columns}
         apiRef={apiRef}
         editMode="row"
         onRowEditStart={handleRowEditStart}
         onRowEditStop={handleRowEditStop}
         onCellFocusOut={handleCellFocusOut}
-        components={{
-          Toolbar: EditToolbar,
-        }}
+        {...(editable && {components:{Toolbar: EditToolbar}})}
         componentsProps={{
           toolbar: { apiRef },
         }}
       />
     </Box>
   );
+}
+
+FeaturedCrudGrid.propTypes = {
+  columns: PropTypes.array.isRequired,
+  rows: PropTypes.array.isRequired,
+  apiRef: PropTypes.shape({
+    current: PropTypes.object.isRequired,
+  }).isRequired,
+  checkboxSelection: PropTypes.bool,
+  loading:PropTypes.bool,
+  editable:PropTypes.bool
+}
+
+FeaturedCrudGrid.defaultProps = {
+  checkboxSelection: true,
+  loading:false,
+  editable:false
 }

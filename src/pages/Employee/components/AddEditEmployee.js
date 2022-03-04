@@ -8,7 +8,7 @@ import { API } from '../_Service';
 import { handleGetActions, handlePostActions } from '../../../store/actions/httpactions';
 import Popup from '../../../components/Popup';
 import DepartmentModel from './DepartmentModal'
-import useDropDownData from '../../../components/useDropDownData';
+import useDropDownData from '../../../components/useDropDown';
 
 
 
@@ -89,15 +89,8 @@ export default function List() {
   const formRef = React.useRef(null);
   const steps = getSteps();
   const dispatch = useDispatch();
-  const {countries,states,cities,setOption} = useDropDownData();
-
-  const filterState = (data) => {
-    setOption({type:"country",data:[data],matchWith :'id'});
-  }
-
-  const filterCity = (data) => {
-    setOption({type:"state",data:[data],matchWith :'id'});
-  }
+  
+  const {countries,states,cities,filterType,setFilter} = useDropDownData();
 
   const formData = [
     {
@@ -262,7 +255,7 @@ export default function List() {
           },
           dataName: 'name',
           options: countries,
-          onChange: filterState,
+          onChange: (data) =>  setFilter(data,filterType.COUNTRY,"id"),
           defaultValue: countries?.length ? countries[0] : null
         },
         {
@@ -275,7 +268,7 @@ export default function List() {
             errorMessage: "State is required",
           },
           options: states,
-          onChange: filterCity,
+          onChange: (data) =>  setFilter(data,filterType.STATE,"id"),
           defaultValue: null
         },
         {

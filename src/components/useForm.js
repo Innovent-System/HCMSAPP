@@ -186,8 +186,11 @@ export const AutoForm = forwardRef(function (props,ref) {
     }, [formData])
 
     const setFormValue = (properties = {}) => {
-        if(!isEdit) return console.warn("set Values only in Edit mode");
-        setValues({...values,...properties});
+        // if(!isEdit) return console.warn("set Values only in Edit mode");
+        if(typeof properties !== 'object') return console.error("properties type must be object");
+        setValues(currentValues => {
+            return Object.assign({}, currentValues,properties)
+        });
     }
     
     const validateFields = ()=> {
@@ -199,6 +202,7 @@ export const AutoForm = forwardRef(function (props,ref) {
     useImperativeHandle(ref, () => ({
         resetForm,
         validateFields,
+        setFormValue,
         getValue() {
             return values
         }
