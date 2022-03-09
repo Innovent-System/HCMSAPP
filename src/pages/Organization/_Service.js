@@ -4,8 +4,8 @@ export const API = {
     GET_COUNTRY: "orgnization/getCountry",
     DELETE_COUNTRY: "orgnization/deleteCountry",
 
-    INSERT_AREA: "orgnization/insertArea",
-    UPDATE_AREA: "orgnization/updateArea",
+    INSERT_AREA: "orgnization/insertUpdateArea",
     GET_AREA: "orgnization/getArea",
-    DELETE_AREA: "orgnization/getArea",
+    DELETE_AREA: "orgnization/deleteAreas",
+    ACTIVE_INACTIVE_AREA: "orgnization/activeInactiveArea",
 }

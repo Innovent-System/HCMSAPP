@@ -8,34 +8,9 @@ import Area from './components/Area'
 
 const tab = [
   {
-    title: "Company",
-    panel: <Country />
-  },
-  {
-    title: "Country",
-    panel: <Country />
-  },
-  {
     title: "Area",
     panel: <Area/>
-  },
-  {
-    title: "Vendor",
-    panel: <h1>Vendor</h1>
-  },
-  {
-    title: "Department",
-    panel: <h1>Vendor</h1>
-  },
-  {
-    title: "Employee Group",
-    panel: <h1>Vendor</h1>
-  },
-  {
-    title: "Designation",
-    panel: <h1>Vendor</h1>
-  },
-
+  }
 ]
 
 export default function ManageCompany() {

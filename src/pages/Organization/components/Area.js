@@ -1,14 +1,18 @@
 // eslint-disable-next-line react-hooks/exhaustive-deps
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Controls from '../../../components/controls/Controls';
 import Popup from '../../../components/Popup';
 import { AutoForm } from '../../../components/useForm';
 import { API } from '../_Service';
 import { useDispatch } from 'react-redux';
-import { handleGetActions, handlePostActions } from '../../../store/actions/httpactions';
+import { handleGetActions, handlePostActions, handlePatchActions, handleDeleteActions } from '../../../store/actions/httpactions';
 import useDropDownData from "../../../components/useDropDown";
 import { Typography, Stack } from "../../../deps/ui";
+import { Circle } from "../../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions } from '../../../components/useDataGrid';
+import { useSocketIo } from '../../../components/useSocketio';
+import ConfirmDialog from '../../../components/ConfirmDialog'
+
 
 function CombineDetail(params) {
   return (
@@ -21,10 +25,11 @@ function CombineDetail(params) {
   )
 }
 
-const getColumns = (apiRef, onEdit, onActive) => {
+const getColumns = (apiRef, onEdit, onActive, onDelete) => {
   const actionKit = {
     onActive: onActive,
-    onEdit: onEdit
+    onEdit: onEdit,
+    onDelete: onDelete
   }
   return [
     { field: '_id', headerName: 'Id', hide: true },
@@ -36,13 +41,19 @@ const getColumns = (apiRef, onEdit, onActive) => {
       // },
     },
     { field: 'countryName', headerName: 'Country' },
-    { field: 'stateName', headerName: 'State' },
+    { field: 'stateName', headerName: 'State', align: 'center' },
     { field: 'cityName', headerName: 'City' },
-    { field: 'isActive', headerName: 'Active' },
+    {
+      field: 'isActive', headerName: 'Status', renderCell: (param) => (
+        param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
+      ),
+      flex: '0 1 5%',
+      align: 'center',
+    },
     {
       field: 'detail',
       headerName: 'Detail',
-      width: 180,
+      flex: '0 1 30%',
       renderCell: CombineDetail
     },
     getActions(apiRef, actionKit)
@@ -52,11 +63,61 @@ let editId = 0;
 const Area = () => {
   const dispatch = useDispatch();
   const [openPopup, setOpenPopup] = useState(false);
+  const [pageSize, setPageSize] = useState(30);
   const isEdit = React.useRef(false);
   const formRef = React.useRef(null);
+  const [loader, setloader] = useState(false);
+  const [selectionModel, setSelectionModel] = React.useState([]);
+  const offSet = useRef({
+    limit: 10,
+    lastKeyId: null,
+    totalRecord: 0
+  })
+
+  const [confirmDialog, setConfirmDialog] = useState({
+    isOpen: false,
+    title: "",
+    subTitle: "",
+  });
+
   const gridApiRef = useGridApi();
   const [areas, setArea] = useState([]);
   const { countries, cities, states, filterType, setFilter } = useDropDownData();
+
+  const getAreaData = () => {
+    setloader(true);
+    dispatch(handleGetActions(API.GET_AREA)).then(res => {
+      if (res.data) {
+        offSet.current.totalRecord = res.data.totalRecord;
+        offSet.current.lastKeyId = res.data.AreaData?.length ? res.data.AreaData[res.data.AreaData.length - 1].id : null;
+        setloader(false);
+        setArea(res.data.AreaData);
+      }
+    });
+  }
+  const { socketData } = useSocketIo("changeInArea", getAreaData);
+  useEffect(() => {
+    if (Array.isArray(socketData)) {
+      setArea(socketData);
+    }
+  }, [socketData])
+
+  const loadMoreData = () => {
+    if (areas.length < offSet.current.totalRecord) {
+      setloader(true);
+      dispatch(handleGetActions(API.GET_AREA, {
+        limit: offSet.current.limit,
+        lastKeyId: offSet.current.lastKeyId
+      })).then(res => {
+        setloader(false);
+        if (res.data) {
+          offSet.current.lastKeyId = res.data.AreaData?.length ? res.data.AreaData[res.data.AreaData.length - 1].id : null;
+          setArea(areas.concat(res.data.AreaData));
+        }
+      });
+    }
+
+  }
 
   const handleEdit = (id) => {
     isEdit.current = true;
@@ -71,36 +132,51 @@ const Area = () => {
     });
     setOpenPopup(true);
   }
+
   const handleActiveInActive = (id) => {
+    dispatch(handlePatchActions(API.ACTIVE_INACTIVE_AREA, { areaId: id }));
+  }
+
+  const handelDeleteItems = (ids) => {
+    let idTobeDelete = ids;
+    if (Array.isArray(ids)) {
+      idTobeDelete = ids.join(',');
+    }
+
+    setConfirmDialog({
+      isOpen: true,
+      title: "Are you sure to delete this records?",
+      subTitle: "You can't undo this operation",
+      onConfirm: () => {
+        dispatch(handleDeleteActions(API.DELETE_AREA, { areaIds: idTobeDelete })).then(res => {
+          setSelectionModel([]);
+        })
+      },
+    });
 
   }
-  const getAreaData = () => {
-    dispatch(handleGetActions(API.GET_AREA)).then(res => {
-      // console.log({res});
-      if (res.data) {
-        setArea(res.data);
-      }
-    });
-  }
+
 
   useEffect(() => {
     getAreaData();
   }, [dispatch])
 
-  const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive);
+  const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive, handelDeleteItems);
 
   const handleSubmit = (e) => {
     const { getValue, validateFields } = formRef.current
     if (validateFields()) {
       let values = getValue();
-      if(isEdit.current)
-        values.id = editId;
-      else
-        values.id = 0;
+      let dataToInsert = {};
+      dataToInsert.areaName = values.areaName;
+      dataToInsert.country = { country_id: values.fkCountryId._id, countryName: values.fkCountryId.name };
+      dataToInsert.state = { state_id: values.fkStateId._id, stateName: values.fkStateId.name };
+      dataToInsert.city = { city_id: values.fkCityId._id, cityName: values.fkCityId.name };
+      if (isEdit.current)
+        dataToInsert._id = editId
 
-      dispatch(handlePostActions(API.INSERT_AREA, values)).then(res => {
-        console.log(res);
-      });
+
+      dispatch(handlePostActions(API.INSERT_AREA, [dataToInsert]));
     }
   }
 
@@ -156,6 +232,11 @@ const Area = () => {
 
   ];
 
+  const showAddModal = () => {
+    isEdit.current = false;
+    setOpenPopup(true);
+  }
+
   return (
     <>
       <Popup
@@ -168,8 +249,16 @@ const Area = () => {
         setOpenPopup={setOpenPopup}>
         <AutoForm formData={formData} ref={formRef} isValidate={true} />
       </Popup>
-      <Controls.Button onClick={() => { isEdit.current = false; setOpenPopup(true) }} text="Add Record" />
-      <DataGrid columns={columns} apiRef={gridApiRef} rows={areas} />
+      <DataGrid apiRef={gridApiRef}
+        columns={columns} rows={areas}
+        loading={loader} pageSize={pageSize}
+        onAdd={showAddModal}
+        onDelete={handelDeleteItems}
+        selectionModel={selectionModel}
+        setSelectionModel={setSelectionModel}
+        onRowsScrollEnd={loadMoreData}
+      />
+      <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
     </>
   );
 }

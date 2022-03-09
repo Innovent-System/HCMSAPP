@@ -188,6 +188,7 @@ case GET_COMMON_DD_REQUEST:
             ...state,
             status:true,
             info:action.payload,
+            message:action.message,
             loading:false            
         };
     case DELETE_DATA_FAILED:return {

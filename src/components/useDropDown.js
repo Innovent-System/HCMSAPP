@@ -9,6 +9,9 @@ const filterType = Object.freeze({
     CITY: 'city'
 })
 const useDropDown = () => {
+    const [countries, setCountries] = useState([]);
+    const [states, setStates] = useState([]);
+    const [cities, setCities] = useState([]);
 
     const DropDownData = useSelector(e => e.app.DropDownData);
 
@@ -22,12 +25,10 @@ const useDropDown = () => {
         if (!Array.isArray(data)) {
             data = [data];
         }
-        setFilter({type,data,matchWith});
+        setFilter({ type, data, matchWith });
     }
 
-    const [countries, setCountries] = useState([]);
-    const [states, setStates] = useState([]);
-    const [cities, setCities] = useState([]);
+
 
     const getDefaultState = () => {
         setCountries(DropDownData.Countries);
@@ -86,7 +87,7 @@ const useDropDown = () => {
         countries,
         states,
         cities,
-        setFilter:handleFilter,
+        setFilter: handleFilter,
         filterType
     }
 }

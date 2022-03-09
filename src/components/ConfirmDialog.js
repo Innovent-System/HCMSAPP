@@ -1,14 +1,15 @@
 import React from 'react'
-import { Dialog, DialogTitle, DialogContent, DialogActions, Typography, makeStyles, IconButton } from '../deps/ui'
+import { Dialog, DialogTitle, DialogContent, DialogActions, Typography, IconButton } from '../deps/ui'
 import Controls from "./controls/Controls";
-import {NotListedLocation as NotListedLocationIcon}  from '../deps/ui/icons';
+import { NotListedLocation as NotListedLocationIcon } from '../deps/ui/icons';
+import PropTypes from 'prop-types'
 
 
-const useStyles = makeStyles(theme => ({
+const styles = {
     dialog: {
-        padding: theme.spacing(2),
+        p: 2,
         position: 'absolute',
-        top: theme.spacing(5)
+        top: 5
     },
     dialogTitle: {
         textAlign: 'center'
@@ -20,31 +21,32 @@ const useStyles = makeStyles(theme => ({
         justifyContent: 'center'
     },
     titleIcon: {
-        backgroundColor: theme.palette.secondary.light,
-        color: theme.palette.secondary.main,
+        backgroundColor: 'secondary.light',
+        color: 'secondary.main',
         '&:hover': {
-            backgroundColor: theme.palette.secondary.light,
+            backgroundColor: 'secondary.light',
             cursor: 'default'
         },
         '& .MuiSvgIcon-root': {
             fontSize: '8rem',
         }
     }
-}))
+}
+
 
 export default function ConfirmDialog(props) {
 
     const { confirmDialog, setConfirmDialog } = props;
-    const classes = useStyles()
+    
 
     return (
-        <Dialog open={confirmDialog.isOpen} classes={{ paper: classes.dialog }}>
-            <DialogTitle className={classes.dialogTitle}>
-                <IconButton disableRipple className={classes.titleIcon}>
+        <Dialog open={confirmDialog.isOpen} sx={{ paper: styles.dialog }}>
+            <DialogTitle sx={styles.dialogTitle}>
+                <IconButton disableRipple sx={styles.titleIcon}>
                     <NotListedLocationIcon />
                 </IconButton>
             </DialogTitle>
-            <DialogContent className={classes.dialogContent}>
+            <DialogContent sx={styles.dialogContent}>
                 <Typography variant="h6">
                     {confirmDialog.title}
                 </Typography>
@@ -52,7 +54,7 @@ export default function ConfirmDialog(props) {
                     {confirmDialog.subTitle}
                 </Typography>
             </DialogContent>
-            <DialogActions className={classes.dialogAction}>
+            <DialogActions sx={styles.dialogAction}>
                 <Controls.Button
                     text="No"
                     color="inherit"
@@ -60,8 +62,26 @@ export default function ConfirmDialog(props) {
                 <Controls.Button
                     text="Yes"
                     color="secondary"
-                    onClick={confirmDialog.onConfirm} />
+                    onClick={() => {confirmDialog.onConfirm();setConfirmDialog({ ...confirmDialog, isOpen: false })}} />
             </DialogActions>
         </Dialog>
     )
+}
+
+ConfirmDialog.propTypes = {
+    confirmDialog: PropTypes.shape({
+        isOpen: PropTypes.bool.isRequired,
+        title: PropTypes.string.isRequired,
+        subTitle: PropTypes.string,
+        onConfirm:PropTypes.func
+    }).isRequired,
+    setConfirmDialog:PropTypes.func.isRequired
+}
+
+ConfirmDialog.defaultProps = {
+    confirmDialog: {
+        isOpen:false,
+        title:emptyString,
+        subTitle:emptyString,
+    }
 }

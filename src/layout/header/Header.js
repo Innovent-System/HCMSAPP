@@ -105,7 +105,7 @@ export default function Header() {
     useEffect(() => {
         dispatch(handleGetCommonDropDown(GET_REGULAR_DROPDOWN));
         return () => {
-            socket.off("leave");
+            return socket.off("leave");
         };
     },[]);
 

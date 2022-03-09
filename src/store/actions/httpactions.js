@@ -190,6 +190,43 @@ export const handleGetActions = (url, params = {}) => dispatch => {
 
 };
 
+export const handlePatchActions = (url, data = {}) => dispatch => {
+
+  dispatch({
+    type: POST_DATA,
+    payload: null
+  });
+
+  return axios.patch(domain.concat(url), data, {
+    headers: headerOption(),
+    withCredentials: true,
+  })
+    .then(response => {
+      if (response.status) {
+        const { result, message } = response.data;
+
+        dispatch({
+          type: POST_DATA_SUCCESS,
+          payload: result,
+          message
+        });
+
+        return {
+          data: result,
+          isSuccess: true,
+          message
+        }
+      }
+    })
+    .catch(function (err) {
+      dispatch({
+        type: POST_DATA_FAILED,
+        payload: { msg: (err.response?.data ? err.response.data.message : err.message), code: err.response.status }
+      })
+    });
+
+};
+
 export const handleGetCommonDropDown = (url, params = {}) => dispatch => {
 
   dispatch({
@@ -198,8 +235,8 @@ export const handleGetCommonDropDown = (url, params = {}) => dispatch => {
   });
 
   return axios.get(domain.concat(url), {
-    params: params,
     headers: headerOption(),
+    params: params,
     withCredentials: true,
   }).then(response => {
     if (response.status) {
@@ -220,7 +257,7 @@ export const handleGetCommonDropDown = (url, params = {}) => dispatch => {
   }).catch(function (err) {
     dispatch({
       type: GET_COMMON_DD_FAILED,
-      payload: { msg: (err.response?.data ? err.response.data.message : err.message), code: err.response.status }
+      payload: { msg: (err.response?.data ? err.response.data.message : err.message), code: err.response?.status || 404 }
     })
   });
 
@@ -234,9 +271,9 @@ export const handleUpdateActions = (url, data = {}, params = {}) => dispatch => 
   });
 
   return axios.put(domain.concat(url), data, {
-    params: params,
     headers: headerOption(),
     withCredentials: true,
+    params: params,
   })
     .then(response => {
       if (response.status) {
@@ -257,7 +294,7 @@ export const handleUpdateActions = (url, data = {}, params = {}) => dispatch => 
     .catch(function (err) {
       dispatch({
         type: UPDATE_DATA_FAILED,
-        payload: { msg: (err.response?.data ? err.response.data.message : err.message), code: err.response.status }
+        payload: { msg: (err.response?.data ? err.response.data.message : err.message), code: err.response?.status || 404 }
       })
     });
 
@@ -271,8 +308,9 @@ export const handleDeleteActions = (url, params = {}) => dispatch => {
   });
 
   return axios.delete(domain.concat(url), {
-    params: params,
     headers: headerOption(),
+    data:params,
+    withCredentials: true,
   })
     .then(response => {
       if (response.status) {
@@ -293,7 +331,7 @@ export const handleDeleteActions = (url, params = {}) => dispatch => {
     .catch(function (err) {
       dispatch({
         type: DELETE_DATA_FAILED,
-        payload: { msg: (err.response?.data ? err.response.data.message : err.message), code: err.response.status }
+        payload: { msg: (err.response?.data ? err.response.data.message : err.message), code: err.response?.status || 404 }
       })
     });
 
@@ -330,12 +368,11 @@ export const handleAppRoutes = (url, data = {}) => dispatch => {
     .catch(function (err) {
       dispatch({
         type: ROUTE_DATA_FAILED,
-        payload: { msg: (err.response?.data ? err.response.data.message : err.message), code: err.response.status }
+        payload: { msg: (err.response?.data ? err.response.data.message : err.message), code: err.response?.status || 404 }
       })
     });
 
 };
-
 
 export const clearLoginError = () => dispatch => {
   dispatch({

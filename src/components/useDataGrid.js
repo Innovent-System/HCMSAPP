@@ -1,51 +1,66 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Close';
-import {ToggleOff,ToggleOn} from '../deps/ui/icons'
+import { ToggleOff, ToggleOn, Search } from '../deps/ui/icons'
+import { InputAdornment, IconButton } from '../deps/ui'
+import Controls from '../components/controls/Controls'
 import {
   useGridApiRef,
   DataGridPro,
   GridToolbarContainer,
   GridActionsCellItem,
-  LicenseInfo
+  LicenseInfo, GridOverlay, GridToolbarExport, GridToolbarFilterButton
 } from '@mui/x-data-grid-pro';
+import LinearProgress from '@mui/material/LinearProgress';
 
 LicenseInfo.setLicenseKey(
   '0f94d8b65161817ca5d7f7af8ac2f042T1JERVI6TVVJLVN0b3J5Ym9vayxFWFBJUlk9MTY1NDg1ODc1MzU1MCxLRVlWRVJTSU9OPTE=',
 );
 
+const generateQuery = (queryType, fieldName, value) => {
+  let query = {};
+  switch (queryType) {
+    case "contains":
+      query[fieldName] = `/${value}/i`;
+      break;
+
+    default:
+      query[fieldName] = `/${value}/i`;
+      break;
+  }
+
+  return query;
+
+}
+
 function EditToolbar(props) {
-  const { apiRef } = props;
-
-  const handleClick = () => {
-    // const id = Math.random();
-    const id = Math.random();
-    apiRef.current.updateRows([{ id, isNew: true }]);
-    apiRef.current.setRowMode(id, 'edit');
-    // Wait for the grid to render with the new row
-    setTimeout(() => {
-      apiRef.current.scrollToIndexes({
-        rowIndex: apiRef.current.getRowsCount() - 1,
-      });
-      const model = apiRef.current.getEditRowsModel(); // This object contains all rows that are being edited
-      const newRow = model[id];
-
-      apiRef.current.setCellFocus(id, Object.keys(newRow)[0]);
-    });
-  };
+  const { apiRef, onAdd, onDelete, selectionModel, searchResult } = props;
 
   return (
-    <GridToolbarContainer>
-      <Button color="primary" startIcon={<AddIcon />} onClick={handleClick}>
-        Add record
-      </Button>
-    </GridToolbarContainer>
+    <>
+      <GridToolbarContainer>
+        <Controls.Input InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton
+                aria-label="toggle password visibility"
+                onClick={searchResult}
+              >
+                <Search />
+              </IconButton>
+            </InputAdornment>
+          ),
+        }} />
+        <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add record" />
+        {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
+      </GridToolbarContainer>
+    </>
+
   );
 }
 
@@ -53,6 +68,9 @@ EditToolbar.propTypes = {
   apiRef: PropTypes.shape({
     current: PropTypes.object.isRequired,
   }).isRequired,
+  onAdd: PropTypes.func,
+  onDelete: PropTypes.func,
+  searchResult: PropTypes.func
 };
 
 export const getCrudActions = (apiRef, onSave, onDelete) => {
@@ -136,18 +154,19 @@ export const getCrudActions = (apiRef, onSave, onDelete) => {
   }
 }
 
-export const getActions = (apiRef, actionKit = {onActive:null,onApproval:null,onEdit:null} ) => {
-  
+export const getActions = (apiRef, actionKit = { onActive: null, onApproval: null, onEdit: null, onDelete: null }) => {
+
   return {
     field: 'actions',
     type: 'actions',
     headerName: 'Actions',
-    width: 100,
+    flex: '0 1 30%',
+    align: 'center',
     cellClassName: 'actions',
     getActions: ({ id }) => {
       const toolKit = [];
-      const {onActive,onApproval,onEdit} = actionKit;
-      if(typeof onActive === "function"){
+      const { onActive, onApproval, onEdit, onDelete } = actionKit;
+      if (typeof onActive === "function") {
         toolKit.push(<GridActionsCellItem
           icon={<ToggleOn />}
           label="Active"
@@ -155,32 +174,55 @@ export const getActions = (apiRef, actionKit = {onActive:null,onApproval:null,on
           color={"primary"}
         />)
       }
-      if(typeof onEdit === "function"){
+      if (typeof onEdit === "function") {
         toolKit.push(<GridActionsCellItem
           icon={<EditIcon />}
-          label="Active"
+          label="Edit"
           onClick={() => onEdit(id)}
           color={"primary"}
         />)
       }
-      if(typeof onApproval === "function"){
+      if (typeof onDelete === "function") {
+        toolKit.push(<GridActionsCellItem
+          icon={<DeleteIcon />}
+          label="Delete"
+          onClick={() => onDelete(id)}
+          color={"primary"}
+        />)
+      }
+      if (typeof onApproval === "function") {
         toolKit.push(<GridActionsCellItem
           icon={<SaveIcon />}
-          label="Active"
+          label="Approval"
           onClick={() => onApproval(id)}
           color={"primary"}
         />)
       }
 
-     return toolKit;
+      return toolKit;
     },
   }
 }
 
 export const useGridApi = () => useGridApiRef();
 
-export default function FeaturedCrudGrid({ apiRef, columns, rows,loading,editable }) {
+function CustomLoadingOverlay() {
+  return (
+    <GridOverlay>
+      <div style={{ position: 'absolute', top: 0, width: '100%' }}>
+        <LinearProgress />
+      </div>
+    </GridOverlay>
+  );
+}
 
+export default function FeaturedCrudGrid(props) {
+
+  const { apiRef, columns, rows, loading,
+    pageSize, onRowsScrollEnd, onDelete, onAdd,
+    selectionModel, setSelectionModel,
+    searchResult
+  } = props;
   const handleRowEditStart = (params, event) => {
     event.defaultMuiPrevented = true;
   };
@@ -192,6 +234,7 @@ export default function FeaturedCrudGrid({ apiRef, columns, rows,loading,editabl
   const handleCellFocusOut = (params, event) => {
     event.defaultMuiPrevented = true;
   };
+
 
   return (
     <Box
@@ -209,15 +252,25 @@ export default function FeaturedCrudGrid({ apiRef, columns, rows,loading,editabl
       <DataGridPro
         rows={rows}
         loading={loading}
+        onSelectionModelChange={(newSelectionModel) => {
+          setSelectionModel(newSelectionModel);
+        }}
+        selectionModel={selectionModel}
         columns={columns}
+        checkboxSelection
+        rowsPerPageOptions={[pageSize]}
+        {...(onRowsScrollEnd && { onRowsScrollEnd })}
         apiRef={apiRef}
         editMode="row"
         onRowEditStart={handleRowEditStart}
         onRowEditStop={handleRowEditStop}
         onCellFocusOut={handleCellFocusOut}
-        {...(editable && {components:{Toolbar: EditToolbar}})}
+        components={{
+          LoadingOverlay: CustomLoadingOverlay,
+          Toolbar: EditToolbar
+        }}
         componentsProps={{
-          toolbar: { apiRef },
+          toolbar: { apiRef, onDelete, onAdd, selectionModel, setSelectionModel },
         }}
       />
     </Box>
@@ -230,13 +283,20 @@ FeaturedCrudGrid.propTypes = {
   apiRef: PropTypes.shape({
     current: PropTypes.object.isRequired,
   }).isRequired,
+  pageSize: PropTypes.number,
   checkboxSelection: PropTypes.bool,
-  loading:PropTypes.bool,
-  editable:PropTypes.bool
+  onRowsScrollEnd: PropTypes.func,
+  loading: PropTypes.bool,
+  onDelete: PropTypes.func,
+  OnAdd: PropTypes.func,
+  searchResult:PropTypes.func,
+  selectionModel: PropTypes.array,
+  setSelectionModel: PropTypes.func
 }
 
 FeaturedCrudGrid.defaultProps = {
   checkboxSelection: true,
-  loading:false,
-  editable:false
+  pageSize: 30,
+  loading: false,
+  editable: false
 }

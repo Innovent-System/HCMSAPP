@@ -116,10 +116,10 @@ MultiSelect.propTypes = {
   dataName: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
+  option:PropTypes.array,
   value: PropTypes.any,
   onChange: PropTypes.func,
-  isMultiple:PropTypes.bool,
-  option:PropTypes.array.isRequired
+  isMultiple:PropTypes.bool
 }
 
 export default React.memo(MultiSelect);
