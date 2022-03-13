@@ -9,7 +9,7 @@ import PropTypes from 'prop-types';
 
 export default function DatePicker(props) {
 
-    const { name, label, value, onChange } = props
+    const { name, label, value, onChange,size = "medium" } = props
     const theme = useTheme();
     const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
 
@@ -30,7 +30,7 @@ export default function DatePicker(props) {
             name={name}
             value={value} 
             onChange={date => onChange(convertToDefEventPara(name,date))}
-            renderInput={(params) => <TextField variant="standard"  {...params} />}
+            renderInput={(params) => <TextField size={size} variant="standard"  {...params} />}
 
         />
             :
@@ -40,7 +40,7 @@ export default function DatePicker(props) {
                 name={name}
                 value={value} 
                 onChange={date => onChange(convertToDefEventPara(name,date))}
-                renderInput={(params) => <TextField variant="standard"  {...params} />}
+                renderInput={(params) => <TextField size={size} variant="standard"  {...params} />}
 
             />
     }
@@ -56,6 +56,7 @@ DatePicker.propTypes = {
     name:PropTypes.string.isRequired,
     label:PropTypes.string.isRequired,
     value:PropTypes.any,
+    size:PropTypes.string,
     onChange:PropTypes.func,
     sx:PropTypes.oneOfType([
       PropTypes.object,

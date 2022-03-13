@@ -1,22 +1,29 @@
 import { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import { useSelector } from 'react-redux';
+import { useSelector } from 'react-redux'
 
-const filterType = Object.freeze({
+export const filterTypes = Object.freeze({
     DEFAULT: 'default',
+    COMPANY: 'company',
     COUNTRY: 'country',
     STATE: 'state',
-    CITY: 'city'
+    CITY: 'city',
+    AREA: 'area',
+    DEPARTMENT: 'department',
+    GROUP: 'group',
+    DESIGNATION: 'designation'
 })
-const useDropDown = () => {
+
+
+export const useDropDown = () => {
     const [countries, setCountries] = useState([]);
     const [states, setStates] = useState([]);
     const [cities, setCities] = useState([]);
 
-    const DropDownData = useSelector(e => e.app.DropDownData);
+    const DropDownData = useSelector(e => e.common.DropDownData);
 
     const [filter, setFilter] = useState({
-        type: filterType.DEFAULT,
+        type: filterTypes.DEFAULT,
         data: null,
         matchWith: null
     })
@@ -34,11 +41,12 @@ const useDropDown = () => {
         setCountries(DropDownData.Countries);
         setStates(DropDownData.States);
         setCities(DropDownData.Cities);
+        
     }
 
     useEffect(() => {
         if (!DropDownData) return;
-        if (filter.type === filterType.DEFAULT) {
+        if (filter.type === filterTypes.DEFAULT) {
             getDefaultState();
             return;
         }
@@ -46,7 +54,7 @@ const useDropDown = () => {
         const ids = filter.data[0] ? filter.data.map(d => d[filter.matchWith]) : [];
         const states = [], cities = [];
         switch (filter.type) {
-            case filterType.COUNTRY: {
+            case filterTypes.COUNTRY: {
                 if (ids.length) {
                     for (let index = 0; index < DropDownData.States.length; index++) {
                         const element = DropDownData.States[index];
@@ -66,7 +74,8 @@ const useDropDown = () => {
                 setStates(states);
                 setCities(cities);
             }
-            case filterType.STATE:
+                break;
+            case filterTypes.STATE:
                 if (ids.length) {
                     for (let index = 0; index < DropDownData.Cities.length; index++) {
                         const element = DropDownData.Cities[index];
@@ -88,15 +97,32 @@ const useDropDown = () => {
         states,
         cities,
         setFilter: handleFilter,
-        filterType
+        filterType: filterTypes
     }
 }
 
+export const useDropDownIds = () => {
+    const dropdownIds = useSelector(e => e.commonDropDownIds);
 
+    return dropdownIds;
+}
+
+const { DEFAULT, COMPANY, COUNTRY, STATE, CITY, AREA, DEPARTMENT, GROUP, DESIGNATION } = filterTypes;
+
+export const enableFilterProps = {
+    [COMPANY]: false,
+    [COUNTRY]: true,
+    [STATE]: false,
+    [CITY]: false,
+    [AREA]: false,
+    [DEPARTMENT]: false,
+    [GROUP]: false,
+    [DESIGNATION]: false
+}
 
 useDropDown.propTypes = {
     filter: PropTypes.objectOf({
-        type: PropTypes.oneOf(["default", "country", "state", "city", "area"]).isRequired,
+        type: PropTypes.oneOf([DEFAULT, COMPANY, COUNTRY, STATE, CITY, AREA, DEPARTMENT, GROUP, DESIGNATION]).isRequired,
         data: PropTypes.oneOfType([
             PropTypes.array,
             PropTypes.object
@@ -104,4 +130,58 @@ useDropDown.propTypes = {
     })
 }
 
-export default useDropDown
+export const Name_MAP = {
+    [COMPANY]: "company",
+    [COUNTRY]: "countries",
+    [STATE]: "states",
+    [CITY]: "cities",
+    [AREA]: "areas",
+    [DEPARTMENT]: "departments",
+    [GROUP]: "groups",
+    [DESIGNATION]: "designations"
+}
+
+export const DROPDOWN_PROPS = {
+    [COUNTRY]: {
+        elementType: "ad_dropdown",
+        name: "country",
+        label: "Country",
+        required: true,
+        breakpoints: {
+            md: 12
+        },
+        validate: {
+            errorMessage: "Company is required",
+        },
+        dataName: 'name',
+        defaultValue: null
+    },
+    [STATE]: {
+        elementType: "ad_dropdown",
+        name: "state",
+        label: "State",
+        required: true,
+        breakpoints: {
+            md: 12
+        },
+        dataName: "name",
+        validate: {
+            errorMessage: "State is required",
+        },
+        defaultValue: null
+    },
+    [CITY]: {
+        elementType: "ad_dropdown",
+        name: "city",
+        label: "City",
+        breakpoints: {
+            md: 12
+        },
+        required: true,
+        dataName: "name",
+        validate: {
+            errorMessage: "City is required",
+        },
+        defaultValue: null
+    }
+}

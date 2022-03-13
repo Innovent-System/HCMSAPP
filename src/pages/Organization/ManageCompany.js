@@ -9,7 +9,7 @@ import Area from './components/Area'
 const tab = [
   {
     title: "Area",
-    panel: <Area/>
+    panel: <Area />
   }
 ]
 
@@ -17,8 +17,9 @@ export default function ManageCompany() {
   return (
     <>
       <PageHeader
-        title="Contant"
+        title="Constant"
         subTitle="Manage Comapny"
+        enableFilter
         icon={<PeopleOutline fontSize="large" />}
       />
       <Tabs TabsConfig={tab} />

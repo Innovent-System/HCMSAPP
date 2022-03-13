@@ -8,7 +8,7 @@ import { API } from '../_Service';
 import { handleGetActions, handlePostActions } from '../../../store/actions/httpactions';
 import Popup from '../../../components/Popup';
 import DepartmentModel from './DepartmentModal'
-import useDropDownData from '../../../components/useDropDown';
+import {useDropDown} from '../../../components/useDropDown';
 
 
 
@@ -90,7 +90,7 @@ export default function List() {
   const steps = getSteps();
   const dispatch = useDispatch();
   
-  const {countries,states,cities,filterType,setFilter} = useDropDownData();
+  const {countries,states,cities,filterType,setFilter} = useDropDown();
 
   const formData = [
     {

@@ -1,13 +1,12 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import Box from '@mui/material/Box';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Close';
 import { ToggleOff, ToggleOn, Search } from '../deps/ui/icons'
-import { InputAdornment, IconButton } from '../deps/ui'
+import { InputAdornment, IconButton, Box } from '../deps/ui'
 import Controls from '../components/controls/Controls'
 import {
   useGridApiRef,
@@ -22,56 +21,6 @@ LicenseInfo.setLicenseKey(
   '0f94d8b65161817ca5d7f7af8ac2f042T1JERVI6TVVJLVN0b3J5Ym9vayxFWFBJUlk9MTY1NDg1ODc1MzU1MCxLRVlWRVJTSU9OPTE=',
 );
 
-const generateQuery = (queryType, fieldName, value) => {
-  let query = {};
-  switch (queryType) {
-    case "contains":
-      query[fieldName] = `/${value}/i`;
-      break;
-
-    default:
-      query[fieldName] = `/${value}/i`;
-      break;
-  }
-
-  return query;
-
-}
-
-function EditToolbar(props) {
-  const { apiRef, onAdd, onDelete, selectionModel, searchResult } = props;
-
-  return (
-    <>
-      <GridToolbarContainer>
-        <Controls.Input InputProps={{
-          endAdornment: (
-            <InputAdornment position="end">
-              <IconButton
-                aria-label="toggle password visibility"
-                onClick={searchResult}
-              >
-                <Search />
-              </IconButton>
-            </InputAdornment>
-          ),
-        }} />
-        <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add record" />
-        {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
-      </GridToolbarContainer>
-    </>
-
-  );
-}
-
-EditToolbar.propTypes = {
-  apiRef: PropTypes.shape({
-    current: PropTypes.object.isRequired,
-  }).isRequired,
-  onAdd: PropTypes.func,
-  onDelete: PropTypes.func,
-  searchResult: PropTypes.func
-};
 
 export const getCrudActions = (apiRef, onSave, onDelete) => {
 
@@ -219,9 +168,9 @@ function CustomLoadingOverlay() {
 export default function FeaturedCrudGrid(props) {
 
   const { apiRef, columns, rows, loading,
-    pageSize, onRowsScrollEnd, onDelete, onAdd,
+    pageSize, onRowsScrollEnd,
     selectionModel, setSelectionModel,
-    searchResult
+    gridToolBar: GridToolBar, toolbarProps
   } = props;
   const handleRowEditStart = (params, event) => {
     event.defaultMuiPrevented = true;
@@ -255,6 +204,7 @@ export default function FeaturedCrudGrid(props) {
         onSelectionModelChange={(newSelectionModel) => {
           setSelectionModel(newSelectionModel);
         }}
+
         selectionModel={selectionModel}
         columns={columns}
         checkboxSelection
@@ -267,10 +217,10 @@ export default function FeaturedCrudGrid(props) {
         onCellFocusOut={handleCellFocusOut}
         components={{
           LoadingOverlay: CustomLoadingOverlay,
-          Toolbar: EditToolbar
+          Toolbar: GridToolBar
         }}
         componentsProps={{
-          toolbar: { apiRef, onDelete, onAdd, selectionModel, setSelectionModel },
+          toolbar: toolbarProps,
         }}
       />
     </Box>
@@ -289,9 +239,11 @@ FeaturedCrudGrid.propTypes = {
   loading: PropTypes.bool,
   onDelete: PropTypes.func,
   OnAdd: PropTypes.func,
-  searchResult:PropTypes.func,
+  getData: PropTypes.func,
   selectionModel: PropTypes.array,
-  setSelectionModel: PropTypes.func
+  setSelectionModel: PropTypes.func,
+  gridToolBar: PropTypes.elementType,
+  toolbarProps: PropTypes.object
 }
 
 FeaturedCrudGrid.defaultProps = {

@@ -180,9 +180,7 @@ export default function Header() {
                             <IconButton onClick={handleLogout}>
                                 <PowerSettingsNewIcon fontSize="small" />
                             </IconButton>
-                            <IconButton onClick={toggleSidebar("right", true)}>
-                                <FilterListIcon />
-                            </IconButton>
+                            
                         </Grid>
                     </Grid>
                 </Toolbar>
@@ -207,72 +205,7 @@ export default function Header() {
                     </Box>
                 </Drawer>
             </div>
-            <div className="filterbar">
-                <Drawer
-                    sx={headerStyles.Drawer}
-                    anchor={"right"}
-                    open={state.right}
-                    onClose={toggleSidebar("right", false)}>
-                    <Box
-                        sx={{ width: 250 }}
-                        role="presentation"
-                        //onClick={toggleSidebar("right", false)}
-                        onKeyDown={toggleSidebar("right", false)}>
-                        <Accordion>
-                            <AccordionSummary
-                                expandIcon={<ExpandMoreIcon />}
-                                aria-controls="panel11a-content"
-                                id="panel1a-header">
-                                <GridViewIcon />
-                                <Typography> Dates:</Typography>
-                            </AccordionSummary>
-                            <AccordionDetails>
-                                <div style={{ padding: 15 }}>
-                                    <TextField
-                                        label="From"
-                                        id="outlined-size-small"
-                                        defaultValue="Enter Date"
-                                        size="small"
-                                        style={{ marginBottom: 15 }}
-                                    />
-                                    <TextField
-                                        label="To"
-                                        id="outlined-size-small"
-                                        defaultValue="Enter Date"
-                                        size="small"
-                                    />
-                                </div>
-                            </AccordionDetails>
-                        </Accordion>
-                        <Accordion>
-                            <AccordionSummary
-                                expandIcon={<ExpandMoreIcon />}
-                                aria-controls="panel12a-content"
-                                id="panel2a-header">
-                                <GridViewIcon />
-                                <Typography> Amount</Typography>
-                            </AccordionSummary>
-                            <AccordionDetails>
-                                <div style={{ padding: 15 }}>
-                                    <TextField
-                                        label="From"
-                                        id="outlined-size-small"
-                                        defaultValue="4200"
-                                        size="small"
-                                        style={{ marginBottom: 15 }}
-                                    />
-                                    <TextField
-                                        label="To"
-                                        id="outlined-size-small"
-                                        defaultValue="4600"
-                                        size="small"
-                                    />
-                                </div>
-                            </AccordionDetails>
-                        </Accordion>
-                    </Box>
-                </Drawer>
-            </div>
+            
         </div>
     );
 }

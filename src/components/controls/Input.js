@@ -28,8 +28,8 @@ Input.defaultProps = {
 }
 
 Input.propTypes = {
-    name:PropTypes.string.isRequired,
-    label:PropTypes.string.isRequired,
+    name:PropTypes.string,
+    label:PropTypes.string,
     value:PropTypes.any,
     color:PropTypes.string,
     variant:PropTypes.string,

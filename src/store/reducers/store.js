@@ -4,11 +4,16 @@ import thunk from "redux-thunk";
 // import logger from 'redux-logger';
 
 import app from "./authreducer";
+import common, { enableFilterReducer, commonDropDownIds, filterBarReducer } from "./commonreducer";
 
 
 
 const reducers = combineReducers({
   app,
+  common,
+  enableFilterReducer,
+  commonDropDownIds,
+  filterBar: filterBarReducer
 });
 
 let middleware = [];
