@@ -282,7 +282,8 @@ const Area = () => {
           onDelete: handelDeleteItems,
           getData: getAreaData,
           setGridState,
-          gridState
+          gridState,
+          selectionModel
         }}
         gridToolBar={AreaToolbar}
         selectionModel={selectionModel}
