@@ -42,19 +42,29 @@ export const sort_by = (field, reverse, primer) => {
 
 }
 
-export const debounce = (func, wait, immediate) => {
-    let timeout;
-    return function () {
-        const later = () => {
-            timeout = null;
-            if (!immediate) func.apply(this, arguments);
-        };
-        const callNow = immediate && !timeout;
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-        if (callNow) func.apply(this, arguments);
-    };
-};
+// export const debounce = (func, wait, immediate) => {
+//     let timeout;
+//     return function () {
+//         const later = () => {
+//             timeout = null;
+//             if (!immediate) func.apply(this, arguments);
+//         };
+//         const callNow = immediate && !timeout;
+//         clearTimeout(timeout);
+//         timeout = setTimeout(later, wait);
+//         if (callNow) func.apply(this, arguments);
+//     };
+// };
+
+export function debounce(func, wait) {
+    let timeout
+    return function (...args) {
+        args[0].persist();
+        const context = this
+        clearTimeout(timeout)
+        timeout = setTimeout(() => func.apply(context, args), wait)
+    }
+}
 
 export class WorkerBuilder extends Worker {
     constructor(worker) {

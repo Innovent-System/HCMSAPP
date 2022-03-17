@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useLayoutEffect, useState, useRef, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { useSelector } from 'react-redux'
 
@@ -14,12 +14,34 @@ export const filterTypes = Object.freeze({
     DESIGNATION: 'designation'
 })
 
+const useStateWithCallbackLazy = initialValue => {
+    const callbackRef = useRef(null);
+
+    const [value, setValue] = useState(initialValue);
+
+    useEffect(() => {
+        if (callbackRef.current) {
+            callbackRef.current(value);
+
+            callbackRef.current = null;
+        }
+    }, [value]);
+
+    const setValueWithCallback = (newValue, callback) => {
+        callbackRef.current = callback;
+
+        return setValue(newValue);
+    };
+
+    return [value, setValueWithCallback];
+};
+
 
 export const useDropDown = () => {
     const [countries, setCountries] = useState([]);
     const [states, setStates] = useState([]);
     const [cities, setCities] = useState([]);
-
+    const callbackRef = useRef(null);
     const DropDownData = useSelector(e => e.common.DropDownData);
 
     const [filter, setFilter] = useState({
@@ -28,11 +50,20 @@ export const useDropDown = () => {
         matchWith: null
     })
 
-    const handleFilter = (data, type, matchWith) => {
+    const handleFilter = (data, type, matchWith, callback) => {
         if (!Array.isArray(data)) {
             data = [data];
         }
-        setFilter({ type, data, matchWith });
+
+        if (typeof callback === "function") {
+            callbackRef.current = callback;
+            setFilter({ type, data, matchWith });
+        }
+        else {
+            callbackRef.current = null;
+            setFilter({ type, data, matchWith });
+        }
+
     }
 
 
@@ -41,10 +72,9 @@ export const useDropDown = () => {
         setCountries(DropDownData.Countries);
         setStates(DropDownData.States);
         setCities(DropDownData.Cities);
-        
     }
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (!DropDownData) return;
         if (filter.type === filterTypes.DEFAULT) {
             getDefaultState();
@@ -88,6 +118,10 @@ export const useDropDown = () => {
                 break;
             default:
                 break;
+        }
+
+        if (callbackRef.current) {
+            callbackRef.current({ states, cities })
         }
 
     }, [DropDownData, filter])

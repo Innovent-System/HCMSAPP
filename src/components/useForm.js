@@ -1,9 +1,11 @@
-import React, { useEffect, useRef, useState, forwardRef, useImperativeHandle } from 'react'
+import React, { useEffect, useRef, useState, forwardRef, useImperativeHandle, useCallback } from 'react'
 import { makeStyles, Grid, Box } from "../deps/ui";
 import clsx from 'clsx';
 import { Element, ElementType } from '../components/controls/Controls';
 import Loader from '../components/Circularloading';
-import PropTypes from 'prop-types'
+import PropTypes from 'prop-types';
+import { debounce } from '../util/common'
+import useDebounce from '../components/useDebounce'
 
 export function useForm(initialFValues, validateOnChange = false, validate) {
 
@@ -11,7 +13,7 @@ export function useForm(initialFValues, validateOnChange = false, validate) {
     const changeErrors = useRef({});
     const [errors, setErrors] = useState({});
 
-    const handleInputChange = (e, exec) => {
+    const handleInputChange = useCallback((e, exec) => {
         const { name, value } = e.target
         let _value = value;
 
@@ -37,13 +39,19 @@ export function useForm(initialFValues, validateOnChange = false, validate) {
             if (validateOnChange)
                 changeErrors.current = { ...changeErrors.current, ...validate({ [name]: _value }) }
         }
-    }
 
-    const resetForm = () => {
+    }, [values])
+
+    const resetError = () => {
         changeErrors.current = {};
         setErrors({});
+    }
+    const resetForm = () => {
+        resetError();
         setValues(initialFValues);
     }
+
+
 
     return {
         values,
@@ -51,6 +59,7 @@ export function useForm(initialFValues, validateOnChange = false, validate) {
         changeErrors: changeErrors.current,
         errors,
         setErrors,
+        resetError,
         handleInputChange,
         resetForm
     }
@@ -140,6 +149,7 @@ export const AutoForm = forwardRef(function (props, ref) {
         setErrors,
         handleInputChange,
         changeErrors,
+        resetError,
         resetForm
     } = useForm(initialValues, isValidate, validateField);
 
@@ -179,7 +189,6 @@ export const AutoForm = forwardRef(function (props, ref) {
             delete item.defaultValue;
             item.name && Object.assign(initialValues, { [item.name]: value })
         }
-
         setValues(currentValues => {
             return Object.assign({}, initialValues, currentValues)
         });
@@ -188,6 +197,7 @@ export const AutoForm = forwardRef(function (props, ref) {
     const setFormValue = (properties = {}) => {
         // if(!isEdit) return console.warn("set Values only in Edit mode");
         if (typeof properties !== 'object') return console.error("properties type must be object");
+        resetError();
         setValues(currentValues => {
             return Object.assign({}, currentValues, properties)
         });

@@ -80,6 +80,7 @@ const Area = () => {
     searchText: emptyString,
     createdDate: null
   })
+
   const [confirmDialog, setConfirmDialog] = useState({
     isOpen: false,
     title: "",
@@ -136,14 +137,20 @@ const Area = () => {
     isEdit.current = true;
     editId = id;
     const { setFormValue } = formApi.current;
+
     const area = areas.find(a => a.id === id);
-    setFormValue({
-      fkCountryId: countries.find(c => c._id === area.country_id),
-      fkStateId: states.find(s => s._id === area.state_id),
-      fkCityId: cities.find(ct => ct._id === area.city_id),
-      areaName: area.areaName
+    setFilter(countries.find(c => c._id === area.country_id), filterType.COUNTRY, "id", (data) => {
+      const { states, cities } = data;
+      setFormValue({
+        fkCountryId: countries.find(c => c._id === area.country_id),
+        fkStateId: states.find(s => s._id === area.state_id),
+        fkCityId: cities.find(ct => ct._id === area.city_id),
+        areaName: area.areaName
+      });
+      setOpenPopup(true);
     });
-    setOpenPopup(true);
+
+
   }
 
   const handleActiveInActive = (id) => {
@@ -255,6 +262,8 @@ const Area = () => {
 
   const showAddModal = () => {
     isEdit.current = false;
+    const { resetForm } = formApi.current;
+    resetForm();
     setOpenPopup(true);
   }
 
