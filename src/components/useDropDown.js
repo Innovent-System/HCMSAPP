@@ -141,9 +141,27 @@ export const useDropDownIds = () => {
     return dropdownIds;
 }
 
+export const useFilterBarEvent = (onApply, onReset) => {
+    const handleApply = () => onApply()
+    const handleReset = () => onReset()
+    useEffect(() => {
+        if (typeof onApply === "function")
+            document.addEventListener("apply", handleApply)
+
+        if (typeof onReset === "function")
+            document.addEventListener("reset", handleReset)
+
+        return () => {
+            document.removeEventListener("apply", handleApply)
+            document.removeEventListener("reset", handleReset)
+        }
+    }, [onApply, onReset])
+
+}
+
 const { DEFAULT, COMPANY, COUNTRY, STATE, CITY, AREA, DEPARTMENT, GROUP, DESIGNATION } = filterTypes;
 
-export const enableFilterProps = {
+export const showFilterProps = {
     [COMPANY]: false,
     [COUNTRY]: true,
     [STATE]: false,

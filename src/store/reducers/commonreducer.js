@@ -1,4 +1,4 @@
-import { DROP_DOWN_STATE, DROP_DOWN_IDS, FILTERBAR_PROPS } from './states'
+import { DROP_DOWN_STATE, DROP_DOWN_IDS, Query_PROPS } from './states'
 
 import {
     GET_COMMON_DD_FAILED,
@@ -6,9 +6,11 @@ import {
     GET_COMMON_DD_REQUEST,
     SET_COMMON_DD_IDS,
     CLEAR_COMMON_DD_IDS,
-    SET_FILTERBAR
+    SET_QUERY_FIELDS,
+    SET_QUERY,
+    RESET_QUERY,SET_SHOW_FILTER,ENABLE_FILTERS
 } from '../actions/types'
-import { enableFilterProps } from '../../components/useDropDown'
+import { showFilterProps } from '../../components/useDropDown'
 /**
  * @param {Object} action 
  * @param {Object} state
@@ -58,9 +60,9 @@ export const commonDropDownIds = (state = DROP_DOWN_IDS, action) => {
 }
 
 
-export const enableFilterReducer = (state = enableFilterProps, action) => {
+export const showFilterReducer = (state = showFilterProps, action) => {
     switch (action.type) {
-        case "SET_SHOW_FILTER":
+        case SET_SHOW_FILTER:
             return {
                 ...state,
                 ...action.payload
@@ -70,12 +72,32 @@ export const enableFilterReducer = (state = enableFilterProps, action) => {
     }
 }
 
-export const filterBarReducer = (state = FILTERBAR_PROPS, action) => {
+export const enableFilterReducer = (state = false, action) => {
     switch (action.type) {
-        case SET_FILTERBAR:
+        case ENABLE_FILTERS:
+            state = action.payload;
+            return state;
+        default:
+            return state;
+    }
+}
+
+export const queryBuilderReducer = (state = Query_PROPS, action) => {
+    switch (action.type) {
+        case SET_QUERY:
             return {
                 ...state,
                 ...action.payload
+            }
+        case SET_QUERY_FIELDS:
+            return {
+                ...state,
+                ...action.payload
+            }
+        case RESET_QUERY:
+            return {
+                fields: {},
+                builder: {}
             }
         default:
             return state;

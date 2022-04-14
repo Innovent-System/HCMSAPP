@@ -16,8 +16,8 @@ import { SET_QUERY_FIELDS, ENABLE_FILTERS } from '../../../store/actions/types'
 import PropTypes from 'prop-types'
 
 const fields = {
-    name: {
-        label: 'Country',
+    companyName: {
+        label: 'Company',
         type: 'text',
         valueSources: ['value'],
         preferWidgets: ['text'],
@@ -49,9 +49,6 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
     return [
         { field: '_id', headerName: 'Id', hide: true },
         {
-            field: 'name', headerName: 'Country', width: 180
-        },
-        {
             field: 'companyName', headerName: 'Company', width: 180
         },
         { field: 'modifiedOn', headerName: 'Modified On' },
@@ -67,7 +64,7 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
     ]
 }
 let editId = 0;
-const Country = () => {
+const Company = () => {
     const dispatch = useDispatch();
     const [openPopup, setOpenPopup] = useState(false);
     const [pageSize, setPageSize] = useState(30);
@@ -89,18 +86,14 @@ const Country = () => {
         subTitle: "",
     });
 
-    const [countries, setCountry] = useState([]);
-    const [countryData, setCountryData] = useState([]);
-
+    const [company, setCompany] = useState([]);
 
     const gridApiRef = useGridApi();
     const query = useSelector(e => e.query.builder);
-    const Companies = useSelector(e => e.common.DropDownData?.Companies);
 
-
-    const getCountryData = (pageSize = 10, isLoadMore = false) => {
+    const getCompanyData = (pageSize = 10, isLoadMore = false) => {
         setloader(true);
-        dispatch(handleGetActions(API.GET_COUNTRY, {
+        dispatch(handleGetActions(API.GET_COMPANY, {
             limit: pageSize,
             lastKeyId: isLoadMore ? offSet.current.lastKeyId : null,
             searchParams: query ?? null
@@ -110,25 +103,25 @@ const Country = () => {
                 offSet.current.lastKeyId = res.data.entityData?.length ? res.data.entityData[res.data.entityData.length - 1].id : null;
                 setloader(false);
                 if (isLoadMore)
-                    setCountry([...res.data.entityData, ...countries]);
+                    setCompany([...res.data.entityData, ...company]);
                 else
-                    setCountry(res.data.entityData)
+                    setCompany(res.data.entityData)
             }
         });
     }
 
-    const { socketData } = useSocketIo("changeInCountry", getCountryData);
+    const { socketData } = useSocketIo("changeInCompany", getCompanyData);
     useEffect(() => {
         if (Array.isArray(socketData)) {
-            setCountry(socketData);
+            setCompany(socketData);
         }
     }, [socketData])
 
-    useFilterBarEvent(getCountryData, getCountryData);
+    useFilterBarEvent(getCompanyData, getCompanyData);
 
     const loadMoreData = (params) => {
-        if (countries.length < offSet.current.totalRecord && params.viewportPageSize !== 0) {
-            getCountryData(params.viewportPageSize, true);
+        if (company.length < offSet.current.totalRecord && params.viewportPageSize !== 0) {
+            getCompanyData(params.viewportPageSize, true);
         }
     }
 
@@ -137,15 +130,17 @@ const Country = () => {
         editId = id;
         const { setFormValue } = formApi.current;
 
-        const companydata = countries.find(a => a.id === id);
+        const companydata = company.find(a => a.id === id);
         setFormValue({
             companyName: companydata.companyName
         });
         setOpenPopup(true);
+
+
     }
 
     const handleActiveInActive = (id) => {
-        dispatch(handlePatchActions(API.INSERT_UPDATE_COUNTRY, { _id: id }));
+        dispatch(handlePatchActions(API.ACTIVE_INACTIVE_COMPANY, { _id: id }));
     }
 
     const handelDeleteItems = (ids) => {
@@ -159,7 +154,7 @@ const Country = () => {
             title: "Are you sure to delete this records?",
             subTitle: "You can't undo this operation",
             onConfirm: () => {
-                dispatch(handleDeleteActions(API.DELETE_COUNTRY, idTobeDelete)).then(res => {
+                dispatch(handleDeleteActions(API.DELETE_COMPANY, idTobeDelete)).then(res => {
                     setSelectionModel([]);
                 })
             },
@@ -170,7 +165,7 @@ const Country = () => {
 
     useEffect(() => {
         offSet.current.isLoadFirstTime = false;
-        getCountryData();
+        getCompanyData();
         dispatch({ type: ENABLE_FILTERS, payload: false })
 
         dispatch({
@@ -178,10 +173,6 @@ const Country = () => {
                 fields
             }
         })
-        dispatch(handleGetActions(API.ALL_COUNTRY)).then(res => {
-            setCountryData(res.data);
-        });
-
     }, [dispatch])
 
     const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive, handelDeleteItems);
@@ -190,41 +181,26 @@ const Country = () => {
         const { getValue, validateFields } = formApi.current
         if (validateFields()) {
             let values = getValue();
-            let dataToInsert = values.country;
-            dataToInsert._id = null;
-            dataToInsert.fkCompanyId = values.company._id;
+            let dataToInsert = {};
+            dataToInsert.companyName = values.companyName;
             if (isEdit.current)
                 dataToInsert._id = editId
 
-            dispatch(handlePostActions(API.INSERT_UPDATE_COUNTRY, [dataToInsert]));
+            dispatch(handlePostActions(API.INSERT_UPDATE_COMPANY, [dataToInsert]));
         }
     }
 
     const formData = [
         {
-            elementType: "ad_dropdown",
-            name: "country",
-            label: "Country",
-            required: true,
-            validate: {
-                errorMessage: "Country is required",
-            },
-            dataName: 'name',
-            options: countryData,
-            defaultValue: null
-        },
-        {
-            elementType: "ad_dropdown",
-            name: "company",
+            elementType: "inputfield",
+            name: "companyName",
             label: "Company",
             required: true,
             validate: {
-                errorMessage: "Company is required",
+                errorMessage: "Company is required"
             },
-            dataName: 'companyName',
-            options: Companies,
-            defaultValue: null
-        },
+            defaultValue: ""
+        }
     ];
 
     const showAddModal = () => {
@@ -237,7 +213,7 @@ const Country = () => {
     return (
         <>
             <Popup
-                title="Add Country"
+                title="Add Company"
                 openPopup={openPopup}
                 maxWidth="sm"
                 isEdit={isEdit.current}
@@ -247,18 +223,18 @@ const Country = () => {
                 <AutoForm formData={formData} ref={formApi} isValidate={true} />
             </Popup>
             <DataGrid apiRef={gridApiRef}
-                columns={columns} rows={countries}
+                columns={columns} rows={company}
                 loading={loader} pageSize={pageSize}
                 onAdd={showAddModal}
                 onDelete={handelDeleteItems}
-                getData={getCountryData}
+                getData={getCompanyData}
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: showAddModal,
                     onDelete: handelDeleteItems,
                     selectionModel
                 }}
-                gridToolBar={CountryToolbar}
+                gridToolBar={CompanyToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
                 onRowsScrollEnd={loadMoreData}
@@ -267,9 +243,9 @@ const Country = () => {
         </>
     );
 }
-export default Country;
+export default Company;
 
-function CountryToolbar(props) {
+function CompanyToolbar(props) {
     const { apiRef, onAdd, onDelete, selectionModel } = props;
 
     return (
@@ -286,7 +262,7 @@ function CountryToolbar(props) {
     );
 }
 
-CountryToolbar.propTypes = {
+CompanyToolbar.propTypes = {
     apiRef: PropTypes.shape({
         current: PropTypes.object.isRequired,
     }).isRequired,

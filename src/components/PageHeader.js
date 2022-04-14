@@ -4,8 +4,9 @@ import PropTypes from 'prop-types';
 import Controls from './controls/Controls';
 import { Paper, Typography, Grid, Drawer, Box, Accordion, AccordionSummary, IconButton, AccordionDetails, TextField } from '../deps/ui'
 import CommonDropDown from './CommonDropDown';
-import { useDispatch } from 'react-redux';
-import { SET_FILTERBAR, CLEAR_COMMON_DD_IDS } from '../store/actions/types'
+import { useDispatch, useSelector } from 'react-redux';
+import { SET_QUERY_FIELDS, CLEAR_COMMON_DD_IDS } from '../store/actions/types'
+import QueryBuilder from './QueryBuilder'
 
 const DrawerStyle = {
   Drawer: {
@@ -41,25 +42,40 @@ const DrawerStyle = {
   },
 };
 
+function trigger(eventType, data) {
+  const event = new CustomEvent(eventType, { detail: data });
+  document.dispatchEvent(event);
+}
+
+function ClearIds(data = { type: emptyString, payload: null }) {
+  return dispatch => {
+    var promise = new Promise(function (resolve, reject) {
+      dispatch(data);
+    });
+    return promise
+  }
+}
+
 export default function PageHeader(props) {
-  const { title, subTitle, icon, handleUpload, applyFilter, resetFilter, enableFilter } = props;
+  const { title, subTitle, icon, handleUpload, enableFilter } = props;
   const dispatch = useDispatch();
   const [drawer, setDrawer] = useState(false);
-  const [reset, setReset] = useState(false);
   const handleReset = () => {
-    setReset(!reset);
-    dispatch({ type: SET_FILTERBAR, payload: { isApply: false, isReset: true } });
     dispatch({ type: CLEAR_COMMON_DD_IDS });
+    setTimeout(() => trigger("reset"), 300);
   }
+
   const handleApply = () => {
-    setReset(false);
-    dispatch({ type: SET_FILTERBAR, payload: { isApply: true, isReset: false } })
+    trigger("apply");
   }
+  const fields = useSelector(e => e.query.fields);
+  const setEnableFilter = useSelector(e => enableFilter ?? e.enableFilter);
+
+
   useEffect(() => {
 
     return () => {
       dispatch({ type: CLEAR_COMMON_DD_IDS });
-      dispatch({ type: SET_FILTERBAR, payload: { isApply: false, isReset: false } });
     }
   }, [])
 
@@ -87,7 +103,7 @@ export default function PageHeader(props) {
             role="presentation"
             //onClick={toggleSidebar("right", false)}
             onKeyDown={() => setDrawer(!drawer)}>
-            {enableFilter && <Accordion>
+            {setEnableFilter && <Accordion>
               <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}
                 aria-controls="panel11a-content"
@@ -96,7 +112,7 @@ export default function PageHeader(props) {
                 <Typography> Filter:</Typography>
               </AccordionSummary>
               <AccordionDetails>
-                <CommonDropDown reset={reset} />
+                <CommonDropDown />
               </AccordionDetails>
             </Accordion>}
             <Accordion>
@@ -126,6 +142,7 @@ export default function PageHeader(props) {
               </AccordionDetails>
             </Accordion>
           </Box>
+          <QueryBuilder fields={fields} />
           <Controls.Button text='Apply' onClick={handleApply} />
           <Controls.Button color='secondary' onClick={handleReset} text='Reset' />
         </Drawer>

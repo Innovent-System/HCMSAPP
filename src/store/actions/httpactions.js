@@ -307,9 +307,9 @@ export const handleDeleteActions = (url, params = {}) => dispatch => {
     payload: null
   });
 
-  return axios.delete(domain.concat(url), {
+  return axios.delete(domain.concat(url + "/" + params), {
     headers: headerOption(),
-    data:params,
+    //data:params,
     withCredentials: true,
   })
     .then(response => {

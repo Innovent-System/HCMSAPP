@@ -6,13 +6,13 @@ import { AutoForm } from '../../../components/useForm';
 import { API } from '../_Service';
 import { useDispatch, useSelector } from 'react-redux';
 import { handleGetActions, handlePostActions, handlePatchActions, handleDeleteActions } from '../../../store/actions/httpactions';
-import { useDropDown, useDropDownIds } from "../../../components/useDropDown";
+import { useDropDown, useDropDownIds, useFilterBarEvent } from "../../../components/useDropDown";
 import { Typography, Stack, GridToolbarContainer, InputAdornment, IconButton, Box } from "../../../deps/ui";
 import { Circle, Search, Add as AddIcon, Delete as DeleteIcon } from "../../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions } from '../../../components/useDataGrid';
 import { useSocketIo } from '../../../components/useSocketio';
 import ConfirmDialog from '../../../components/ConfirmDialog';
-import { SET_SHOW_FILTER } from '../../../store/actions/types'
+import { SET_QUERY_FIELDS, SET_SHOW_FILTER, ENABLE_FILTERS } from '../../../store/actions/types'
 import PropTypes from 'prop-types'
 
 function CombineDetail(params) {
@@ -26,6 +26,31 @@ function CombineDetail(params) {
   )
 }
 
+const fields = {
+  areaName: {
+    label: 'Area',
+    type: 'text',
+    valueSources: ['value'],
+    preferWidgets: ['text'],
+  },
+  createdAt: {
+    label: 'Created Date',
+    type: 'date',
+    fieldSettings: {
+      dateFormat: "D/M/YYYY",
+      mongoFormatValue: val => ({ $date: new Date(val).toISOString() }),
+    },
+    valueSources: ['value'],
+    preferWidgets: ['date'],
+  },
+
+  isActive: {
+    label: 'Status',
+    type: 'boolean',
+    operators: ['equal'],
+    valueSources: ['value'],
+  },
+}
 const getColumns = (apiRef, onEdit, onActive, onDelete) => {
   const actionKit = {
     onActive: onActive,
@@ -76,11 +101,6 @@ const Area = () => {
     isLoadFirstTime: true,
   })
 
-  const [gridState, setGridState] = useState({
-    searchText: emptyString,
-    createdDate: null
-  })
-
   const [confirmDialog, setConfirmDialog] = useState({
     isOpen: false,
     title: "",
@@ -88,9 +108,10 @@ const Area = () => {
   });
 
   const [areas, setArea] = useState([]);
-  const applyFilter = useSelector(e => e.filterBar);
+
   const gridApiRef = useGridApi();
   const { countries, cities, states, filterType, setFilter } = useDropDown();
+  const query = useSelector(e => e.query.builder);
   const dropDownIds = useDropDownIds();
   const getAreaData = (pageSize = 10, isLoadMore = false) => {
     const { countryIds, stateIds, cityIds } = dropDownIds;
@@ -101,19 +122,20 @@ const Area = () => {
       countryIds,
       stateIds,
       cityIds,
-      searchText: gridState.searchText,
+      searchParams: query ?? null
     })).then(res => {
       if (res.data) {
         offSet.current.totalRecord = res.data.totalRecord;
-        offSet.current.lastKeyId = res.data.AreaData?.length ? res.data.AreaData[res.data.AreaData.length - 1].id : null;
+        offSet.current.lastKeyId = res.data.entityData?.length ? res.data.entityData[res.data.entityData.length - 1].id : null;
         setloader(false);
         if (isLoadMore)
-          setArea([...res.data.AreaData, ...areas]);
+          setArea([...res.data.entityData, ...areas]);
         else
-          setArea(res.data.AreaData)
+          setArea(res.data.entityData)
       }
     });
   }
+
   const { socketData } = useSocketIo("changeInArea", getAreaData);
   useEffect(() => {
     if (Array.isArray(socketData)) {
@@ -121,11 +143,7 @@ const Area = () => {
     }
   }, [socketData])
 
-  useEffect(() => {
-    if (!offSet.current.isLoadFirstTime)
-      getAreaData();
-  }, [applyFilter])
-
+  useFilterBarEvent(getAreaData, getAreaData);
 
   const loadMoreData = (params) => {
     if (areas.length < offSet.current.totalRecord && params.viewportPageSize !== 0) {
@@ -154,7 +172,7 @@ const Area = () => {
   }
 
   const handleActiveInActive = (id) => {
-    dispatch(handlePatchActions(API.ACTIVE_INACTIVE_AREA, { areaId: id }));
+    dispatch(handlePatchActions(API.ACTIVE_INACTIVE_AREA, { _id: id }));
   }
 
   const handelDeleteItems = (ids) => {
@@ -168,7 +186,7 @@ const Area = () => {
       title: "Are you sure to delete this records?",
       subTitle: "You can't undo this operation",
       onConfirm: () => {
-        dispatch(handleDeleteActions(API.DELETE_AREA, { areaIds: idTobeDelete })).then(res => {
+        dispatch(handleDeleteActions(API.DELETE_AREA, idTobeDelete)).then(res => {
           setSelectionModel([]);
         })
       },
@@ -185,6 +203,14 @@ const Area = () => {
         country: true,
         state: true,
         city: true
+      }
+    })
+
+    dispatch({ type: ENABLE_FILTERS, payload: true })
+
+    dispatch({
+      type: SET_QUERY_FIELDS, payload: {
+        fields
       }
     })
   }, [dispatch])
@@ -204,7 +230,7 @@ const Area = () => {
         dataToInsert._id = editId
 
 
-      dispatch(handlePostActions(API.INSERT_AREA, [dataToInsert]));
+      dispatch(handlePostActions(API.INSERT_UPDATE_AREA, [dataToInsert]));
     }
   }
 
@@ -256,8 +282,7 @@ const Area = () => {
         errorMessage: "Area is required"
       },
       defaultValue: ""
-    },
-
+    }
   ];
 
   const showAddModal = () => {
@@ -289,9 +314,6 @@ const Area = () => {
           apiRef: gridApiRef,
           onAdd: showAddModal,
           onDelete: handelDeleteItems,
-          getData: getAreaData,
-          setGridState,
-          gridState,
           selectionModel
         }}
         gridToolBar={AreaToolbar}
@@ -306,35 +328,12 @@ const Area = () => {
 export default Area;
 
 function AreaToolbar(props) {
-  const { apiRef, onAdd, onDelete, selectionModel, getData, setGridState, gridState } = props;
+  const { apiRef, onAdd, onDelete, selectionModel } = props;
 
-
-  const handleChange = React.useCallback((e) => {
-    const { name, value } = e.target;
-    setGridState({ ...gridState, [name]: value });
-    if (!e.target.value && name === "searchText") {
-      getData();
-    }
-  }, [])
 
   return (
     <>
-      <GridToolbarContainer sx={{ justifyContent: "space-between" }}>
-        <Box>
-          <Controls.Input sx={{ mt: 1 }} size='small' label="search" name="searchText" onKeyUp={e => e.keyCode === 13 && getData()} type="search" onChange={handleChange} value={gridState.searchText} InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  aria-label="grid search"
-                  onClick={() => gridState.searchText && getData()}
-                >
-                  <Search />
-                </IconButton>
-              </InputAdornment>
-            ),
-          }} />
-          <Controls.DatePicker value={gridState.createdDate} size="small" label="created Date" name="createdDate" onChange={handleChange} />
-        </Box>
+      <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
         <Box >
           {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
           <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add record" />
@@ -351,7 +350,5 @@ AreaToolbar.propTypes = {
   }).isRequired,
   onAdd: PropTypes.func,
   onDelete: PropTypes.func,
-  searchResult: PropTypes.func,
-  setGridState: PropTypes.func,
-  gridState: PropTypes.object
+  selectionModel: PropTypes.array,
 };

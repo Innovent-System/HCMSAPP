@@ -21,9 +21,9 @@ export const DROP_DOWN_STATE = {
     }
 }
 
-export const FILTERBAR_PROPS = {
-    isApply: false,
-    isReset: false
+export const Query_PROPS = {
+    fields: {},
+    builder: {}
 }
 
 export const DROP_DOWN_IDS = {

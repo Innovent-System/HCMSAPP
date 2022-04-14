@@ -9,7 +9,7 @@ function TabPanel(props) {
         <div
             role="tabpanel"
             hidden={value !== index}
-            style={{flex:1}}
+            style={{ flex: 1 }}
             id={`vertical-tabpanel-${index}`}
             aria-labelledby={`vertical-tab-${index}`}
             {...other}
@@ -45,7 +45,7 @@ const Styles = {
 }
 
 
-function Tabs({ TabsConfig }) {
+function Tabs({ TabsConfig, orientation = "vertical" }) {
     const [value, setValue] = React.useState(0);
     const handleChange = (event, newValue) => {
         setValue(newValue);
@@ -54,7 +54,7 @@ function Tabs({ TabsConfig }) {
     return (
         <Box sx={Styles.root} >
             <MuiTabs
-                orientation="vertical"
+                orientation={orientation}
                 variant="scrollable"
                 value={value}
                 onChange={handleChange}
@@ -74,7 +74,8 @@ Tabs.propTypes = {
     TabsConfig: PropTypes.arrayOf(PropTypes.shape({
         title: PropTypes.string.isRequired,
         panel: PropTypes.node.isRequired
-    })).isRequired
+    })).isRequired,
+    orientation: PropTypes.oneOf(["horizontal", "vertical"])
 }
 
 TabPanel.propTypes = {

@@ -4,9 +4,18 @@ import { PeopleOutline } from '../../deps/ui/icons'
 import Tabs from '../../components/Tabs'
 import Country from './components/Country'
 import Area from './components/Area'
+import Company from './components/Company';
 
 
 const tab = [
+  {
+    title: "Company",
+    panel: <Company />
+  },
+  {
+    title: "Country",
+    panel: <Country />
+  },
   {
     title: "Area",
     panel: <Area />
@@ -19,10 +28,9 @@ export default function ManageCompany() {
       <PageHeader
         title="Constant"
         subTitle="Manage Comapny"
-        enableFilter
         icon={<PeopleOutline fontSize="large" />}
       />
-      <Tabs TabsConfig={tab} />
+      <Tabs orientation='horizontal' TabsConfig={tab} />
     </>
 
   );

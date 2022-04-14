@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect } from 'react'
 import PropTypes from 'prop-types'
-import { useDropDown, DROPDOWN_PROPS, Name_MAP } from "./useDropDown";
+import { useDropDown, DROPDOWN_PROPS, Name_MAP, filterTypes, useFilterBarEvent } from "./useDropDown";
 import { AutoForm } from './useForm';
 import { useSelector, useDispatch } from 'react-redux';
-import { SET_COMMON_DD_IDS } from '../store/actions/types'
+import { SET_COMMON_DD_IDS, CLEAR_COMMON_DD_IDS } from '../store/actions/types'
 
 const bindDataIds = (data, matchWith) => {
     if (!data) return emptyString;
@@ -18,25 +18,29 @@ const bindDataIds = (data, matchWith) => {
 const setDropDownIds = (data, type, matchWith) => ({ [type + "Ids"]: bindDataIds(data, matchWith) })
 
 
-function CommonDropDown({ isMultiple, reset }) {
+function CommonDropDown({ isMultiple, showFilters, idset, setIdSet }) {
     const { filterType, setFilter, ...dropDown } = useDropDown();
     const dispatch = useDispatch();
     const formApi = React.useRef(null);
 
-    const showFilter = useSelector(e => e.enableFilterReducer);
-    useEffect(() => {
-        if (reset) {
-            const { resetForm } = formApi.current;
-            resetForm();
-            setFilter(null, filterType.DEFAULT)
-        }
-
-    }, [reset])
+    const showFilter = useSelector(e => showFilters ?? e.showFilterReducer);
 
     const handleDropDownIds = (data, type, matchWith) => {
-        dispatch({ type: SET_COMMON_DD_IDS, payload: setDropDownIds(data, type, "_id") })
+        const setOfIds = setDropDownIds(data, type, "_id");
+        dispatch({ type: SET_COMMON_DD_IDS, payload: setOfIds })
+        if (typeof setIdSet === "function") setIdSet(setOfIds);
         setFilter(data, type, matchWith);
     }
+
+    const handleResetFilter = () => {
+
+        const { resetForm } = formApi.current;
+        resetForm();
+        setFilter(null, filterType.DEFAULT);
+    }
+
+    useFilterBarEvent(null, handleResetFilter);
+
 
     const formData = useCallback(
         () => {
@@ -58,11 +62,30 @@ function CommonDropDown({ isMultiple, reset }) {
 
 CommonDropDown.defaultProps = {
     isMultiple: false,
-    reset: false
+    showFilters: null
 }
 CommonDropDown.propTypes = {
     isMultiple: PropTypes.bool,
-    reset: PropTypes.bool
+    showFilters: PropTypes.shape({
+        [filterTypes.COMPANY]: PropTypes.bool,
+        [filterTypes.COUNTRY]: PropTypes.bool,
+        [filterTypes.STATE]: PropTypes.bool,
+        [filterTypes.CITY]: PropTypes.bool,
+        [filterTypes.AREA]: PropTypes.bool,
+        [filterTypes.GROUP]: PropTypes.bool,
+        [filterTypes.DEPARTMENT]: PropTypes.bool,
+        [filterTypes.DESIGNATION]: PropTypes.bool,
+    }),
+    idSet: PropTypes.shape({
+        countryIds: PropTypes.string,
+        stateIds: PropTypes.string,
+        cityIds: PropTypes.string,
+        areaIds: PropTypes.string,
+        groupIds: PropTypes.string,
+        departmentIds: PropTypes.string,
+        designationIds: PropTypes.string,
+    }),
+    setIdSet: PropTypes.func
 }
 
 export default CommonDropDown
