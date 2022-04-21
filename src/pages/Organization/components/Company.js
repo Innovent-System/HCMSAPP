@@ -5,14 +5,13 @@ import Popup from '../../../components/Popup';
 import { AutoForm } from '../../../components/useForm';
 import { API } from '../_Service';
 import { useDispatch, useSelector } from 'react-redux';
-import { handleGetActions, handlePostActions, handlePatchActions, handleDeleteActions } from '../../../store/actions/httpactions';
+import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAction } from '../../../store/actions/httpactions';
 import { useFilterBarEvent } from "../../../components/useDropDown";
 import { GridToolbarContainer, Box } from "../../../deps/ui";
 import { Circle, Add as AddIcon, Delete as DeleteIcon } from "../../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions } from '../../../components/useDataGrid';
 import { useSocketIo } from '../../../components/useSocketio';
 import ConfirmDialog from '../../../components/ConfirmDialog';
-import { SET_QUERY_FIELDS, ENABLE_FILTERS } from '../../../store/actions/types'
 import PropTypes from 'prop-types'
 
 const fields = {
@@ -70,15 +69,15 @@ const Company = () => {
     const [pageSize, setPageSize] = useState(30);
     const isEdit = React.useRef(false);
     const formApi = React.useRef(null);
-    const [loader, setloader] = useState(false);
     const [selectionModel, setSelectionModel] = React.useState([]);
+
     const offSet = useRef({
         limit: 10,
         lastKeyId: null,
         totalRecord: 0,
+        isLoadMore: false,
         isLoadFirstTime: true,
     })
-
 
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,
@@ -89,39 +88,49 @@ const Company = () => {
     const [company, setCompany] = useState([]);
 
     const gridApiRef = useGridApi();
-    const query = useSelector(e => e.query.builder);
+    const query = useSelector(e => e.appdata.query.builder);
 
-    const getCompanyData = (pageSize = 10, isLoadMore = false) => {
-        setloader(true);
-        dispatch(handleGetActions(API.GET_COMPANY, {
-            limit: pageSize,
-            lastKeyId: isLoadMore ? offSet.current.lastKeyId : null,
-            searchParams: query ?? null
-        })).then(res => {
-            if (res.data) {
-                offSet.current.totalRecord = res.data.totalRecord;
-                offSet.current.lastKeyId = res.data.entityData?.length ? res.data.entityData[res.data.entityData.length - 1].id : null;
-                setloader(false);
-                if (isLoadMore)
-                    setCompany([...res.data.entityData, ...company]);
-                else
-                    setCompany(res.data.entityData)
-            }
-        });
-    }
+    const { data, isLoading, status, refetch } = useEntitiesQuery({
+        url: API.COMPANY,
+        params: {
+            limit: offSet.current.limit,
+            lastKeyId: offSet.current.isLoadMore ? offSet.current.lastKeyId : "",
+            searchParams: JSON.stringify(query)
+        }
+    });
 
-    const { socketData } = useSocketIo("changeInCompany", getCompanyData);
+    const { addEntity, updateEntity, updateOneEntity, removeEntity } = useEntityAction();
+
+    useEffect(() => {
+        if (status === "fulfilled") {
+            const { entityData, totalRecord } = data.result;
+            if (offSet.current.isLoadMore)
+                setCompany([...entityData, ...company]);
+            else
+                setCompany(entityData)
+
+            offSet.current.totalRecord = totalRecord;
+            offSet.current.lastKeyId = entityData?.length ? entityData[entityData.length - 1].id : null;
+            offSet.current.isLoadMore = false;
+        }
+
+    }, [status])
+
+    const { socketData } = useSocketIo("changeInCompany", refetch);
+
     useEffect(() => {
         if (Array.isArray(socketData)) {
             setCompany(socketData);
         }
     }, [socketData])
 
-    useFilterBarEvent(getCompanyData, getCompanyData);
+    useFilterBarEvent(refetch, refetch);
 
     const loadMoreData = (params) => {
         if (company.length < offSet.current.totalRecord && params.viewportPageSize !== 0) {
-            getCompanyData(params.viewportPageSize, true);
+            offSet.current.isLoadMore = true;
+            offSet.current.limit = params.viewportPageSize;
+            refetch();
         }
     }
 
@@ -140,7 +149,7 @@ const Company = () => {
     }
 
     const handleActiveInActive = (id) => {
-        dispatch(handlePatchActions(API.ACTIVE_INACTIVE_COMPANY, { _id: id }));
+        updateOneEntity({ url: API.COMPANY, data: { _id: id } });
     }
 
     const handelDeleteItems = (ids) => {
@@ -154,7 +163,7 @@ const Company = () => {
             title: "Are you sure to delete this records?",
             subTitle: "You can't undo this operation",
             onConfirm: () => {
-                dispatch(handleDeleteActions(API.DELETE_COMPANY, idTobeDelete)).then(res => {
+                removeEntity({ url: API.COMPANY, params: idTobeDelete }).then(res => {
                     setSelectionModel([]);
                 })
             },
@@ -165,14 +174,8 @@ const Company = () => {
 
     useEffect(() => {
         offSet.current.isLoadFirstTime = false;
-        getCompanyData();
-        dispatch({ type: ENABLE_FILTERS, payload: false })
-
-        dispatch({
-            type: SET_QUERY_FIELDS, payload: {
-                fields
-            }
-        })
+        dispatch(enableFilterAction(false));
+        dispatch(builderFieldsAction(fields));
     }, [dispatch])
 
     const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive, handelDeleteItems);
@@ -186,7 +189,8 @@ const Company = () => {
             if (isEdit.current)
                 dataToInsert._id = editId
 
-            dispatch(handlePostActions(API.INSERT_UPDATE_COMPANY, [dataToInsert]));
+            addEntity({ url: API.COMPANY, data: [dataToInsert] });
+
         }
     }
 
@@ -224,10 +228,7 @@ const Company = () => {
             </Popup>
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={company}
-                loading={loader} pageSize={pageSize}
-                onAdd={showAddModal}
-                onDelete={handelDeleteItems}
-                getData={getCompanyData}
+                loading={isLoading} pageSize={pageSize}
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: showAddModal,
@@ -264,7 +265,7 @@ function CompanyToolbar(props) {
 
 CompanyToolbar.propTypes = {
     apiRef: PropTypes.shape({
-        current: PropTypes.object.isRequired,
+        current: PropTypes.object,
     }).isRequired,
     onAdd: PropTypes.func,
     onDelete: PropTypes.func,

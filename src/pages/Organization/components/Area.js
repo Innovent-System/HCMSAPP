@@ -5,14 +5,13 @@ import Popup from '../../../components/Popup';
 import { AutoForm } from '../../../components/useForm';
 import { API } from '../_Service';
 import { useDispatch, useSelector } from 'react-redux';
-import { handleGetActions, handlePostActions, handlePatchActions, handleDeleteActions } from '../../../store/actions/httpactions';
+import { enableFilterAction, builderFieldsAction, showDropDownFilterAction, useEntitiesQuery, useEntityAction } from '../../../store/actions/httpactions';
 import { useDropDown, useDropDownIds, useFilterBarEvent } from "../../../components/useDropDown";
 import { Typography, Stack, GridToolbarContainer, InputAdornment, IconButton, Box } from "../../../deps/ui";
 import { Circle, Search, Add as AddIcon, Delete as DeleteIcon } from "../../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions } from '../../../components/useDataGrid';
 import { useSocketIo } from '../../../components/useSocketio';
 import ConfirmDialog from '../../../components/ConfirmDialog';
-import { SET_QUERY_FIELDS, SET_SHOW_FILTER, ENABLE_FILTERS } from '../../../store/actions/types'
 import PropTypes from 'prop-types'
 
 function CombineDetail(params) {
@@ -111,43 +110,55 @@ const Area = () => {
 
   const gridApiRef = useGridApi();
   const { countries, cities, states, filterType, setFilter } = useDropDown();
-  const query = useSelector(e => e.query.builder);
-  const dropDownIds = useDropDownIds();
-  const getAreaData = (pageSize = 10, isLoadMore = false) => {
-    const { countryIds, stateIds, cityIds } = dropDownIds;
-    setloader(true);
-    dispatch(handleGetActions(API.GET_AREA, {
-      limit: pageSize,
-      lastKeyId: isLoadMore ? offSet.current.lastKeyId : null,
-      countryIds,
-      stateIds,
-      cityIds,
-      searchParams: query ?? null
-    })).then(res => {
-      if (res.data) {
-        offSet.current.totalRecord = res.data.totalRecord;
-        offSet.current.lastKeyId = res.data.entityData?.length ? res.data.entityData[res.data.entityData.length - 1].id : null;
-        setloader(false);
-        if (isLoadMore)
-          setArea([...res.data.entityData, ...areas]);
-        else
-          setArea(res.data.entityData)
-      }
-    });
-  }
+  const query = useSelector(e => e.appdata.query.builder);
+  const { countryIds, stateIds, cityIds } = useDropDownIds();
 
-  const { socketData } = useSocketIo("changeInArea", getAreaData);
+
+  const { data, isLoading, status, refetch } = useEntitiesQuery({
+    url: API.AREA,
+    params: {
+      limit: offSet.current.limit,
+      lastKeyId: offSet.current.isLoadMore ? offSet.current.lastKeyId : "",
+      searchParams: JSON.stringify({
+        ...query,
+        ...(countryIds && { "country.country_id": countryIds }),
+        ...(stateIds && { "state.state_id": stateIds }),
+        ...(cityIds && { "city.city_id": cityIds })
+      })
+    }
+  });
+
+  const { addEntity, updateEntity, updateOneEntity, removeEntity } = useEntityAction();
+
+  useEffect(() => {
+    if (status === "fulfilled") {
+      const { entityData, totalRecord } = data.result;
+      if (offSet.current.isLoadMore)
+        setArea([...entityData, ...areas]);
+      else
+        setArea(entityData)
+
+      offSet.current.totalRecord = totalRecord;
+      offSet.current.lastKeyId = entityData?.length ? entityData[entityData.length - 1].id : null;
+      offSet.current.isLoadMore = false;
+    }
+
+  }, [status])
+
+  const { socketData } = useSocketIo("changeInArea", refetch);
   useEffect(() => {
     if (Array.isArray(socketData)) {
       setArea(socketData);
     }
   }, [socketData])
 
-  useFilterBarEvent(getAreaData, getAreaData);
+  useFilterBarEvent(refetch, refetch);
 
   const loadMoreData = (params) => {
     if (areas.length < offSet.current.totalRecord && params.viewportPageSize !== 0) {
-      getAreaData(params.viewportPageSize, true);
+      offSet.current.isLoadMore = true;
+      offSet.current.limit = params.viewportPageSize;
+      refetch();
     }
   }
 
@@ -172,7 +183,7 @@ const Area = () => {
   }
 
   const handleActiveInActive = (id) => {
-    dispatch(handlePatchActions(API.ACTIVE_INACTIVE_AREA, { _id: id }));
+    updateOneEntity({ url: API.AREA, data: { _id: id } });
   }
 
   const handelDeleteItems = (ids) => {
@@ -186,7 +197,7 @@ const Area = () => {
       title: "Are you sure to delete this records?",
       subTitle: "You can't undo this operation",
       onConfirm: () => {
-        dispatch(handleDeleteActions(API.DELETE_AREA, idTobeDelete)).then(res => {
+        removeEntity({ url: API.AREA, params: idTobeDelete }).then(res => {
           setSelectionModel([]);
         })
       },
@@ -197,22 +208,15 @@ const Area = () => {
 
   useEffect(() => {
     offSet.current.isLoadFirstTime = false;
-    getAreaData();
-    dispatch({
-      type: SET_SHOW_FILTER, payload: {
-        country: true,
-        state: true,
-        city: true
-      }
-    })
 
-    dispatch({ type: ENABLE_FILTERS, payload: true })
+    dispatch(showDropDownFilterAction({
+      country: true,
+      state: true,
+      city: true
+    }))
+    dispatch(enableFilterAction(true));
+    dispatch(builderFieldsAction(fields))
 
-    dispatch({
-      type: SET_QUERY_FIELDS, payload: {
-        fields
-      }
-    })
   }, [dispatch])
 
   const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive, handelDeleteItems);
@@ -229,8 +233,7 @@ const Area = () => {
       if (isEdit.current)
         dataToInsert._id = editId
 
-
-      dispatch(handlePostActions(API.INSERT_UPDATE_AREA, [dataToInsert]));
+      addEntity({ url: API.AREA, data: [dataToInsert] });
     }
   }
 
@@ -307,9 +310,6 @@ const Area = () => {
       <DataGrid apiRef={gridApiRef}
         columns={columns} rows={areas}
         loading={loader} pageSize={pageSize}
-        onAdd={showAddModal}
-        onDelete={handelDeleteItems}
-        getData={getAreaData}
         toolbarProps={{
           apiRef: gridApiRef,
           onAdd: showAddModal,

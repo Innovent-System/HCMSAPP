@@ -6,7 +6,7 @@ import { InputAdornment, IconButton, Link, Box, Container, Typography, Paper, Ci
 import { Visibility, VisibilityOff, Person } from '../../../deps/ui/icons';
 import { green } from '../../../deps/ui/colorschema';
 import bg from '../../../assests/images/bg-1.jpg';
-import { handleAppRoutes } from '../../../store/actions/httpactions';
+import { AppRoutesThunk } from '../../../store/actions/httpactions';
 import { useDispatch } from "react-redux";
 import { API_USER_LOGIN } from '../../../services/UrlService';
 import Auth from '../../../services/AuthenticationService';
@@ -77,9 +77,9 @@ const SignIn = () => {
   useEffect(() => {
     if (client)
       socket.emit("join", client);
-      
+
     return () => {
-       socket.off("join");
+      socket.off("join");
     }
   }, [client]);
 
@@ -92,7 +92,7 @@ const SignIn = () => {
         password: values.password
       }
       setLoader(true);
-      dispatch(handleAppRoutes(API_USER_LOGIN, signInData)).then(res => {
+      dispatch(AppRoutesThunk({ url: API_USER_LOGIN, data: signInData })).unwrap().then(res => {
         if (res) {
           const { data } = res;
           Auth.setItem("appConfigData", { "appRoutes": data.appRoutes, "sideMenuData": data.sideMenuData });

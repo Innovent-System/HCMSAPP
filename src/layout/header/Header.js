@@ -22,8 +22,8 @@ import {
 import Auth from "../../services/AuthenticationService";
 import { SocketContext } from "../../services/socketService";
 import { useNavigate } from "react-router-dom";
-import { API_USER_LOGOUT,GET_REGULAR_DROPDOWN } from "../../services/UrlService";
-import { handleGetActions,handleGetCommonDropDown } from "../../store/actions/httpactions";
+import { API_USER_LOGOUT, GET_REGULAR_DROPDOWN } from "../../services/UrlService";
+import { CommonDropDownThunk,handleGetActions } from "../../store/actions/httpactions";
 import { useDispatch } from "react-redux";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import Logo from "../../assests/images/Logo.png";
@@ -99,15 +99,15 @@ export default function Header() {
     const navigate = useNavigate();
     const socket = useContext(SocketContext);
     const sideMenuData = useSelector(e => {
-        return e.app.routeData?.sideMenuData ||
+        return e.appdata.routeData?.sideMenuData ||
             (Auth.getitem("appConfigData")?.sideMenuData || [])
     });
     useEffect(() => {
-        dispatch(handleGetCommonDropDown(GET_REGULAR_DROPDOWN));
+        dispatch(CommonDropDownThunk({ url: GET_REGULAR_DROPDOWN }));
         return () => {
             return socket.off("leave");
         };
-    },[]);
+    }, []);
 
     const [state, setState] = React.useState({
         left: false,
@@ -125,7 +125,7 @@ export default function Header() {
             }
         });
     };
-    
+
 
     const toggleSidebar = (anchor, open) => (event) => {
         if (
@@ -180,7 +180,7 @@ export default function Header() {
                             <IconButton onClick={handleLogout}>
                                 <PowerSettingsNewIcon fontSize="small" />
                             </IconButton>
-                            
+
                         </Grid>
                     </Grid>
                 </Toolbar>
@@ -205,7 +205,7 @@ export default function Header() {
                     </Box>
                 </Drawer>
             </div>
-            
+
         </div>
     );
 }

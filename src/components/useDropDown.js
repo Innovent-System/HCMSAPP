@@ -42,7 +42,7 @@ export const useDropDown = () => {
     const [states, setStates] = useState([]);
     const [cities, setCities] = useState([]);
     const callbackRef = useRef(null);
-    const DropDownData = useSelector(e => e.common.DropDownData);
+    const DropDownData = useSelector(e => e.appdata.DropDownData);
 
     const [filter, setFilter] = useState({
         type: filterTypes.DEFAULT,
@@ -136,7 +136,7 @@ export const useDropDown = () => {
 }
 
 export const useDropDownIds = () => {
-    const dropdownIds = useSelector(e => e.commonDropDownIds);
+    const dropdownIds = useSelector(e => e.appdata.dropdownIds);
 
     return dropdownIds;
 }
@@ -194,6 +194,17 @@ export const Name_MAP = {
 }
 
 export const DROPDOWN_PROPS = {
+    [COMPANY]: {
+        elementType: "ad_dropdown",
+        name: "company",
+        label: "Company",
+        required: true,
+        breakpoints: {
+            md: 12
+        },
+        dataName: 'companyName',
+        defaultValue: null
+    },
     [COUNTRY]: {
         elementType: "ad_dropdown",
         name: "country",
@@ -201,9 +212,6 @@ export const DROPDOWN_PROPS = {
         required: true,
         breakpoints: {
             md: 12
-        },
-        validate: {
-            errorMessage: "Company is required",
         },
         dataName: 'name',
         defaultValue: null
@@ -217,9 +225,6 @@ export const DROPDOWN_PROPS = {
             md: 12
         },
         dataName: "name",
-        validate: {
-            errorMessage: "State is required",
-        },
         defaultValue: null
     },
     [CITY]: {
@@ -231,9 +236,6 @@ export const DROPDOWN_PROPS = {
         },
         required: true,
         dataName: "name",
-        validate: {
-            errorMessage: "City is required",
-        },
         defaultValue: null
     }
 }

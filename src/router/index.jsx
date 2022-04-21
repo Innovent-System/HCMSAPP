@@ -15,7 +15,7 @@ import {useSelector} from 'react-redux';
 const Routers = () => {
 
   const routes = useSelector(e => {
-    return e.app.routeData?.appRoutes ||
+    return e.appdata.routeData?.appRoutes ||
       (Auth.getitem("appConfigData")?.appRoutes || [])
   });
   return (
@@ -37,7 +37,7 @@ const Routers = () => {
         </Route>
         {/* <Route path="*" element={<Navigate to="/dashboard"/>} /> */}
       </Routes>
-      <StatusSnack />
+      {/* <StatusSnack /> */}
     </>
   );
 };

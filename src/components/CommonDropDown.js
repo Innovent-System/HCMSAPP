@@ -23,7 +23,7 @@ function CommonDropDown({ isMultiple, showFilters, idset, setIdSet }) {
     const dispatch = useDispatch();
     const formApi = React.useRef(null);
 
-    const showFilter = useSelector(e => showFilters ?? e.showFilterReducer);
+    const showFilter = useSelector(e => showFilters ?? e.appdata.showFilterProps);
 
     const handleDropDownIds = (data, type, matchWith) => {
         const setOfIds = setDropDownIds(data, type, "_id");

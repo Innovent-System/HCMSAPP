@@ -4,8 +4,8 @@ import PropTypes from 'prop-types';
 import Controls from './controls/Controls';
 import { Paper, Typography, Grid, Drawer, Box, Accordion, AccordionSummary, IconButton, AccordionDetails, TextField } from '../deps/ui'
 import CommonDropDown from './CommonDropDown';
-import { useDispatch, useSelector } from 'react-redux';
-import { SET_QUERY_FIELDS, CLEAR_COMMON_DD_IDS } from '../store/actions/types'
+import { useSelector, useDispatch } from 'react-redux';
+import { clearDropDownIdsAction } from '../store/actions/httpactions'
 import QueryBuilder from './QueryBuilder'
 
 const DrawerStyle = {
@@ -47,35 +47,26 @@ function trigger(eventType, data) {
   document.dispatchEvent(event);
 }
 
-function ClearIds(data = { type: emptyString, payload: null }) {
-  return dispatch => {
-    var promise = new Promise(function (resolve, reject) {
-      dispatch(data);
-    });
-    return promise
-  }
-}
-
 export default function PageHeader(props) {
   const { title, subTitle, icon, handleUpload, enableFilter } = props;
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
   const [drawer, setDrawer] = useState(false);
   const handleReset = () => {
-    dispatch({ type: CLEAR_COMMON_DD_IDS });
+    dispatch(clearDropDownIdsAction)
     setTimeout(() => trigger("reset"), 300);
   }
 
   const handleApply = () => {
     trigger("apply");
   }
-  const fields = useSelector(e => e.query.fields);
-  const setEnableFilter = useSelector(e => enableFilter ?? e.enableFilter);
+  const fields = useSelector(e => e.appdata.query.fields);
+  const setEnableFilter = useSelector(e => enableFilter ?? e.appdata.enableFilter);
 
 
   useEffect(() => {
 
     return () => {
-      dispatch({ type: CLEAR_COMMON_DD_IDS });
+      dispatch(clearDropDownIdsAction);
     }
   }, [])
 

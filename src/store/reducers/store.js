@@ -1,27 +1,16 @@
 
-import { createStore, combineReducers, applyMiddleware } from "redux";
-import thunk from "redux-thunk";
-// import logger from 'redux-logger';
-
+import { configureStore } from '@reduxjs/toolkit'
 import app from "./authreducer";
-import common, { showFilterReducer,enableFilterReducer, commonDropDownIds, queryBuilderReducer } from "./commonreducer";
+import common, { showFilterReducer, enableFilterReducer, commonDropDownIds, queryBuilderReducer } from "./commonreducer";
+import { getApi, appSlice } from '../actions/httpactions'
 
 
+export const store = configureStore({
+  reducer: {
+    [appSlice.name]: appSlice.reducer,
+    [getApi.reducerPath]: getApi.reducer,
+  },
+  middleware: (getDefaulMiddleWare) => getDefaulMiddleWare({ immutableCheck: false, serializableCheck: false }).concat(getApi.middleware)
+})
 
-const reducers = combineReducers({
-  app,
-  common,
-  showFilterReducer,
-  enableFilter:enableFilterReducer,
-  commonDropDownIds,
-  query: queryBuilderReducer
-});
-
-let middleware = [];
-if (process.env.NODE_ENV === 'development') {
-  middleware = [...middleware, thunk];
-} else {
-  middleware = [...middleware, thunk];
-}
-
-export const store = createStore(reducers, {}, applyMiddleware(...middleware));
+// export const store = createStore(reducers, {}, applyMiddleware(...middleware));

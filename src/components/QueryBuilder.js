@@ -5,7 +5,8 @@ import 'react-awesome-query-builder/lib/css/styles.css';
 import 'react-awesome-query-builder/lib/css/compact_styles.css'; //optional, for more compact styles
 import PropTypes from 'prop-types'
 import { useDispatch } from 'react-redux';
-import { SET_QUERY, RESET_QUERY } from '../store/actions/types'
+
+import { builderQueryAction } from '../store/actions/httpactions'
 // Choose your skin (ant/material/vanilla):
 const InitialConfig = MuiConfig; // or MaterialConfig or MuiConfig or BootstrapConfig or BasicConfig
 
@@ -55,8 +56,7 @@ const QueryBuilder = ({ fields }) => {
     const onChange = (immutableTree, config) => {
         // Tip: for better performance you can apply `throttle` - see `examples/demo`
         setQuery({ tree: immutableTree, config: config });
-
-        dispatch({ type: SET_QUERY, payload: { builder: JSON.stringify(QbUtils.mongodbFormat(immutableTree, config)) } });
+        dispatch(builderQueryAction(QbUtils.mongodbFormat(immutableTree, config)));
         const jsonTree = QbUtils.getTree(immutableTree);
         console.log(jsonTree);
         // `jsonTree` can be saved to backend, and later loaded to `queryValue`

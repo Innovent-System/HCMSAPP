@@ -5,14 +5,13 @@ import Popup from '../../../components/Popup';
 import { AutoForm } from '../../../components/useForm';
 import { API } from '../_Service';
 import { useDispatch, useSelector } from 'react-redux';
-import { handleGetActions, handlePostActions, handlePatchActions, handleDeleteActions } from '../../../store/actions/httpactions';
+import { useEntitiesQuery, useEntityAction, handleGetActions, enableFilterAction, builderFieldsAction } from '../../../store/actions/httpactions';
 import { useFilterBarEvent } from "../../../components/useDropDown";
 import { GridToolbarContainer, Box } from "../../../deps/ui";
 import { Circle, Add as AddIcon, Delete as DeleteIcon } from "../../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions } from '../../../components/useDataGrid';
 import { useSocketIo } from '../../../components/useSocketio';
 import ConfirmDialog from '../../../components/ConfirmDialog';
-import { SET_QUERY_FIELDS, ENABLE_FILTERS } from '../../../store/actions/types'
 import PropTypes from 'prop-types'
 
 const fields = {
@@ -73,7 +72,6 @@ const Country = () => {
     const [pageSize, setPageSize] = useState(30);
     const isEdit = React.useRef(false);
     const formApi = React.useRef(null);
-    const [loader, setloader] = useState(false);
     const [selectionModel, setSelectionModel] = React.useState([]);
     const offSet = useRef({
         limit: 10,
@@ -94,41 +92,50 @@ const Country = () => {
 
 
     const gridApiRef = useGridApi();
-    const query = useSelector(e => e.query.builder);
-    const Companies = useSelector(e => e.common.DropDownData?.Companies);
+    const query = useSelector(e => e.appdata.query.builder);
+    const Companies = useSelector(e => e.appdata.DropDownData?.Companies);
 
 
-    const getCountryData = (pageSize = 10, isLoadMore = false) => {
-        setloader(true);
-        dispatch(handleGetActions(API.GET_COUNTRY, {
-            limit: pageSize,
-            lastKeyId: isLoadMore ? offSet.current.lastKeyId : null,
-            searchParams: query ?? null
-        })).then(res => {
-            if (res.data) {
-                offSet.current.totalRecord = res.data.totalRecord;
-                offSet.current.lastKeyId = res.data.entityData?.length ? res.data.entityData[res.data.entityData.length - 1].id : null;
-                setloader(false);
-                if (isLoadMore)
-                    setCountry([...res.data.entityData, ...countries]);
-                else
-                    setCountry(res.data.entityData)
-            }
-        });
-    }
+    const { data, isLoading, status, refetch } = useEntitiesQuery({
+        url: API.COUNTRY,
+        params: {
+            limit: offSet.current.limit,
+            lastKeyId: offSet.current.isLoadMore ? offSet.current.lastKeyId : "",
+            searchParams: JSON.stringify(query)
+        }
+    });
 
-    const { socketData } = useSocketIo("changeInCountry", getCountryData);
+    const { addEntity, updateEntity, updateOneEntity, removeEntity } = useEntityAction();
+
+    useEffect(() => {
+        if (status === "fulfilled") {
+            const { entityData, totalRecord } = data.result;
+            if (offSet.current.isLoadMore)
+                setCountry([...entityData, ...countries]);
+            else
+                setCountry(entityData)
+
+            offSet.current.totalRecord = totalRecord;
+            offSet.current.lastKeyId = entityData?.length ? entityData[entityData.length - 1].id : null;
+            offSet.current.isLoadMore = false;
+        }
+    }, [status])
+
+
+    const { socketData } = useSocketIo("changeInCountry", refetch);
     useEffect(() => {
         if (Array.isArray(socketData)) {
             setCountry(socketData);
         }
     }, [socketData])
 
-    useFilterBarEvent(getCountryData, getCountryData);
+    useFilterBarEvent(refetch, refetch);
 
     const loadMoreData = (params) => {
         if (countries.length < offSet.current.totalRecord && params.viewportPageSize !== 0) {
-            getCountryData(params.viewportPageSize, true);
+            offSet.current.isLoadMore = true;
+            offSet.current.limit = params.viewportPageSize;
+            refetch();
         }
     }
 
@@ -145,7 +152,7 @@ const Country = () => {
     }
 
     const handleActiveInActive = (id) => {
-        dispatch(handlePatchActions(API.INSERT_UPDATE_COUNTRY, { _id: id }));
+        updateOneEntity({ url: API.COUNTRY, data: { _id: id } });
     }
 
     const handelDeleteItems = (ids) => {
@@ -159,7 +166,7 @@ const Country = () => {
             title: "Are you sure to delete this records?",
             subTitle: "You can't undo this operation",
             onConfirm: () => {
-                dispatch(handleDeleteActions(API.DELETE_COUNTRY, idTobeDelete)).then(res => {
+                removeEntity({ url: API.COUNTRY, params: idTobeDelete }).then(res => {
                     setSelectionModel([]);
                 })
             },
@@ -170,14 +177,9 @@ const Country = () => {
 
     useEffect(() => {
         offSet.current.isLoadFirstTime = false;
-        getCountryData();
-        dispatch({ type: ENABLE_FILTERS, payload: false })
 
-        dispatch({
-            type: SET_QUERY_FIELDS, payload: {
-                fields
-            }
-        })
+        dispatch(enableFilterAction(false));
+        dispatch(builderFieldsAction(fields));
         dispatch(handleGetActions(API.ALL_COUNTRY)).then(res => {
             setCountryData(res.data);
         });
@@ -196,7 +198,7 @@ const Country = () => {
             if (isEdit.current)
                 dataToInsert._id = editId
 
-            dispatch(handlePostActions(API.INSERT_UPDATE_COUNTRY, [dataToInsert]));
+            addEntity({ url: API.COUNTRY, data: [dataToInsert] });
         }
     }
 
@@ -248,10 +250,7 @@ const Country = () => {
             </Popup>
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={countries}
-                loading={loader} pageSize={pageSize}
-                onAdd={showAddModal}
-                onDelete={handelDeleteItems}
-                getData={getCountryData}
+                loading={isLoading} pageSize={pageSize}
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: showAddModal,
@@ -288,7 +287,7 @@ function CountryToolbar(props) {
 
 CountryToolbar.propTypes = {
     apiRef: PropTypes.shape({
-        current: PropTypes.object.isRequired,
+        current: PropTypes.object,
     }).isRequired,
     onAdd: PropTypes.func,
     onDelete: PropTypes.func,
