@@ -33,15 +33,22 @@ function StatusHanlder() {
     if (length) {
       const keyName = Object.keys(routeNotify)[length - 1];
 
-      if (['rejected', 'fulfilled'].includes(routeNotify[keyName].status)) {
+      if (routeNotify[keyName].status === 'fulfilled') {
         const { status, message } = routeNotify[keyName].data;
         if (message) {
           enqueueSnackbar(message, {
-            variant: status > 300 ? "error" : "success",
+            variant: "success",
             action
           });
         }
-
+      } else if (routeNotify[keyName].status === 'rejected') {
+        const { status, message } = routeNotify[keyName].error.data;
+        if (message) {
+          enqueueSnackbar(message, {
+            variant: "error",
+            action
+          });
+        }
         if (status === 401) {
           const info = Auth.getitem('userInfo') || {};
           const formId = window.location.pathname.substr(window.location.pathname.lastIndexOf("/") + 1);
@@ -50,6 +57,7 @@ function StatusHanlder() {
           socket.emit("leave", info.c_Id);
           socket.emit("leaveSession", formId);
         }
+
       }
 
     }
