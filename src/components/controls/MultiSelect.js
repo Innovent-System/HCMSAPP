@@ -56,7 +56,7 @@ function MultiSelect(props) {
     if (Array.isArray(options) && options.indexOf(option) !== -1) {
       return option[dataName]
     }
-    return emptyString
+    return ''
   }
 
   const handleInputeChange = (e, newValue) => {

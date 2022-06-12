@@ -62,7 +62,6 @@ export default function PageHeader(props) {
   const fields = useSelector(e => e.appdata.query.fields);
   const setEnableFilter = useSelector(e => enableFilter ?? e.appdata.enableFilter);
 
-
   useEffect(() => {
 
     return () => {

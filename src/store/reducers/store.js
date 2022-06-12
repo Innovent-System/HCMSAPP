@@ -1,7 +1,5 @@
 
 import { configureStore } from '@reduxjs/toolkit'
-import app from "./authreducer";
-import common, { showFilterReducer, enableFilterReducer, commonDropDownIds, queryBuilderReducer } from "./commonreducer";
 import { getApi, appSlice } from '../actions/httpactions'
 
 

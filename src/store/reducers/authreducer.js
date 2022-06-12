@@ -32,7 +32,7 @@ export default (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 status: false,
-                message: emptyString,
+                message: '',
                 error: {
                     flag: false,
                     msg: null,
@@ -66,7 +66,7 @@ export default (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 status: false,
-                message: emptyString,
+                message: '',
                 error: {
                     flag: false,
                     msg: null,
@@ -102,7 +102,7 @@ export default (state = INITIAL_STATE, action) => {
                 status: false,
                 loading: true,
                 info: null,
-                message: emptyString,
+                message: '',
                 error: {
                     flag: false,
                     msg: null
@@ -134,7 +134,7 @@ export default (state = INITIAL_STATE, action) => {
                 ...state,
                 status: false,
                 loading: true,
-                message: emptyString,
+                message: '',
                 error: {
                     flag: false,
                     msg: null,
@@ -167,7 +167,7 @@ export default (state = INITIAL_STATE, action) => {
                 ...state,
                 status: false,
                 loading: true,
-                message: emptyString,
+                message: '',
                 error: {
                     flag: false,
                     msg: null,

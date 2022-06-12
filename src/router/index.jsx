@@ -7,17 +7,13 @@ import CircularLoading from '../components/Circularloading'
 import Auth from '../services/AuthenticationService';
 import StatusSnack from './StatusHandler';
 import Dashboard from '../pages/General/Dashboard'
-import {useSelector} from 'react-redux';
-
-
+import { useSelector } from 'react-redux';
 
 
 const Routers = () => {
 
-  const routes = useSelector(e => {
-    return e.appdata.routeData?.appRoutes ||
-      (Auth.getitem("appConfigData")?.appRoutes || [])
-  });
+  const routes = useSelector(e => e.appdata.routeData.appRoutes || Auth.getitem("appConfigData")?.appRoutes);
+
   return (
     <>
 
@@ -26,18 +22,18 @@ const Routers = () => {
         <Route element={<PrivateRoute />}>
           <Route element={<Layout />}>
             <Route path="/dashboard" element={<Dashboard />} />
-            {routes.map((prop, key) => {
+
+            {routes?.map((prop, key) => {
               return (
-                <Route path={`${prop.path.substring(5).toLowerCase()}/:id`} key={key} element={<DynamicLoader component={prop.path} />} />
+                <Route path={`${prop.path.substring(5).toLowerCase()}/:id`} key={prop.path} element={<DynamicLoader component={prop.path} />} />
               );
-            })
-            }
+            })}
             <Route path="*" element={<Dashboard />} />
           </Route>
         </Route>
         {/* <Route path="*" element={<Navigate to="/dashboard"/>} /> */}
       </Routes>
-      {/* <StatusSnack /> */}
+      <StatusSnack />
     </>
   );
 };

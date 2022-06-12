@@ -24,7 +24,7 @@ export { makeStyles } from '@mui/styles'
 
 export {
     LocalizationProvider, DateTimePicker, ToggleButton, ToggleButtonGroup, DesktopDatePicker, MobileDatePicker, Alert
-    , Skeleton,
+    , Skeleton,TabList,TabContext,TabPanel
 } from '@mui/lab';
 
 

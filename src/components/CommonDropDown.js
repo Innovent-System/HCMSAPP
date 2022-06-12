@@ -3,10 +3,10 @@ import PropTypes from 'prop-types'
 import { useDropDown, DROPDOWN_PROPS, Name_MAP, filterTypes, useFilterBarEvent } from "./useDropDown";
 import { AutoForm } from './useForm';
 import { useSelector, useDispatch } from 'react-redux';
-import { SET_COMMON_DD_IDS, CLEAR_COMMON_DD_IDS } from '../store/actions/types'
+import { SET_COMMON_DD_IDS } from '../store/actions/types'
 
 const bindDataIds = (data, matchWith) => {
-    if (!data) return emptyString;
+    if (!data) return '';
     if (!Array.isArray(data)) {
         data = [data];
     }

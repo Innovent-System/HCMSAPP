@@ -1,4 +1,4 @@
-import React, {  useState } from 'react';
+import React, { useState } from 'react';
 import { Stepper, Collapse, Box, Step, StepLabel, Typography, IconButton } from '../../../deps/ui';
 import { Launch } from '../../../deps/ui/icons';
 import { AutoForm } from '../../../components/useForm';
@@ -8,8 +8,8 @@ import { API } from '../_Service';
 import { handleGetActions, handlePostActions } from '../../../store/actions/httpactions';
 import Popup from '../../../components/Popup';
 import DepartmentModel from './DepartmentModal'
-import {useDropDown} from '../../../components/useDropDown';
-
+import { useDropDown } from '../../../components/useDropDown';
+import PropTypes from 'prop-types'
 
 
 const Styles = {
@@ -82,15 +82,14 @@ const getSteps = () => {
 }
 
 
-export default function List() {
+export default function EmployaaModal({ formRef }) {
 
   const [activeStep, setActiveStep] = React.useState(0);
   const [skipped, setSkipped] = React.useState(new Set());
-  const formRef = React.useRef(null);
   const steps = getSteps();
   const dispatch = useDispatch();
-  
-  const {countries,states,cities,filterType,setFilter} = useDropDown();
+
+  const { countries, states, cities, filterType, setFilter } = useDropDown();
 
   const formData = [
     {
@@ -255,7 +254,7 @@ export default function List() {
           },
           dataName: 'name',
           options: countries,
-          onChange: (data) =>  setFilter(data,filterType.COUNTRY,"id"),
+          onChange: (data) => setFilter(data, filterType.COUNTRY, "id"),
           defaultValue: countries?.length ? countries[0] : null
         },
         {
@@ -268,7 +267,7 @@ export default function List() {
             errorMessage: "State is required",
           },
           options: states,
-          onChange: (data) =>  setFilter(data,filterType.STATE,"id"),
+          onChange: (data) => setFilter(data, filterType.STATE, "id"),
           defaultValue: null
         },
         {
@@ -476,3 +475,9 @@ export default function List() {
     </Box>
   );
 }
+
+EmployaaModal.propTypes = {
+  formRef: PropTypes.shape({
+      current: PropTypes.object,
+  }).isRequired,
+};

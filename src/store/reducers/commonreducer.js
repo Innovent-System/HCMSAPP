@@ -46,13 +46,13 @@ export const commonDropDownIds = (state = DROP_DOWN_IDS, action) => {
             }
         case CLEAR_COMMON_DD_IDS:
             return {
-                countryIds: emptyString,
-                stateIds: emptyString,
-                cityIds: emptyString,
-                areaIds: emptyString,
-                groupIds: emptyString,
-                departmentIds: emptyString,
-                designationIds: emptyString,
+                countryIds: '',
+                stateIds: '',
+                cityIds: '',
+                areaIds: '',
+                groupIds: '',
+                departmentIds: '',
+                designationIds: '',
             }
         default:
             return state;

@@ -170,6 +170,7 @@ export default function FeaturedCrudGrid(props) {
   const { apiRef, columns, rows, loading,
     pageSize, onRowsScrollEnd,
     selectionModel, setSelectionModel,
+    totalCount,
     gridToolBar: GridToolBar, toolbarProps
   } = props;
   const handleRowEditStart = (params, event) => {
@@ -184,6 +185,7 @@ export default function FeaturedCrudGrid(props) {
     event.defaultMuiPrevented = true;
   };
 
+  console.log("Data Grid");
 
   return (
     <Box
@@ -204,7 +206,6 @@ export default function FeaturedCrudGrid(props) {
         onSelectionModelChange={(newSelectionModel) => {
           setSelectionModel(newSelectionModel);
         }}
-
         selectionModel={selectionModel}
         columns={columns}
         checkboxSelection
@@ -212,6 +213,7 @@ export default function FeaturedCrudGrid(props) {
         {...(onRowsScrollEnd && { onRowsScrollEnd })}
         apiRef={apiRef}
         editMode="row"
+        rowCount={totalCount}
         onRowEditStart={handleRowEditStart}
         onRowEditStop={handleRowEditStop}
         onCellFocusOut={handleCellFocusOut}
@@ -230,6 +232,7 @@ export default function FeaturedCrudGrid(props) {
 FeaturedCrudGrid.propTypes = {
   columns: PropTypes.array.isRequired,
   rows: PropTypes.array.isRequired,
+  totalCount: PropTypes.number.isRequired,
   apiRef: PropTypes.shape({
     current: PropTypes.object.isRequired,
   }).isRequired,

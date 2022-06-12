@@ -6,7 +6,7 @@ import { InputAdornment, IconButton, Link, Box, Container, Typography, Paper, Ci
 import { Visibility, VisibilityOff, Person } from '../../../deps/ui/icons';
 import { green } from '../../../deps/ui/colorschema';
 import bg from '../../../assests/images/bg-1.jpg';
-import { AppRoutesThunk } from '../../../store/actions/httpactions';
+import { AppRoutesThunk, AuthThunk } from '../../../store/actions/httpactions';
 import { useDispatch } from "react-redux";
 import { API_USER_LOGIN } from '../../../services/UrlService';
 import Auth from '../../../services/AuthenticationService';
@@ -56,7 +56,7 @@ const SignIn = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [loader, setLoader] = useState(false);
-  const [client, setClient] = useState(emptyString);
+  const [client, setClient] = useState('');
 
   const socket = useContext(SocketContext);
 
@@ -92,10 +92,9 @@ const SignIn = () => {
         password: values.password
       }
       setLoader(true);
-      dispatch(AppRoutesThunk({ url: API_USER_LOGIN, data: signInData })).unwrap().then(res => {
+      dispatch(AuthThunk({ url: API_USER_LOGIN, params: signInData })).unwrap().then(res => {
         if (res) {
           const { data } = res;
-          Auth.setItem("appConfigData", { "appRoutes": data.appRoutes, "sideMenuData": data.sideMenuData });
           Auth.setItem("userInfo", { "email": data.email, "c_Id": data.fkClientId, username: data.username });
           setClient(data.fkClientId);
           navigate("/dashboard");

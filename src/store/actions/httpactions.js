@@ -81,10 +81,33 @@ export const useEntityAction = () => {
 
 }
 
-export const AppRoutesThunk = createAsyncThunk('approute/requestStatus', async ({ url, data }, { fulfillWithValue, rejectWithValue }) => {
+export const AuthThunk = createAsyncThunk('auth/requestStatus', async ({ url, params }, { fulfillWithValue, rejectWithValue }) => {
   try {
 
-    const response = await axios.post(domain.concat(url), data, {
+    const response = await axios.get(domain.concat(url), {
+      params: params,
+      headers: headerOption(), withCredentials: true
+    });
+    const { result, message } = response.data;
+    return fulfillWithValue({
+      data: result,
+      isSuccess: true,
+      message
+    })
+  } catch (err) {
+    return rejectWithValue({
+      msg: (err.response?.data ? err.response.data.message : err.message),
+      code: err.response.status
+    })
+  }
+})
+
+
+export const AppRoutesThunk = createAsyncThunk('approute/requestStatus', async ({ url, params }, { fulfillWithValue, rejectWithValue }) => {
+  try {
+
+    const response = await axios.get(domain.concat(url), {
+      params: params,
       headers: headerOption(), withCredentials: true
     });
     const { result, message } = response.data;
@@ -126,14 +149,15 @@ const INITIAL_STATE = {
   status: false,
   DropDownData: {},
   routeData: {},
+  authData: {},
   dropdownIds: {
-    countryIds: emptyString,
-    stateIds: emptyString,
-    cityIds: emptyString,
-    areaIds: emptyString,
-    groupIds: emptyString,
-    departmentIds: emptyString,
-    designationIds: emptyString
+    countryIds: '',
+    stateIds: '',
+    cityIds: '',
+    areaIds: '',
+    groupIds: '',
+    departmentIds: '',
+    designationIds: ''
   },
   showFilterProps,
   enableFilter: false,
@@ -152,13 +176,13 @@ export const appSlice = createSlice({
     },
     clearDropDownIdsAction(state) {
       state.dropdownIds = {
-        countryIds: emptyString,
-        stateIds: emptyString,
-        cityIds: emptyString,
-        areaIds: emptyString,
-        groupIds: emptyString,
-        departmentIds: emptyString,
-        designationIds: emptyString
+        countryIds: '',
+        stateIds: '',
+        cityIds: '',
+        areaIds: '',
+        groupIds: '',
+        departmentIds: '',
+        designationIds: ''
       }
     },
     showDropDownFilterAction(state, action) {
@@ -180,7 +204,7 @@ export const appSlice = createSlice({
     },
     [AppRoutesThunk.fulfilled.type]: (state, action) => {
       state.status = false;
-      state.routeData = action.payload;
+      state.routeData = action.payload.data;
     },
     [AppRoutesThunk.rejected.type]: (state, action) => {
       state.status = false;
@@ -193,6 +217,16 @@ export const appSlice = createSlice({
       state.DropDownData = action.payload.data
     },
     [CommonDropDownThunk.rejected.type]: (state, action) => {
+      state.status = false;
+    },
+    [AuthThunk.pending.type]: (state, action) => {
+      state.status = true;
+    },
+    [AuthThunk.fulfilled.type]: (state, action) => {
+      state.status = false;
+      state.authData = action.payload.data
+    },
+    [AuthThunk.rejected.type]: (state, action) => {
       state.status = false;
     }
   }

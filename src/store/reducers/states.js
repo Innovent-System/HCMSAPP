@@ -2,7 +2,7 @@ export const INITIAL_STATE = {
     info: null,
     loading: false,
     status: false,
-    message: emptyString,
+    message: '',
     error: {
         flag: false,
         msg: null,
@@ -27,11 +27,11 @@ export const Query_PROPS = {
 }
 
 export const DROP_DOWN_IDS = {
-    countryIds: emptyString,
-    stateIds: emptyString,
-    cityIds: emptyString,
-    areaIds: emptyString,
-    groupIds: emptyString,
-    departmentIds: emptyString,
-    designationIds: emptyString,
+    countryIds: '',
+    stateIds: '',
+    cityIds: '',
+    areaIds: '',
+    groupIds: '',
+    departmentIds: '',
+    designationIds: '',
 }

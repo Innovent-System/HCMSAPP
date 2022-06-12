@@ -81,7 +81,7 @@ ConfirmDialog.propTypes = {
 ConfirmDialog.defaultProps = {
     confirmDialog: {
         isOpen:false,
-        title:emptyString,
-        subTitle:emptyString,
+        title:'',
+        subTitle:'',
     }
 }

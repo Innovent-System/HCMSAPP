@@ -170,7 +170,7 @@ const Company = () => {
         });
 
     }
-
+    
 
     useEffect(() => {
         offSet.current.isLoadFirstTime = false;
@@ -229,6 +229,7 @@ const Company = () => {
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={company}
                 loading={isLoading} pageSize={pageSize}
+                totalCount={offSet.current.totalRecord}
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: showAddModal,

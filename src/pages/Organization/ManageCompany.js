@@ -7,7 +7,7 @@ import Area from './components/Area'
 import Company from './components/Company';
 
 
-const tab = [
+const tabs = [
   {
     title: "Company",
     panel: <Company />
@@ -30,7 +30,7 @@ export default function ManageCompany() {
         subTitle="Manage Comapny"
         icon={<PeopleOutline fontSize="large" />}
       />
-      <Tabs orientation='horizontal' TabsConfig={tab} />
+      <Tabs orientation='horizontal' TabsConfig={tabs} />
     </>
 
   );
