@@ -141,22 +141,15 @@ export const useDropDownIds = () => {
     return dropdownIds;
 }
 
-export const useFilterBarEvent = (onApply, onReset) => {
-    const handleApply = () => onApply()
-    const handleReset = () => onReset()
+export const useFilterBarEvent = (onReset) => {
     useEffect(() => {
-        if (typeof onApply === "function")
-            document.addEventListener("apply", handleApply)
-
         if (typeof onReset === "function")
-            document.addEventListener("reset", handleReset)
+            document.addEventListener("reset", onReset)
 
         return () => {
-            document.removeEventListener("apply", handleApply)
-            document.removeEventListener("reset", handleReset)
+            document.removeEventListener("reset", onReset)
         }
-    }, [onApply, onReset])
-
+    }, [onReset])
 }
 
 const { DEFAULT, COMPANY, COUNTRY, STATE, CITY, AREA, DEPARTMENT, GROUP, DESIGNATION } = filterTypes;

@@ -213,6 +213,7 @@ export default function FeaturedCrudGrid(props) {
         {...(onRowsScrollEnd && { onRowsScrollEnd })}
         apiRef={apiRef}
         editMode="row"
+        scrollEndThreshold={20}
         rowCount={totalCount}
         onRowEditStart={handleRowEditStart}
         onRowEditStop={handleRowEditStop}

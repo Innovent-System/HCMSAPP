@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState,startTransition } from 'react';
 import { Query, Builder, BasicConfig, Utils as QbUtils } from 'react-awesome-query-builder';
 import MuiConfig from 'react-awesome-query-builder/lib/config/mui';
 import 'react-awesome-query-builder/lib/css/styles.css';
 import 'react-awesome-query-builder/lib/css/compact_styles.css'; //optional, for more compact styles
 import PropTypes from 'prop-types'
 import { useDispatch } from 'react-redux';
-
 import { builderQueryAction } from '../store/actions/httpactions'
+import { throttle } from '../util/common'
 // Choose your skin (ant/material/vanilla):
 const InitialConfig = MuiConfig; // or MaterialConfig or MuiConfig or BootstrapConfig or BasicConfig
 
@@ -21,11 +21,12 @@ const queryValue = { "id": QbUtils.uuid(), "type": "group" };
 const QueryBuilder = ({ fields }) => {
 
     const dispatch = useDispatch();
+
     const [query, setQuery] = useState({
         tree: QbUtils.checkTree(QbUtils.loadTree(queryValue), InitialConfig),
         config: InitialConfig
     })
-
+    const throttledClick = useRef(throttle(onChange, 500)).current;
     useEffect(() => {
         if (fields) {
             const setConfig = { ...InitialConfig, fields }
@@ -48,13 +49,14 @@ const QueryBuilder = ({ fields }) => {
 
     const renderResult = ({ tree: immutableTree, config }) => (
         <div className="query-builder-result">
-            {console.log(QbUtils)}
+            
             <div>MongoDb query: <pre>{JSON.stringify(QbUtils.mongodbFormat(immutableTree, config))}</pre></div>
         </div>
     )
 
-    const onChange = (immutableTree, config) => {
+    function onChange(immutableTree, config) {
         // Tip: for better performance you can apply `throttle` - see `examples/demo`
+
         setQuery({ tree: immutableTree, config: config });
         dispatch(builderQueryAction(QbUtils.mongodbFormat(immutableTree, config)));
         const jsonTree = QbUtils.getTree(immutableTree);
@@ -67,7 +69,7 @@ const QueryBuilder = ({ fields }) => {
             <Query
                 {...query.config}
                 value={query.tree}
-                onChange={onChange}
+                onChange={throttledClick}
                 renderBuilder={renderBuilder}
             />
             {renderResult(query)}

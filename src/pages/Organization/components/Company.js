@@ -1,5 +1,5 @@
 // eslint-disable-next-line react-hooks/exhaustive-deps
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Controls from '../../../components/controls/Controls';
 import Popup from '../../../components/Popup';
 import { AutoForm } from '../../../components/useForm';
@@ -72,11 +72,14 @@ const Company = () => {
     const [selectionModel, setSelectionModel] = React.useState([]);
 
     const offSet = useRef({
-        limit: 10,
-        lastKeyId: null,
-        totalRecord: 0,
         isLoadMore: false,
         isLoadFirstTime: true,
+    })
+
+    const [filter, setFilter] = useState({
+        lastKey: null,
+        limit: 10,
+        totalRecord: 0
     })
 
     const [confirmDialog, setConfirmDialog] = useState({
@@ -90,33 +93,45 @@ const Company = () => {
     const gridApiRef = useGridApi();
     const query = useSelector(e => e.appdata.query.builder);
 
-    const { data, isLoading, status, refetch } = useEntitiesQuery({
+    const { data, status, isLoading } = useEntitiesQuery({
         url: API.COMPANY,
         params: {
-            limit: offSet.current.limit,
-            lastKeyId: offSet.current.isLoadMore ? offSet.current.lastKeyId : "",
+            limit: filter.limit,
+            lastKeyId: filter.lastKey,
             searchParams: JSON.stringify(query)
         }
     });
+    const resetFilter = () => {
+        setFilter({
+            lastKey: null,
+            limit: 10,
+            totalRecord: 0
+        });
+    }
+
 
     const { addEntity, updateEntity, updateOneEntity, removeEntity } = useEntityAction();
 
     useEffect(() => {
         if (status === "fulfilled") {
             const { entityData, totalRecord } = data.result;
-            if (offSet.current.isLoadMore)
+            if (offSet.current.isLoadMore) {
                 setCompany([...entityData, ...company]);
+            }
             else
                 setCompany(entityData)
 
-            offSet.current.totalRecord = totalRecord;
-            offSet.current.lastKeyId = entityData?.length ? entityData[entityData.length - 1].id : null;
+            setFilter({ ...filter, totalRecord: totalRecord });
+            // offSet.current.totalRecord = totalRecord;
             offSet.current.isLoadMore = false;
+
         }
 
     }, [status])
 
-    const { socketData } = useSocketIo("changeInCompany", refetch);
+
+
+    const { socketData } = useSocketIo("changeInCompany", resetFilter);
 
     useEffect(() => {
         if (Array.isArray(socketData)) {
@@ -124,13 +139,15 @@ const Company = () => {
         }
     }, [socketData])
 
-    useFilterBarEvent(refetch, refetch);
+    useFilterBarEvent(resetFilter);
 
     const loadMoreData = (params) => {
-        if (company.length < offSet.current.totalRecord && params.viewportPageSize !== 0) {
+        if (company.length < filter.totalRecord && params.viewportPageSize !== 0) {
             offSet.current.isLoadMore = true;
-            offSet.current.limit = params.viewportPageSize;
-            refetch();
+            // offSet.current.limit = params.viewportPageSize;
+            setFilter({ ...filter, lastKey: company.length ? company[company.length - 1].id : null });
+
+            // refetch();
         }
     }
 
@@ -170,7 +187,7 @@ const Company = () => {
         });
 
     }
-    
+
 
     useEffect(() => {
         offSet.current.isLoadFirstTime = false;

@@ -34,7 +34,7 @@ function StatusHanlder() {
       const keyName = Object.keys(routeNotify)[length - 1];
 
       if (routeNotify[keyName].status === 'fulfilled') {
-        const { status, message } = routeNotify[keyName].data;
+        const { message } = routeNotify[keyName].data;
         if (message) {
           enqueueSnackbar(message, {
             variant: "success",
@@ -42,7 +42,7 @@ function StatusHanlder() {
           });
         }
       } else if (routeNotify[keyName].status === 'rejected') {
-        const { status, message } = routeNotify[keyName].error.data;
+        const { status, data: { message } } = routeNotify[keyName].error;
         if (message) {
           enqueueSnackbar(message, {
             variant: "error",

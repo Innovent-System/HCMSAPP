@@ -13,7 +13,7 @@ export function useForm(initialFValues, validateOnChange = false, validate) {
     const changeErrors = useRef({});
     const [errors, setErrors] = useState({});
 
-    const handleInputChange = useCallback((e, exec) => {
+    const handleInputChange = (e, exec) => {
         const { name, value } = e.target
         let _value = value;
 
@@ -40,7 +40,7 @@ export function useForm(initialFValues, validateOnChange = false, validate) {
                 changeErrors.current = { ...changeErrors.current, ...validate({ [name]: _value }) }
         }
 
-    }, [values])
+    }
 
     const resetError = () => {
         changeErrors.current = {};
