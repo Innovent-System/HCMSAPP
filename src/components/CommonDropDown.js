@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect } from 'react'
 import PropTypes from 'prop-types'
-import { useDropDown, DROPDOWN_PROPS, Name_MAP, filterTypes, useFilterBarEvent } from "./useDropDown";
+import { useDropDown, DROPDOWN_PROPS, Name_MAP, filterTypes } from "./useDropDown";
 import { AutoForm } from './useForm';
+import { dropDownIdsAction } from '../store/actions/httpactions'
 import { useSelector, useDispatch } from 'react-redux';
-import { SET_COMMON_DD_IDS } from '../store/actions/types'
 
 const bindDataIds = (data, matchWith) => {
     if (!data) return '';
@@ -27,7 +27,8 @@ function CommonDropDown({ isMultiple, showFilters, idset, setIdSet }) {
 
     const handleDropDownIds = (data, type, matchWith) => {
         const setOfIds = setDropDownIds(data, type, "_id");
-        dispatch({ type: SET_COMMON_DD_IDS, payload: setOfIds })
+        // dispatch({ type: SET_COMMON_DD_IDS, payload: setOfIds })
+        dispatch(dropDownIdsAction(setOfIds));
         if (typeof setIdSet === "function") setIdSet(setOfIds);
         setFilter(data, type, matchWith);
     }
@@ -38,9 +39,6 @@ function CommonDropDown({ isMultiple, showFilters, idset, setIdSet }) {
         resetForm();
         setFilter(null, filterType.DEFAULT);
     }
-
-    useFilterBarEvent(null, handleResetFilter);
-
 
     const formData = useCallback(
         () => {

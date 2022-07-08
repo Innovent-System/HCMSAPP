@@ -94,10 +94,14 @@ const Area = () => {
   const [loader, setloader] = useState(false);
   const [selectionModel, setSelectionModel] = React.useState([]);
   const offSet = useRef({
-    limit: 10,
-    lastKeyId: null,
-    totalRecord: 0,
+    isLoadMore: false,
     isLoadFirstTime: true,
+  })
+
+  const [gridFilter, setGridFilter] = useState({
+    lastKey: null,
+    limit: 10,
+    totalRecord: 0
   })
 
   const [confirmDialog, setConfirmDialog] = useState({
@@ -133,17 +137,17 @@ const Area = () => {
   useEffect(() => {
     if (status === "fulfilled") {
       const { entityData, totalRecord } = data.result;
-      if (offSet.current.isLoadMore)
+      if (offSet.current.isLoadMore) {
         setArea([...entityData, ...areas]);
+      }
       else
         setArea(entityData)
 
-      offSet.current.totalRecord = totalRecord;
-      offSet.current.lastKeyId = entityData?.length ? entityData[entityData.length - 1].id : null;
+      setGridFilter({ ...gridFilter, totalRecord: totalRecord });
       offSet.current.isLoadMore = false;
     }
 
-  }, [status])
+  }, [data, status])
 
   const { socketData } = useSocketIo("changeInArea", refetch);
   useEffect(() => {
@@ -152,13 +156,10 @@ const Area = () => {
     }
   }, [socketData])
 
-  useFilterBarEvent(refetch, refetch);
-
   const loadMoreData = (params) => {
-    if (areas.length < offSet.current.totalRecord && params.viewportPageSize !== 0) {
+    if (areas.length < gridFilter.totalRecord && params.viewportPageSize !== 0) {
       offSet.current.isLoadMore = true;
-      offSet.current.limit = params.viewportPageSize;
-      refetch();
+      setFilter({ ...gridFilter, lastKey: areas.length ? areas[areas.length - 1].id : null });
     }
   }
 

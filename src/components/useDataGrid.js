@@ -111,6 +111,7 @@ export const getActions = (apiRef, actionKit = { onActive: null, onApproval: nul
     headerName: 'Actions',
     flex: '0 1 30%',
     align: 'center',
+    hideable: false,
     cellClassName: 'actions',
     getActions: ({ id }) => {
       const toolKit = [];

@@ -41,6 +41,7 @@ export const getApi = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: domain, credentials: "include" }),
   // global configuration for the api
   keepUnusedDataFor: 30,
+  // refetchOnMountOrArgChange:true,
 
   endpoints: (builder) => ({
     entities: builder.query({
@@ -172,7 +173,7 @@ export const appSlice = createSlice({
   initialState: INITIAL_STATE,
   reducers: {
     dropDownIdsAction(state, action) {
-      state.dropdownIds = action.payload
+      state.dropdownIds = { ...state.dropdownIds, ...action.payload }
     },
     clearDropDownIdsAction(state) {
       state.dropdownIds = {

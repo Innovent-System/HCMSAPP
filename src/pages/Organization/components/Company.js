@@ -6,7 +6,6 @@ import { AutoForm } from '../../../components/useForm';
 import { API } from '../_Service';
 import { useDispatch, useSelector } from 'react-redux';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAction } from '../../../store/actions/httpactions';
-import { useFilterBarEvent } from "../../../components/useDropDown";
 import { GridToolbarContainer, Box } from "../../../deps/ui";
 import { Circle, Add as AddIcon, Delete as DeleteIcon } from "../../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions } from '../../../components/useDataGrid';
@@ -39,6 +38,7 @@ const fields = {
         valueSources: ['value'],
     },
 }
+
 const getColumns = (apiRef, onEdit, onActive, onDelete) => {
     const actionKit = {
         onActive: onActive,
@@ -46,22 +46,24 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
         onDelete: onDelete
     }
     return [
-        { field: '_id', headerName: 'Id', hide: true },
+        { field: '_id', headerName: 'Id', hide: true, hideable: false },
         {
-            field: 'companyName', headerName: 'Company', width: 180
+            field: 'companyName', headerName: 'Company', width: 180, hideable: false
         },
-        { field: 'modifiedOn', headerName: 'Modified On' },
-        { field: 'createdOn', headerName: 'Created On' },
+        { field: 'modifiedOn', headerName: 'Modified On', hideable: false },
+        { field: 'createdOn', headerName: 'Created On', hideable: false },
         {
             field: 'isActive', headerName: 'Status', renderCell: (param) => (
                 param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
             ),
             flex: '0 1 5%',
+            hideable: false,
             align: 'center',
         },
         getActions(apiRef, actionKit)
     ]
 }
+
 let editId = 0;
 const Company = () => {
     const dispatch = useDispatch();
@@ -93,7 +95,7 @@ const Company = () => {
     const gridApiRef = useGridApi();
     const query = useSelector(e => e.appdata.query.builder);
 
-    const { data, status, isLoading } = useEntitiesQuery({
+    const { data, status, isLoading, refetch } = useEntitiesQuery({
         url: API.COMPANY,
         params: {
             limit: filter.limit,
@@ -101,14 +103,6 @@ const Company = () => {
             searchParams: JSON.stringify(query)
         }
     });
-    const resetFilter = () => {
-        setFilter({
-            lastKey: null,
-            limit: 10,
-            totalRecord: 0
-        });
-    }
-
 
     const { addEntity, updateEntity, updateOneEntity, removeEntity } = useEntityAction();
 
@@ -122,16 +116,12 @@ const Company = () => {
                 setCompany(entityData)
 
             setFilter({ ...filter, totalRecord: totalRecord });
-            // offSet.current.totalRecord = totalRecord;
             offSet.current.isLoadMore = false;
-
         }
 
-    }, [status])
+    }, [data,status])
 
-
-
-    const { socketData } = useSocketIo("changeInCompany", resetFilter);
+    const { socketData } = useSocketIo("changeInCompany", refetch);
 
     useEffect(() => {
         if (Array.isArray(socketData)) {
@@ -139,15 +129,10 @@ const Company = () => {
         }
     }, [socketData])
 
-    useFilterBarEvent(resetFilter);
-
     const loadMoreData = (params) => {
         if (company.length < filter.totalRecord && params.viewportPageSize !== 0) {
             offSet.current.isLoadMore = true;
-            // offSet.current.limit = params.viewportPageSize;
             setFilter({ ...filter, lastKey: company.length ? company[company.length - 1].id : null });
-
-            // refetch();
         }
     }
 

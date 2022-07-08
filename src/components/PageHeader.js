@@ -5,8 +5,8 @@ import Controls from './controls/Controls';
 import { Paper, Typography, Grid, Drawer, Box, Accordion, AccordionSummary, IconButton, AccordionDetails, TextField } from '../deps/ui'
 import CommonDropDown from './CommonDropDown';
 import { useSelector, useDispatch } from 'react-redux';
-import { clearDropDownIdsAction } from '../store/actions/httpactions'
-import QueryBuilder from './QueryBuilder'
+import { clearDropDownIdsAction, builderQueryAction } from '../store/actions/httpactions'
+import QueryBuilder, { defultValue, loadTree, queryValue } from './QueryBuilder'
 
 const DrawerStyle = {
   Drawer: {
@@ -51,16 +51,22 @@ export default function PageHeader(props) {
   const { title, subTitle, icon, handleUpload, enableFilter } = props;
   const dispatch = useDispatch()
   const [drawer, setDrawer] = useState(false);
-  const handleReset = () => {
-    dispatch(clearDropDownIdsAction)
-    setTimeout(() => trigger("reset"), 300);
-  }
+
 
   const handleApply = () => {
     trigger("apply");
   }
-  const fields = useSelector(e => e.appdata.query.fields);
+  const fields = useSelector(e => e.appdata.query.fields ?? {});
   const setEnableFilter = useSelector(e => enableFilter ?? e.appdata.enableFilter);
+
+  const [query, setQuery] = useState(() => defultValue());
+
+  const handleReset = () => {
+    dispatch(clearDropDownIdsAction);
+    setQuery({ ...query, tree: loadTree(queryValue) });
+    dispatch(builderQueryAction({}));
+    // trigger("reset");
+  }
 
   useEffect(() => {
 
@@ -132,7 +138,7 @@ export default function PageHeader(props) {
               </AccordionDetails>
             </Accordion>
           </Box>
-          <QueryBuilder fields={fields} />
+          <QueryBuilder query={query} setQuery={setQuery} fields={fields} />
           <Controls.Button text='Apply' onClick={handleApply} />
           <Controls.Button color='secondary' onClick={handleReset} text='Reset' />
         </Drawer>

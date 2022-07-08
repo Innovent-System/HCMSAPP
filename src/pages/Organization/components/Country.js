@@ -74,10 +74,14 @@ const Country = () => {
     const formApi = React.useRef(null);
     const [selectionModel, setSelectionModel] = React.useState([]);
     const offSet = useRef({
-        limit: 10,
-        lastKeyId: null,
-        totalRecord: 0,
+        isLoadMore: false,
         isLoadFirstTime: true,
+    })
+
+    const [filter, setFilter] = useState({
+        lastKey: null,
+        limit: 10,
+        totalRecord: 0
     })
 
 
@@ -110,16 +114,17 @@ const Country = () => {
     useEffect(() => {
         if (status === "fulfilled") {
             const { entityData, totalRecord } = data.result;
-            if (offSet.current.isLoadMore)
+            if (offSet.current.isLoadMore) {
                 setCountry([...entityData, ...countries]);
+            }
             else
                 setCountry(entityData)
 
-            offSet.current.totalRecord = totalRecord;
-            offSet.current.lastKeyId = entityData?.length ? entityData[entityData.length - 1].id : null;
+            setFilter({ ...filter, totalRecord: totalRecord });
             offSet.current.isLoadMore = false;
         }
-    }, [status])
+
+    }, [data, status])
 
 
     const { socketData } = useSocketIo("changeInCountry", refetch);
@@ -129,13 +134,11 @@ const Country = () => {
         }
     }, [socketData])
 
-    useFilterBarEvent(refetch, refetch);
 
     const loadMoreData = (params) => {
-        if (countries.length < offSet.current.totalRecord && params.viewportPageSize !== 0) {
+        if (countries.length < filter.totalRecord && params.viewportPageSize !== 0) {
             offSet.current.isLoadMore = true;
-            offSet.current.limit = params.viewportPageSize;
-            refetch();
+            setFilter({ ...filter, lastKey: countries.length ? countries[countries.length - 1].id : null });
         }
     }
 

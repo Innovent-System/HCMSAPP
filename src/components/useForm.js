@@ -51,8 +51,6 @@ export function useForm(initialFValues, validateOnChange = false, validate) {
         setValues(initialFValues);
     }
 
-
-
     return {
         values,
         setValues,
