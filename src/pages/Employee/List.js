@@ -208,6 +208,7 @@ const Employee = () => {
                 title="Add Employee"
                 openPopup={openPopup}
                 maxWidth="xl"
+                fullScreen={true}
                 isEdit={isEdit.current}
                 keepMounted={true}
                 addOrEditFunc={handleSubmit}
