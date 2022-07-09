@@ -6,7 +6,6 @@ import { AutoForm } from '../../../components/useForm';
 import { API } from '../_Service';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEntitiesQuery, useEntityAction, handleGetActions, enableFilterAction, builderFieldsAction } from '../../../store/actions/httpactions';
-import { useFilterBarEvent } from "../../../components/useDropDown";
 import { GridToolbarContainer, Box } from "../../../deps/ui";
 import { Circle, Add as AddIcon, Delete as DeleteIcon } from "../../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions } from '../../../components/useDataGrid';
@@ -109,7 +108,7 @@ const Country = () => {
         }
     });
 
-    const { addEntity, updateEntity, updateOneEntity, removeEntity } = useEntityAction();
+    const { addEntity, updateOneEntity, removeEntity } = useEntityAction();
 
     useEffect(() => {
         if (status === "fulfilled") {
@@ -253,7 +252,8 @@ const Country = () => {
             </Popup>
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={countries}
-                loading={isLoading} pageSize={pageSize}
+                loading={isLoading} 
+                pageSize={pageSize}
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: showAddModal,

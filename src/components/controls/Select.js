@@ -125,8 +125,8 @@ function Select(props) {
 }
 
 Select.propTypes = {
-  dataId: PropTypes.string.isRequired,
-  dataName: PropTypes.string.isRequired,
+  dataId: PropTypes.string,
+  dataName: PropTypes.string,
   name: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
   value: PropTypes.any,

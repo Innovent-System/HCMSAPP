@@ -160,6 +160,7 @@ const INITIAL_STATE = {
     departmentIds: '',
     designationIds: ''
   },
+  isReset: false,
   showFilterProps,
   enableFilter: false,
   query: {
@@ -191,6 +192,9 @@ export const appSlice = createSlice({
     },
     enableFilterAction(state, action) {
       state.enableFilter = action.payload
+    },
+    resetAction(state, action) {
+      state.isReset = action.payload
     },
     builderQueryAction(state, action) {
       state.query.builder = action.payload
@@ -233,7 +237,13 @@ export const appSlice = createSlice({
   }
 })
 
-export const { builderQueryAction, builderFieldsAction, dropDownIdsAction, enableFilterAction, showDropDownFilterAction, clearDropDownIdsAction } = appSlice.actions;
+export const { builderQueryAction,
+  builderFieldsAction,
+  resetAction,
+  dropDownIdsAction,
+  enableFilterAction,
+  showDropDownFilterAction,
+  clearDropDownIdsAction } = appSlice.actions;
 
 export const handlePostActions = (url, data = {}) => dispatch => {
 

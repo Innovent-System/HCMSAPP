@@ -2,7 +2,7 @@ import React, { useCallback, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { useDropDown, DROPDOWN_PROPS, Name_MAP, filterTypes } from "./useDropDown";
 import { AutoForm } from './useForm';
-import { dropDownIdsAction } from '../store/actions/httpactions'
+import { dropDownIdsAction, resetAction, clearDropDownIdsAction } from '../store/actions/httpactions'
 import { useSelector, useDispatch } from 'react-redux';
 
 const bindDataIds = (data, matchWith) => {
@@ -27,18 +27,22 @@ function CommonDropDown({ isMultiple, showFilters, idset, setIdSet }) {
 
     const handleDropDownIds = (data, type, matchWith) => {
         const setOfIds = setDropDownIds(data, type, "_id");
-        // dispatch({ type: SET_COMMON_DD_IDS, payload: setOfIds })
         dispatch(dropDownIdsAction(setOfIds));
         if (typeof setIdSet === "function") setIdSet(setOfIds);
         setFilter(data, type, matchWith);
     }
 
-    const handleResetFilter = () => {
-
-        const { resetForm } = formApi.current;
-        resetForm();
-        setFilter(null, filterType.DEFAULT);
-    }
+    const isReset = useSelector(e => e.appdata.isReset);
+    
+    useEffect(() => {
+        if (isReset) {
+            const { resetForm } = formApi.current;
+            resetForm();
+            dispatch(clearDropDownIdsAction);
+            setFilter(null, filterType.DEFAULT);
+            dispatch(resetAction(false));
+        }
+    }, [isReset])
 
     const formData = useCallback(
         () => {

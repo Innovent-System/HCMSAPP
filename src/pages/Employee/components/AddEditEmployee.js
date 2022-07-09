@@ -15,6 +15,9 @@ import PropTypes from 'prop-types'
 const Styles = {
   root: {
     width: '100%',
+    display: 'flex',
+    alignItems: 'flex-start'
+
   },
   button: {
     marginRight: 1,
@@ -56,12 +59,14 @@ const initialFValues = {
   punchCode: "",
   firstName: "",
   lastName: "",
-
   maritalstatus: 0,
   nic: null,
-  email: "", z: ["", ""],
-  mobileNumber: "", gender: 0, dateofBirth: null, religion: 0,
-
+  email: "",
+  address: [""],
+  mobileNumber: "",
+  gender: 0,
+  dateofBirth: null,
+  religion: 0,
   fkCompanyId: 0,
   fkCountryId: 0,
   fkStateId: 0,
@@ -74,7 +79,7 @@ const initialFValues = {
   resignationDate: null,
   isAllowManualAttendance: false,
   isAllowLogin: false,
-  templateId: 0
+  roleTemplateId: 0
 }
 
 const getSteps = () => {
@@ -85,7 +90,7 @@ const getSteps = () => {
 export default function EmployaaModal({ formRef }) {
 
   const [activeStep, setActiveStep] = React.useState(0);
-  const [skipped, setSkipped] = React.useState(new Set());
+
   const steps = getSteps();
   const dispatch = useDispatch();
 
@@ -178,7 +183,7 @@ export default function EmployaaModal({ formRef }) {
         },
         {
           elementType: "dropdown",
-          name: "templateId",
+          name: "roleTemplateId",
           label: "User Template",
           disabled: (value) => value["isAllowManualAttendance"] === false,
           defaultValue: 1,
@@ -253,6 +258,7 @@ export default function EmployaaModal({ formRef }) {
             errorMessage: "Company is required",
           },
           dataName: 'name',
+          dataId: 'id',
           options: countries,
           onChange: (data) => setFilter(data, filterType.COUNTRY, "id"),
           defaultValue: countries?.length ? countries[0] : null
@@ -263,6 +269,7 @@ export default function EmployaaModal({ formRef }) {
           label: "State",
           required: true,
           dataName: "name",
+          dataId: 'id',
           validate: {
             errorMessage: "State is required",
           },
@@ -376,50 +383,23 @@ export default function EmployaaModal({ formRef }) {
     },
   ];
 
-  const isStepOptional = (step) => {
-    return step === 1;
-  }
-
-  const isStepSkipped = (step) => {
-    return skipped.has(step);
-  }
 
   const handleNext = () => {
-    let newSkipped = skipped;
-    if (isStepSkipped(activeStep)) {
-      newSkipped = new Set(newSkipped.values());
-      newSkipped.delete(activeStep);
-    }
-
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    setSkipped(newSkipped);
-  }
+  };
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  };
-
-  const handleSkip = () => {
-    if (!isStepOptional(activeStep)) {
-      // You probably want to guard against something like this,
-      // it should never occur unless someone's actively trying to break something.
-      throw new Error("You can't skip a step that isn't optional.");
-    }
-
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    setSkipped((prevSkipped) => {
-      const newSkipped = new Set(prevSkipped.values());
-      newSkipped.add(activeStep);
-      return newSkipped;
-    });
   };
 
   const handleReset = () => {
     setActiveStep(0);
   };
 
+
+
   const handleSubmit = (e) => {
-    const { resetForm, getValue, validateFields } = formRef.current
+    const { getValue, validateFields } = formRef.current
     const values = getValue();
     if (validateFields()) {
       dispatch(handlePostActions(API.INSERT_EMPLOYEE, [values])).then(res => {
@@ -431,19 +411,21 @@ export default function EmployaaModal({ formRef }) {
 
   return (
     <Box sx={Styles.root}>
-      <Stepper activeStep={activeStep}>
+      <Stepper style={{
+        flex: '1 0 15%'
+      }} activeStep={activeStep} orientation="vertical">
         {steps.map((label, index) => {
-          const stepProps = {};
-          const labelProps = {};
-          if (isStepOptional(index)) {
-            labelProps.optional = <Typography variant="caption">Optional</Typography>;
-          }
-          if (isStepSkipped(index)) {
-            stepProps.completed = false;
-          }
+          // const stepProps = {};
+          // const labelProps = {};
+          // if (isStepOptional(index)) {
+          //   labelProps.optional = <Typography variant="caption">Optional</Typography>;
+          // }
+          // if (isStepSkipped(index)) {
+          //   stepProps.completed = false;
+          // }
           return (
-            <Step key={label} {...stepProps}>
-              <StepLabel {...labelProps}>{label}</StepLabel>
+            <Step key={label}>
+              <StepLabel>{label}</StepLabel>
             </Step>
           );
         })}
@@ -462,10 +444,10 @@ export default function EmployaaModal({ formRef }) {
             <Box>
 
               <Controls.Button onClick={handleBack} disabled={activeStep === 0} sx={Styles.button} text="Back" />
-              {isStepOptional(activeStep) && (
+              {/* {isStepOptional(activeStep) && (
 
                 <Controls.Button onClick={handleSkip} sx={Styles.button} text="Skip" />
-              )}
+              )} */}
               <Controls.Button onClick={handleNext} sx={Styles.button} text={activeStep === steps.length - 1 ? 'Finish' : 'Next'} />
               {activeStep === steps.length - 1 && <Controls.Button onClick={handleSubmit} sx={Styles.button} text="Submit" />}
             </Box>
@@ -478,6 +460,6 @@ export default function EmployaaModal({ formRef }) {
 
 EmployaaModal.propTypes = {
   formRef: PropTypes.shape({
-      current: PropTypes.object,
+    current: PropTypes.object,
   }).isRequired,
 };

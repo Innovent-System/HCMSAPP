@@ -21,7 +21,6 @@ export default function DepartmentModel(props) {
   
   const { addOrEdit, recordForEdit } = props;
   
-  
   const validate = (fieldValues = values) => {
     let temp = { ...errors };
     if ("departmentName" in fieldValues)

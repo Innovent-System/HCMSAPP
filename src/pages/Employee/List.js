@@ -2,11 +2,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import Controls from '../../components/controls/Controls';
 import Popup from '../../components/Popup';
-import { AutoForm } from '../../components/useForm';
 import { API } from './_Service';
 import { useDispatch, useSelector } from 'react-redux';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAction } from '../../store/actions/httpactions';
-import { useFilterBarEvent } from "../../components/useDropDown";
 import { GridToolbarContainer, Box } from "../../deps/ui";
 import { Circle, Add as AddIcon, Delete as DeleteIcon } from "../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions } from '../../components/useDataGrid';
@@ -16,8 +14,8 @@ import PropTypes from 'prop-types'
 import EmpoyeeModal from './components/AddEditEmployee'
 
 const fields = {
-    companyName: {
-        label: 'Company',
+    fullName: {
+        label: 'Full Name',
         type: 'text',
         valueSources: ['value'],
         preferWidgets: ['text'],
@@ -49,7 +47,7 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
     return [
         { field: '_id', headerName: 'Id', hide: true },
         {
-            field: 'companyName', headerName: 'Company', width: 180
+            field: 'fullName', headerName: 'Employee Name', width: 180
         },
         { field: 'modifiedOn', headerName: 'Modified On' },
         { field: 'createdOn', headerName: 'Created On' },
@@ -64,7 +62,7 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
     ]
 }
 let editId = 0;
-const Company = () => {
+const Employee = () => {
     const dispatch = useDispatch();
     const [openPopup, setOpenPopup] = useState(false);
     const [pageSize, setPageSize] = useState(30);
@@ -73,11 +71,14 @@ const Company = () => {
     const [selectionModel, setSelectionModel] = React.useState([]);
 
     const offSet = useRef({
-        limit: 10,
-        lastKeyId: null,
-        totalRecord: 0,
         isLoadMore: false,
         isLoadFirstTime: true,
+    })
+
+    const [gridFilter, setGridFilter] = useState({
+        lastKey: null,
+        limit: 10,
+        totalRecord: 0
     })
 
     const [confirmDialog, setConfirmDialog] = useState({
@@ -86,13 +87,13 @@ const Company = () => {
         subTitle: "",
     });
 
-    const [company, setCompany] = useState([]);
+    const [employees, setEmployees] = useState([]);
 
     const gridApiRef = useGridApi();
     const query = useSelector(e => e.appdata.query.builder);
 
     const { data, isLoading, status, refetch } = useEntitiesQuery({
-        url: API.COMPANY,
+        url: API.Employee,
         params: {
             limit: offSet.current.limit,
             lastKeyId: offSet.current.isLoadMore ? offSet.current.lastKeyId : "",
@@ -105,33 +106,31 @@ const Company = () => {
     useEffect(() => {
         if (status === "fulfilled") {
             const { entityData, totalRecord } = data.result;
-            if (offSet.current.isLoadMore)
-                setCompany([...entityData, ...company]);
+            if (offSet.current.isLoadMore) {
+                setEmployees([...entityData, ...employees]);
+            }
             else
-                setCompany(entityData)
+                setEmployees(entityData)
 
-            offSet.current.totalRecord = totalRecord;
-            offSet.current.lastKeyId = entityData?.length ? entityData[entityData.length - 1].id : null;
+            setGridFilter({ ...gridFilter, totalRecord: totalRecord });
             offSet.current.isLoadMore = false;
         }
 
-    }, [status])
+    }, [data, status])
 
-    const { socketData } = useSocketIo("changeInCompany", refetch);
+    const { socketData } = useSocketIo("changeInEmployee", refetch);
 
     useEffect(() => {
         if (Array.isArray(socketData)) {
-            setCompany(socketData);
+            setEmployees(socketData);
         }
     }, [socketData])
 
-    useFilterBarEvent(refetch, refetch);
 
     const loadMoreData = (params) => {
-        if (company.length < offSet.current.totalRecord && params.viewportPageSize !== 0) {
+        if (employees.length < gridFilter.totalRecord && params.viewportPageSize !== 0) {
             offSet.current.isLoadMore = true;
-            offSet.current.limit = params.viewportPageSize;
-            refetch();
+            setGridFilter({ ...gridFilter, lastKey: employees.length ? employees[employees.length - 1].id : null });
         }
     }
 
@@ -140,7 +139,7 @@ const Company = () => {
         editId = id;
         const { setFormValue } = formApi.current;
 
-        const companydata = company.find(a => a.id === id);
+        const companydata = employees.find(a => a.id === id);
         setFormValue({
             companyName: companydata.companyName
         });
@@ -150,7 +149,7 @@ const Company = () => {
     }
 
     const handleActiveInActive = (id) => {
-        updateOneEntity({ url: API.COMPANY, data: { _id: id } });
+        updateOneEntity({ url: API.Employee, data: { _id: id } });
     }
 
     const handelDeleteItems = (ids) => {
@@ -164,14 +163,14 @@ const Company = () => {
             title: "Are you sure to delete this records?",
             subTitle: "You can't undo this operation",
             onConfirm: () => {
-                removeEntity({ url: API.COMPANY, params: idTobeDelete }).then(res => {
+                removeEntity({ url: API.Employee, params: idTobeDelete }).then(res => {
                     setSelectionModel([]);
                 })
             },
         });
 
     }
-    
+
 
     useEffect(() => {
         offSet.current.isLoadFirstTime = false;
@@ -190,23 +189,11 @@ const Company = () => {
             if (isEdit.current)
                 dataToInsert._id = editId
 
-            addEntity({ url: API.COMPANY, data: [dataToInsert] });
+            addEntity({ url: API.Employee, data: [dataToInsert] });
 
         }
     }
 
-    const formData = [
-        {
-            elementType: "inputfield",
-            name: "companyName",
-            label: "Company",
-            required: true,
-            validate: {
-                errorMessage: "Company is required"
-            },
-            defaultValue: ""
-        }
-    ];
 
     const showAddModal = () => {
         isEdit.current = false;
@@ -218,17 +205,17 @@ const Company = () => {
     return (
         <>
             <Popup
-                title="Add Company"
+                title="Add Employee"
                 openPopup={openPopup}
-                maxWidth="sm"
+                maxWidth="xl"
                 isEdit={isEdit.current}
                 keepMounted={true}
                 addOrEditFunc={handleSubmit}
                 setOpenPopup={setOpenPopup}>
-                  <EmpoyeeModal formRef={gridApiRef}/>
+                <EmpoyeeModal formRef={formApi} />
             </Popup>
             <DataGrid apiRef={gridApiRef}
-                columns={columns} rows={company}
+                columns={columns} rows={employees}
                 loading={isLoading} pageSize={pageSize}
                 totalCount={offSet.current.totalRecord}
                 toolbarProps={{
@@ -237,7 +224,7 @@ const Company = () => {
                     onDelete: handelDeleteItems,
                     selectionModel
                 }}
-                gridToolBar={CompanyToolbar}
+                gridToolBar={EmployeeToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
                 onRowsScrollEnd={loadMoreData}
@@ -246,9 +233,9 @@ const Company = () => {
         </>
     );
 }
-export default Company;
+export default Employee;
 
-function CompanyToolbar(props) {
+function EmployeeToolbar(props) {
     const { apiRef, onAdd, onDelete, selectionModel } = props;
 
     return (
@@ -265,7 +252,7 @@ function CompanyToolbar(props) {
     );
 }
 
-CompanyToolbar.propTypes = {
+EmployeeToolbar.propTypes = {
     apiRef: PropTypes.shape({
         current: PropTypes.object,
     }).isRequired,

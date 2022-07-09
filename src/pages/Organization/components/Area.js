@@ -6,9 +6,9 @@ import { AutoForm } from '../../../components/useForm';
 import { API } from '../_Service';
 import { useDispatch, useSelector } from 'react-redux';
 import { enableFilterAction, builderFieldsAction, showDropDownFilterAction, useEntitiesQuery, useEntityAction } from '../../../store/actions/httpactions';
-import { useDropDown, useDropDownIds, useFilterBarEvent } from "../../../components/useDropDown";
-import { Typography, Stack, GridToolbarContainer, InputAdornment, IconButton, Box } from "../../../deps/ui";
-import { Circle, Search, Add as AddIcon, Delete as DeleteIcon } from "../../../deps/ui/icons";
+import { useDropDown, useDropDownIds } from "../../../components/useDropDown";
+import { Typography, Stack, GridToolbarContainer, Box } from "../../../deps/ui";
+import { Circle, Add as AddIcon, Delete as DeleteIcon } from "../../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions } from '../../../components/useDataGrid';
 import { useSocketIo } from '../../../components/useSocketio';
 import ConfirmDialog from '../../../components/ConfirmDialog';
@@ -159,7 +159,7 @@ const Area = () => {
   const loadMoreData = (params) => {
     if (areas.length < gridFilter.totalRecord && params.viewportPageSize !== 0) {
       offSet.current.isLoadMore = true;
-      setFilter({ ...gridFilter, lastKey: areas.length ? areas[areas.length - 1].id : null });
+      setGridFilter({ ...gridFilter, lastKey: areas.length ? areas[areas.length - 1].id : null });
     }
   }
 
