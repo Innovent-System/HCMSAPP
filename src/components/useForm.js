@@ -5,7 +5,6 @@ import { Element, ElementType } from '../components/controls/Controls';
 import Loader from '../components/Circularloading';
 import PropTypes from 'prop-types';
 import { debounce } from '../util/common'
-import useDebounce from '../components/useDebounce'
 
 export function useForm(initialFValues, validateOnChange = false, validate) {
 
@@ -92,6 +91,8 @@ const validateAllFields = (fieldValues, values) => {
             if (typeof errorItem?.validate === "function") {
                 temp[key] = !errorItem.validate(itemValue) ? errorItem.message : itemValue ? "" : errorItem.message
             }
+            else if (!isNaN(itemValue) && itemValue < 0)
+                temp[key] = errorItem.message;
             else if (itemValue)
                 temp[key] = "";
             else
@@ -110,7 +111,7 @@ const DEFAULT_BREAK_POINTS = { md: 4 };
 export const AutoForm = forwardRef(function (props, ref) {
 
     const classes = useStyles();
-    const { formData, breakpoints, children, isValidate = false, isEdit = false, flexDirection, ...other } = props;
+    const { formData, breakpoints, children, isValidate = false, isEdit = false, flexDirection,as = "form", ...other } = props;
     const formStates = useRef({
         initialValues: {},
         errorProps: [],
@@ -131,6 +132,8 @@ export const AutoForm = forwardRef(function (props, ref) {
         if (typeof fieldValues?.validate === "function") {
             temp[key] = !fieldValues.validate(singleField) ? fieldValues.message : singleField ? "" : fieldValues.message
         }
+        else if (!isNaN(singleField) && singleField < 0)
+            temp[key] = fieldValues.message;
         else if (singleField)
             temp[key] = "";
         else
@@ -231,12 +234,12 @@ export const AutoForm = forwardRef(function (props, ref) {
 
     return (
         <>
-            <form className={classes.root} autoComplete="off" {...other}>
+            <Box component={as} className={classes.root} autoComplete="off" {...other}>
                 <Grid {...breakpoints} flexDirection={flexDirection} container>
                     {Object.keys(initialValues).length ? formData.map(({ name, label, required, elementType, Component = null, disabled, classes, _children, breakpoints = DEFAULT_BREAK_POINTS, onChange, modal, defaultValue, ...others }, index) => (
                         Component ? <Component {...others} key={index}>
                             <Grid spacing={3} container>
-                                {Array.isArray(_children) ? _children.map(({ name, label, required, elementType, breakpoints = DEFAULT_BREAK_POINTS, classes, disabled, onChange, modal, defaultValue, ..._others }, innerIndex) => (
+                                {Array.isArray(_children) ? _children.map(({ name, label, required, elementType, breakpoints = DEFAULT_BREAK_POINTS, classes, disabled, onChange, modal, _defaultValue, ..._others }, innerIndex) => (
                                     <Grid  {...(breakpoints && { ...breakpoints })} key={innerIndex} item>
                                         {modal && <Box display="flex">{modal.Component}</Box>}
                                         <Element key={innerIndex + name} elementType={elementType}
@@ -272,7 +275,7 @@ export const AutoForm = forwardRef(function (props, ref) {
                     }
                     {children}
                 </Grid>
-            </form>
+            </Box>
         </>
     )
 })

@@ -1,6 +1,6 @@
 export const API = {
     Employee:"employee/list",
-    INSERT_EMPLOYEE:"employee/insert",
-    UPDATE_EMPLOYEE:"employee/update"
+    Group:"employee/group",
+    Designation:"employee/designation",
 }
 

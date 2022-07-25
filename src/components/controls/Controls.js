@@ -10,54 +10,54 @@ import MultiSelect from "./MultiSelect";
 import PropTypes from 'prop-types'
 
 const Controls = {
-  Input,
-  RadioGroup,
-  Select,
-  Checkbox,
-  DatePicker,
-  Button,
-  ActionButton,
-  MultiSelect,
-  Avatar,
+    Input,
+    RadioGroup,
+    Select,
+    Checkbox,
+    DatePicker,
+    Button,
+    ActionButton,
+    MultiSelect,
+    Avatar,
 };
 
 export default Controls;
 
 
-export const ElementType = Object.freeze(["inputfield","radiogroup" ,"checkbox", "dropdown","clearfix", "ad_dropdown", "datetimepicker","uploadavatar"]);
+export const ElementType = Object.freeze(["inputfield", "radiogroup", "checkbox", "dropdown", "clearfix", "ad_dropdown", "datetimepicker", "uploadavatar", "fieldarray"]);
 
 
 export function Element(props) {
     let nodeElement = null;
-    
-    const { elementType,...others } = props;
+
+    const { elementType, NodeElement, ...others } = props;
     switch (elementType) {
         case "inputfield":
-            nodeElement = <Input {...others}/>
+            nodeElement = <Input {...others} />
             break;
         case "checkbox":
-            nodeElement = <Checkbox {...others}/>
+            nodeElement = <Checkbox {...others} />
             break;
         case "radiogroup":
-            nodeElement = <RadioGroup {...others}/>
+            nodeElement = <RadioGroup {...others} />
             break;
         case "datetimepicker":
-            nodeElement = <DatePicker {...others}/>
+            nodeElement = <DatePicker {...others} />
             break;
         case "dropdown":
-            nodeElement = <Select  {...others}/>
+            nodeElement = <Select  {...others} />
             break;
         case "ad_dropdown":
-            nodeElement = <MultiSelect {...others}/>
+            nodeElement = <MultiSelect {...others} />
             break;
         case "uploadavatar":
-            nodeElement = <Avatar {...others}/>
+            nodeElement = <Avatar {...others} />
             break;
         case "clearfix":
             nodeElement = <div className="clearfix"></div>
             break;
         default:
-            nodeElement = <Input {...others}/>
+            nodeElement = <NodeElement {...others} />
             break;
     }
 
@@ -66,7 +66,7 @@ export function Element(props) {
 
 Element.propTypes = {
     elementType: PropTypes.oneOf(ElementType).isRequired,
-    name:  PropTypes.string,
+    name: PropTypes.string,
     label: PropTypes.string,
     // defaultValue: PropTypes.any.isRequired,
     onChange: PropTypes.func,

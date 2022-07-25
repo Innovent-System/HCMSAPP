@@ -110,7 +110,7 @@ function Select(props) {
                 <MenuItem value="">None</MenuItem>
                 {
                     options.map(
-                        item => (<MenuItem  {...(value && { selected: true  })} key={item.id} value={item.id}>{item.title}</MenuItem>)
+                        item => (<MenuItem  {...(value && { selected: true  })} key={item[dataId]} value={item[dataId]}>{item[dataName]}</MenuItem>)
                     )
                 }
             </MuiSelect>
@@ -132,7 +132,7 @@ Select.propTypes = {
   value: PropTypes.any,
   onChange: PropTypes.func,
   isMultiple:PropTypes.bool,
-  option:PropTypes.array.isRequired
+  options:PropTypes.array.isRequired
 }
 
 

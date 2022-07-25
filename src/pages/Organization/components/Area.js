@@ -206,7 +206,6 @@ const Area = () => {
 
   }
 
-
   useEffect(() => {
     offSet.current.isLoadFirstTime = false;
 
@@ -228,9 +227,9 @@ const Area = () => {
       let values = getValue();
       let dataToInsert = {};
       dataToInsert.areaName = values.areaName;
-      dataToInsert.country = { country_id: values.fkCountryId._id, countryName: values.fkCountryId.name };
-      dataToInsert.state = { state_id: values.fkStateId._id, stateName: values.fkStateId.name };
-      dataToInsert.city = { city_id: values.fkCityId._id, cityName: values.fkCityId.name };
+      dataToInsert.country = { country_id: values.fkCountryId._id, countryName: values.fkCountryId.name, intId: values.fkCountryId.id };
+      dataToInsert.state = { state_id: values.fkStateId._id, stateName: values.fkStateId.name, intId: values.fkStateId.id };
+      dataToInsert.city = { city_id: values.fkCityId._id, cityName: values.fkCityId.name, intId: values.fkCityId.id };
       if (isEdit.current)
         dataToInsert._id = editId
 

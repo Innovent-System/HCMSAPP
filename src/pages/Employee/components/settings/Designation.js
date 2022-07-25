@@ -1,21 +1,21 @@
 // eslint-disable-next-line react-hooks/exhaustive-deps
 import React, { useEffect, useRef, useState } from "react";
-import Controls from '../../components/controls/Controls';
-import Popup from '../../components/Popup';
-import { API } from './_Service';
+import Controls from '../../../../components/controls/Controls';
+import Popup from '../../../../components/Popup';
+import { AutoForm } from '../../../../components/useForm';
+import { API } from '../../_Service';
 import { useDispatch, useSelector } from 'react-redux';
-import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAction } from '../../store/actions/httpactions';
-import { GridToolbarContainer, Box } from "../../deps/ui";
-import { Circle, Add as AddIcon, Delete as DeleteIcon } from "../../deps/ui/icons";
-import DataGrid, { useGridApi, getActions } from '../../components/useDataGrid';
-import { useSocketIo } from '../../components/useSocketio';
-import ConfirmDialog from '../../components/ConfirmDialog';
+import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAction } from '../../../../store/actions/httpactions';
+import { GridToolbarContainer, Box } from "../../../../deps/ui";
+import { Circle, Add as AddIcon, Delete as DeleteIcon } from "../../../../deps/ui/icons";
+import DataGrid, { useGridApi, getActions } from '../../../../components/useDataGrid';
+import { useSocketIo } from '../../../../components/useSocketio';
+import ConfirmDialog from '../../../../components/ConfirmDialog';
 import PropTypes from 'prop-types'
-import EmpoyeeModal from './components/AddEditEmployee'
 
 const fields = {
-    fullName: {
-        label: 'Full Name',
+    name: {
+        label: 'Designation',
         type: 'text',
         valueSources: ['value'],
         preferWidgets: ['text'],
@@ -38,6 +38,7 @@ const fields = {
         valueSources: ['value'],
     },
 }
+
 const getColumns = (apiRef, onEdit, onActive, onDelete) => {
     const actionKit = {
         onActive: onActive,
@@ -45,24 +46,26 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
         onDelete: onDelete
     }
     return [
-        { field: '_id', headerName: 'Id', hide: true },
+        { field: '_id', headerName: 'Id', hide: true, hideable: false },
         {
-            field: 'fullName', headerName: 'Employee Name', width: 180
+            field: 'name', headerName: 'Designation', width: 180, hideable: false
         },
-        { field: 'modifiedOn', headerName: 'Modified On' },
-        { field: 'createdOn', headerName: 'Created On' },
+        { field: 'modifiedOn', headerName: 'Modified On', hideable: false },
+        { field: 'createdOn', headerName: 'Created On', hideable: false },
         {
             field: 'isActive', headerName: 'Status', renderCell: (param) => (
                 param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
             ),
             flex: '0 1 5%',
+            hideable: false,
             align: 'center',
         },
         getActions(apiRef, actionKit)
     ]
 }
+const DEFAUL_API = API.Designation;
 let editId = 0;
-const Employee = () => {
+const Designation = () => {
     const dispatch = useDispatch();
     const [openPopup, setOpenPopup] = useState(false);
     const [pageSize, setPageSize] = useState(30);
@@ -75,7 +78,7 @@ const Employee = () => {
         isLoadFirstTime: true,
     })
 
-    const [gridFilter, setGridFilter] = useState({
+    const [filter, setFilter] = useState({
         lastKey: null,
         limit: 10,
         totalRecord: 0
@@ -87,50 +90,49 @@ const Employee = () => {
         subTitle: "",
     });
 
-    const [employees, setEmployees] = useState([]);
+    const [records, setRecords] = useState([]);
 
     const gridApiRef = useGridApi();
     const query = useSelector(e => e.appdata.query.builder);
 
-    const { data, isLoading, status, refetch } = useEntitiesQuery({
-        url: API.Employee,
+    const { data, status, isLoading, refetch } = useEntitiesQuery({
+        url: DEFAUL_API,
         params: {
-            limit: offSet.current.limit,
-            lastKeyId: offSet.current.isLoadMore ? offSet.current.lastKeyId : "",
+            limit: filter.limit,
+            lastKeyId: filter.lastKey,
             searchParams: JSON.stringify(query)
         }
     });
 
-    const { addEntity, updateEntity, updateOneEntity, removeEntity } = useEntityAction();
+    const { addEntity, updateOneEntity, removeEntity } = useEntityAction();
 
     useEffect(() => {
         if (status === "fulfilled") {
             const { entityData, totalRecord } = data.result;
             if (offSet.current.isLoadMore) {
-                setEmployees([...entityData, ...employees]);
+                setRecords([...entityData, ...records]);
             }
             else
-                setEmployees(entityData)
+                setRecords(entityData)
 
-            setGridFilter({ ...gridFilter, totalRecord: totalRecord });
+            setFilter({ ...filter, totalRecord: totalRecord });
             offSet.current.isLoadMore = false;
         }
 
     }, [data, status])
 
-    const { socketData } = useSocketIo("changeInEmployee", refetch);
+    const { socketData } = useSocketIo("changeInDesignation", refetch);
 
     useEffect(() => {
         if (Array.isArray(socketData)) {
-            setEmployees(socketData);
+            setRecords(socketData);
         }
     }, [socketData])
 
-
     const loadMoreData = (params) => {
-        if (employees.length < gridFilter.totalRecord && params.viewportPageSize !== 0) {
+        if (records.length < filter.totalRecord && params.viewportPageSize !== 0) {
             offSet.current.isLoadMore = true;
-            setGridFilter({ ...gridFilter, lastKey: employees.length ? employees[employees.length - 1].id : null });
+            setFilter({ ...filter, lastKey: records.length ? records[records.length - 1].id : null });
         }
     }
 
@@ -139,15 +141,15 @@ const Employee = () => {
         editId = id;
         const { setFormValue } = formApi.current;
 
-        const companydata = employees.find(a => a.id === id);
+        const data = records.find(a => a.id === id);
         setFormValue({
-            companyName: companydata.companyName
+            name: data.name
         });
         setOpenPopup(true);
     }
 
     const handleActiveInActive = (id) => {
-        updateOneEntity({ url: API.Employee, data: { _id: id } });
+        updateOneEntity({ url: DEFAUL_API, data: { _id: id } });
     }
 
     const handelDeleteItems = (ids) => {
@@ -161,7 +163,7 @@ const Employee = () => {
             title: "Are you sure to delete this records?",
             subTitle: "You can't undo this operation",
             onConfirm: () => {
-                removeEntity({ url: API.Employee, params: idTobeDelete }).then(res => {
+                removeEntity({ url: DEFAUL_API, params: idTobeDelete }).then(res => {
                     setSelectionModel([]);
                 })
             },
@@ -183,15 +185,27 @@ const Employee = () => {
         if (validateFields()) {
             let values = getValue();
             let dataToInsert = {};
-            dataToInsert.companyName = values.companyName;
+            dataToInsert.name = values.name;
             if (isEdit.current)
                 dataToInsert._id = editId
 
-            addEntity({ url: API.Employee, data: [dataToInsert] });
+            addEntity({ url: DEFAUL_API, data: [dataToInsert] });
 
         }
     }
 
+    const formData = [
+        {
+            elementType: "inputfield",
+            name: "name",
+            label: "Designation",
+            required: true,
+            validate: {
+                errorMessage: "Designation is required"
+            },
+            defaultValue: ""
+        }
+    ];
 
     const showAddModal = () => {
         isEdit.current = false;
@@ -203,18 +217,17 @@ const Employee = () => {
     return (
         <>
             <Popup
-                title="Add Employee Information"
+                title="Add Designation"
                 openPopup={openPopup}
-                maxWidth="xl"
-                fullScreen={true}
+                maxWidth="sm"
                 isEdit={isEdit.current}
                 keepMounted={true}
                 addOrEditFunc={handleSubmit}
                 setOpenPopup={setOpenPopup}>
-                <EmpoyeeModal formRef={formApi} />
+                <AutoForm formData={formData} ref={formApi} isValidate={true} />
             </Popup>
             <DataGrid apiRef={gridApiRef}
-                columns={columns} rows={employees}
+                columns={columns} rows={records}
                 loading={isLoading} pageSize={pageSize}
                 totalCount={offSet.current.totalRecord}
                 toolbarProps={{
@@ -223,7 +236,7 @@ const Employee = () => {
                     onDelete: handelDeleteItems,
                     selectionModel
                 }}
-                gridToolBar={EmployeeToolbar}
+                gridToolBar={DesignationToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
                 onRowsScrollEnd={loadMoreData}
@@ -232,9 +245,9 @@ const Employee = () => {
         </>
     );
 }
-export default Employee;
+export default Designation;
 
-function EmployeeToolbar(props) {
+function DesignationToolbar(props) {
     const { apiRef, onAdd, onDelete, selectionModel } = props;
 
     return (
@@ -251,7 +264,7 @@ function EmployeeToolbar(props) {
     );
 }
 
-EmployeeToolbar.propTypes = {
+DesignationToolbar.propTypes = {
     apiRef: PropTypes.shape({
         current: PropTypes.object,
     }).isRequired,

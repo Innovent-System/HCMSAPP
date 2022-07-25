@@ -22,8 +22,8 @@ import {
 import Auth from "../../services/AuthenticationService";
 import { SocketContext } from "../../services/socketService";
 import { useNavigate } from "react-router-dom";
-import { API_USER_LOGOUT, GET_REGULAR_DROPDOWN, GET_ROUTES } from "../../services/UrlService";
-import { AppRoutesThunk, CommonDropDownThunk, handleGetActions } from "../../store/actions/httpactions";
+import { API_USER_LOGOUT, GET_REGULAR_DROPDOWN, GET_ROUTES, GET_EMPLOYEE_DATA } from "../../services/UrlService";
+import { AppRoutesThunk, CommonDropDownThunk, EmployeeDataThunk, handleGetActions } from "../../store/actions/httpactions";
 import { useDispatch } from "react-redux";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import Logo from "../../assests/images/Logo.png";
@@ -101,6 +101,7 @@ export default function Header() {
     const sideMenuData = useSelector(e => e.appdata.routeData?.sideMenuData || Auth.getitem("appConfigData")?.sideMenuData || []);
     useEffect(() => {
         dispatch(CommonDropDownThunk({ url: GET_REGULAR_DROPDOWN }));
+        dispatch(EmployeeDataThunk({ url: GET_EMPLOYEE_DATA }));
         dispatch(AppRoutesThunk({ url: GET_ROUTES })).unwrap().then(res => {
             const { data } = res;
             Auth.setItem("appConfigData", { "appRoutes": data.appRoutes, "sideMenuData": data.sideMenuData });

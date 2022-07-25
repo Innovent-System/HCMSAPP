@@ -146,9 +146,32 @@ export const CommonDropDownThunk = createAsyncThunk('dropdown/requestStatus', as
   }
 })
 
+
+export const EmployeeDataThunk = createAsyncThunk('employeedata/requestStatus', async ({ url, params }, { fulfillWithValue, rejectWithValue }) => {
+  try {
+
+    const response = await axios.get(domain.concat(url), {
+      params: params,
+      headers: headerOption(), withCredentials: true
+    });
+    const { result, message } = response.data;
+    return fulfillWithValue({
+      data: result,
+      isSuccess: true,
+      message
+    })
+  } catch (err) {
+    return rejectWithValue({
+      msg: (err.response?.data ? err.response.data.message : err.message),
+      code: err.response.status
+    })
+  }
+})
+
 const INITIAL_STATE = {
   status: false,
   DropDownData: {},
+  employeeData:{},
   routeData: {},
   authData: {},
   dropdownIds: {
@@ -222,6 +245,16 @@ export const appSlice = createSlice({
       state.DropDownData = action.payload.data
     },
     [CommonDropDownThunk.rejected.type]: (state, action) => {
+      state.status = false;
+    },
+    [EmployeeDataThunk.pending.type]: (state, action) => {
+      state.status = true;
+    },
+    [EmployeeDataThunk.fulfilled.type]: (state, action) => {
+      state.status = false;
+      state.employeeData = action.payload.data
+    },
+    [EmployeeDataThunk.rejected.type]: (state, action) => {
       state.status = false;
     },
     [AuthThunk.pending.type]: (state, action) => {

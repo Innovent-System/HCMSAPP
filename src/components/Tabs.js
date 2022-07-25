@@ -57,9 +57,9 @@ function TabsComponent({ TabsConfig, orientation = "vertical" }) {
 
 TabsComponent.propTypes = {
     TabsConfig: PropTypes.arrayOf(PropTypes.shape({
-        title: PropTypes.string.isRequired,
-        Panel: PropTypes.node.isRequired
-    })).isRequired,
+        title: PropTypes.string,
+        Panel: PropTypes.node
+    })),
     orientation: PropTypes.oneOf(["horizontal", "vertical"])
 }
 

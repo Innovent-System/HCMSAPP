@@ -83,7 +83,7 @@ const initialFValues = {
 }
 
 const getSteps = () => {
-  return ['General Information', 'Additional Information', 'Company Information'];
+  return ['General', 'Additional', 'Company'];
 }
 
 
@@ -94,7 +94,7 @@ export default function EmployaaModal({ formRef }) {
   const steps = getSteps();
   const dispatch = useDispatch();
 
-  const { countries, states, cities, filterType, setFilter } = useDropDown();
+  const { companies,countries, states, cities,areas, filterType, setFilter } = useDropDown();
 
   const formData = [
     {
@@ -185,6 +185,8 @@ export default function EmployaaModal({ formRef }) {
           elementType: "dropdown",
           name: "roleTemplateId",
           label: "User Template",
+          dataId:"id",
+          dataName:"title",
           disabled: (value) => value["isAllowManualAttendance"] === false,
           defaultValue: 1,
           options: [{
@@ -202,6 +204,8 @@ export default function EmployaaModal({ formRef }) {
           elementType: "dropdown",
           name: "maritalstatus",
           label: "Marital Status",
+          dataId:"id",
+          dataName:"title",
           defaultValue: 2,
           options: [{
             id: 0, title: "Single"
@@ -215,6 +219,8 @@ export default function EmployaaModal({ formRef }) {
           elementType: "dropdown",
           name: "gender",
           label: "Gender",
+          dataId:"id",
+          dataName:"title",
           defaultValue: 1,
           options: [{
             id: 1, title: "Male"
@@ -227,6 +233,8 @@ export default function EmployaaModal({ formRef }) {
           elementType: "dropdown",
           name: "religion",
           label: "Religion",
+          dataId:"id",
+          dataName:"title",
           defaultValue: 1,
           options: [{
             id: 1, title: "Islam"
@@ -252,10 +260,24 @@ export default function EmployaaModal({ formRef }) {
         {
           elementType: "ad_dropdown",
           name: "fkCompanyId",
-          label: "Country",
+          label: "Company",
           required: true,
           validate: {
             errorMessage: "Company is required",
+          },
+          dataName: 'companyName',
+          dataId: 'id',
+          options: companies,
+          onChange: (data) => setFilter(data, filterType.COMPANY, "_id"),
+          defaultValue: companies?.length ? companies[0] : null
+        },
+        {
+          elementType: "ad_dropdown",
+          name: "fkCountryId",
+          label: "Country",
+          required: true,
+          validate: {
+            errorMessage: "Country is required",
           },
           dataName: 'name',
           dataId: 'id',
@@ -283,6 +305,7 @@ export default function EmployaaModal({ formRef }) {
           label: "City",
           required: true,
           dataName: "name",
+          onChange: (data) => setFilter(data, filterType.CITY, "_id"),
           validate: {
             errorMessage: "City is required",
           },
@@ -294,17 +317,11 @@ export default function EmployaaModal({ formRef }) {
           name: "fkAreaId",
           label: "Area",
           required: true,
-          dataName: "name",
+          dataName: "areaName",
           validate: {
             errorMessage: "Area is required",
           },
-          options: [{
-            id: 10111, name: "Malir"
-          },
-          { id: 11222, name: "Johar" },
-          { id: 12333, name: "NorthKarachi" },
-          { id: 13444, name: "RashidMinhas" }
-          ],
+          options: areas,
           defaultValue: null
         },
         {

@@ -6,7 +6,7 @@ export {
     AppBar, Badge, InputBase, Toolbar, ListItem, Tooltip, ClickAwayListener, Divider, Fade, List,
     Collapse, Step, StepLabel, Stepper, Link, Input, ButtonGroup, Popper, ListItemIcon, ListItemText, Drawer, Zoom, Snackbar,
     Card, Dialog, DialogTitle, DialogContent, ListSubheader,StepContent,
-    Table, TableHead, TableRow, TableCell, TablePagination, TableSortLabel, Autocomplete,
+    Table, TableHead, TableRow, TableCell, TablePagination, TableSortLabel, Autocomplete,createFilterOptions,
     DialogActions, Stack, Tab, Tabs, Accordion, AccordionSummary, AccordionDetails
 } from '@mui/material';
 

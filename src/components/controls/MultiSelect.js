@@ -1,6 +1,6 @@
 /* eslint-disable no-use-before-define */
-import React, { useRef } from 'react';
-import { Autocomplete, TextField, Checkbox, Popper, ButtonGroup, Button, Box } from '../../deps/ui'
+import React, { useRef, useState } from 'react';
+import { Autocomplete, TextField, Checkbox, FormControlLabel, Popper, ButtonGroup, Button, Box } from '../../deps/ui'
 import { Check, Clear, CheckBox as CheckBoxIcon, CheckBoxOutlineBlank as CheckBoxOutlineBlankIcon } from '../../deps/ui/icons'
 import ListboxComponent from '../ReactWindow';
 import PropTypes from 'prop-types'
@@ -28,7 +28,7 @@ const MyPopper = function (props) {
   }
   return (
     <Popper {...props}>
-      <ButtonGroup color="primary" aria-label="outlined primary button group">
+      <ButtonGroup color="primary" fullWidth aria-label="outlined primary button group">
         <Button startIcon={<Check />} color="primary" onClick={addAllClick}>
           Add All
         </Button>
@@ -68,47 +68,45 @@ function MultiSelect(props) {
     }
   }
 
-
   return (
-    <Box sx={Styles.root}>
-      <Autocomplete
-        multiple={isMultiple}
-        ref={autoCompleteRef}
-        {...(isMultiple && { PopperComponent: MyPopper })}
-        limitTags={2}
-        // isOptionEqualToValue={(option, value) => option[dataName] === value[dataName]}
-        {...other}
-        value={value}
-        onChange={(event, value) => onChange(convertToDefEventPara(name, value))}
-        size='small'
-        id="multiple-limit-tags"
-        options={options}
-        getOptionLabel={getOptionLabel}
-        onInputChange={handleInputeChange}
-        ListboxComponent={ListboxComponent}
-        {...(isMultiple && {
-          renderOption: (option, state) => {
 
-            return (
-              <React.Fragment>
-                <Checkbox
-                  icon={icon}
-                  color='primary'
-                  checkedIcon={checkedIcon}
-                  style={{ marginRight: 8 }}
-                  checked={state.selected}
-                />
-                {option[dataName]}
-              </React.Fragment>
-            );
-          }
-        })}
+    <Autocomplete
+      multiple={isMultiple}
+      ref={autoCompleteRef}
+      {...(isMultiple && { PopperComponent: MyPopper })}
+      limitTags={2}
+      // isOptionEqualToValue={(option, value) => option[dataName] === value[dataName]}
+      {...other}
+      value={value}
+      onChange={(event, value) => onChange(convertToDefEventPara(name, value))}
+      id="multiple-limit-tags"
+      {...(isMultiple && { disableCloseOnSelect: true })}
+      options={options}
+      getOptionLabel={getOptionLabel}
+      onInputChange={handleInputeChange}
+      disableListWrap
+      ListboxComponent={ListboxComponent}
+      {...(isMultiple && {
+        renderOption: (option, state) => {
+          return (
+            <FormControlLabel sx={{ p: 1 }} key={option.id}
+              control={<Checkbox
+                icon={icon}
+                color='primary'
+                checkedIcon={checkedIcon}
+                style={{ marginRight: 8 }}
+                checked={state.selected}
+              />}
+              label={state[dataName]}
+            />
+          );
+        }
+      })}
 
-        renderInput={(params) => (
-          <TextField {...params}  {...(error && { error: true, helperText: error })} variant="standard" label={label} />
-        )}
-      />
-    </Box>
+      renderInput={(params) => (
+        <TextField {...params}  {...(error && { error: true, helperText: error })} variant="standard" label={label} />
+      )}
+    />
   );
 }
 

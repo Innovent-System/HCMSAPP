@@ -171,7 +171,7 @@ export default function FeaturedCrudGrid(props) {
   const { apiRef, columns, rows, loading,
     pageSize, onRowsScrollEnd,
     selectionModel, setSelectionModel,
-    totalCount,
+    totalCount = 0,
     gridToolBar: GridToolBar, toolbarProps
   } = props;
   const handleRowEditStart = (params, event) => {
@@ -234,7 +234,7 @@ export default function FeaturedCrudGrid(props) {
 FeaturedCrudGrid.propTypes = {
   columns: PropTypes.array.isRequired,
   rows: PropTypes.array.isRequired,
-  totalCount: PropTypes.number.isRequired,
+  totalCount: PropTypes.number,
   apiRef: PropTypes.shape({
     current: PropTypes.object.isRequired,
   }).isRequired,

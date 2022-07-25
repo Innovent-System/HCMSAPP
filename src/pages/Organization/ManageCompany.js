@@ -5,6 +5,7 @@ import Tabs from '../../components/Tabs'
 import Country from './components/Country'
 import Area from './components/Area'
 import Company from './components/Company';
+import Department from './components/Department';
 
 
 const tabs = [
@@ -19,6 +20,10 @@ const tabs = [
   {
     title: "Area",
     panel: <Area />
+  },
+  {
+    title: "Department",
+    panel: <Department />
   }
 ]
 
