@@ -39,7 +39,21 @@ export const sort_by = (field, reverse, primer) => {
         return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
     }
 
+}
+ 
+export const groupBySum = (arr = [], groupby = "", fieldtosum = "") => {
+    const result = [];
+    if(!Array.isArray(arr)) return;
+    arr.reduce(function (res, value) {
+        if (!res[value[groupby]]) {
+            res[value[groupby]] = { ...value, [fieldtosum]: 0 };
+            result.push(res[value[groupby]])
+        }
+        res[value[groupby]][fieldtosum] += parseInt(value[fieldtosum]);
+        return res;
+    }, {});
 
+    return result;
 }
 
 // export const debounce = (func, wait, immediate) => {

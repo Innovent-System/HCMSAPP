@@ -65,8 +65,11 @@ export const useDropDown = () => {
     const [cities, setCities] = useState([]);
     const [areas, setAreas] = useState([]);
     const [companies, setCompanies] = useState([]);
+    const [employees, setEmployees] = useState([]);
+
     const callbackRef = useRef(null);
     const DropDownData = useSelector(e => e.appdata.DropDownData);
+    const employeeData = useSelector(e => e.appdata.employeeData);
 
     const [filter, setFilter] = useState({
         type: filterTypes.DEFAULT,
@@ -89,8 +92,6 @@ export const useDropDown = () => {
         }
 
     }
-
-    console.log(DropDownData);
 
     const getDefaultState = () => {
         setCompanies(DropDownData.Companies);
@@ -138,7 +139,7 @@ export const useDropDown = () => {
                     count = DropDownData.Areas.length;
                     while (count--) {
                         const element = DropDownData.Areas[count];
-                        if (ids.indexOf(element.country.country_id) !== -1) {
+                        if (ids.indexOf(element.country.intId) !== -1) {
                             areas.push(element);
                         }
                     }
@@ -219,13 +220,18 @@ export const useDropDown = () => {
         }
 
     }, [DropDownData, filter])
-
+    console.log({ DropDownData });
     return {
         companies,
         countries,
         states,
         cities,
         areas,
+        departments: DropDownData.Departments,
+        groups: employeeData.Groups,
+        designations: employeeData.Designations,
+        employees: employeeData.Employees,
+        roleTemplates: employeeData.RoleTemplates,
         setFilter: handleFilter,
         filterType: filterTypes
     }

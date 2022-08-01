@@ -20,7 +20,7 @@ Array.prototype.clone = function () {
     }
     return arr;
 }
-const BulkInsert = forwardRef(({ buttonName = "", as ="form", BulkformData = [[]] }, ref) => {
+const BulkInsert = forwardRef(({ buttonName = "", as = "form", BulkformData = [[]] }, ref) => {
 
     const [bulkData, setBulkData] = useState(BulkformData);
     const [elRefs, setElRefs] = React.useState([]);
@@ -42,24 +42,30 @@ const BulkInsert = forwardRef(({ buttonName = "", as ="form", BulkformData = [[]
     }
 
     const hanldeArrayValue = () => {
-        const setData = [];
-        let isValid = false;
+        const dataSet = [];
+        let isValid = true;
         for (const current of elRefs) {
             const { getValue, validateFields } = current.current;
             if (validateFields())
-                setData.push(getValue());
+                dataSet.push(getValue());
             else {
                 isValid = false;
                 break;
             }
         }
-
-        return { isValid, setData };
+        return { isValid, dataSet };
     }
 
+    const resetForms = () => {
+        for (const current of elRefs) {
+            const { resetForm } = current.current;
+            resetForm();
+        }
+    }
 
     useImperativeHandle(ref, () => ({
-        getFiledArray: hanldeArrayValue
+        getFieldArray: hanldeArrayValue,
+        resetForms
     }));
 
 

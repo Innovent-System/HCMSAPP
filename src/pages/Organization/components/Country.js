@@ -50,7 +50,7 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
             field: 'name', headerName: 'Country', width: 180
         },
         {
-            field: 'companyName', headerName: 'Company', width: 180
+            field: 'company', headerName: 'Company', width: 180, valueGetter: ({ row }) => row.company.companyName
         },
         { field: 'modifiedOn', headerName: 'Modified On' },
         { field: 'createdOn', headerName: 'Created On' },
@@ -252,7 +252,7 @@ const Country = () => {
             </Popup>
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={countries}
-                loading={isLoading} 
+                loading={isLoading}
                 pageSize={pageSize}
                 toolbarProps={{
                     apiRef: gridApiRef,

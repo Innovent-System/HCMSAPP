@@ -172,7 +172,7 @@ export default function FeaturedCrudGrid(props) {
     pageSize, onRowsScrollEnd,
     selectionModel, setSelectionModel,
     totalCount = 0,
-    gridToolBar: GridToolBar, toolbarProps
+    gridToolBar: GridToolBar, toolbarProps, ...others
   } = props;
   const handleRowEditStart = (params, event) => {
     event.defaultMuiPrevented = true;
@@ -223,6 +223,7 @@ export default function FeaturedCrudGrid(props) {
           LoadingOverlay: CustomLoadingOverlay,
           Toolbar: GridToolBar
         }}
+        {...others}
         componentsProps={{
           toolbar: toolbarProps,
         }}
@@ -237,7 +238,7 @@ FeaturedCrudGrid.propTypes = {
   totalCount: PropTypes.number,
   apiRef: PropTypes.shape({
     current: PropTypes.object.isRequired,
-  }).isRequired,
+  }),
   pageSize: PropTypes.number,
   checkboxSelection: PropTypes.bool,
   onRowsScrollEnd: PropTypes.func,

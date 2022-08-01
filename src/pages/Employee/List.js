@@ -5,13 +5,14 @@ import Popup from '../../components/Popup';
 import { API } from './_Service';
 import { useDispatch, useSelector } from 'react-redux';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAction } from '../../store/actions/httpactions';
-import { GridToolbarContainer, Box } from "../../deps/ui";
-import { Circle, Add as AddIcon, Delete as DeleteIcon } from "../../deps/ui/icons";
+import { GridToolbarContainer, Box, Typography, Stack } from "../../deps/ui";
+import { Circle, Add as AddIcon, Delete as DeleteIcon, PeopleOutline } from "../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import PropTypes from 'prop-types'
-import EmpoyeeModal from './components/AddEditEmployee'
+import EmpoyeeModal from './components/AddEditEmployee';
+import PageHeader from '../../components/PageHeader'
 
 const fields = {
     fullName: {
@@ -47,13 +48,29 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
     return [
         { field: '_id', headerName: 'Id', hide: true },
         {
-            field: 'fullName', headerName: 'Employee Name', width: 180
+            field: 'fullName', headerName: 'Employee Name', flex: 1
         },
-        { field: 'modifiedOn', headerName: 'Modified On' },
-        { field: 'createdOn', headerName: 'Created On' },
         {
-            field: 'isActive', headerName: 'Status', renderCell: (param) => (
-                param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
+            field: 'company', headerName: 'Company', renderCell: ({ row }) => (<Stack>
+                <Typography variant="caption"><strong>Company :</strong>{row.company.companyName} </Typography>
+                <Typography variant="caption"><strong>Country :</strong>{row.country.name}</Typography>
+                <Typography variant="caption"><strong>State :</strong>{row.state.name}</Typography>
+                <Typography variant="caption"><strong>City :</strong>{row.city.name}</Typography>
+                <Typography variant="caption"><strong>Area :</strong>{row.area.areaName}</Typography>
+            </Stack>), flex: 1
+        },
+        {
+            field: 'detail', headerName: 'Detail', renderCell: ({ row }) => (<Stack>
+                <Typography variant="caption"><strong>Department :</strong>{row.department.departmentName}</Typography>
+                <Typography variant="caption"><strong>Designation :</strong>{row.designation.name}</Typography>
+                <Typography variant="caption"><strong>Group :</strong>{row.group.groupName}</Typography>
+            </Stack>), flex: 1
+        },
+        { field: 'modifiedOn', headerName: 'Modified On', flex: 1 },
+        { field: 'createdOn', headerName: 'Created On', flex: 1 },
+        {
+            field: 'isActive', headerName: 'Status', renderCell: ({ row }) => (
+                row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
             ),
             flex: '0 1 5%',
             align: 'center',
@@ -62,6 +79,7 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
     ]
 }
 let editId = 0;
+
 const Employee = () => {
     const dispatch = useDispatch();
     const [openPopup, setOpenPopup] = useState(false);
@@ -101,7 +119,7 @@ const Employee = () => {
         }
     });
 
-    const { addEntity, updateEntity, updateOneEntity, removeEntity } = useEntityAction();
+    const { updateOneEntity, removeEntity } = useEntityAction();
 
     useEffect(() => {
         if (status === "fulfilled") {
@@ -115,7 +133,6 @@ const Employee = () => {
             setGridFilter({ ...gridFilter, totalRecord: totalRecord });
             offSet.current.isLoadMore = false;
         }
-
     }, [data, status])
 
     const { socketData } = useSocketIo("changeInEmployee", refetch);
@@ -137,12 +154,6 @@ const Employee = () => {
     const handleEdit = (id) => {
         isEdit.current = true;
         editId = id;
-        const { setFormValue } = formApi.current;
-
-        const companydata = employees.find(a => a.id === id);
-        setFormValue({
-            companyName: companydata.companyName
-        });
         setOpenPopup(true);
     }
 
@@ -178,45 +189,48 @@ const Employee = () => {
 
     const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive, handelDeleteItems);
 
-    const handleSubmit = (e) => {
-        const { getValue, validateFields } = formApi.current
-        if (validateFields()) {
-            let values = getValue();
-            let dataToInsert = {};
-            dataToInsert.companyName = values.companyName;
-            if (isEdit.current)
-                dataToInsert._id = editId
+    // const handleSubmit = (e) => {
+    //     const { getValue, validateFields } = formApi.current
+    //     if (validateFields()) {
+    //         const values = getValue();
+    //         const setEmployee = mapEmployee(values);
+    //         if (isEdit.current)
+    //             setEmployee._id = editId
 
-            addEntity({ url: API.Employee, data: [dataToInsert] });
+    //         addEntity({ url: API.Employee, data: [setEmployee] });
 
-        }
-    }
+    //     }
+    // }
 
 
     const showAddModal = () => {
         isEdit.current = false;
-        const { resetForm } = formApi.current;
-        resetForm();
         setOpenPopup(true);
     }
 
     return (
         <>
+            <PageHeader
+                title="Employee"
+                subTitle="Manage Employees"
+                icon={<PeopleOutline fontSize="large" />}
+            />
             <Popup
                 title="Add Employee Information"
                 openPopup={openPopup}
                 maxWidth="xl"
                 fullScreen={true}
                 isEdit={isEdit.current}
-                keepMounted={true}
-                addOrEditFunc={handleSubmit}
+                footer={<></>}
+                // addOrEditFunc={handleSubmit}
                 setOpenPopup={setOpenPopup}>
-                <EmpoyeeModal formRef={formApi} />
+                <EmpoyeeModal isEdit={isEdit.current} editId={editId} setOpenPopup={setOpenPopup} formRef={formApi} />
             </Popup>
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={employees}
                 loading={isLoading} pageSize={pageSize}
                 totalCount={offSet.current.totalRecord}
+                rowHeight={150}
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: showAddModal,
@@ -254,7 +268,7 @@ function EmployeeToolbar(props) {
 EmployeeToolbar.propTypes = {
     apiRef: PropTypes.shape({
         current: PropTypes.object,
-    }).isRequired,
+    }),
     onAdd: PropTypes.func,
     onDelete: PropTypes.func,
     selectionModel: PropTypes.array

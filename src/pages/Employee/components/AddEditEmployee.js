@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Stepper, Collapse, Box, Step, StepLabel, Typography, IconButton } from '../../../deps/ui';
 import { Launch } from '../../../deps/ui/icons';
 import { AutoForm } from '../../../components/useForm';
 import Controls from '../../../components/controls/Controls';
-import { useDispatch } from 'react-redux';
 import { API } from '../_Service';
-import { handleGetActions, handlePostActions } from '../../../store/actions/httpactions';
 import Popup from '../../../components/Popup';
 import DepartmentModel from './DepartmentModal'
 import { useDropDown } from '../../../components/useDropDown';
 import PropTypes from 'prop-types'
+import { useSelector } from 'react-redux';
+import { useEntityAction, useLazyEntityQuery } from '../../../store/actions/httpactions';
+import Loader from '../../../components/Circularloading'
 
 
 const Styles = {
@@ -48,53 +49,121 @@ const AddDepartmentModal = () => {
 }
 
 const genderItems = [
-  { id: "male", title: "Male" },
-  { id: "female", title: "Female" },
-  { id: "other", title: "Other" },
+  { id: "Male", title: "Male" },
+  { id: "Female", title: "Female" },
+  { id: "Other", title: "Other" },
 ]
 
-const initialFValues = {
-  id: 0,
-  emplyeeRefNo: "",
-  punchCode: "",
-  firstName: "",
-  lastName: "",
-  maritalstatus: 0,
-  nic: null,
-  email: "",
-  address: [""],
-  mobileNumber: "",
-  gender: 0,
-  dateofBirth: null,
-  religion: 0,
-  fkCompanyId: 0,
-  fkCountryId: 0,
-  fkStateId: 0,
-  fkCityId: 0,
-  fkAreaId: 0,
-  fkDepartmentId: 0,
-  fkEmployeeGroupId: 0,
-  fkDesignationId: null,
-  confirmationDate: null,
-  resignationDate: null,
-  isAllowManualAttendance: false,
-  isAllowLogin: false,
-  roleTemplateId: 0
-}
+const Religion = [
+  { id: "Islam", title: "Islam" },
+  { id: "Hindu", title: "Hindu" },
+  { id: "Christian", title: "Christian" },
+  { id: "Other", title: "Other" },
+];
+
+const Maritalstatus = [
+  { id: "Single", title: "Single" },
+  { id: "Married", title: "Married" },
+  { id: "Widowed", title: "Widowed" },
+  { id: "Divorced", title: "Divorced" },
+]
+
 
 const getSteps = () => {
   return ['General', 'Additional', 'Company'];
 }
 
+const mapEmployee = (values) => {
+  if (!Object.keys(values).length) return;
+  return {
+    emplyeeRefNo: values.emplyeeRefNo,
+    punchCode: values.punchCode,
+    firstName: values.firstName,
+    lastName: values.lastName,
+    isAllowManualAttendance: values.isAllowManualAttendance,
+    fkCompanyId: values.fkCompanyId._id,
+    generalInfo: {
+      maritalstatus: values.maritalstatus,
+      email: values.email,
+      addresses: [],
+      mobileNumber: values.mobileNumber,
+      gender: values.gender,
+      dateofBirth: values.dateofBirth,
+      religion: values.religion,
+    },
+    companyInfo: {
+      fkAreaId: values.fkAreaId._id,
+      fkCityId: values.fkCityId._id,
+      fkCountryId: values.fkCountryId._id,
+      fkDepartmentId: values.fkDepartmentId._id,
+      fkDesignationId: values.fkDesignationId._id,
+      fkEmployeeGroupId: values.fkEmployeeGroupId._id,
+      fkRoleTemplateId: values.fkRoleTemplateId,
+      fkStateId: values.fkStateId._id,
+      joiningDate: new Date().toISOString(),
+      confirmationDate: values.confirmationDate
+    }
+  }
+}
 
-export default function EmployaaModal({ formRef }) {
+export default function EmployaaModal({ isEdit = false, editId }) {
 
+  const formApi = useRef(null);
   const [activeStep, setActiveStep] = React.useState(0);
-
+  const [loader, setLoader] = useState(isEdit);
   const steps = getSteps();
-  const dispatch = useDispatch();
+  const [GetEmpolyee] = useLazyEntityQuery();
 
-  const { companies,countries, states, cities,areas, filterType, setFilter } = useDropDown();
+  const { companies, countries, states, cities, areas, designations, groups, departments, employees, roleTemplates, filterType, setFilter } = useDropDown();
+
+  const handleEdit = () => {
+    const { setFormValue } = formApi.current;
+
+    GetEmpolyee({ url: API.Employee, id: editId }).then(({ data: { result: values } }) => {
+      setFormValue({
+        emplyeeRefNo: values.emplyeeRefNo,
+        punchCode: values.punchCode,
+        firstName: values.firstName,
+        lastName: values.lastName,
+        isAllowManualAttendance: values.isAllowManualAttendance,
+        fkCompanyId: companies.find(c => c._id === values.fkCompanyId),
+        maritalstatus: values.generalInfo.maritalstatus,
+        email: values.generalInfo.email,
+        mobileNumber: values.generalInfo.mobileNumber,
+        gender: values.generalInfo.gender,
+        dateofBirth: values.generalInfo.dateofBirth,
+        religion: values.generalInfo.religion,
+        fkAreaId: areas.find(a => a._id === values.companyInfo.fkAreaId),
+        fkCityId: cities.find(a => a._id === values.companyInfo.fkCityId),
+        fkCountryId: countries.find(c => c._id === values.companyInfo.fkCountryId),
+        fkDepartmentId: departments.find(d => d._id === values.companyInfo.fkDepartmentId),
+        fkDesignationId: designations.find(d => d._id === values.companyInfo.fkDesignationId),
+        fkEmployeeGroupId: groups.find(g => g._id === values.companyInfo.fkEmployeeGroupId),
+        fkStateId: states.find(s => s._id === values.companyInfo.fkStateId),
+        fkRoleTemplateId: values.companyInfo.fkRoleTemplateId,
+        joiningDate: values.companyInfo.joiningDate,
+        confirmationDate: values.companyInfo.confirmationDate
+      });
+    })
+
+    setLoader(false);
+  }
+
+  useEffect(() => {
+    if (formApi.current && companies?.length) {
+      const { resetForm } = formApi.current;
+      if (isEdit) {
+        handleEdit();
+      }
+      else {
+        resetForm();
+      }
+    }
+
+  }, [formApi, isEdit, companies])
+
+
+  const { addEntity } = useEntityAction();
 
   const formData = [
     {
@@ -162,7 +231,7 @@ export default function EmployaaModal({ formRef }) {
           type: "email",
           validate: {
             errorMessage: "Email is required",
-            validate: (val) => /$^|.+@.+..+/.test(val)
+            validate: (val) => /$^|.+@.+..+/.test(val.email)
           },
           defaultValue: ""
         },
@@ -183,66 +252,53 @@ export default function EmployaaModal({ formRef }) {
         },
         {
           elementType: "dropdown",
-          name: "roleTemplateId",
+          name: "fkRoleTemplateId",
           label: "User Template",
-          dataId:"id",
-          dataName:"title",
+          dataId: "_id",
+          dataName: "templateName",
           disabled: (value) => value["isAllowManualAttendance"] === false,
           defaultValue: 1,
-          options: [{
-            id: 0, title: "Manager"
-          },
-          { id: 1, title: "Hr Manager" },
-          { id: 2, title: "SubOrdinates" }
-          ]
+          options: roleTemplates
         },
         {
-          elementType: "clearfix",
-          breakpoints: { md: 12, sm: 12, xs: 12 }
+          elementType: "ad_dropdown",
+          name: "fkManagerId",
+          label: "Employee's Manager",
+          dataName: 'fullName',
+          dataId: '_id',
+          options: employees,
+          defaultValue: null
         },
+        // {
+        //   elementType: "clearfix",
+        //   breakpoints: { md: 12, sm: 12, xs: 12 }
+        // },
         {
           elementType: "dropdown",
           name: "maritalstatus",
           label: "Marital Status",
-          dataId:"id",
-          dataName:"title",
+          dataId: "id",
+          dataName: "title",
           defaultValue: 2,
-          options: [{
-            id: 0, title: "Single"
-          },
-          { id: 1, title: "Married" },
-          { id: 2, title: "Widowed" },
-          { id: 3, title: "Boxorced" }
-          ]
+          options: Maritalstatus
         },
         {
           elementType: "dropdown",
           name: "gender",
           label: "Gender",
-          dataId:"id",
-          dataName:"title",
-          defaultValue: 1,
-          options: [{
-            id: 1, title: "Male"
-          },
-          { id: 2, title: "Female" },
-          { id: 3, title: "Others" }
-          ]
+          dataId: "id",
+          dataName: "title",
+          defaultValue: "Male",
+          options: genderItems
         },
         {
           elementType: "dropdown",
           name: "religion",
           label: "Religion",
-          dataId:"id",
-          dataName:"title",
+          dataId: "id",
+          dataName: "title",
           defaultValue: 1,
-          options: [{
-            id: 1, title: "Islam"
-          },
-          { id: 2, title: "Hindu" },
-          { id: 3, title: "Christain" },
-          { id: 4, title: "Others" }
-          ]
+          options: Religion
         },
         {
           elementType: "datetimepicker",
@@ -266,7 +322,7 @@ export default function EmployaaModal({ formRef }) {
             errorMessage: "Company is required",
           },
           dataName: 'companyName',
-          dataId: 'id',
+          dataId: '_id',
           options: companies,
           onChange: (data) => setFilter(data, filterType.COMPANY, "_id"),
           defaultValue: companies?.length ? companies[0] : null
@@ -304,6 +360,7 @@ export default function EmployaaModal({ formRef }) {
           name: "fkCityId",
           label: "City",
           required: true,
+          dataId: 'id',
           dataName: "name",
           onChange: (data) => setFilter(data, filterType.CITY, "_id"),
           validate: {
@@ -329,17 +386,11 @@ export default function EmployaaModal({ formRef }) {
           name: "fkEmployeeGroupId",
           label: "Group",
           required: true,
-          dataName: "name",
+          dataName: "groupName",
           validate: {
-            errorMessage: "City is required",
+            errorMessage: "Group is required",
           },
-          options: [{
-            id: 21555, name: "Malir"
-          },
-          { id: 22666, name: "Johar" },
-          { id: 23777, name: "NorthKarachi" },
-          { id: 24888, name: "RashidMinhas" }
-          ],
+          options: groups,
           defaultValue: null
         },
         {
@@ -347,20 +398,14 @@ export default function EmployaaModal({ formRef }) {
           name: "fkDepartmentId",
           label: "Department",
           required: true,
-          dataName: "name",
+          dataName: "departmentName",
           modal: {
             Component: <AddDepartmentModal />,
           },
           validate: {
             errorMessage: "Department is required",
           },
-          options: [{
-            id: 31999, name: "IT"
-          },
-          { id: 321010, name: "Development" },
-          { id: 33321, name: "Admin" },
-          { id: 348745, name: "Electric" }
-          ],
+          options: departments,
           defaultValue: null
         },
         {
@@ -368,13 +413,7 @@ export default function EmployaaModal({ formRef }) {
           name: "fkDesignationId",
           label: "Designation",
           dataName: "name",
-          options: [{
-            id: 41225, name: "Software Engineer"
-          },
-          { id: 42654, name: "Team Lead" },
-          { id: 43789, name: "IT Officer" },
-          { id: 44158, name: "CEO" }
-          ],
+          options: designations,
           defaultValue: null
         },
         // {
@@ -384,6 +423,12 @@ export default function EmployaaModal({ formRef }) {
         //   multiline:true,
         //   defaultValue: ""
         // },
+        {
+          elementType: "datetimepicker",
+          name: "joiningDate",
+          label: "Joining Date",
+          defaultValue: new Date()
+        },
         {
           elementType: "datetimepicker",
           name: "confirmationDate",
@@ -400,6 +445,12 @@ export default function EmployaaModal({ formRef }) {
     },
   ];
 
+  useEffect(() => {
+    if (companies?.length) {
+      setFilter(companies[0], filterType.COMPANY, "_id");
+    }
+  }, [companies]);
+
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -414,32 +465,27 @@ export default function EmployaaModal({ formRef }) {
   };
 
 
-
   const handleSubmit = (e) => {
-    const { getValue, validateFields } = formRef.current
-    const values = getValue();
+    const { getValue, validateFields } = formApi.current
     if (validateFields()) {
-      dispatch(handlePostActions(API.INSERT_EMPLOYEE, [values])).then(res => {
-        console.log(res);
-      });
+      const values = getValue();
+      const setEmployee = mapEmployee(values);
+      if (isEdit)
+        setEmployee._id = editId
+
+      addEntity({ url: API.Employee, data: [setEmployee] });
+
     }
   }
 
 
   return (
     <Box sx={Styles.root}>
+      <Loader open={loader} />
       <Stepper style={{
         flex: '1 0 15%'
       }} activeStep={activeStep} orientation="vertical">
         {steps.map((label, index) => {
-          // const stepProps = {};
-          // const labelProps = {};
-          // if (isStepOptional(index)) {
-          //   labelProps.optional = <Typography variant="caption">Optional</Typography>;
-          // }
-          // if (isStepSkipped(index)) {
-          //   stepProps.completed = false;
-          // }
           return (
             <Step key={label}>
               <StepLabel>{label}</StepLabel>
@@ -457,14 +503,9 @@ export default function EmployaaModal({ formRef }) {
           </Box>
         ) : (
           <Box display='flex' flexDirection='column' justifyContent='space-between'>
-            <AutoForm formData={formData} ref={formRef} isValidate={true} />
+            <AutoForm formData={formData} ref={formApi} isValidate={true} />
             <Box>
-
               <Controls.Button onClick={handleBack} disabled={activeStep === 0} sx={Styles.button} text="Back" />
-              {/* {isStepOptional(activeStep) && (
-
-                <Controls.Button onClick={handleSkip} sx={Styles.button} text="Skip" />
-              )} */}
               <Controls.Button onClick={handleNext} sx={Styles.button} text={activeStep === steps.length - 1 ? 'Finish' : 'Next'} />
               {activeStep === steps.length - 1 && <Controls.Button onClick={handleSubmit} sx={Styles.button} text="Submit" />}
             </Box>
@@ -476,7 +517,5 @@ export default function EmployaaModal({ formRef }) {
 }
 
 EmployaaModal.propTypes = {
-  formRef: PropTypes.shape({
-    current: PropTypes.object,
-  }).isRequired,
+  isEdit: PropTypes.bool
 };

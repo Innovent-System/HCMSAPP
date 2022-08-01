@@ -1,20 +1,18 @@
 import React from 'react';
-import {CircularProgress,Grid} from '../deps/ui';
+import { CircularProgress, Backdrop } from '../deps/ui';
 
 
-function CircularLoading() {
+export default function CircularLoading({ open = false }) {
 
   return (
-    <Grid
-      container
-      gap={0}
-      alignItems="center"
-      justify="center"
-      style={{ minHeight: '100vh' }}
-    >
-      <CircularProgress/>
-    </Grid>
-  )
+    <div>
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={open}
+      // onClick={handleClose}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+    </div>
+  );
 }
-
-export default CircularLoading;

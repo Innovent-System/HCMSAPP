@@ -89,14 +89,14 @@ const validateAllFields = (fieldValues, values) => {
         const key = Object.keys(errorItem)[0], itemValue = values[key];
         if (errorItem.required) {
             if (typeof errorItem?.validate === "function") {
-                temp[key] = !errorItem.validate(itemValue) ? errorItem.message : itemValue ? "" : errorItem.message
+                temp[key] = !errorItem.validate(values) ? errorItem.message : itemValue ? "" : errorItem.message
             }
             else if (!isNaN(itemValue) && itemValue < 0)
                 temp[key] = errorItem.message;
             else if (itemValue)
                 temp[key] = "";
             else
-                temp[key] = typeof errorItem?.validate === "function" ? (!errorItem.validate(itemValue) && errorItem.message) : errorItem.message;
+                temp[key] = typeof errorItem?.validate === "function" ? (!errorItem.validate(values) && errorItem.message) : errorItem.message;
 
         }
         else {
@@ -111,7 +111,7 @@ const DEFAULT_BREAK_POINTS = { md: 4 };
 export const AutoForm = forwardRef(function (props, ref) {
 
     const classes = useStyles();
-    const { formData, breakpoints, children, isValidate = false, isEdit = false, flexDirection,as = "form", ...other } = props;
+    const { formData, breakpoints, children, isValidate = false, isEdit = false, flexDirection, as = "form", ...other } = props;
     const formStates = useRef({
         initialValues: {},
         errorProps: [],
@@ -125,16 +125,16 @@ export const AutoForm = forwardRef(function (props, ref) {
         if (!typeof fieldValues === "object") return temp;
 
         const key = Object.keys(fieldValues)[0];
-        singleField = fieldValues[key];
+        singleField = { ...fieldValues };
         fieldValues = errorProps.find(f => key in f);
 
         if (!fieldValues?.required) { temp[key] = ""; return temp };
         if (typeof fieldValues?.validate === "function") {
-            temp[key] = !fieldValues.validate(singleField) ? fieldValues.message : singleField ? "" : fieldValues.message
+            temp[key] = !fieldValues.validate(singleField) ? fieldValues.message : singleField[key] ? "" : fieldValues.message
         }
-        else if (!isNaN(singleField) && singleField < 0)
+        else if (!isNaN(singleField[key]) && singleField[key] < 0)
             temp[key] = fieldValues.message;
-        else if (singleField)
+        else if (singleField[key])
             temp[key] = "";
         else
             temp[key] = typeof fieldValues?.validate === "function" ? (!fieldValues.validate(singleField) && fieldValues.message) : fieldValues.message;

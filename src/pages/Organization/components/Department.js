@@ -2,17 +2,18 @@
 import React, { useEffect, useRef, useState } from "react";
 import Controls from '../../../components/controls/Controls';
 import Popup from '../../../components/Popup';
-import { AutoForm, Form } from '../../../components/useForm';
+import { AutoForm } from '../../../components/useForm';
 import { API } from '../_Service';
 import { useDispatch, useSelector } from 'react-redux';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAction } from '../../../store/actions/httpactions';
-import { GridToolbarContainer, Box, IconButton, Grid, Divider } from "../../../deps/ui";
+import { GridToolbarContainer, Box, FormHelperText } from "../../../deps/ui";
 import { Circle, Add as AddIcon, Delete as DeleteIcon, RemoveCircleOutline } from "../../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions } from '../../../components/useDataGrid';
 import { useSocketIo } from '../../../components/useSocketio';
 import ConfirmDialog from '../../../components/ConfirmDialog';
 import PropTypes from 'prop-types'
 import BulkInsert from '../../../components/BulkInsert'
+import { groupBySum } from '../../../util/common'
 
 const DEFAULT_API = API.Department;
 const DEFAULT_NAME = "Department";
@@ -68,6 +69,16 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
     ]
 }
 
+
+const designation = {
+    elementType: "dropdown",
+    name: "id",
+    label: "Designation",
+    dataId: "_id",
+    dataName: "name",
+    breakpoints: { md: 6 },
+}
+
 let editId = 0;
 const Department = () => {
     const dispatch = useDispatch();
@@ -80,8 +91,10 @@ const Department = () => {
     const [mapDesignation, setMapDesignation] = useState([]);
     const offSet = useRef({
         isLoadMore: false,
-        isLoadFirstTime: true,
+        isLoadFirstTime: true
     })
+
+    const [error, setError] = useState(false);
 
     const [filter, setFilter] = useState({
         lastKey: null,
@@ -99,8 +112,8 @@ const Department = () => {
 
     const gridApiRef = useGridApi();
     const query = useSelector(e => e.appdata.query.builder);
-    const designations = useSelector(e => e.appdata.employeeData.designations);
-    console.log(designations);
+    const designations = useSelector(e => e.appdata.employeeData.Designations);
+
     const { data, status, isLoading, refetch } = useEntitiesQuery({
         url: DEFAULT_API,
         params: {
@@ -135,6 +148,42 @@ const Department = () => {
         }
     }, [socketData])
 
+    useEffect(() => {
+        if (Array.isArray(designations)) {
+            setMapDesignation([
+                [
+                    {
+                        elementType: "dropdown",
+                        name: "id",
+                        label: "Designation",
+                        dataId: "_id",
+                        dataName: "name",
+                        breakpoints: { md: 6 },
+                        defaultValue: [],
+                        options: designations
+                    },
+                    {
+                        elementType: "inputfield",
+                        name: "noOfPositions",
+                        label: "No Of Positions",
+                        breakpoints: { md: 6 },
+                        required: true,
+                        type: 'number',
+                        validate: {
+                            errorMessage: "You have exceeded the employees limit",
+                            validate: (val) => {
+                                const { getValue } = formApi.current;
+                                return val.noOfPositions < getValue().employeeLimit && val.noOfPositions > 0
+                            }
+                        },
+                        defaultValue: 0
+                    },
+                ]
+            ])
+        }
+
+    }, [designations])
+
     const loadMoreData = (params) => {
         if (records.length < filter.totalRecord && params.viewportPageSize !== 0) {
             offSet.current.isLoadMore = true;
@@ -148,8 +197,37 @@ const Department = () => {
         const { setFormValue } = formApi.current;
 
         const data = records.find(a => a.id === id);
+
+        setMapDesignation(data.designations.map(d => [{
+            elementType: "dropdown",
+            name: "id",
+            label: "Designation",
+            dataId: "_id",
+            dataName: "name",
+            breakpoints: { md: 6 },
+            defaultValue: d.id,
+            options: designations
+        },
+        {
+            elementType: "inputfield",
+            name: "noOfPositions",
+            label: "No Of Positions",
+            breakpoints: { md: 6 },
+            required: true,
+            type: 'number',
+            validate: {
+                errorMessage: "You have exceeded the employees limit",
+                validate: (val) => {
+                    const { getValue } = formApi.current;
+                    return val.noOfPositions < getValue().employeeLimit && val.noOfPositions > 0
+                }
+            },
+            defaultValue: d.noOfPositions
+        }]))
+
         setFormValue({
-            departmentName: data.departmentName
+            departmentName: data.departmentName,
+            employeeLimit: data.employeeLimit
         });
         setOpenPopup(true);
     }
@@ -184,14 +262,28 @@ const Department = () => {
         dispatch(builderFieldsAction(fields));
     }, [dispatch])
 
+
     const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive, handelDeleteItems);
 
     const handleSubmit = (e) => {
-        const { getValue, validateFields } = formApi.current
-        if (validateFields()) {
-            let values = getValue();
+        const { getValue, validateFields } = formApi.current;
+        const { getFieldArray } = designationData.current;
+        let { isValid, dataSet } = getFieldArray();
+
+        if (validateFields() && isValid) {
+            const { departmentName, employeeLimit } = getValue();
             let dataToInsert = {};
-            dataToInsert.departmentName = values.departmentName;
+
+            const total = dataSet.reduce((total, obj) => (+obj.noOfPositions ?? 0) + total, 0);
+            if (total > employeeLimit) return setError(true);
+            else {
+                setError(false);
+                dataSet = groupBySum(dataSet, "id", "noOfPositions");
+            }
+
+            dataToInsert.departmentName = departmentName;
+            dataToInsert.employeeLimit = employeeLimit;
+            dataToInsert.designations = dataSet;
             if (isEdit.current)
                 dataToInsert._id = editId
 
@@ -199,7 +291,7 @@ const Department = () => {
 
         }
     }
-    console.log({ designationData });
+
 
     const formData = [
         {
@@ -215,70 +307,34 @@ const Department = () => {
         },
         {
             elementType: "inputfield",
-            name: "employeeLimite",
-            label: "Employees Limite",
+            name: "employeeLimit",
+            label: "Employees Limit",
             breakpoints: { md: 6 },
             required: true,
             type: 'number',
             validate: {
-                errorMessage: "Employees Limite is no valid",
-                validate: (val) => val < 300 && val > 0
+                errorMessage: "You have exceeded the limit",
+                validate: (val) => val.employeeLimit < 300 && val.employeeLimit > 0
             },
             defaultValue: ""
         },
         {
             elementType: "fieldarray",
             breakpoints: { md: 12 },
-            NodeElement: () => <BulkInsert as="div" buttonName="Map Designation" ref={designationData} BulkformData={[[
-                {
-                    elementType: "dropdown",
-                    name: "designation",
-                    label: "Designation",
-                    dataId: "_id",
-                    dataName: "name",
-                    breakpoints: { md: 6 },
-                    defaultValue: [],
-                    options: designations
-                },
-                {
-                    elementType: "inputfield",
-                    name: "noOfPositions",
-                    label: "No Of Positions",
-                    breakpoints: { md: 6 },
-                    required: true,
-                    type: 'number',
-                    validate: {
-                        errorMessage: "No. Of Positions is required",
-                    },
-                    defaultValue: 0
-                },
-
-            ]]} />
+            NodeElement: () => <BulkInsert as="div" buttonName="Map Designation"
+                ref={designationData}
+                BulkformData={mapDesignation} />
         }
     ];
 
     const showAddModal = () => {
         isEdit.current = false;
         const { resetForm } = formApi.current;
+        const { resetForms } = designationData.current;
+        resetForms();
         resetForm();
         setOpenPopup(true);
     }
-
-    const AddDesignation = () => {
-        const data = {
-            designations,
-            designationId: designations[0]._id,
-            noOfPositions: 0,
-            error: ""
-        }
-        setMapDesignation([data, ...mapDesignation])
-    }
-
-    const deleteData = (index) => {
-        mapDesignation.splice(index, 1);
-        setMapDesignation([...mapDesignation]);
-    }
-
 
     return (
         <>
@@ -290,46 +346,18 @@ const Department = () => {
                 keepMounted={true}
                 addOrEditFunc={handleSubmit}
                 setOpenPopup={setOpenPopup}>
-                <AutoForm formData={formData} ref={formApi} isValidate={true} />
-                {/* <Divider /> */}
-                {/* <Controls.Button
-                    variant="text"
-                    text={"Add Designation"}
-                    onClick={AddDesignation}
-                    startIcon={<AddIcon />}
-                /> */}
-                {/* <Form>
-                    <Grid sx={{ pl: 1 }} container spacing={2}>
-                        {mapDesignation.map((m, index) => <>
-                            <Grid key={index + "designationId"} item md={6}>
-                                <Controls.Select
-                                    name="designationId"
-                                    label="Designation"
-                                    dataId="_id"
-                                    dataName="name"
-                                    // value={m.designationId}
-                                    // onChange={handleInputChange}
-                                    options={m.designations}
-                                />
-                            </Grid>
-                            <Grid key={index + "noOfPositions"} item md={6}>
-                                <Controls.Input
-                                    name="noOfPositions"
-                                    label="No. of Positions"
-                                    // value={m.noOfPositions}
-                                    type="number"
-                                // onChange={handleInputChange}
-                                />
-                                <IconButton onClick={() => deleteData(index)} sx={{
-                                    ml: 2
-                                }} color="warning" aria-label="delete">
-                                    <RemoveCircleOutline />
-                                </IconButton>
-                            </Grid>
 
-                        </>)}
-                    </Grid>
-                </Form> */}
+                <AutoForm formData={formData} ref={formApi} isValidate={true} />
+                <FormHelperText
+                    error={error}
+                    sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        padding: "0 10px"
+                    }}
+                >
+                    {error && <span>Total No. of positions should be less then employees limit</span>}
+                </FormHelperText>
             </Popup>
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={records}

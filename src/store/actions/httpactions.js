@@ -48,7 +48,7 @@ export const getApi = createApi({
       query: ({ url, params }) => ({ url, params, headers: headerOption() }),
     }),
     entity: builder.query({
-      query: ({ url, params }) => ({ url, params, headers: headerOption() }),
+      query: ({ url, id }) => ({ url: `${url}/${id}`, headers: headerOption() }),
     }),
     add: builder.mutation({
       query: ({ url, data }) => ({ url, body: data, method: "POST", headers: headerOption() }),
@@ -65,13 +65,14 @@ export const getApi = createApi({
   }),
 })
 
-export const { useEntitiesQuery, useAddMutation, useUpdateManyMutation, useRemoveMutation, useUpdateOneMutation } = getApi;
+export const { useEntitiesQuery, useLazyEntityQuery, useAddMutation, useUpdateManyMutation, useRemoveMutation, useUpdateOneMutation } = getApi;
 
 export const useEntityAction = () => {
   const [addEntity] = useAddMutation();
   const [updateEntity] = useUpdateManyMutation();
   const [updateOneEntity] = useUpdateOneMutation();
   const [removeEntity] = useRemoveMutation();
+
 
   return {
     addEntity,
@@ -171,7 +172,7 @@ export const EmployeeDataThunk = createAsyncThunk('employeedata/requestStatus', 
 const INITIAL_STATE = {
   status: false,
   DropDownData: {},
-  employeeData:{},
+  employeeData: {},
   routeData: {},
   authData: {},
   dropdownIds: {
