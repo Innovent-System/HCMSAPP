@@ -24,7 +24,7 @@ const Controls = {
 export default Controls;
 
 
-export const ElementType = Object.freeze(["inputfield", "radiogroup", "checkbox", "dropdown", "clearfix", "ad_dropdown", "datetimepicker", "uploadavatar", "fieldarray"]);
+export const ElementType = Object.freeze(["inputfield", "radiogroup", "checkbox", "dropdown", "clearfix", "ad_dropdown", "datetimepicker", "uploadavatar", "fieldarray","custom"]);
 
 
 export function Element(props) {

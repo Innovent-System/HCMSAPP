@@ -70,12 +70,12 @@ const Maritalstatus = [
 
 
 const getSteps = () => {
-  return ['General', 'Additional', 'Company'];
+  return ['General', 'Company', 'Educational'];
 }
 
 const mapEmployee = (values) => {
   if (!Object.keys(values).length) return;
-  return {
+  const employee = {
     emplyeeRefNo: values.emplyeeRefNo,
     punchCode: values.punchCode,
     firstName: values.firstName,
@@ -98,12 +98,16 @@ const mapEmployee = (values) => {
       fkDepartmentId: values.fkDepartmentId._id,
       fkDesignationId: values.fkDesignationId._id,
       fkEmployeeGroupId: values.fkEmployeeGroupId._id,
-      fkRoleTemplateId: values.fkRoleTemplateId,
       fkStateId: values.fkStateId._id,
       joiningDate: new Date().toISOString(),
       confirmationDate: values.confirmationDate
     }
   }
+  if (values.fkRoleTemplateId)
+    employee.companyInfo.fkRoleTemplateId = values.fkRoleTemplateId
+
+
+  return employee;
 }
 
 export default function EmployaaModal({ isEdit = false, editId }) {
@@ -239,6 +243,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           elementType: "inputfield",
           name: "mobileNumber",
           label: "Mobile No",
+          require: true,
           validate: {
             errorMessage: "Mobile No is required",
           },
@@ -263,7 +268,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
         {
           elementType: "ad_dropdown",
           name: "fkManagerId",
-          label: "Employee's Manager",
+          label: "Reports To",
           dataName: 'fullName',
           dataId: '_id',
           options: employees,

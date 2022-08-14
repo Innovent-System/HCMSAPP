@@ -4,7 +4,8 @@ export {
     MicNone, Event, LocationDisabled, Assignment, ListAlt, 
     AccountTree, Tune,SupervisedUserCircle, TransferWithinAStation, 
     SupervisorAccount,BusinessTwoTone,LocalAtm,EqualizerTwoTone,
-    AllInbox,RotateLeft,AccountBalanceWallet,LocationCityOutlined,Settings,BookOutlined
+    AllInbox,RotateLeft,AccountBalanceWallet,LocationCityOutlined,Settings,BookOutlined,
+    AccessTime,Addchart,DoneAll
 } from '../../deps/ui/icons';
 
 

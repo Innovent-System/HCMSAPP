@@ -28,6 +28,7 @@ export const useSocketIo = (eventName = "", fetchData) => {
   }, [socket])
 
   return {
-    socketData
+    socketData,
+    socket
   }
 }

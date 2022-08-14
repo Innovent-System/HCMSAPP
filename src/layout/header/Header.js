@@ -58,6 +58,10 @@ const headerStyles = {
         "& .right": {
             display: "inline-flex",
             justifyContent: "flex-end",
+            '& .btn-grid':{
+                display: 'flex',
+                columnGap: 2,
+            }
         },
     },
     Drawer: {
@@ -110,6 +114,24 @@ export default function Header() {
             return socket.off("leave");
         };
     }, []);
+
+    useEffect(() => {
+        const handler = () => {
+            dispatch(CommonDropDownThunk({ url: GET_REGULAR_DROPDOWN }));
+        }
+        socket.on("changeInArea", handler);
+        socket.on("changeInCompany", handler);
+        socket.on("changeInCountry", handler);
+        socket.on("changeInDepartment", handler);
+
+        return () => {
+            socket.off("changeInArea", handler);
+            socket.off("changeInCompany", handler);
+            socket.off("changeInCountry", handler);
+            socket.off("changeInDepartment", handler);
+        }
+    }, [socket])
+
 
 
     const [state, setState] = React.useState({
@@ -170,20 +192,21 @@ export default function Header() {
                             />
                         </Grid>
                         <Grid item xs className="right">
-                            <IconButton>
-                                <Badge badgeContent={4}>
-                                    <NotificationsNoneIcon fontSize="small" />
-                                </Badge>
-                            </IconButton>
-                            <IconButton>
-                                <Badge badgeContent={3}>
-                                    <ChatBubbleOutlineIcon fontSize="small" />
-                                </Badge>
-                            </IconButton>
-                            <IconButton onClick={handleLogout}>
-                                <PowerSettingsNewIcon fontSize="small" />
-                            </IconButton>
-
+                            <div className="btn-grid">
+                                <IconButton>
+                                    <Badge badgeContent={4}>
+                                        <NotificationsNoneIcon fontSize="small" />
+                                    </Badge>
+                                </IconButton>
+                                <IconButton>
+                                    <Badge badgeContent={3}>
+                                        <ChatBubbleOutlineIcon fontSize="small" />
+                                    </Badge>
+                                </IconButton>
+                                <IconButton onClick={handleLogout}>
+                                    <PowerSettingsNewIcon fontSize="small" />
+                                </IconButton>
+                            </div>
                         </Grid>
                     </Grid>
                 </Toolbar>

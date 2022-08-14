@@ -7,7 +7,7 @@ import { API } from '../_Service';
 import { useDispatch, useSelector } from 'react-redux';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAction } from '../../../store/actions/httpactions';
 import { GridToolbarContainer, Box, FormHelperText } from "../../../deps/ui";
-import { Circle, Add as AddIcon, Delete as DeleteIcon, RemoveCircleOutline } from "../../../deps/ui/icons";
+import { Circle, Add as AddIcon, Delete as DeleteIcon } from "../../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions } from '../../../components/useDataGrid';
 import { useSocketIo } from '../../../components/useSocketio';
 import ConfirmDialog from '../../../components/ConfirmDialog';
@@ -53,12 +53,19 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
     return [
         { field: '_id', headerName: 'Id', hide: true, hideable: false },
         {
+            field: 'code', headerName: "Code", width: 100, hideable: false
+        },
+        {
             field: 'departmentName', headerName: DEFAULT_NAME, width: 180, hideable: false
         },
+        {
+            field: 'departhead', headerName: "Department Head", width: 180, hideable: false
+        },
+        
         { field: 'modifiedOn', headerName: 'Modified On', hideable: false },
         { field: 'createdOn', headerName: 'Created On', hideable: false },
         {
-            field: 'isActive', headerName: 'Status', renderCell: (param) => (
+            field: 'isActive', headerName: 'Active', renderCell: (param) => (
                 param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
             ),
             flex: '0 1 5%',
@@ -112,7 +119,7 @@ const Department = () => {
 
     const gridApiRef = useGridApi();
     const query = useSelector(e => e.appdata.query.builder);
-    const designations = useSelector(e => e.appdata.employeeData.Designations);
+    const { Designations: designations, Employees } = useSelector(e => e.appdata.employeeData);
 
     const { data, status, isLoading, refetch } = useEntitiesQuery({
         url: DEFAULT_API,
@@ -153,13 +160,13 @@ const Department = () => {
             setMapDesignation([
                 [
                     {
-                        elementType: "dropdown",
+                        elementType: "ad_dropdown",
                         name: "id",
                         label: "Designation",
                         dataId: "_id",
                         dataName: "name",
                         breakpoints: { md: 6 },
-                        defaultValue: [],
+                        defaultValue: null,
                         options: designations
                     },
                     {
@@ -199,13 +206,13 @@ const Department = () => {
         const data = records.find(a => a.id === id);
 
         setMapDesignation(data.designations.map(d => [{
-            elementType: "dropdown",
+            elementType: "ad_dropdown",
             name: "id",
             label: "Designation",
             dataId: "_id",
             dataName: "name",
             breakpoints: { md: 6 },
-            defaultValue: d.id,
+            defaultValue: designations.find(c => c._id === d.id),
             options: designations
         },
         {
@@ -227,7 +234,8 @@ const Department = () => {
 
         setFormValue({
             departmentName: data.departmentName,
-            employeeLimit: data.employeeLimit
+            employeeLimit: data.employeeLimit,
+            code: data.code,
         });
         setOpenPopup(true);
     }
@@ -271,7 +279,7 @@ const Department = () => {
         let { isValid, dataSet } = getFieldArray();
 
         if (validateFields() && isValid) {
-            const { departmentName, employeeLimit } = getValue();
+            const { departmentName, employeeLimit, code, departmentHead } = getValue();
             let dataToInsert = {};
 
             const total = dataSet.reduce((total, obj) => (+obj.noOfPositions ?? 0) + total, 0);
@@ -283,6 +291,10 @@ const Department = () => {
 
             dataToInsert.departmentName = departmentName;
             dataToInsert.employeeLimit = employeeLimit;
+            dataToInsert.code = code;
+            if (departmentHead?._id) {
+                dataToInsert.departmentHead = departmentHead._id;
+            }
             dataToInsert.designations = dataSet;
             if (isEdit.current)
                 dataToInsert._id = editId
@@ -317,6 +329,27 @@ const Department = () => {
                 validate: (val) => val.employeeLimit < 300 && val.employeeLimit > 0
             },
             defaultValue: ""
+        },
+        {
+            elementType: "inputfield",
+            name: "code",
+            label: "Department Code",
+            required: true,
+            breakpoints: { md: 6 },
+            validate: {
+                errorMessage: `Code is required`
+            },
+            defaultValue: ""
+        },
+        {
+            elementType: "ad_dropdown",
+            name: "departmentHead",
+            label: "Department Head",
+            dataId: "_id",
+            dataName: "fullName",
+            breakpoints: { md: 6 },
+            defaultValue: null,
+            options: Employees
         },
         {
             elementType: "fieldarray",

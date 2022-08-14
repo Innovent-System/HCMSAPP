@@ -6,14 +6,17 @@ import { history } from '../config/appconfig';
 import { SocketContext } from '../services/socketService';
 import Auth from '../services/AuthenticationService';
 import { useSnackbar } from 'notistack';
-import { IconButton } from '../deps/ui';
+import { IconButton, List, ListItem, ListItemText, Divider } from '../deps/ui';
 import { Close as CloseIcon } from '../deps/ui/icons';
+import ErrorModal from '../components/ErrorModal';
 
 function StatusHanlder() {
   const routeNotify = useSelector(state => state.resource.mutations);
   const socket = useContext(SocketContext);
   const navigate = useNavigate();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const [errors, setErrors] = useState([]);
+  const [openPopup, setOpenPopup] = useState(false);
   const [notify, setNotify] = useState({
     isOpen: false,
     message: "",
@@ -42,8 +45,12 @@ function StatusHanlder() {
           });
         }
       } else if (routeNotify[keyName].status === 'rejected') {
-        const { status, data: { message } } = routeNotify[keyName].error;
-        if (message) {
+        const { status, data: { message, result } } = routeNotify[keyName].error;
+        if (Array.isArray(result)) {
+          setErrors(result);
+          setOpenPopup(true);
+        }
+        else if (message) {
           enqueueSnackbar(message, {
             variant: "error",
             action
@@ -69,7 +76,22 @@ function StatusHanlder() {
   }, [routeNotify]);
 
 
-  return <Notification notify={notify} setNotify={setNotify} />
+  return <>
+    <ErrorModal title="Employee Error" openPopup={openPopup} setOpenPopup={setOpenPopup} >
+      <List>
+        {errors.map(error => (
+          <>
+            <ListItem>
+              <ListItemText>{error}</ListItemText>
+            </ListItem>
+            <Divider />
+          </>
+        ))
+        }
+      </List>
+    </ErrorModal>
+    <Notification notify={notify} setNotify={setNotify} />
+  </>
 }
 
 export default StatusHanlder;

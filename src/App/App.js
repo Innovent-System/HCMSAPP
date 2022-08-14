@@ -6,35 +6,121 @@ import { createTheme, ThemeProvider } from "../deps/ui";
 import GlobalStyles from '../layout/styles/GlobalStyles';
 import { Provider } from "react-redux";
 import { store } from "../store/reducers/store";
-import {SocketContext,appsocket } from '../services/socketService';
+import { SocketContext, appsocket } from '../services/socketService';
 import { SnackbarProvider } from 'notistack';
 // #fafafa
 const theme = createTheme({
   palette: {
-    mode:"light",
+    mode: "light",
     primary: {
-      light: "#9162e4",
-      main: "#5e35b1",
-      dark: "#280680",
+      light: "#0077b6",
+      main: "#023e8a",
+      dark: "#03045e",
       contrastText: "#ffffff",
     },
     secondary: {
-      light: "#e7b9ff",
-      main: "#b388ff",
-      dark: "#805acb",
-      contrastText: "#000000",
+      light: "#0077b6",
+      main: "#000",
+      dark: "#03045e",
+      contrastText: "#ffffff",
     },
   },
-  overrides: {
-    MuiAppBar: {
-      root: {
-        transform: "translateZ(0)",
+  components: {
+    MuiTypography: {
+      styleOverrides: {
+        root: {
+          '&.MuiTypography-h1':{
+            fontSize: 28,
+            margin: '10px 5px',
+          },
+          '&.anchor-link': {
+            cursor: 'pointer',
+            textDecoration: 'underline',
+            '&:hover': {
+              textDecoration: 'none'
+            }
+          }
+        },
       },
     },
-  },
-  props: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          textTransform: 'none',
+          '&[data-round="true"]': {
+            minWidth: 150,
+            borderRadius: 25
+          }
+        },
+      },
+    },
+    MuiFilledInput: {
+      defaultProps: {
+        margin: 'dense',
+      },
+    },
+    MuiFormControl: {
+      styleOverrides: {
+        root: {
+          borderRadius: 4,
+          '& .MuiOutlinedInput-root': {
+            backgroundColor: '#FFF'
+          }
+        },
+      },
+      defaultProps: {
+        margin: 'dense',
+      },
+    },
+    MuiFormHelperText: {
+      defaultProps: {
+        margin: 'dense',
+      },
+    },
     MuiIconButton: {
-      disableRipple: true,
+      defaultProps: {
+        size: 'small',
+      },
+    },
+    MuiInputBase: {
+      defaultProps: {
+        margin: 'dense',
+      },
+    },
+    MuiInputLabel: {
+      defaultProps: {
+        margin: 'dense',
+      },
+    },
+    MuiListItem: {
+      defaultProps: {
+        dense: true,
+      },
+    },
+    MuiOutlinedInput: {
+      defaultProps: {
+        margin: 'dense',
+      },
+    },
+    MuiFab: {
+      defaultProps: {
+        size: 'small',
+      },
+    },
+    MuiTable: {
+      defaultProps: {
+        size: 'small',
+      },
+    },
+    MuiTextField: {
+      defaultProps: {
+        margin: 'dense',
+      },
+    },
+    MuiToolbar: {
+      defaultProps: {
+        variant: 'dense',
+      },
     },
   },
 });
@@ -48,15 +134,15 @@ function App() {
     }
   }, [])
   return (
-    
+
     <ThemeProvider theme={theme}>
       <SnackbarProvider maxSnack={3}>
         <Router>
-        <Provider store={store}>
-          <SocketContext.Provider value={appsocket}>
-                <GlobalStyles/>
-                <Routes />
-          </SocketContext.Provider>
+          <Provider store={store}>
+            <SocketContext.Provider value={appsocket}>
+              <GlobalStyles />
+              <Routes />
+            </SocketContext.Provider>
           </Provider >
         </Router>
       </SnackbarProvider>

@@ -7,6 +7,15 @@ import { NavLink as RouterLink } from 'react-router-dom';
 import * as iconMapping from '../../assests/icons';
 import PropTypes from 'prop-types';
 
+const styles = {
+    capitalize:{
+        textTransform: 'lowercase',
+        '&::first-letter':{
+            textTransform: 'uppercase',
+        }
+    }
+}
+
 const NavItem = ({ title, routes, icon: Icon }) => {
     return (
         <Accordion>
@@ -15,7 +24,7 @@ const NavItem = ({ title, routes, icon: Icon }) => {
                 aria-controls="panel1a-content"
                 id="panel1a-header">
                 <Icon size="small" />
-                <Typography> {title}</Typography>
+                <Typography sx={styles.capitalize}> {title}</Typography>
             </AccordionSummary>
             <AccordionDetails>
                 <List>
@@ -28,7 +37,7 @@ const NavItem = ({ title, routes, icon: Icon }) => {
                                 <ListItemIcon>
                                     <InsideIcon size="small" />
                                 </ListItemIcon>
-                                <ListItemText secondary={route.title} />
+                                <ListItemText  secondary={route.title} />
                             </ListItem>
                         }
 

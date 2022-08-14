@@ -5,13 +5,13 @@ import Popup from '../../components/Popup';
 import { API } from './_Service';
 import { useDispatch, useSelector } from 'react-redux';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery } from '../../store/actions/httpactions';
-import { GridToolbarContainer, Box, Typography, Stack } from "../../deps/ui";
+import { GridToolbarContainer, Box } from "../../deps/ui";
 import { Circle, Add as AddIcon, Delete as DeleteIcon, PeopleOutline } from "../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
+import { AutoForm } from '../../components/useForm'
 import PropTypes from 'prop-types'
-import EmpoyeeModal from './components/AddEditEmployee';
 import PageHeader from '../../components/PageHeader'
 
 const fields = {
@@ -50,26 +50,13 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
         {
             field: 'fullName', headerName: 'Employee Name', flex: 1
         },
-        {
-            field: 'company', headerName: 'Company', renderCell: ({ row }) => (<Stack>
-                <Typography variant="caption"><strong>Company :</strong>{row.company.companyName} </Typography>
-                <Typography variant="caption"><strong>Country :</strong>{row.country.name}</Typography>
-                <Typography variant="caption"><strong>State :</strong>{row.state.name}</Typography>
-                <Typography variant="caption"><strong>City :</strong>{row.city.name}</Typography>
-                <Typography variant="caption"><strong>Area :</strong>{row.area.areaName}</Typography>
-            </Stack>), flex: 1
-        },
-        {
-            field: 'detail', headerName: 'Detail', renderCell: ({ row }) => (<Stack>
-                <Typography variant="caption"><strong>Department :</strong>{row.department.departmentName}</Typography>
-                <Typography variant="caption"><strong>Designation :</strong>{row.designation.name}</Typography>
-                <Typography variant="caption"><strong>Group :</strong>{row.group.groupName}</Typography>
-            </Stack>), flex: 1
-        },
+        { field: 'requestDate', headerName: 'Request Date', flex: 1 },
+        { field: 'changeType', headerName: 'Change Type', flex: 1, valueGetter: ({ row }) => row.changeType.join(',') },
+        { field: 'status', headerName: 'Status', flex: 1 },
         { field: 'modifiedOn', headerName: 'Modified On', flex: 1 },
         { field: 'createdOn', headerName: 'Created On', flex: 1 },
         {
-            field: 'isActive', headerName: 'Status', renderCell: ({ row }) => (
+            field: 'isActive', headerName: 'Active', renderCell: ({ row }) => (
                 row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
             ),
             flex: '0 1 5%',
@@ -80,14 +67,14 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
 }
 let editId = 0;
 
-const Employee = () => {
+const AttendanceRequest = () => {
     const dispatch = useDispatch();
     const [openPopup, setOpenPopup] = useState(false);
     const [pageSize, setPageSize] = useState(30);
     const isEdit = React.useRef(false);
     const formApi = React.useRef(null);
     const [selectionModel, setSelectionModel] = React.useState([]);
-
+    const { Employees } = useSelector(e => e.appdata.employeeData);
     const offSet = useRef({
         isLoadMore: false,
         isLoadFirstTime: true,
@@ -105,13 +92,13 @@ const Employee = () => {
         subTitle: "",
     });
 
-    const [employees, setEmployees] = useState([]);
+    const [records, setRecords] = useState([]);
 
     const gridApiRef = useGridApi();
     const query = useSelector(e => e.appdata.query.builder);
 
     const { data, isLoading, status, refetch } = useEntitiesQuery({
-        url: API.Employee,
+        url: API.AttendanceRequest,
         params: {
             limit: offSet.current.limit,
             lastKeyId: offSet.current.isLoadMore ? offSet.current.lastKeyId : "",
@@ -125,29 +112,29 @@ const Employee = () => {
         if (status === "fulfilled") {
             const { entityData, totalRecord } = data.result;
             if (offSet.current.isLoadMore) {
-                setEmployees([...entityData, ...employees]);
+                setRecords([...entityData, ...records]);
             }
             else
-                setEmployees(entityData)
+                setRecords(entityData)
 
             setGridFilter({ ...gridFilter, totalRecord: totalRecord });
             offSet.current.isLoadMore = false;
         }
     }, [data, status])
 
-    const { socketData } = useSocketIo("changeInEmployee", refetch);
+    const { socketData } = useSocketIo("changeInAttendanceRequest", refetch);
 
     useEffect(() => {
         if (Array.isArray(socketData)) {
-            setEmployees(socketData);
+            setRecords(socketData);
         }
     }, [socketData])
 
 
     const loadMoreData = (params) => {
-        if (employees.length < gridFilter.totalRecord && params.viewportPageSize !== 0) {
+        if (records.length < gridFilter.totalRecord && params.viewportPageSize !== 0) {
             offSet.current.isLoadMore = true;
-            setGridFilter({ ...gridFilter, lastKey: employees.length ? employees[employees.length - 1].id : null });
+            setGridFilter({ ...gridFilter, lastKey: records.length ? records[records.length - 1].id : null });
         }
     }
 
@@ -158,7 +145,7 @@ const Employee = () => {
     }
 
     const handleActiveInActive = (id) => {
-        updateOneEntity({ url: API.Employee, data: { _id: id } });
+        updateOneEntity({ url: API.AttendanceRequest, data: { _id: id } });
     }
 
     const handelDeleteItems = (ids) => {
@@ -172,13 +159,80 @@ const Employee = () => {
             title: "Are you sure to delete this records?",
             subTitle: "You can't undo this operation",
             onConfirm: () => {
-                removeEntity({ url: API.Employee, params: idTobeDelete }).then(res => {
+                removeEntity({ url: API.AttendanceRequest, params: idTobeDelete }).then(res => {
                     setSelectionModel([]);
                 })
             },
         });
 
     }
+
+    const formData = [
+        {
+            elementType: "ad_dropdown",
+            name: "fkEmployeeId",
+            label: "Employee",
+            variant: "outlined",
+            breakpoints: { md: 6 },
+            required: true,
+            validate: {
+                errorMessage: "Select Employee",
+            },
+            dataName: 'fullName',
+            dataId: "_id",
+            options: Employees,
+            defaultValue: null
+        },
+        {
+            elementType: "datetimepicker",
+            name: "requestDate",
+            breakpoints: { md: 6 },
+            label: "Date",
+            defaultValue: null
+        },
+        {
+            elementType: "datetimepicker",
+            breakpoints: { md: 6 },
+            name: "inDate",
+            label: "In Date",
+            defaultValue: null
+        },
+        {
+            elementType: "datetimepicker",
+            breakpoints: { md: 6 },
+            type:"time",
+            name: "inTime",
+            label: "In Time",
+            defaultValue: null
+        },
+        {
+            elementType: "datetimepicker",
+            breakpoints: { md: 6 },
+            name: "outDate",
+            label: "Out Date",
+            variant: "outlined",
+            defaultValue: null
+        },
+        {
+            elementType: "datetimepicker",
+            breakpoints: { md: 6 },
+            type:"time",
+            name: "outTime",
+            label: "Out Time",
+            variant: "outlined",
+            defaultValue: null
+        },
+        {
+            elementType: "inputfield",
+            name: "reason",
+            label: "Reason",
+            multiline: true,
+            minRows: 5,
+            variant: "outlined",
+            breakpoints: { md: 12 },
+        }
+
+    ];
 
 
     useEffect(() => {
@@ -203,18 +257,17 @@ const Employee = () => {
                 icon={<PeopleOutline fontSize="large" />}
             />
             <Popup
-                title="Add Employee Information"
+                title="Attendance Request"
                 openPopup={openPopup}
-                maxWidth="xl"
-                fullScreen={true}
+                maxWidth="sm"
                 isEdit={isEdit.current}
-                footer={<></>}
+                keepMounted={true}
                 // addOrEditFunc={handleSubmit}
                 setOpenPopup={setOpenPopup}>
-                <EmpoyeeModal isEdit={isEdit.current} editId={editId} setOpenPopup={setOpenPopup} formRef={formApi} />
+                <AutoForm formData={formData} ref={formApi} isValidate={true} />
             </Popup>
             <DataGrid apiRef={gridApiRef}
-                columns={columns} rows={employees}
+                columns={columns} rows={records}
                 loading={isLoading} pageSize={pageSize}
                 totalCount={offSet.current.totalRecord}
                 rowHeight={100}
@@ -224,7 +277,7 @@ const Employee = () => {
                     onDelete: handelDeleteItems,
                     selectionModel
                 }}
-                gridToolBar={EmployeeToolbar}
+                gridToolBar={RequestToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
                 onRowsScrollEnd={loadMoreData}
@@ -233,9 +286,9 @@ const Employee = () => {
         </>
     );
 }
-export default Employee;
+export default AttendanceRequest;
 
-function EmployeeToolbar(props) {
+function RequestToolbar(props) {
     const { apiRef, onAdd, onDelete, selectionModel } = props;
 
     return (
@@ -252,7 +305,7 @@ function EmployeeToolbar(props) {
     );
 }
 
-EmployeeToolbar.propTypes = {
+RequestToolbar.propTypes = {
     apiRef: PropTypes.shape({
         current: PropTypes.object,
     }),
