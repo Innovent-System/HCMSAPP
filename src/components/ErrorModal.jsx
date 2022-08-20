@@ -1,5 +1,5 @@
 import React from 'react'
-import { Dialog, DialogTitle, DialogContent, Typography, DialogActions } from '../deps/ui';
+import { Dialog, DialogTitle, DialogContent, Typography, DialogActions,IconButton } from '../deps/ui';
 import Controls from "./controls/Controls";
 import { Close as CloseIcon } from '../deps/ui/icons';
 import PropTypes from 'prop-types'
@@ -34,7 +34,9 @@ export default function ErrorPopup(props) {
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1, p: 0.6 }}>
                         {title}
                     </Typography>
-                    <Controls.Button sx={Styles.buttonIcon} color="secondary" icon={CloseIcon} onClick={() => { setOpenPopup(false) }} />
+                    <IconButton color='secondary' sx={Styles.buttonIcon} onClick={() => { setOpenPopup(false) }}>
+                        <CloseIcon />
+                    </IconButton>
                 </div>
             </DialogTitle>
             <DialogContent dividers>

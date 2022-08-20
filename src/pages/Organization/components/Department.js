@@ -165,7 +165,6 @@ const Department = () => {
                         label: "Designation",
                         dataId: "_id",
                         dataName: "name",
-                        breakpoints: { md: 6 },
                         defaultValue: null,
                         options: designations
                     },
@@ -173,7 +172,6 @@ const Department = () => {
                         elementType: "inputfield",
                         name: "noOfPositions",
                         label: "No Of Positions",
-                        breakpoints: { md: 6 },
                         required: true,
                         type: 'number',
                         validate: {
@@ -211,7 +209,6 @@ const Department = () => {
             label: "Designation",
             dataId: "_id",
             dataName: "name",
-            breakpoints: { md: 6 },
             defaultValue: designations.find(c => c._id === d.id),
             options: designations
         },
@@ -219,7 +216,6 @@ const Department = () => {
             elementType: "inputfield",
             name: "noOfPositions",
             label: "No Of Positions",
-            breakpoints: { md: 6 },
             required: true,
             type: 'number',
             validate: {
@@ -311,7 +307,6 @@ const Department = () => {
             name: "departmentName",
             label: DEFAULT_NAME,
             required: true,
-            breakpoints: { md: 6 },
             validate: {
                 errorMessage: `${DEFAULT_NAME} is required`
             },
@@ -321,7 +316,6 @@ const Department = () => {
             elementType: "inputfield",
             name: "employeeLimit",
             label: "Employees Limit",
-            breakpoints: { md: 6 },
             required: true,
             type: 'number',
             validate: {
@@ -335,7 +329,6 @@ const Department = () => {
             name: "code",
             label: "Department Code",
             required: true,
-            breakpoints: { md: 6 },
             validate: {
                 errorMessage: `Code is required`
             },
@@ -347,7 +340,6 @@ const Department = () => {
             label: "Department Head",
             dataId: "_id",
             dataName: "fullName",
-            breakpoints: { md: 6 },
             defaultValue: null,
             options: Employees
         },
@@ -374,7 +366,7 @@ const Department = () => {
             <Popup
                 title={`Add ${DEFAULT_NAME}`}
                 openPopup={openPopup}
-                maxWidth="sm"
+                
                 isEdit={isEdit.current}
                 keepMounted={true}
                 addOrEditFunc={handleSubmit}

@@ -5,7 +5,7 @@ import Popup from '../../components/Popup';
 import { API } from './_Service';
 import { useDispatch, useSelector } from 'react-redux';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery } from '../../store/actions/httpactions';
-import { GridToolbarContainer, Box } from "../../deps/ui";
+import { GridToolbarContainer, Stack, Typography, Box } from "../../deps/ui";
 import { Circle, Add as AddIcon, Delete as DeleteIcon, PeopleOutline } from "../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
@@ -13,7 +13,11 @@ import ConfirmDialog from '../../components/ConfirmDialog';
 import { AutoForm } from '../../components/useForm'
 import PropTypes from 'prop-types'
 import PageHeader from '../../components/PageHeader'
+import OutlinedDiv from "../../components/OutlinePanel";
+import { isWeekend, startOfDay, addDays, isSunday, isEqual, format } from 'date-fns'
+import * as dates from 'date-fns';
 
+window._dd = dates;
 const fields = {
     fullName: {
         label: 'Full Name',
@@ -48,12 +52,12 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
     return [
         { field: '_id', headerName: 'Id', hide: true },
         {
-            field: 'fullName', headerName: 'Employee Name', flex: 1
+            field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.employees.fullName
         },
         { field: 'requestDate', headerName: 'Request Date', flex: 1 },
         { field: 'changeType', headerName: 'Change Type', flex: 1, valueGetter: ({ row }) => row.changeType.join(',') },
         { field: 'status', headerName: 'Status', flex: 1 },
-        { field: 'modifiedOn', headerName: 'Modified On', flex: 1 },
+        { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => console.log(row) },
         { field: 'createdOn', headerName: 'Created On', flex: 1 },
         {
             field: 'isActive', headerName: 'Active', renderCell: ({ row }) => (
@@ -106,7 +110,7 @@ const AttendanceRequest = () => {
         }
     });
 
-    const { updateOneEntity, removeEntity } = useEntityAction();
+    const { updateOneEntity, addEntity, removeEntity } = useEntityAction();
 
     useEffect(() => {
         if (status === "fulfilled") {
@@ -173,7 +177,6 @@ const AttendanceRequest = () => {
             name: "fkEmployeeId",
             label: "Employee",
             variant: "outlined",
-            breakpoints: { md: 6 },
             required: true,
             validate: {
                 errorMessage: "Select Employee",
@@ -186,53 +189,77 @@ const AttendanceRequest = () => {
         {
             elementType: "datetimepicker",
             name: "requestDate",
-            breakpoints: { md: 6 },
+            required: true,
+            disableFuture: true,
+            validate: {
+                errorMessage: "Select Date please",
+            },
             label: "Date",
+            defaultValue: new Date()
+        },
+        {
+            elementType: "datetimepicker",
+            required: true,
+            validate: {
+                errorMessage: "Select Check In",
+            },
+            name: "startDateTime",
+            shouldDisableDate: (date) => !isEqual(startOfDay(date), startOfDay(formApi.current?.getValue()?.requestDate)),
+            disableFuture: true,
+            category: "datetime",
+            label: "Check In",
             defaultValue: null
         },
         {
             elementType: "datetimepicker",
-            breakpoints: { md: 6 },
-            name: "inDate",
-            label: "In Date",
-            defaultValue: null
-        },
-        {
-            elementType: "datetimepicker",
-            breakpoints: { md: 6 },
-            type:"time",
-            name: "inTime",
-            label: "In Time",
-            defaultValue: null
-        },
-        {
-            elementType: "datetimepicker",
-            breakpoints: { md: 6 },
-            name: "outDate",
-            label: "Out Date",
-            variant: "outlined",
-            defaultValue: null
-        },
-        {
-            elementType: "datetimepicker",
-            breakpoints: { md: 6 },
-            type:"time",
-            name: "outTime",
-            label: "Out Time",
-            variant: "outlined",
+            category: "datetime",
+            shouldDisableDate: (date) => date < startOfDay(formApi.current?.getValue()?.startDateTime) || date >= addDays(startOfDay(formApi.current?.getValue()?.startDateTime), 2),
+            disableFuture: true,
+            required: true,
+            validate: {
+                errorMessage: "Select Check Out",
+            },
+            name: "endDateTime",
+            label: "Check Out",
             defaultValue: null
         },
         {
             elementType: "inputfield",
             name: "reason",
+            required: true,
             label: "Reason",
             multiline: true,
+            validate: {
+                errorMessage: "Reson required",
+            },
             minRows: 5,
             variant: "outlined",
-            breakpoints: { md: 12 },
+            breakpoints: { md: 12, sx: 12, xs: 12 },
         }
 
     ];
+
+    const handleSubmit = (e) => {
+        const { getValue, validateFields } = formApi.current
+        if (validateFields()) {
+            let values = getValue();
+            console.log({ values });
+            let dataToInsert = {};
+            values.fkEmployeeId = values.fkEmployeeId._id;
+
+            // requestDate = 
+            // startDateTime = 
+            // endDateTime = 
+            // ChangeType = [],
+            // reason = 
+            // dataToInsert.companyName = values.companyName;
+            if (isEdit.current)
+                values._id = editId
+
+            addEntity({ url: API.AttendanceRequest, data: [values] });
+
+        }
+    }
 
 
     useEffect(() => {
@@ -245,15 +272,17 @@ const AttendanceRequest = () => {
 
     const showAddModal = () => {
         isEdit.current = false;
+        const { resetForm } = formApi.current;
+        resetForm();
         setOpenPopup(true);
     }
 
     return (
         <>
             <PageHeader
-                title="Employee"
+                title="Attendance Request"
                 enableFilter={true}
-                subTitle="Manage Employees"
+                subTitle="Manage Attendance Request"
                 icon={<PeopleOutline fontSize="large" />}
             />
             <Popup
@@ -262,9 +291,16 @@ const AttendanceRequest = () => {
                 maxWidth="sm"
                 isEdit={isEdit.current}
                 keepMounted={true}
-                // addOrEditFunc={handleSubmit}
+                addOrEditFunc={handleSubmit}
                 setOpenPopup={setOpenPopup}>
-                <AutoForm formData={formData} ref={formApi} isValidate={true} />
+                <Stack >
+                    <OutlinedDiv label="Schedule Detail" >
+                        <Typography variant="body2"><strong>Schedule Name :</strong>Morning</Typography>
+                        <Typography variant="body2"><strong>Schdule In :</strong>09:00 AM</Typography>
+                        <Typography variant="body2"><strong>Schedule Out :</strong>08:00 PM</Typography>
+                    </OutlinedDiv>
+                    <AutoForm formData={formData} ref={formApi} isValidate={true} />
+                </Stack>
             </Popup>
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={records}

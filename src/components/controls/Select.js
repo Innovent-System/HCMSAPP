@@ -63,7 +63,7 @@ function Select(props) {
 
     return (
     
-        <FormControl {...others} fullWidth {...others} variant="standard"
+        <FormControl {...others} fullWidth {...others} size="small" variant="outlined"
         {...(error && {error:true})}>
             <InputLabel>{label}</InputLabel>
         {isMultiple ? <MuiSelect

@@ -5,14 +5,16 @@ import PropTypes from 'prop-types';
 
 export default function Input(props) {
 
-    const { name, label, value,error=null, onChange,sx={}, ...other } = props;
+    const { name, label,variant = "outlined", value,error=null, onChange,sx={}, ...other } = props;
     return (
         <TextField
-            variant="standard"
+            variant={variant}
             label={label}
             name={name}
+            fullWidth={true}
             value={value}
             sx={sx}
+            size="small"
             InputLabelProps={{
                 shrink: true,
               }}

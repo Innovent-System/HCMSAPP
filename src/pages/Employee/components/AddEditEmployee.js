@@ -8,9 +8,9 @@ import Popup from '../../../components/Popup';
 import DepartmentModel from './DepartmentModal'
 import { useDropDown } from '../../../components/useDropDown';
 import PropTypes from 'prop-types'
-import { useSelector } from 'react-redux';
 import { useEntityAction, useLazyEntityQuery } from '../../../store/actions/httpactions';
 import Loader from '../../../components/Circularloading'
+import {} from 'date-fns'
 
 
 const Styles = {
@@ -34,7 +34,7 @@ const AddDepartmentModal = () => {
   return (
     <>
       <IconButton size='small' onClick={() => setOpenPopup(true)}>
-        <Launch />
+        <Launch fontSize="small" />
       </IconButton>
       <Popup
         title="Add Department"
@@ -243,7 +243,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           elementType: "inputfield",
           name: "mobileNumber",
           label: "Mobile No",
-          require: true,
+          required: true,
           validate: {
             errorMessage: "Mobile No is required",
           },
@@ -262,7 +262,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           dataId: "_id",
           dataName: "templateName",
           disabled: (value) => value["isAllowManualAttendance"] === false,
-          defaultValue: 1,
+          defaultValue: "",
           options: roleTemplates
         },
         {
@@ -284,7 +284,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           label: "Marital Status",
           dataId: "id",
           dataName: "title",
-          defaultValue: 2,
+          defaultValue: "",
           options: Maritalstatus
         },
         {
@@ -302,7 +302,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           label: "Religion",
           dataId: "id",
           dataName: "title",
-          defaultValue: 1,
+          defaultValue: "",
           options: Religion
         },
         {

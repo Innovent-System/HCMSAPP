@@ -61,7 +61,12 @@ function StatusHanlder() {
           const formId = window.location.pathname.substr(window.location.pathname.lastIndexOf("/") + 1);
           localStorage.clear();
           navigate("/");
-          socket.emit("leave", info.c_Id);
+          socket.off("leaveclient");
+          socket.off("leavecompany");
+          socket.off("leaveSession");
+          
+          socket.emit("leaveclient", info.c_Id);
+          socket.emit("leavecompany", info.com_Id);
           socket.emit("leaveSession", formId);
         }
 

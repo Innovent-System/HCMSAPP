@@ -220,7 +220,7 @@ export const useDropDown = () => {
         }
 
     }, [DropDownData, filter])
-    console.log({ DropDownData });
+    
     return {
         companies,
         countries,

@@ -58,7 +58,7 @@ const headerStyles = {
         "& .right": {
             display: "inline-flex",
             justifyContent: "flex-end",
-            '& .btn-grid':{
+            '& .btn-grid': {
                 display: 'flex',
                 columnGap: 2,
             }
@@ -119,12 +119,22 @@ export default function Header() {
         const handler = () => {
             dispatch(CommonDropDownThunk({ url: GET_REGULAR_DROPDOWN }));
         }
+        const employeeHanlder = () => {
+            dispatch(EmployeeDataThunk({ url: GET_EMPLOYEE_DATA }));
+        }
+
         socket.on("changeInArea", handler);
         socket.on("changeInCompany", handler);
         socket.on("changeInCountry", handler);
         socket.on("changeInDepartment", handler);
 
+        socket.on("changeInGroup", employeeHanlder);
+        socket.on("changeInDesignation", employeeHanlder);
+
+
         return () => {
+            socket.off("changeInGroup", employeeHanlder);
+            socket.off("changeInDesignation", employeeHanlder);
             socket.off("changeInArea", handler);
             socket.off("changeInCompany", handler);
             socket.off("changeInCountry", handler);
@@ -144,7 +154,12 @@ export default function Header() {
             if (res.isSuccess) {
                 const info = Auth.getitem("userInfo") || {};
                 Auth.remove("appConfigData");
-                socket.emit("leave", info.c_Id);
+
+                socket.emit("leaveclient", info.c_Id);
+                socket.emit("leavecompany", info.com_Id);
+                socket.off("leaveclient");
+                socket.off("leavecompany");
+
                 localStorage.clear();
                 navigate("/");
             }

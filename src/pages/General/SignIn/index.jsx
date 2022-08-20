@@ -56,7 +56,10 @@ const SignIn = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [loader, setLoader] = useState(false);
-  const [client, setClient] = useState('');
+  const [client, setClient] = useState({
+    clientId: null,
+    companyId: null
+  });
 
   const socket = useContext(SocketContext);
 
@@ -75,13 +78,12 @@ const SignIn = () => {
   }
 
   useEffect(() => {
-    if (client)
-      socket.emit("join", client);
 
     return () => {
-      socket.off("join");
+      socket.off("joinclient");
+      socket.off("joincompany");
     }
-  }, [client]);
+  }, [client, setClient]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -95,8 +97,9 @@ const SignIn = () => {
       dispatch(AuthThunk({ url: API_USER_LOGIN, params: signInData })).unwrap().then(res => {
         if (res) {
           const { data } = res;
-          Auth.setItem("userInfo", { "email": data.email, "c_Id": data.fkClientId, username: data.username });
-          setClient(data.fkClientId);
+          Auth.setItem("userInfo", { "email": data.email, "c_Id": data.clientId, "com_Id": data.companyId, username: data.username });
+          socket.emit("joinclient", data.clientId);
+          socket.emit("joincompany", data.companyId);
           navigate("/dashboard");
           setLoader(false);
         }

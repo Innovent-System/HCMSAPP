@@ -186,8 +186,6 @@ export default function FeaturedCrudGrid(props) {
     event.defaultMuiPrevented = true;
   };
 
-  console.log("Data Grid");
-
   return (
     <Box
       sx={{

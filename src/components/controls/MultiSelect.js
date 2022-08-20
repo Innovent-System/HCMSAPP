@@ -105,7 +105,7 @@ function MultiSelect(props) {
       })}
 
       renderInput={(params) => (
-        <TextField {...params}  {...(error && { error: true, helperText: error })} variant="standard" label={label} />
+        <TextField {...params}  {...(error && { error: true, helperText: error })} variant="outlined" size='small' label={label} />
       )}
     />
   );

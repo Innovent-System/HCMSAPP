@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, forwardRef, useImperativeHandle, useCallback } from 'react'
+import React, { useEffect, useRef, useState, forwardRef, useImperativeHandle } from 'react'
 import { makeStyles, Grid, Box } from "../deps/ui";
 import clsx from 'clsx';
 import { Element, ElementType } from '../components/controls/Controls';
@@ -65,7 +65,6 @@ export function useForm(initialFValues, validateOnChange = false, validate) {
 const useStyles = makeStyles(theme => ({
     root: {
         '& .MuiFormControl-root': {
-            width: '90%',
             margin: theme.spacing(1)
         }
     }
@@ -107,10 +106,9 @@ const validateAllFields = (fieldValues, values) => {
 
     return temp;
 }
-const DEFAULT_BREAK_POINTS = { md: 4 };
+const DEFAULT_BREAK_POINTS = { xs: 12, sm: 6, md: 6 };
 export const AutoForm = forwardRef(function (props, ref) {
 
-    const classes = useStyles();
     const { formData, breakpoints, children, isValidate = false, isEdit = false, flexDirection, as = "form", ...other } = props;
     const formStates = useRef({
         initialValues: {},
@@ -161,12 +159,15 @@ export const AutoForm = forwardRef(function (props, ref) {
             if ("Component" in item) {
                 for (const childItem of item._children) {
                     if ("validate" in childItem) {
-                        errorProps.push({
-                            [childItem.name]: "",
-                            validate: childItem.validate?.validate,
-                            message: childItem.validate.errorMessage,
-                            required: typeof childItem["required"] === "function" ? childItem["required"] : true
-                        })
+                        const exists = errorProps.findIndex(c => c[childItem.name] === "");
+                        if (exists === -1)
+                            errorProps.push({
+                                [childItem.name]: "",
+                                validate: childItem.validate?.validate,
+                                message: childItem.validate.errorMessage,
+                                required: typeof childItem["required"] === "function" ? childItem["required"] : true
+                            })
+
                         delete childItem.validate;
                     }
                     const value = childItem.defaultValue;
@@ -177,12 +178,14 @@ export const AutoForm = forwardRef(function (props, ref) {
             }
 
             if ("validate" in item) {
-                errorProps.push({
-                    [item.name]: "",
-                    validate: item.validate?.validate,
-                    message: item.validate.errorMessage,
-                    required: typeof item["required"] === "function" ? item["required"] : true
-                })
+                const exists = errorProps.findIndex(c => c[item.name] === "");
+                if (exists === -1)
+                    errorProps.push({
+                        [item.name]: "",
+                        validate: item.validate?.validate,
+                        message: item.validate.errorMessage,
+                        required: typeof item["required"] === "function" ? item["required"] : true
+                    })
                 delete item.validate;
             }
 
@@ -234,14 +237,14 @@ export const AutoForm = forwardRef(function (props, ref) {
 
     return (
         <>
-            <Box component={as} className={classes.root} autoComplete="off" {...other}>
-                <Grid {...breakpoints} flexDirection={flexDirection} container>
+            <Box component={as} autoComplete="off" {...other}>
+                <Grid {...breakpoints} flexDirection={flexDirection} gap={1} container>
                     {Object.keys(initialValues).length ? formData.map(({ name, label, required, elementType, Component = null, disabled, classes, _children, breakpoints = DEFAULT_BREAK_POINTS, onChange, modal, defaultValue, ...others }, index) => (
                         Component ? <Component {...others} key={index}>
                             <Grid spacing={3} container>
                                 {Array.isArray(_children) ? _children.map(({ name, label, required, elementType, breakpoints = DEFAULT_BREAK_POINTS, classes, disabled, onChange, modal, _defaultValue, ..._others }, innerIndex) => (
-                                    <Grid  {...(breakpoints && { ...breakpoints })} key={innerIndex} item>
-                                        {modal && <Box display="flex">{modal.Component}</Box>}
+                                    <Grid {...(modal && { style: { position: "relative" } })}  {...(breakpoints && { ...breakpoints })} key={innerIndex} item>
+                                        {modal && <Box position="absolute" top={0} right={0}>{modal.Component}</Box>}
                                         <Element key={innerIndex + name} elementType={elementType}
                                             name={name}
                                             label={label}
@@ -302,7 +305,7 @@ AutoForm.propTypes = {
                 }),
                 sx: PropTypes.arrayOf(PropTypes.object),
                 [PropTypes.string]: PropTypes.any
-            }).isRequired
+            })
         ),
         PropTypes.arrayOf(
             PropTypes.shape({
@@ -325,7 +328,7 @@ AutoForm.propTypes = {
                     })
                 ),
                 [PropTypes.string]: PropTypes.any
-            }).isRequired
+            })
         )
 
     ]).isRequired,

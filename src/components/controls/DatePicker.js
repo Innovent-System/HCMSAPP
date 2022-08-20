@@ -1,5 +1,5 @@
 import React from 'react'
-import { LocalizationProvider, TextField, DesktopDatePicker, MobileDatePicker, DesktopTimePicker, MobileTimePicker } from "../../deps/ui";
+import { LocalizationProvider, TextField, MobileDateTimePicker, DesktopDateTimePicker, DesktopDatePicker, MobileDatePicker, DesktopTimePicker, MobileTimePicker } from "../../deps/ui";
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import DateAdapter from '@mui/lab/AdapterDateFns';
@@ -9,7 +9,7 @@ import PropTypes from 'prop-types';
 
 export default function DatePicker(props) {
 
-    const { name, label, value, onChange, size = "small", variant = "standard", type = "date", ...others } = props
+    const { name, label, value, onChange, size = "small", error = null, variant = "outlined", category = "date", ...others } = props
     const theme = useTheme();
     const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
 
@@ -21,35 +21,32 @@ export default function DatePicker(props) {
     })
 
     const renderDateTime = () => {
-        if (type === "date") {
+        if (category === "datetime") {
             return <>
                 {isDesktop ?
-                    <DesktopDatePicker
+                    <DesktopDateTimePicker
                         label={label}
                         {...others}
-                        inputFormat="MM/dd/yyyy"
-                        mask='__/__/____'
                         name={name}
                         value={value}
                         onChange={date => onChange(convertToDefEventPara(name, date))}
-                        renderInput={(params) => <TextField size={size} variant={variant}  {...params} />}
+                        renderInput={(params) => <TextField fullWidth={true} {...(error && { error: true, helperText: error })} size={size} variant={variant}  {...params} />}
 
                     />
                     :
-                    <MobileDatePicker
+                    <MobileDateTimePicker
                         label={label}
                         {...others}
-                        inputFormat="MMM/dd/yyyy"
                         name={name}
                         value={value}
                         onChange={date => onChange(convertToDefEventPara(name, date))}
-                        renderInput={(params) => <TextField size={size} variant={variant}  {...params} />}
+                        renderInput={(params) => <TextField size={size} {...(error && { error: true, helperText: error })} fullWidth={true} variant={variant}  {...params} />}
 
                     />
                 }
             </>
         }
-        else {
+        else if (category === "time") {
             return <>
                 {isDesktop ?
                     <DesktopTimePicker
@@ -58,8 +55,7 @@ export default function DatePicker(props) {
                         name={name}
                         value={value}
                         onChange={date => onChange(convertToDefEventPara(name, date))}
-                        renderInput={(params) => <TextField size={size} variant={variant}  {...params} />}
-
+                        renderInput={(params) => <TextField size={size} {...(error && { error: true, helperText: error })} fullWidth={true} variant={variant}  {...params} />}
                     />
                     :
                     <MobileTimePicker
@@ -68,7 +64,30 @@ export default function DatePicker(props) {
                         name={name}
                         value={value}
                         onChange={date => onChange(convertToDefEventPara(name, date))}
-                        renderInput={(params) => <TextField size={size} variant={variant}  {...params} />}
+                        renderInput={(params) => <TextField size={size} {...(error && { error: true, helperText: error })} fullWidth={true} variant={variant}  {...params} />}
+
+                    />
+                }
+            </>
+        } else {
+            return <>
+                {isDesktop ?
+                    <DesktopDatePicker
+                        label={label}
+                        {...others}
+                        name={name}
+                        value={value}
+                        onChange={date => onChange(convertToDefEventPara(name, date))}
+                        renderInput={(params) => <TextField size={size} {...(error && { error: true, helperText: error })} fullWidth={true} variant={variant}  {...params} />}
+                    />
+                    :
+                    <MobileDatePicker
+                        label={label}
+                        {...others}
+                        name={name}
+                        value={value}
+                        onChange={date => onChange(convertToDefEventPara(name, date))}
+                        renderInput={(params) => <TextField {...(error && { error: true, helperText: error })} size={size} fullWidth={true} variant={variant}  {...params} />}
 
                     />
                 }
