@@ -62,10 +62,13 @@ export const getApi = createApi({
     remove: builder.mutation({
       query: ({ url, params }) => ({ url: `${url}/${params}`, method: "DELETE", headers: headerOption() }),
     }),
+    single: builder.query({
+      query: ({ url, params }) => ({ url, params, headers: headerOption() }),
+    }),
   }),
 })
 
-export const { useEntitiesQuery, useLazyEntityQuery, useAddMutation, useUpdateManyMutation, useRemoveMutation, useUpdateOneMutation } = getApi;
+export const { useEntitiesQuery, useLazyEntityQuery, useAddMutation, useLazySingleQuery, useUpdateManyMutation, useRemoveMutation, useUpdateOneMutation } = getApi;
 
 export const useEntityAction = () => {
   const [addEntity] = useAddMutation();
@@ -177,6 +180,7 @@ const INITIAL_STATE = {
   authData: {},
   dropdownIds: {
     countryIds: '',
+    employeeIds: '',
     stateIds: '',
     cityIds: '',
     areaIds: '',
@@ -203,6 +207,7 @@ export const appSlice = createSlice({
     clearDropDownIdsAction(state) {
       state.dropdownIds = {
         countryIds: '',
+        employeeIds: '',
         stateIds: '',
         cityIds: '',
         areaIds: '',

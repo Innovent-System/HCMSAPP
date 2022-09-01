@@ -4,26 +4,32 @@ import Controls from '../../components/controls/Controls';
 import Popup from '../../components/Popup';
 import { API } from './_Service';
 import { useDispatch, useSelector } from 'react-redux';
-import { builderFieldsAction, useEntityAction, useEntitiesQuery } from '../../store/actions/httpactions';
+import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction, useLazySingleQuery } from '../../store/actions/httpactions';
 import { GridToolbarContainer, Stack, Typography, Box } from "../../deps/ui";
-import { Circle, Add as AddIcon, Delete as DeleteIcon, PeopleOutline } from "../../deps/ui/icons";
-import DataGrid, { useGridApi, getActions } from '../../components/useDataGrid';
+import { Add as AddIcon, Delete as DeleteIcon, PeopleOutline } from "../../deps/ui/icons";
+import DataGrid, { useGridApi } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { AutoForm } from '../../components/useForm'
 import PropTypes from 'prop-types'
 import PageHeader from '../../components/PageHeader'
 import OutlinedDiv from "../../components/OutlinePanel";
-import { isWeekend, startOfDay, addDays, isSunday, isEqual, format } from 'date-fns'
-import * as dates from 'date-fns';
+import { startOfDay, addDays, isEqual } from '../../services/dateTimeService'
+import { formateISODateTime } from "../../services/dateTimeService";
+import Loader from '../../components/Circularloading'
 
-window._dd = dates;
 const fields = {
-    fullName: {
-        label: 'Full Name',
-        type: 'text',
-        valueSources: ['value'],
-        preferWidgets: ['text'],
+    status: {
+        label: "Status",
+        type: "select",
+        valueSources: ["value"],
+        fieldSettings: {
+            listValues: [
+                { value: "Pending", title: "Pending" },
+                { value: "Approved", title: "Approved" },
+                { value: "Rejected", title: "Rejected" }
+            ]
+        }
     },
     createdAt: {
         label: 'Created Date',
@@ -34,46 +40,25 @@ const fields = {
         },
         valueSources: ['value'],
         preferWidgets: ['date'],
-    },
-
-    isActive: {
-        label: 'Status',
-        type: 'boolean',
-        operators: ['equal'],
-        valueSources: ['value'],
-    },
-}
-const getColumns = (apiRef, onEdit, onActive, onDelete) => {
-    const actionKit = {
-        onActive: onActive,
-        onEdit: onEdit,
-        onDelete: onDelete
     }
-    return [
-        { field: '_id', headerName: 'Id', hide: true },
-        {
-            field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.employees.fullName
-        },
-        { field: 'requestDate', headerName: 'Request Date', flex: 1 },
-        { field: 'changeType', headerName: 'Change Type', flex: 1, valueGetter: ({ row }) => row.changeType.join(',') },
-        { field: 'status', headerName: 'Status', flex: 1 },
-        { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => console.log(row) },
-        { field: 'createdOn', headerName: 'Created On', flex: 1 },
-        {
-            field: 'isActive', headerName: 'Active', renderCell: ({ row }) => (
-                row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
-            ),
-            flex: '0 1 5%',
-            align: 'center',
-        },
-        getActions(apiRef, actionKit)
-    ]
 }
-let editId = 0;
+const columns = [
+    { field: '_id', headerName: 'Id', hide: true },
+    {
+        field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.employees.fullName
+    },
+    { field: 'requestDate', headerName: 'Request Date', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.requestDate) },
+    { field: 'changeType', headerName: 'Change Type', flex: 1, valueGetter: ({ row }) => row.changeType.join(',') },
+    { field: 'status', headerName: 'Status', flex: 1 },
+    { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
+    { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) }
+];
+
 
 const AttendanceRequest = () => {
     const dispatch = useDispatch();
     const [openPopup, setOpenPopup] = useState(false);
+    const [loader, setLoader] = useState(false);
     const [pageSize, setPageSize] = useState(30);
     const isEdit = React.useRef(false);
     const formApi = React.useRef(null);
@@ -110,7 +95,7 @@ const AttendanceRequest = () => {
         }
     });
 
-    const { updateOneEntity, addEntity, removeEntity } = useEntityAction();
+    const { addEntity, removeEntity } = useEntityAction();
 
     useEffect(() => {
         if (status === "fulfilled") {
@@ -142,16 +127,6 @@ const AttendanceRequest = () => {
         }
     }
 
-    const handleEdit = (id) => {
-        isEdit.current = true;
-        editId = id;
-        setOpenPopup(true);
-    }
-
-    const handleActiveInActive = (id) => {
-        updateOneEntity({ url: API.AttendanceRequest, data: { _id: id } });
-    }
-
     const handelDeleteItems = (ids) => {
         let idTobeDelete = ids;
         if (Array.isArray(ids)) {
@@ -168,8 +143,9 @@ const AttendanceRequest = () => {
                 })
             },
         });
-
     }
+
+    const [getAttendanceRequest] = useLazySingleQuery();
 
     const formData = [
         {
@@ -184,6 +160,20 @@ const AttendanceRequest = () => {
             dataName: 'fullName',
             dataId: "_id",
             options: Employees,
+            onChange: (data) => {
+                if (!data) return;
+                setLoader(true);
+                const { setFormValue, getValue } = formApi.current;
+                getAttendanceRequest({ url: API.GetAttendanceDetail, params: { employeeId: data._id, requestDate: getValue()?.requestDate } }).then(c => {
+                    if (c.data?.result) {
+                        setFormValue({
+                            startDateTime: new Date(c.data.result.startDateTime),
+                            endDateTime: new Date(c.data.result.endDateTime)
+                        });
+                    }
+                    setLoader(false);
+                })
+            },
             defaultValue: null
         },
         {
@@ -235,6 +225,7 @@ const AttendanceRequest = () => {
             minRows: 5,
             variant: "outlined",
             breakpoints: { md: 12, sx: 12, xs: 12 },
+            defaultValue: ""
         }
 
     ];
@@ -243,20 +234,11 @@ const AttendanceRequest = () => {
         const { getValue, validateFields } = formApi.current
         if (validateFields()) {
             let values = getValue();
-            console.log({ values });
-            let dataToInsert = {};
-            values.fkEmployeeId = values.fkEmployeeId._id;
-
-            // requestDate = 
-            // startDateTime = 
-            // endDateTime = 
+            let dataToInsert = { ...values };
+            dataToInsert.fkEmployeeId = values.fkEmployeeId._id;
             // ChangeType = [],
-            // reason = 
-            // dataToInsert.companyName = values.companyName;
-            if (isEdit.current)
-                values._id = editId
 
-            addEntity({ url: API.AttendanceRequest, data: [values] });
+            addEntity({ url: API.AttendanceRequest, data: [dataToInsert] });
 
         }
     }
@@ -264,10 +246,11 @@ const AttendanceRequest = () => {
 
     useEffect(() => {
         offSet.current.isLoadFirstTime = false;
+        dispatch(showDropDownFilterAction({
+            employee: true,
+        }));
         dispatch(builderFieldsAction(fields));
     }, [dispatch])
-
-    const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive, handelDeleteItems);
 
 
     const showAddModal = () => {
@@ -279,6 +262,7 @@ const AttendanceRequest = () => {
 
     return (
         <>
+            <Loader open={loader} />
             <PageHeader
                 title="Attendance Request"
                 enableFilter={true}
@@ -306,7 +290,6 @@ const AttendanceRequest = () => {
                 columns={columns} rows={records}
                 loading={isLoading} pageSize={pageSize}
                 totalCount={offSet.current.totalRecord}
-                rowHeight={100}
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: showAddModal,
@@ -322,6 +305,7 @@ const AttendanceRequest = () => {
         </>
     );
 }
+
 export default AttendanceRequest;
 
 function RequestToolbar(props) {

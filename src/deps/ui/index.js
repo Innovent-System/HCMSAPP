@@ -10,12 +10,12 @@ export {
     DialogActions, Stack, Tab, Tabs, Accordion, AccordionSummary, AccordionDetails, Backdrop
 } from '@mui/material';
 
-
+export { TabList as JoyTabList, Tab as JoyTab, Tabs as JoyTabs, TabPanel as JoyTabPanel } from '@mui/joy'
 export {
-
     GridToolbarContainer,
     GridActionsCellItem,
-    GridOverlay
+    GridOverlay,
+
 } from '@mui/x-data-grid-pro';
 
 export { ThemeProvider, createTheme } from '@mui/material/styles';
@@ -23,7 +23,7 @@ export { makeStyles } from '@mui/styles'
 
 
 export {
-    LocalizationProvider, DateTimePicker, DesktopDateTimePicker,MobileDateTimePicker,ToggleButton, ToggleButtonGroup, DesktopDatePicker, MobileDatePicker, 
+    LocalizationProvider, DateTimePicker, DesktopDateTimePicker, MobileDateTimePicker, ToggleButton, ToggleButtonGroup, DesktopDatePicker, MobileDatePicker,
     DesktopTimePicker, MobileTimePicker, Alert
     , Skeleton, TabList, TabContext, TabPanel
 } from '@mui/lab';
