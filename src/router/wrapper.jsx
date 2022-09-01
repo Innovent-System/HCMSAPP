@@ -5,7 +5,7 @@ import { Navigate,Outlet,useLocation } from 'react-router-dom';
 const RouterWrapper = () => {
   //Manage with Globaly
   let location = useLocation();
-  const signed = true;
+  const signed = document.cookie === "is_Auth=true";
 
   if(!signed){
     return <Navigate to="/" state={{ from: location }} />;
