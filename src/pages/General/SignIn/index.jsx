@@ -1,11 +1,11 @@
 import { useState, useContext, useEffect } from 'react';
+import { makeStyles } from "@mui/styles";
 import Controls from '../../../components/controls/Controls';
 import { useForm, Form } from "../../../components/useForm";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { InputAdornment, IconButton, Link, Box, Container, Typography, Paper, CircularProgress } from "../../../deps/ui";
 import { Visibility, VisibilityOff, Person } from '../../../deps/ui/icons';
 import { green } from '../../../deps/ui/colorschema';
-import bg from '../../../assests/images/bg-1.jpg';
 import { AppRoutesThunk, AuthThunk } from '../../../store/actions/httpactions';
 import { useDispatch } from "react-redux";
 import { API_USER_LOGIN } from '../../../services/UrlService';
@@ -19,29 +19,22 @@ const initialFValues = {
   isShowPassword: false,
 };
 
-const styles = {
-  root: {
-    backgroundColor: 'background.dark',
-    background: `url(${bg})`,
-    backgroundPosition: 'center center',
-    backgroundSize: 'cover',
-    backgroundRepeat: 'no-repeat',
-    backgroundAttachment: 'fixed',
+const useStyles = makeStyles((theme) => ({
+  Root: {
+    background: theme.palette.gradients.primary,
     height: '100%',
-    pb: 2,
-    pt: 3
+    padding: 15,
   },
-  transparent: {
+  Transparent: {
     opacity: 0.9,
     textAlign: 'center',
-    pb: 2,
-    pt: 1
+    padding: theme.spacing(4, 0),
   },
-  wrapper: {
+  Wrapper: {
     m: 1,
     position: 'relative',
   },
-  buttonProgress: {
+  ButtonProgress: {
     color: green[500],
     position: 'absolute',
     top: '50%',
@@ -49,10 +42,11 @@ const styles = {
     mt: -12,
     ml: -12,
   }
-}
+}));
 
 let clientId;
 const SignIn = () => {
+  const classes = useStyles();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [loader, setLoader] = useState(false);
@@ -133,7 +127,7 @@ const SignIn = () => {
 
   return (
     <>
-      <Box sx={styles.root}>
+      <Box className={classes.Root}>
 
         <Box
           display="flex"
@@ -141,7 +135,7 @@ const SignIn = () => {
           height="100%"
           justifyContent="center"
         >
-          <Container sx={styles.transparent} component={Paper}
+          <Container className={classes.Transparent} component={Paper}
             elevate={3} maxWidth="sm">
 
             <Box display='flex' alignItems='center' flexDirection='column'>
@@ -173,10 +167,11 @@ const SignIn = () => {
                 value={values.userName}
                 onChange={handleInputChange}
                 error={errors.userName}
+                autoFocus
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
-                      <IconButton>
+                      <IconButton color="primary">
                         <Person />
                       </IconButton>
                     </InputAdornment>
@@ -199,6 +194,7 @@ const SignIn = () => {
                         aria-label="toggle password visibility"
                         onClick={handleClickShowPassword}
                         onMouseDown={handleMouseDownPassword}
+                        color="primary"
                       >
                         {values.isShowPassword ? <Visibility /> : <VisibilityOff />}
                       </IconButton>
@@ -209,7 +205,7 @@ const SignIn = () => {
 
               <Box mb={2} display='flex' justifyContent='center' alignItems='center'>
 
-                <Box sx={styles.wrapper}>
+                <Box className={classes.Wrapper}>
                   <Controls.Button
                     text="Login"
                     type="submit"
@@ -217,7 +213,7 @@ const SignIn = () => {
                   />
 
                   {loader && (
-                    <CircularProgress size={24} sx={styles.buttonProgress} />
+                    <CircularProgress size={24} className={classes.ButtonProgress} />
                   )}
                 </Box>
 

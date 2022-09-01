@@ -1,4 +1,5 @@
 import { createStyles, makeStyles } from '@mui/styles';
+import BodyBG from '../../assests/images/bg-0.jpg';
 
 const useStyles = makeStyles(() => createStyles({
   '@global': {
@@ -15,9 +16,23 @@ const useStyles = makeStyles(() => createStyles({
       width: '100%'
     },
     body: {
-      backgroundColor: '#f4f6f8',
       height: '100%',
-      width: '100%'
+      width: '100%',
+      "&::-webkit-scrollbar-track, & div::-webkit-scrollbar-track": {
+        "webkitBoxShadow": "inset 0 0 6px rgba(0,0,0,0.3)",
+        "backgroundColor": "#F5F5F5",
+        "width": "5px",
+        "borderRadius": "5px"
+      },
+      "&::-webkit-scrollbar, & div::-webkit-scrollbar": {
+        "width": "5px",
+        "backgroundColor": "#F5F5F5"
+      },
+      "&::-webkit-scrollbar-thumb, & div::-webkit-scrollbar-thumb": {
+        "borderRadius": "5px",
+        "background": "#28C76F",
+        "maxHeight": "100px",
+      }
     },
     a: {
       textDecoration: 'none'
@@ -34,35 +49,27 @@ const useStyles = makeStyles(() => createStyles({
       }
     },
     ".content-area": {
-      height: "calc(100vh - 64px)",
+      background:`url(${BodyBG})`,
+      height: "calc(100vh - 48px)",
       overflowY: "auto",
       overflowX: "hidden",
-      background:"#f3f4f9!important",
       padding: 15,
       '& .MuiBox-root':{
-        borderRadius: 15,
-        background: '#fff',
+        '& .MuiTabs-root':{
+            background: 'linear-gradient(to bottom, #ffffff 0%,#e5e5e5 100%)',
+        },
+        '& .MuiTabPanel-root':{
+            padding: 0,
+        },
         '& .MuiDataGrid-root':{
-          borderRadius: 15,
-          border: 'none'
+            background: '#fff',
+            '& .MuiDataGrid-toolbarContainer':{
+              padding: '4px 8px',
+              borderBottom: '1px solid #e0e0e0',
+            }
         }
       }
      },
-     ".page-heading":{
-        padding:8,
-        marginBottom: 15,
-        borderRadius: 15,
-        background: '#fff',
-        "& .right":{
-          textAlign:"right"
-        },
-        "& .left":{
-          textAlign:"left",
-          "& h1":{
-            fontSize:24
-          }
-        }
-     }
   }
 }));
 
