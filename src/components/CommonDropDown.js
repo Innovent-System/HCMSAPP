@@ -18,7 +18,7 @@ const bindDataIds = (data, matchWith) => {
 const setDropDownIds = (data, type, matchWith) => ({ [type + "Ids"]: bindDataIds(data, matchWith) })
 
 
-function CommonDropDown({ isMultiple, showFilters, idset, setIdSet }) {
+function CommonDropDown({ isMultiple, showFilters, idset, setIdSet, setProps }) {
     const { filterType, setFilter, ...dropDown } = useDropDown();
     const dispatch = useDispatch();
     const formApi = React.useRef(null);
@@ -29,11 +29,12 @@ function CommonDropDown({ isMultiple, showFilters, idset, setIdSet }) {
         const setOfIds = setDropDownIds(data, type, "_id");
         dispatch(dropDownIdsAction(setOfIds));
         if (typeof setIdSet === "function") setIdSet(setOfIds);
+        if (["company"].includes(type)) matchWith = "_id";
         setFilter(data, type, matchWith);
     }
 
     const isReset = useSelector(e => e.appdata.isReset);
-    
+
     useEffect(() => {
         if (isReset) {
             const { resetForm } = formApi.current;
@@ -49,6 +50,7 @@ function CommonDropDown({ isMultiple, showFilters, idset, setIdSet }) {
             return Object.keys(showFilter).filter(e => showFilter[e]).map(filter => (
                 {
                     ...DROPDOWN_PROPS[filter],
+                    ...(setProps && setProps[filter]),
                     options: dropDown[Name_MAP[filter]],
                     onChange: (data) => handleDropDownIds(data, filter, "id")
                 }
@@ -58,7 +60,7 @@ function CommonDropDown({ isMultiple, showFilters, idset, setIdSet }) {
     )
 
     return (
-        <AutoForm formData={formData()} flexDirection="column" ref={formApi} isValidate={true} />
+        <AutoForm formData={formData()} ref={formApi} isValidate={true} />
     )
 }
 
@@ -77,6 +79,18 @@ CommonDropDown.propTypes = {
         [filterTypes.GROUP]: PropTypes.bool,
         [filterTypes.DEPARTMENT]: PropTypes.bool,
         [filterTypes.DESIGNATION]: PropTypes.bool,
+        [filterTypes.EMPLOYEE]: PropTypes.bool,
+    }),
+    setProps: PropTypes.shape({
+        [filterTypes.COMPANY]: PropTypes.object,
+        [filterTypes.COUNTRY]: PropTypes.object,
+        [filterTypes.STATE]: PropTypes.object,
+        [filterTypes.CITY]: PropTypes.object,
+        [filterTypes.AREA]: PropTypes.object,
+        [filterTypes.GROUP]: PropTypes.object,
+        [filterTypes.DEPARTMENT]: PropTypes.object,
+        [filterTypes.DESIGNATION]: PropTypes.object,
+        [filterTypes.EMPLOYEE]: PropTypes.object,
     }),
     idSet: PropTypes.shape({
         countryIds: PropTypes.string,
@@ -86,6 +100,7 @@ CommonDropDown.propTypes = {
         groupIds: PropTypes.string,
         departmentIds: PropTypes.string,
         designationIds: PropTypes.string,
+        employeeIds: PropTypes.string,
     }),
     setIdSet: PropTypes.func
 }

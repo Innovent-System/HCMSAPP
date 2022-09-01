@@ -29,7 +29,7 @@ const theme = createTheme({
     MuiTypography: {
       styleOverrides: {
         root: {
-          '&.MuiTypography-h1':{
+          '&.MuiTypography-h1': {
             fontSize: 28,
             margin: '10px 5px',
           },
@@ -42,6 +42,13 @@ const theme = createTheme({
           }
         },
       },
+    },
+    MuiTabPanel: {
+      styleOverrides: {
+        root: {
+          padding: 5
+        }
+      }
     },
     MuiButton: {
       styleOverrides: {

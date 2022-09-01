@@ -10,8 +10,9 @@ export const filterTypes = Object.freeze({
     CITY: 'city',
     AREA: 'area',
     DEPARTMENT: 'department',
+    EMPLOYEE: 'employee',
     GROUP: 'group',
-    DESIGNATION: 'designation'
+    DESIGNATION: 'designation',
 })
 
 const useStateWithCallbackLazy = initialValue => {
@@ -220,7 +221,7 @@ export const useDropDown = () => {
         }
 
     }, [DropDownData, filter])
-    
+
     return {
         companies,
         countries,
@@ -254,7 +255,7 @@ export const useFilterBarEvent = (onReset) => {
     }, [onReset])
 }
 
-const { DEFAULT, COMPANY, COUNTRY, STATE, CITY, AREA, DEPARTMENT, GROUP, DESIGNATION } = filterTypes;
+const { DEFAULT, COMPANY, COUNTRY, STATE, CITY, AREA, DEPARTMENT, GROUP, DESIGNATION, EMPLOYEE } = filterTypes;
 
 export const showFilterProps = {
     [COMPANY]: false,
@@ -264,12 +265,13 @@ export const showFilterProps = {
     [AREA]: false,
     [DEPARTMENT]: false,
     [GROUP]: false,
-    [DESIGNATION]: false
+    [DESIGNATION]: false,
+    [EMPLOYEE]: false
 }
 
 useDropDown.propTypes = {
     filter: PropTypes.objectOf({
-        type: PropTypes.oneOf([DEFAULT, COMPANY, COUNTRY, STATE, CITY, AREA, DEPARTMENT, GROUP, DESIGNATION]).isRequired,
+        type: PropTypes.oneOf([DEFAULT, COMPANY, COUNTRY, STATE, CITY, AREA, DEPARTMENT, GROUP, EMPLOYEE, DESIGNATION]).isRequired,
         data: PropTypes.oneOfType([
             PropTypes.array,
             PropTypes.object
@@ -278,14 +280,15 @@ useDropDown.propTypes = {
 }
 
 export const Name_MAP = {
-    [COMPANY]: "company",
+    [COMPANY]: "companies",
     [COUNTRY]: "countries",
     [STATE]: "states",
     [CITY]: "cities",
     [AREA]: "areas",
     [DEPARTMENT]: "departments",
     [GROUP]: "groups",
-    [DESIGNATION]: "designations"
+    [DESIGNATION]: "designations",
+    [EMPLOYEE]: 'employees'
 }
 
 export const DROPDOWN_PROPS = {
@@ -293,10 +296,6 @@ export const DROPDOWN_PROPS = {
         elementType: "ad_dropdown",
         name: "company",
         label: "Company",
-        required: true,
-        breakpoints: {
-            md: 12
-        },
         dataName: 'companyName',
         defaultValue: null
     },
@@ -304,10 +303,6 @@ export const DROPDOWN_PROPS = {
         elementType: "ad_dropdown",
         name: "country",
         label: "Country",
-        required: true,
-        breakpoints: {
-            md: 12
-        },
         dataName: 'name',
         defaultValue: null
     },
@@ -315,10 +310,6 @@ export const DROPDOWN_PROPS = {
         elementType: "ad_dropdown",
         name: "state",
         label: "State",
-        required: true,
-        breakpoints: {
-            md: 12
-        },
         dataName: "name",
         defaultValue: null
     },
@@ -326,11 +317,21 @@ export const DROPDOWN_PROPS = {
         elementType: "ad_dropdown",
         name: "city",
         label: "City",
-        breakpoints: {
-            md: 12
-        },
-        required: true,
         dataName: "name",
+        defaultValue: null
+    },
+    [AREA]: {
+        elementType: "ad_dropdown",
+        name: "area",
+        label: "Area",
+        dataName: "areaName",
+        defaultValue: null
+    },
+    [EMPLOYEE]: {
+        elementType: "ad_dropdown",
+        name: "employee",
+        label: "Employees",
+        dataName: "fullName",
         defaultValue: null
     }
 }

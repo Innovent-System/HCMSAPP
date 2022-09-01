@@ -220,6 +220,7 @@ export const AutoForm = forwardRef(function (props, ref) {
         resetForm: resetFormProps,
         validateFields,
         setFormValue,
+        initialValues,
         getValue() {
             return values
         }

@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types'
-import { Tab, Tabs, Typography, Box, TabList, TabContext, TabPanel } from '../deps/ui'
+import { Tab, Box, TabList, TabContext, TabPanel } from '../deps/ui'
 
 
 const Styles = {
@@ -33,7 +33,7 @@ function TabsComponent({ TabsConfig, orientation = "vertical" }) {
                     </TabList>
                 </Box>
                 <div>
-                    {TabsConfig.map((m, index) => <TabPanel index={index} value={String(index)} key={index}> {m.panel}</TabPanel>)}
+                    {TabsConfig.map((m, index) => <TabPanel  index={index} value={String(index)} key={index}> {m.panel}</TabPanel>)}
                 </div>
             </TabContext>
         </Box>
