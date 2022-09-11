@@ -207,7 +207,7 @@ const SignIn = () => {
 
                 <Box className={classes.Wrapper}>
                   <Controls.Button
-                    text="Login"
+                text="Login"
                     type="submit"
                     disabled={loader}
                   />

@@ -7,12 +7,13 @@ import { API } from '../_Service';
 import { useDispatch, useSelector } from 'react-redux';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAction } from '../../../store/actions/httpactions';
 import { GridToolbarContainer, Box } from "../../../deps/ui";
-import { Circle, Add as AddIcon, Delete as DeleteIcon } from "../../../deps/ui/icons";
+import { Circle, Add as AddIcon, Delete as DeleteIcon, } from "../../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions } from '../../../components/useDataGrid';
 import { useSocketIo } from '../../../components/useSocketio';
 import ConfirmDialog from '../../../components/ConfirmDialog';
 import PropTypes from 'prop-types'
-import { formateISODateTime } from '../../../services/dateTimeService'
+import { formateISODateTime, formateISOTime } from '../../../services/dateTimeService'
+import InfoToolTip from "../../../components/InfoToolTip";
 
 const fields = {
     shiftName: {
@@ -40,7 +41,7 @@ const fields = {
     },
 }
 
-const getColumns = (apiRef, onEdit, onActive, onDelete, setOpenShift) => {
+const getColumns = (apiRef, onEdit, onActive, onDelete) => {
     const actionKit = {
         onActive: onActive,
         onEdit: onEdit,
@@ -55,7 +56,7 @@ const getColumns = (apiRef, onEdit, onActive, onDelete, setOpenShift) => {
             field: 'shiftName', headerName: 'Name', width: 180, hideable: false
         },
         {
-            field: 'shiftTime', headerName: 'Shift Time', width: 180, hideable: false
+            field: 'shiftTime', headerName: 'Shift Time', width: 180, hideable: false, valueGetter: ({ row }) => formateISOTime(row.startTime) + " - " + formateISOTime(row.endTime)
         },
         { field: 'modifiedOn', headerName: 'Modified On', hideable: false, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
         { field: 'createdOn', headerName: 'Created On', hideable: false, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
@@ -79,7 +80,6 @@ const Weeks = [{ id: "Sunday", name: "Sunday" },
 { id: "Friday", name: "Friday" },
 { id: "Saturday", name: "Saturday" }
 ];
-
 
 const DEFAUL_API = API.Shift;
 let editId = 0;
@@ -203,14 +203,10 @@ const Shift = () => {
         const { getValue, validateFields } = formApi.current
         if (validateFields()) {
             let values = getValue();
-            let dataToInsert = {};
-            dataToInsert.name = values.name;
-
             if (isEdit.current)
                 values._id = editId
 
             addEntity({ url: DEFAUL_API, data: [values] });
-
         }
     }
 
@@ -266,7 +262,7 @@ const Shift = () => {
             },
             name: "minTime",
             category: "time",
-            label: "Company Start",
+            label: "Min Start Time",
             defaultValue: null
         },
         {
@@ -277,7 +273,7 @@ const Shift = () => {
             },
             name: "maxTime",
             category: "time",
-            label: "Company End",
+            label: "Max Start Time",
             defaultValue: null
         },
         {
@@ -287,16 +283,33 @@ const Shift = () => {
             defaultValue: false,
         },
         {
-            elementType: "dropdown",
-            name: "holidays",
-            label: "Holidays",
-            isMultiple: true,
-            dataId: "id",
-            dataName: "name",
-            defaultValue: [Weeks[0]],
-            options: Weeks
-        }
-
+            elementType: "inputfield",
+            name: "late",
+            type: "number",
+            label: "Late",
+            defaultValue: 0
+        },
+        {
+            elementType: "inputfield",
+            name: "early",
+            type: "number",
+            label: "Early",
+            defaultValue: 0
+        },
+        {
+            elementType: "inputfield",
+            name: "halfDay",
+            type: "number",
+            label: "Half Day",
+            defaultValue: 0
+        },
+        {
+            elementType: "inputfield",
+            name: "shortDay",
+            type: "number",
+            label: "Short Day",
+            defaultValue: 0
+        },
     ];
 
     const showAddModal = () => {
@@ -312,8 +325,8 @@ const Shift = () => {
                 title="Add Shift"
                 openPopup={openPopup}
                 maxWidth="sm"
-                isEdit={isEdit.current}
                 keepMounted={true}
+                isEdit={isEdit.current}
                 addOrEditFunc={handleSubmit}
                 setOpenPopup={setOpenPopup}>
                 <AutoForm formData={formData} ref={formApi} isValidate={true} />
@@ -345,7 +358,6 @@ function ShiftToolbar(props) {
     return (
         <>
             <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
-
                 <Box >
                     {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
                     <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add record" />

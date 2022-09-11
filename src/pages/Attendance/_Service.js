@@ -4,8 +4,8 @@ export const API = {
     GetAttendanceDetail: "attendance/request/detail",
     Shift: "attendance/shift",
     AssignShifts: "attendance/shift/assignshift",
-    ShiftDetail: "attendance/shift/shiftdetail",
-    Employee: "employee/list"
+    ScheduleDetail: "attendance/schedule/scheduledetail",
+    Schedule: "attendance/schedule"
     // Designation: "employee/designation",
 }
 

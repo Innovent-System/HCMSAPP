@@ -7,5 +7,5 @@ export {
     AllInbox, RotateLeft, AccountBalanceWallet, Delete, SaveTwoTone, EditTwoTone, NotificationsNone, ChatBubbleOutline
     , PowerSettingsNew, Search, Close, PhotoCamera, Check, Clear, CheckBoxOutlineBlank, CheckBox, FilterList, CloudUpload, ExpandLess
     , ExpandMore, NotListedLocation, Launch, PeopleOutline, LocationCityOutlined, Settings, BookOutlined, ToggleOff, ToggleOn,
-    Circle, GridView, Add, RemoveCircleOutline, AccessTime, Addchart, DoneAll
+    Circle, GridView, Add, RemoveCircleOutline, AccessTime, Addchart, DoneAll, Info, InfoRounded, InfoOutlined, InfoSharp, FileCopy, WatchLater
 } from '@mui/icons-material';

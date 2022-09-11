@@ -109,7 +109,7 @@ const validateAllFields = (fieldValues, values) => {
 const DEFAULT_BREAK_POINTS = { xs: 12, sm: 6, md: 6 };
 export const AutoForm = forwardRef(function (props, ref) {
 
-    const { formData, breakpoints, children, isValidate = false, isEdit = false, flexDirection, as = "form", ...other } = props;
+    const { formData, breakpoints, children, isValidate = false, isEdit = false, flexDirection = "row", as = "form", ...other } = props;
     const formStates = useRef({
         initialValues: {},
         errorProps: [],
@@ -237,50 +237,47 @@ export const AutoForm = forwardRef(function (props, ref) {
     }
 
     return (
-        <>
-            <Box component={as} autoComplete="off" {...other}>
-                <Grid {...breakpoints} flexDirection={flexDirection} gap={1} container>
-                    {Object.keys(initialValues).length ? formData.map(({ name, label, required, elementType, Component = null, disabled, classes, _children, breakpoints = DEFAULT_BREAK_POINTS, onChange, modal, defaultValue, ...others }, index) => (
-                        Component ? <Component {...others} key={index}>
-                            <Grid spacing={3} container>
-                                {Array.isArray(_children) ? _children.map(({ name, label, required, elementType, breakpoints = DEFAULT_BREAK_POINTS, classes, disabled, onChange, modal, _defaultValue, ..._others }, innerIndex) => (
-                                    <Grid {...(modal && { style: { position: "relative" } })}  {...(breakpoints && { ...breakpoints })} key={innerIndex} item>
-                                        {modal && <Box position="absolute" top={0} right={0}>{modal.Component}</Box>}
-                                        <Element key={innerIndex + name} elementType={elementType}
-                                            name={name}
-                                            label={label}
-                                            {...(required && { required: handleConditionalField(name, required) })}
-                                            value={values[name]}
-                                            {...(disabled && { disabled: (typeof disabled === "function" ? disabled(values) : required) })}
-                                            onChange={(e) => handleInputChange(e, onChange)}
-                                            {...((changeErrors[name] || errors[name]) && { error: (changeErrors[name] || errors[name]) })}
-                                            {...(classes && { className: clsx(classes) })}
-                                            {..._others}
-                                        />
-                                    </Grid>
-
-                                )) : null}
-                            </Grid>
-                        </Component> :
-                            <Grid {...(breakpoints && { ...breakpoints })} key={index} item>
-                                <Element elementType={elementType}
+        <Grid  {...breakpoints} {...other} flexDirection={flexDirection} gap={1} container>
+            {Object.keys(initialValues).length ? formData.map(({ name, label, required, elementType, Component = null, disabled, classes, _children, breakpoints = DEFAULT_BREAK_POINTS, onChange, modal, defaultValue, ...others }, index) => (
+                Component ? <Component {...others} key={index + name}>
+                    <Grid spacing={3} container>
+                        {Array.isArray(_children) ? _children.map(({ name, label, required, elementType, breakpoints = DEFAULT_BREAK_POINTS, classes, disabled, onChange, modal, _defaultValue, ..._others }, innerIndex) => (
+                            <Grid {...(modal && { style: { position: "relative" } })}  {...(breakpoints && { ...breakpoints })} key={innerIndex} item>
+                                {modal && <Box position="absolute" top={0} right={0}>{modal.Component}</Box>}
+                                <Element key={innerIndex + name} elementType={elementType}
                                     name={name}
                                     label={label}
-                                    value={values[name]}
                                     {...(required && { required: handleConditionalField(name, required) })}
+                                    value={values[name]}
                                     {...(disabled && { disabled: (typeof disabled === "function" ? disabled(values) : required) })}
                                     onChange={(e) => handleInputChange(e, onChange)}
                                     {...((changeErrors[name] || errors[name]) && { error: (changeErrors[name] || errors[name]) })}
                                     {...(classes && { className: clsx(classes) })}
-                                    {...others}
+                                    {..._others}
                                 />
                             </Grid>
-                    )) : <Loader />
-                    }
-                    {children}
-                </Grid>
-            </Box>
-        </>
+
+                        )) : null}
+                    </Grid>
+                </Component> :
+                    <Grid {...(modal && { style: { position: "relative" } })} {...(breakpoints && { ...breakpoints })} key={index + name} item>
+                        {modal && <>{modal.Component}</>}
+                        <Element elementType={elementType}
+                            name={name}
+                            label={label}
+                            value={values[name]}
+                            {...(required && { required: handleConditionalField(name, required) })}
+                            {...(disabled && { disabled: (typeof disabled === "function" ? disabled(values) : required) })}
+                            onChange={(e) => handleInputChange(e, onChange)}
+                            {...((changeErrors[name] || errors[name]) && { error: (changeErrors[name] || errors[name]) })}
+                            {...(classes && { className: clsx(classes) })}
+                            {...others}
+                        />
+                    </Grid>
+            )) : <Loader />
+            }
+            {children}
+        </Grid>
     )
 })
 

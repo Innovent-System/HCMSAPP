@@ -1,9 +1,10 @@
 import React from 'react'
 import { FormControl, FormControlLabel, Checkbox as MuiCheckbox } from '../../deps/ui';
+import PropTypes from 'prop-types';
 
-export default  function Checkbox(props) {
+export default function Checkbox(props) {
 
-    const { name, label, value, onChange } = props;
+    const { name, label, value, onChange, ...others } = props;
 
 
     const convertToDefEventPara = (name, value) => ({
@@ -13,7 +14,7 @@ export default  function Checkbox(props) {
     })
 
     return (
-        <FormControl>
+        <FormControl  {...others}>
             <FormControlLabel
                 control={<MuiCheckbox
                     name={name}
@@ -25,4 +26,23 @@ export default  function Checkbox(props) {
             />
         </FormControl>
     )
+}
+
+Checkbox.propTypes = {
+    name: PropTypes.string,
+    label: PropTypes.string,
+    value: PropTypes.any,
+    color: PropTypes.string,
+    variant: PropTypes.string,
+    size: PropTypes.string,
+    onChange: PropTypes.func,
+    sx: PropTypes.oneOfType([
+        PropTypes.object,
+        PropTypes.func,
+        PropTypes.arrayOf(
+            PropTypes.func,
+            PropTypes.object,
+            PropTypes.bool
+        )
+    ])
 }

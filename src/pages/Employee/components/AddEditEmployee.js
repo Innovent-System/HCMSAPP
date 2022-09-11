@@ -10,7 +10,7 @@ import { useDropDown } from '../../../components/useDropDown';
 import PropTypes from 'prop-types'
 import { useEntityAction, useLazyEntityQuery } from '../../../store/actions/httpactions';
 import Loader from '../../../components/Circularloading'
-import {} from 'date-fns'
+import { } from 'date-fns'
 
 
 const Styles = {
@@ -32,7 +32,7 @@ const Styles = {
 const AddDepartmentModal = () => {
   const [openPopup, setOpenPopup] = useState(false);
   return (
-    <>
+    <Box position="absolute" top={0} right={0}>
       <IconButton size='small' onClick={() => setOpenPopup(true)}>
         <Launch fontSize="small" />
       </IconButton>
@@ -44,7 +44,7 @@ const AddDepartmentModal = () => {
         <DepartmentModel />
       </Popup>
 
-    </>
+    </Box>
   )
 }
 

@@ -7,10 +7,10 @@ export {
     Collapse, Step, StepLabel, Stepper, Link, Input, ButtonGroup, Popper, ListItemIcon, ListItemText, Drawer, Zoom, Snackbar,
     Card, Dialog, DialogTitle, DialogContent, ListSubheader, StepContent,
     Table, TableHead, TableRow, TableCell, TablePagination, TableSortLabel, Autocomplete, createFilterOptions,
-    DialogActions, Stack, Tab, Tabs, Accordion, AccordionSummary, AccordionDetails, Backdrop
+    DialogActions, Stack, Tab, Tabs, Accordion, AccordionSummary, AccordionDetails, Backdrop, CardActionArea, CardContent, CardActions, CardHeader, MenuList
+    ,SpeedDial,SpeedDialAction,SpeedDialIcon
 } from '@mui/material';
 
-export { TabList as JoyTabList, Tab as JoyTab, Tabs as JoyTabs, TabPanel as JoyTabPanel } from '@mui/joy'
 export {
     GridToolbarContainer,
     GridActionsCellItem,

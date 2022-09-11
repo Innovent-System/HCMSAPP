@@ -118,7 +118,7 @@ const Area = () => {
   const { countryIds, stateIds, cityIds } = useDropDownIds();
 
 
-  const { data, isLoading, status, refetch } = useEntitiesQuery({
+  const { data, isLoading, status, refetch, currentData } = useEntitiesQuery({
     url: API.AREA,
     params: {
       limit: offSet.current.limit,
@@ -132,6 +132,7 @@ const Area = () => {
     }
   });
 
+  console.log({ data, currentData });
   const { addEntity, updateEntity, updateOneEntity, removeEntity } = useEntityAction();
 
   useEffect(() => {
@@ -309,6 +310,7 @@ const Area = () => {
       </Popup>
       <DataGrid apiRef={gridApiRef}
         columns={columns} rows={areas}
+        totalCount={gridFilter.totalRecord}
         loading={loader} pageSize={pageSize}
         toolbarProps={{
           apiRef: gridApiRef,

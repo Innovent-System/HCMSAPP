@@ -68,7 +68,7 @@ export const getApi = createApi({
   }),
 })
 
-export const { useEntitiesQuery, useLazyEntityQuery, useAddMutation, useLazySingleQuery, useUpdateManyMutation, useRemoveMutation, useUpdateOneMutation } = getApi;
+export const { useEntitiesQuery, useLazyEntityQuery, useLazySingleQuery, useAddMutation, useUpdateManyMutation, useRemoveMutation, useUpdateOneMutation } = getApi;
 
 export const useEntityAction = () => {
   const [addEntity] = useAddMutation();

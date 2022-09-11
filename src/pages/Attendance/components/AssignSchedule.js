@@ -35,9 +35,9 @@ const columns = [
     },
 ]
 
-const DEFAUL_API = API.ShiftDetail;
+const DEFAUL_API = API.ScheduleDetail;
 let editId = 0;
-const AssingShift = ({ shiftId, selectedEmployees, setSelectedEmployees }) => {
+const AssingSchedule = ({ scheduleId, selectedEmployees, setSelectedEmployees }) => {
     const [pageSize, setPageSize] = useState(30);
     const isEdit = React.useRef(false);
     const formApi = React.useRef(null);
@@ -70,7 +70,7 @@ const AssingShift = ({ shiftId, selectedEmployees, setSelectedEmployees }) => {
     const { data, status, isLoading, refetch } = useEntitiesQuery({
         url: DEFAUL_API,
         params: {
-            shiftId,
+            scheduleId,
             "companyInfo.fkAreaId": ids.areaIds
         }
     });
@@ -190,4 +190,4 @@ const AssingShift = ({ shiftId, selectedEmployees, setSelectedEmployees }) => {
         </>
     );
 }
-export default AssingShift;
+export default AssingSchedule;
