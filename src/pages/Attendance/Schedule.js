@@ -113,6 +113,9 @@ const Schedule = () => {
     const isEdit = React.useRef(false);
     const formApi = React.useRef(null);
     const [state, setState] = useState(initialState);
+
+    const [tab, setTab] = React.useState('1');
+
     const [textField, setTextField] = useState({
         code: "",
         scheduleName: ""
@@ -149,7 +152,7 @@ const Schedule = () => {
 
     const gridApiRef = useGridApi();
     const query = useSelector(e => e.appdata.query.builder);
-    console.log({ query })
+
     const { data, status, isLoading, refetch } = useEntitiesQuery({
         url: DEFAUL_API,
         params: {
@@ -159,7 +162,7 @@ const Schedule = () => {
         }
     });
 
-    const { addEntity, updateOneEntity, removeEntity } = useEntityAction();
+    const { addEntity, updateOneEntity, updateEntity, removeEntity } = useEntityAction();
 
     useEffect(() => {
         if (status === "fulfilled") {
@@ -224,7 +227,6 @@ const Schedule = () => {
 
     }
 
-
     useEffect(() => {
         getShiftList({
             url: API.Shift, params: {
@@ -265,6 +267,18 @@ const Schedule = () => {
         });
         // }
     }
+    const updateSchedule = () => {
+
+        updateEntity({
+            url: API.UpdateSchedule, data: {
+                scheduleId: offSet.current.scheduleId,
+                isFromAssign: tab === "1",
+                employeeIds: selectedEmployees
+            }
+        });
+
+    }
+
     const handleTextField = (e) => {
         const { name, value } = e.target;
         setTextField({ ...textField, [name]: value });
@@ -307,6 +321,10 @@ const Schedule = () => {
         setOpenPopup(true);
     }
 
+    const handleTabs = (event, newValue) => {
+        setTab(newValue);
+    };
+
     return (
         <>
             <PageHeader
@@ -342,12 +360,13 @@ const Schedule = () => {
             <Popup
                 title="Assinged Schedule"
                 openPopup={openShift}
-                maxWidth="lg"
+                buttonName={tab === "1" ? "UnAssign" : "Assign"}
+                maxWidth="sm"
                 isEdit={isEdit.current}
-                addOrEditFunc={handleSubmit}
+                addOrEditFunc={updateSchedule}
                 setOpenPopup={setOpenShift}
             >
-                <AssingSchedule scheduleId={offSet.current.scheduleId} setSelectedEmployees={setSelectedEmployees} selectedEmployees={selectedEmployees} />
+                <AssingSchedule handleTabs={handleTabs} tab={tab} scheduleId={offSet.current.scheduleId} setSelectedEmployees={setSelectedEmployees} selectedEmployees={selectedEmployees} />
             </Popup>
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={records}

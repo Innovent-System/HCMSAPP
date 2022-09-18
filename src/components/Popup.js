@@ -1,5 +1,5 @@
 import React from 'react'
-import { Dialog, DialogTitle, DialogContent, Typography, DialogActions,IconButton } from '../deps/ui';
+import { Dialog, DialogTitle, DialogContent, Typography, DialogActions, IconButton } from '../deps/ui';
 import Controls from "./controls/Controls";
 import { Close as CloseIcon } from '../deps/ui/icons';
 import PropTypes from 'prop-types'
@@ -24,7 +24,7 @@ const Styles = {
 
 export default function Popup(props) {
 
-    const { title, children, openPopup, setOpenPopup, fullScreen = false, maxWidth = "md", isEdit, addOrEditFunc, footer, keepMounted } = props;
+    const { title, children, openPopup, setOpenPopup, buttonName = "", fullScreen = false, maxWidth = "md", isEdit, addOrEditFunc, footer, keepMounted } = props;
 
 
     return (
@@ -35,7 +35,7 @@ export default function Popup(props) {
                         {title}
                     </Typography>
                     <IconButton color='secondary' sx={Styles.buttonIcon} onClick={() => { setOpenPopup(false) }}>
-                        <CloseIcon/>
+                        <CloseIcon />
                     </IconButton>
                 </div>
             </DialogTitle>
@@ -43,7 +43,7 @@ export default function Popup(props) {
                 {children}
             </DialogContent>
             <DialogActions>
-                {footer ? footer : <Controls.Button text={isEdit ? "Update" : "Submit"} onClick={addOrEditFunc} />}
+                {footer ? footer : <Controls.Button text={buttonName ? buttonName : isEdit ? "Update" : "Submit"} onClick={addOrEditFunc} />}
             </DialogActions>
         </Dialog>
     )
@@ -51,6 +51,7 @@ export default function Popup(props) {
 
 Popup.propTypes = {
     title: PropTypes.string.isRequired,
+    buttonName: PropTypes.string,
     openPopup: PropTypes.bool.isRequired,
     setOpenPopup: PropTypes.func.isRequired,
     children: PropTypes.node.isRequired,

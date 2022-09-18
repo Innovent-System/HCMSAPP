@@ -77,7 +77,7 @@ const SignIn = () => {
       socket.off("joinclient");
       socket.off("joincompany");
     }
-  }, [client, setClient]);
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();

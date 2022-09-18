@@ -2,10 +2,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import Controls from '../../components/controls/Controls';
 import Popup from '../../components/Popup';
-import { API } from './_Service';
+import { API, alphabets } from './_Service';
 import { useDispatch, useSelector } from 'react-redux';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery } from '../../store/actions/httpactions';
-import { GridToolbarContainer, Box, Typography, Stack } from "../../deps/ui";
+import { GridToolbarContainer, Box, Typography, Stack, Link, ButtonGroup } from "../../deps/ui";
 import { Circle, Add as AddIcon, Delete as DeleteIcon, PeopleOutline } from "../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
@@ -48,22 +48,22 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
     return [
         { field: '_id', headerName: 'Id', hide: true },
         {
-            field: 'fullName', headerName: 'Employee Name', flex: 1
+            field: 'fullName', headerName: 'Employee', flex: 1, hideable: false, renderCell: ({ row }) => (
+                <Stack>
+                    <Link underline="hover">{row.fullName}</Link>
+                    <Typography variant="caption"><strong>Department :</strong>{row.department.departmentName}</Typography>
+                    <Typography variant="caption"><strong>Designation :</strong>{row.designation.name}</Typography>
+                    <Typography variant="caption"><strong>Group :</strong>{row.group.groupName}</Typography>
+                </Stack>
+            )
         },
         {
-            field: 'company', headerName: 'Company', renderCell: ({ row }) => (<Stack>
+            field: 'detail', headerName: 'Detail', renderCell: ({ row }) => (<Stack>
                 <Typography variant="caption"><strong>Company :</strong>{row.company.companyName} </Typography>
                 <Typography variant="caption"><strong>Country :</strong>{row.country.name}</Typography>
                 <Typography variant="caption"><strong>State :</strong>{row.state.name}</Typography>
                 <Typography variant="caption"><strong>City :</strong>{row.city.name}</Typography>
                 <Typography variant="caption"><strong>Area :</strong>{row.area.areaName}</Typography>
-            </Stack>), flex: 1
-        },
-        {
-            field: 'detail', headerName: 'Detail', renderCell: ({ row }) => (<Stack>
-                <Typography variant="caption"><strong>Department :</strong>{row.department.departmentName}</Typography>
-                <Typography variant="caption"><strong>Designation :</strong>{row.designation.name}</Typography>
-                <Typography variant="caption"><strong>Group :</strong>{row.group.groupName}</Typography>
             </Stack>), flex: 1
         },
         { field: 'modifiedOn', headerName: 'Modified On', flex: 1 },
@@ -179,7 +179,9 @@ const Employee = () => {
         });
 
     }
-
+    const handleAlphabetSearch = (e) => {
+        console.log(e);
+    }
 
     useEffect(() => {
         offSet.current.isLoadFirstTime = false;
@@ -213,6 +215,11 @@ const Employee = () => {
                 setOpenPopup={setOpenPopup}>
                 <EmpoyeeModal isEdit={isEdit.current} editId={editId} setOpenPopup={setOpenPopup} formRef={formApi} />
             </Popup>
+            <ButtonGroup fullWidth >
+                {alphabets.map(alpha => (
+                    <Controls.Button onClick={handleAlphabetSearch} color="inherit" key={alpha} text={alpha} />
+                ))}
+            </ButtonGroup>
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={employees}
                 loading={isLoading} pageSize={pageSize}
@@ -221,6 +228,7 @@ const Employee = () => {
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: showAddModal,
+                    handleAlphabetSearch: handleAlphabetSearch,
                     onDelete: handelDeleteItems,
                     selectionModel
                 }}
@@ -236,19 +244,13 @@ const Employee = () => {
 export default Employee;
 
 function EmployeeToolbar(props) {
-    const { apiRef, onAdd, onDelete, selectionModel } = props;
+    const { apiRef, onAdd, onDelete, handleAlphabetSearch, selectionModel } = props;
 
     return (
-        <>
-            <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
-
-                <Box >
-                    {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
-                    <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add record" />
-                </Box>
-            </GridToolbarContainer>
-        </>
-
+        <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
+            {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
+            <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add record" />
+        </GridToolbarContainer>
     );
 }
 

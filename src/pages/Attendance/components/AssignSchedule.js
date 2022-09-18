@@ -14,30 +14,21 @@ import Tabs from '../../../components/Tabs'
 
 const columns = [
     { field: '_id', headerName: 'Id', hide: true, hideable: false },
+    { field: 'row_No', headerName: 'Sr#', hideable: false, maxWidth: 50 },
     {
         field: 'fullName', headerName: 'Employee', width: 180, hideable: false, renderCell: ({ row }) => (
-            <Stack sx={{ cursor: "pointer" }}>
-                <Link underline="hover">{row.fullName}</Link>
-                <Typography variant="caption"><strong>Department :</strong>{row.department.departmentName}</Typography>
-                <Typography variant="caption"><strong>Designation :</strong>{row.designation.name}</Typography>
-                <Typography variant="caption"><strong>Group :</strong>{row.group.groupName}</Typography>
-            </Stack>
+            <Link underline="hover">{row.fullName}</Link>
         )
     },
-    {
-        field: 'detail', headerName: 'Detail', renderCell: ({ row }) => (<Stack>
-            <Typography variant="caption"><strong>Company :</strong>{row.company.companyName} </Typography>
-            <Typography variant="caption"><strong>Country :</strong>{row.country.name}</Typography>
-            <Typography variant="caption"><strong>State :</strong>{row.state.name}</Typography>
-            <Typography variant="caption"><strong>City :</strong>{row.city.name}</Typography>
-            <Typography variant="caption"><strong>Area :</strong>{row.area.areaName}</Typography>
-        </Stack>), flex: 1
-    },
+    { field: 'area', headerName: 'Area', hideable: false, valueGetter: ({ row }) => row.area.areaName },
+    { field: 'department', headerName: 'Department', hideable: false, valueGetter: ({ row }) => row.department.departmentName },
+    { field: 'desgination', headerName: 'Desgination', hideable: false, valueGetter: ({ row }) => row.designation.name },
+    { field: 'group', headerName: 'Group', hideable: false, valueGetter: ({ row }) => row.group.groupName },
 ]
 
 const DEFAUL_API = API.ScheduleDetail;
 let editId = 0;
-const AssingSchedule = ({ scheduleId, selectedEmployees, setSelectedEmployees }) => {
+const AssingSchedule = ({ scheduleId, tab, handleTabs, selectedEmployees, setSelectedEmployees }) => {
     const [pageSize, setPageSize] = useState(30);
     const isEdit = React.useRef(false);
     const formApi = React.useRef(null);
@@ -87,7 +78,7 @@ const AssingSchedule = ({ scheduleId, selectedEmployees, setSelectedEmployees })
 
     }, [data, status])
 
-    const { socketData } = useSocketIo("changeInDesignation", refetch);
+    const { socketData } = useSocketIo("changeInSchedule", refetch);
 
     useEffect(() => {
         if (Array.isArray(socketData)) {
@@ -121,12 +112,6 @@ const AssingSchedule = ({ scheduleId, selectedEmployees, setSelectedEmployees })
 
     }
 
-    const [value, setValue] = React.useState('1');
-
-    const handleChange = (event, newValue) => {
-        setValue(newValue);
-    };
-
     const handleSubmit = (e) => {
         const { getValue, validateFields } = formApi.current
         if (validateFields()) {
@@ -154,9 +139,9 @@ const AssingSchedule = ({ scheduleId, selectedEmployees, setSelectedEmployees })
             />
 
             <Box sx={{ width: '100%', typography: 'body1' }}>
-                <TabContext value={value}>
+                <TabContext value={tab}>
                     <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                        <TabList onChange={handleChange} aria-label="lab API tabs example">
+                        <TabList onChange={handleTabs} aria-label="lab API tabs example">
                             <Tab label="Assigned" value="1" />
                             <Tab label="UnAssigned" value="2" />
                         </TabList>
@@ -164,7 +149,6 @@ const AssingSchedule = ({ scheduleId, selectedEmployees, setSelectedEmployees })
                     <TabPanel value="1">
                         <DataGrid apiRef={gridApiRef}
                             columns={columns} rows={records.assigned}
-                            rowHeight={100}
                             disableSelectionOnClick
                             loading={isLoading} pageSize={pageSize}
                             totalCount={offSet.current.totalRecord}
@@ -175,7 +159,6 @@ const AssingSchedule = ({ scheduleId, selectedEmployees, setSelectedEmployees })
                     <TabPanel value="2">
                         <DataGrid apiRef={gridApiRef}
                             columns={columns} rows={records.unAssign}
-                            rowHeight={100}
                             disableSelectionOnClick
                             loading={isLoading} pageSize={pageSize}
                             totalCount={offSet.current.totalRecord}

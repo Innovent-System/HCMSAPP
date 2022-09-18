@@ -34,21 +34,21 @@ import QueryBuilder, {
 } from "./QueryBuilder";
 
 const useStyles = makeStyles((theme) => ({
-  Root:{
+  Root: {
     padding: theme.spacing(1, 2),
     marginBottom: theme.spacing(2),
     background: theme.palette.secondary.main + "!important",
-    "& .left":{
-      textAlign:"left",
-      "& h1":{
+    "& .left": {
+      textAlign: "left",
+      "& h1": {
         color: theme.palette.secondary.contrastText,
         fontWeight: 'bold',
-        fontSize:20
+        fontSize: 20
       }
     },
-    "& .right":{
-      textAlign:"right",
-      '& button':{
+    "& .right": {
+      textAlign: "right",
+      '& button': {
         color: theme.palette.secondary.contrastText,
       }
     },
@@ -127,7 +127,7 @@ export default function PageHeader(props) {
         justifyContent="space-between"
         alignItems="center"
         className={`${classes.Root} page-heading`}>
-        <Grid item className="left">
+        <Grid item  className="left">
           <Typography variant="h1"> {title} </Typography>
         </Grid>
         <Grid item className="right">

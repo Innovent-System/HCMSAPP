@@ -96,8 +96,8 @@ const useStyles = makeStyles((theme) => ({
           "& .MuiListItemIcon-root": {
             minWidth: "30px",
           },
-          '& .MuiListItem-root':{
-            '&.active .MuiSvgIcon-root, &.active .MuiTypography-root':{
+          '& .MuiListItem-root': {
+            '&.active .MuiSvgIcon-root, &.active .MuiTypography-root': {
               color: theme.palette.primary.main,
             }
           }
@@ -118,9 +118,9 @@ export default function Header() {
       Auth.getitem("appConfigData")?.sideMenuData ||
       []
   );
+
+  
   useEffect(() => {
-    dispatch(CommonDropDownThunk({ url: GET_REGULAR_DROPDOWN }));
-    dispatch(EmployeeDataThunk({ url: GET_EMPLOYEE_DATA }));
     dispatch(AppRoutesThunk({ url: GET_ROUTES }))
       .unwrap()
       .then((res) => {
@@ -129,6 +129,8 @@ export default function Header() {
           appRoutes: data.appRoutes,
           sideMenuData: data.sideMenuData,
         });
+        dispatch(EmployeeDataThunk({ url: GET_EMPLOYEE_DATA }));
+        dispatch(CommonDropDownThunk({ url: GET_REGULAR_DROPDOWN }));
       });
     return () => {
       return socket.off("leave");
