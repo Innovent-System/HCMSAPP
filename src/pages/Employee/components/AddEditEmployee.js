@@ -85,8 +85,8 @@ const mapEmployee = (values) => {
     generalInfo: {
       maritalstatus: values.maritalstatus,
       email: values.email,
-      addresses: [],
-      mobileNumber: values.mobileNumber,
+      // addresses: [],
+      // mobileNumber: values.mobileNumber,
       gender: values.gender,
       dateofBirth: values.dateofBirth,
       religion: values.religion,
@@ -121,9 +121,10 @@ export default function EmployaaModal({ isEdit = false, editId }) {
   const { companies, countries, states, cities, areas, designations, groups, departments, employees, roleTemplates, filterType, setFilter } = useDropDown();
 
   const handleEdit = () => {
-    const { setFormValue } = formApi.current;
+
 
     GetEmpolyee({ url: API.Employee, id: editId }).then(({ data: { result: values } }) => {
+      const { setFormValue } = formApi.current;
       setFormValue({
         emplyeeRefNo: values.emplyeeRefNo,
         punchCode: values.punchCode,
@@ -133,7 +134,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
         fkCompanyId: companies.find(c => c._id === values.fkCompanyId),
         maritalstatus: values.generalInfo.maritalstatus,
         email: values.generalInfo.email,
-        mobileNumber: values.generalInfo.mobileNumber,
+        // mobileNumber: values.generalInfo.mobileNumber,
         gender: values.generalInfo.gender,
         dateofBirth: values.generalInfo.dateofBirth,
         religion: values.generalInfo.religion,
@@ -154,17 +155,11 @@ export default function EmployaaModal({ isEdit = false, editId }) {
   }
 
   useEffect(() => {
-    if (formApi.current && companies?.length) {
-      const { resetForm } = formApi.current;
-      if (isEdit) {
-        handleEdit();
-      }
-      else {
-        resetForm();
-      }
+    if (isEdit && companies?.length) {
+      handleEdit();
     }
 
-  }, [formApi, isEdit, companies])
+  }, [isEdit, companies])
 
 
   const { addEntity } = useEntityAction();
@@ -188,6 +183,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           required: true,
           type: 'number',
           validate: {
+            when: 0,
             errorMessage: "Employee Ref is required",
           },
           defaultValue: ""
@@ -199,6 +195,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           required: true,
           type: 'number',
           validate: {
+            when: 0,
             errorMessage: "Punch Code is required"
           },
           defaultValue: ""
@@ -212,6 +209,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           name: "firstName",
           label: "First Name",
           validate: {
+            when: 0,
             errorMessage: "First Name is required",
           },
           defaultValue: ""
@@ -229,23 +227,25 @@ export default function EmployaaModal({ isEdit = false, editId }) {
         },
         {
           elementType: "inputfield",
-          name: "email",
-          label: "Email",
-          required: (value) => value["isAllowManualAttendance"],
-          type: "email",
+          name: "fName",
+          label: "Father/Husband Name",
+          required: true,
           validate: {
-            errorMessage: "Email is required",
-            validate: (val) => /$^|.+@.+..+/.test(val.email)
+            when: 0,
+            errorMessage: "This Field is required",
           },
           defaultValue: ""
         },
         {
           elementType: "inputfield",
-          name: "mobileNumber",
-          label: "Mobile No",
-          required: true,
+          name: "email",
+          label: "Email",
+          required: (value) => value["isAllowManualAttendance"],
+          type: "email",
           validate: {
-            errorMessage: "Mobile No is required",
+            when: 0,
+            errorMessage: "Email is required",
+            validate: (val) => /$^|.+@.+..+/.test(val.email)
           },
           defaultValue: ""
         },
@@ -324,6 +324,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           label: "Company",
           required: true,
           validate: {
+            when: 1,
             errorMessage: "Company is required",
           },
           dataName: 'companyName',
@@ -338,6 +339,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           label: "Country",
           required: true,
           validate: {
+            when: 1,
             errorMessage: "Country is required",
           },
           dataName: 'name',
@@ -354,6 +356,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           dataName: "name",
           dataId: 'id',
           validate: {
+            when: 1,
             errorMessage: "State is required",
           },
           options: states,
@@ -369,6 +372,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           dataName: "name",
           onChange: (data) => setFilter(data, filterType.CITY, "_id"),
           validate: {
+            when: 1,
             errorMessage: "City is required",
           },
           options: cities,
@@ -393,6 +397,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           required: true,
           dataName: "groupName",
           validate: {
+            when: 1,
             errorMessage: "Group is required",
           },
           options: groups,
@@ -408,6 +413,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
             Component: <AddDepartmentModal />,
           },
           validate: {
+            when: 1,
             errorMessage: "Department is required",
           },
           options: departments,
@@ -458,7 +464,10 @@ export default function EmployaaModal({ isEdit = false, editId }) {
 
 
   const handleNext = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    const { validateWhen } = formApi.current;
+    if (validateWhen(activeStep))
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+
   };
 
   const handleBack = () => {
@@ -487,13 +496,13 @@ export default function EmployaaModal({ isEdit = false, editId }) {
   return (
     <Box sx={Styles.root}>
       <Loader open={loader} />
-      <Stepper style={{
-        flex: '1 0 15%'
+      <Stepper sx={{
+        flex: '1 0 15%',
       }} activeStep={activeStep} orientation="vertical">
         {steps.map((label, index) => {
           return (
-            <Step key={label}>
-              <StepLabel>{label}</StepLabel>
+            <Step key={label} onClick={() => alert("working")}>
+              <StepLabel sx={{ cursor: "pointer" }}>{label}</StepLabel>
             </Step>
           );
         })}

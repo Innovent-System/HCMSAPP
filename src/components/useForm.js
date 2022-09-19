@@ -165,6 +165,7 @@ export const AutoForm = forwardRef(function (props, ref) {
                                 [childItem.name]: "",
                                 validate: childItem.validate?.validate,
                                 message: childItem.validate.errorMessage,
+                                when: childItem.validate?.when,
                                 required: typeof childItem["required"] === "function" ? childItem["required"] : true
                             })
 
@@ -183,6 +184,7 @@ export const AutoForm = forwardRef(function (props, ref) {
                     errorProps.push({
                         [item.name]: "",
                         validate: item.validate?.validate,
+                        when: item.validate?.when,
                         message: item.validate.errorMessage,
                         required: typeof item["required"] === "function" ? item["required"] : true
                     })
@@ -215,10 +217,17 @@ export const AutoForm = forwardRef(function (props, ref) {
     const resetFormProps = () => {
         resetForm();
     }
+    const validateWhen = (when) => {
+        if (!when && when !== 0) return;
+        const validateData = validateAllFields(errorProps.filter(e => e.when === when), values);
+        setErrors({ ...errors, ...validateData })
+        return Object.values(validateData).every((x) => x == "") || Object.keys(validateData).length === 0;
+    }
 
     useImperativeHandle(ref, () => ({
         resetForm: resetFormProps,
         validateFields,
+        validateWhen,
         setFormValue,
         initialValues,
         getValue() {
@@ -237,14 +246,14 @@ export const AutoForm = forwardRef(function (props, ref) {
     }
 
     return (
-        <Grid  {...breakpoints} {...other} flexDirection={flexDirection} gap={1} container>
+        <Grid  {...breakpoints} {...other} flexDirection={flexDirection} spacing={2} container>
             {Object.keys(initialValues).length ? formData.map(({ name, label, required, elementType, Component = null, disabled, classes, _children, breakpoints = DEFAULT_BREAK_POINTS, onChange, modal, defaultValue, ...others }, index) => (
-                Component ? <Component {...others} key={index + name}>
-                    <Grid spacing={3} container>
+                Component ? <Component {...others} key={index + "comp"}>
+                    <Grid spacing={2} container>
                         {Array.isArray(_children) ? _children.map(({ name, label, required, elementType, breakpoints = DEFAULT_BREAK_POINTS, classes, disabled, onChange, modal, _defaultValue, ..._others }, innerIndex) => (
-                            <Grid {...(modal && { style: { position: "relative" } })}  {...(breakpoints && { ...breakpoints })} key={innerIndex} item>
-                                {modal && <Box position="absolute" top={0} right={0}>{modal.Component}</Box>}
-                                <Element key={innerIndex + name} elementType={elementType}
+                            <Grid {...(modal && { style: { position: "relative" } })}  {...(breakpoints && { ...breakpoints })} key={innerIndex + name} item>
+                                {modal && modal.Component}
+                                <Element elementType={elementType}
                                     name={name}
                                     label={label}
                                     {...(required && { required: handleConditionalField(name, required) })}
@@ -261,7 +270,7 @@ export const AutoForm = forwardRef(function (props, ref) {
                     </Grid>
                 </Component> :
                     <Grid {...(modal && { style: { position: "relative" } })} {...(breakpoints && { ...breakpoints })} key={index + name} item>
-                        {modal && <>{modal.Component}</>}
+                        {modal && modal.Component}
                         <Element elementType={elementType}
                             name={name}
                             label={label}

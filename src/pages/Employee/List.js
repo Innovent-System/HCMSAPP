@@ -228,7 +228,6 @@ const Employee = () => {
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: showAddModal,
-                    handleAlphabetSearch: handleAlphabetSearch,
                     onDelete: handelDeleteItems,
                     selectionModel
                 }}
@@ -244,7 +243,7 @@ const Employee = () => {
 export default Employee;
 
 function EmployeeToolbar(props) {
-    const { apiRef, onAdd, onDelete, handleAlphabetSearch, selectionModel } = props;
+    const { apiRef, onAdd, onDelete, selectionModel } = props;
 
     return (
         <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
