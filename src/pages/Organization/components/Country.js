@@ -65,12 +65,91 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
     ]
 }
 let editId = 0;
+export const AddCountry = ({ openPopup, setOpenPopup, isEdit = false, row = null }) => {
+    const formApi = useRef(null);
+    const Companies = useSelector(e => e.appdata.DropDownData?.Companies);
+    const dispatch = useDispatch();
+    const [countryData, setCountryData] = useState([]);
+    useEffect(() => {
+        dispatch(handleGetActions(API.ALL_COUNTRY)).then(res => {
+            setCountryData(res.data);
+        });
+    }, [dispatch])
+
+    useEffect(() => {
+        if (!formApi.current || !openPopup) return;
+        const { resetForm, setFormValue } = formApi.current;
+        if (openPopup && !isEdit)
+            resetForm();
+        else {
+            const { fkCompanyId,intId } = row;
+            setFormValue({
+                company: Companies.find(c => c._id === fkCompanyId),
+                country: countryData.find(c => c.id === intId)
+            });
+        }
+    }, [openPopup, formApi])
+
+    const formData = [
+        {
+            elementType: "ad_dropdown",
+            name: "company",
+            label: "Company",
+            required: true,
+            validate: {
+                errorMessage: "Company is required",
+            },
+            dataName: 'companyName',
+            options: Companies,
+            defaultValue: null
+        },
+        {
+            elementType: "ad_dropdown",
+            name: "country",
+            label: "Country",
+            required: true,
+            validate: {
+                errorMessage: "Country is required",
+            },
+            dataName: 'name',
+            options: countryData,
+            defaultValue: null
+        }
+    ];
+
+    const { addEntity } = useEntityAction();
+
+    const handleSubmit = (e) => {
+        const { getValue, validateFields } = formApi.current
+        if (validateFields()) {
+            let values = getValue();
+            let dataToInsert = values.country;
+            dataToInsert.fkCompanyId = values.company._id;
+            if (isEdit)
+                dataToInsert._id = editId
+
+            addEntity({ url: API.COUNTRY, data: [dataToInsert] });
+        }
+    }
+
+    return <Popup
+        title="Country"
+        openPopup={openPopup}
+        maxWidth="sm"
+        isEdit={isEdit}
+        keepMounted={true}
+        addOrEditFunc={handleSubmit}
+        setOpenPopup={setOpenPopup}>
+        <AutoForm formData={formData} ref={formApi} isValidate={true} />
+    </Popup>
+}
+
 const Country = () => {
     const dispatch = useDispatch();
     const [openPopup, setOpenPopup] = useState(false);
     const [pageSize, setPageSize] = useState(30);
     const isEdit = React.useRef(false);
-    const formApi = React.useRef(null);
+    const row = useRef(null);
     const [selectionModel, setSelectionModel] = React.useState([]);
     const offSet = useRef({
         isLoadMore: false,
@@ -91,13 +170,10 @@ const Country = () => {
     });
 
     const [countries, setCountry] = useState([]);
-    const [countryData, setCountryData] = useState([]);
 
 
     const gridApiRef = useGridApi();
     const query = useSelector(e => e.appdata.query.builder);
-    const Companies = useSelector(e => e.appdata.DropDownData?.Companies);
-
 
     const { data, isLoading, status, refetch } = useEntitiesQuery({
         url: API.COUNTRY,
@@ -108,7 +184,7 @@ const Country = () => {
         }
     });
 
-    const { addEntity, updateOneEntity, removeEntity } = useEntityAction();
+    const { updateOneEntity, removeEntity } = useEntityAction();
 
     useEffect(() => {
         if (status === "fulfilled") {
@@ -144,12 +220,8 @@ const Country = () => {
     const handleEdit = (id) => {
         isEdit.current = true;
         editId = id;
-        const { setFormValue } = formApi.current;
-
-        const companydata = countries.find(a => a.id === id);
-        setFormValue({
-            companyName: companydata.companyName
-        });
+        const rowData = countries.find(a => a.id === id);
+        row.current = rowData;
         setOpenPopup(true);
     }
 
@@ -179,77 +251,21 @@ const Country = () => {
 
     useEffect(() => {
         offSet.current.isLoadFirstTime = false;
-
         dispatch(enableFilterAction(false));
         dispatch(builderFieldsAction(fields));
-        dispatch(handleGetActions(API.ALL_COUNTRY)).then(res => {
-            setCountryData(res.data);
-        });
-
     }, [dispatch])
 
     const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive, handelDeleteItems);
 
-    const handleSubmit = (e) => {
-        const { getValue, validateFields } = formApi.current
-        if (validateFields()) {
-            let values = getValue();
-            let dataToInsert = values.country;
-            dataToInsert._id = null;
-            dataToInsert.fkCompanyId = values.company._id;
-            if (isEdit.current)
-                dataToInsert._id = editId
-
-            addEntity({ url: API.COUNTRY, data: [dataToInsert] });
-        }
-    }
-
-    const formData = [
-        {
-            elementType: "ad_dropdown",
-            name: "country",
-            label: "Country",
-            required: true,
-            validate: {
-                errorMessage: "Country is required",
-            },
-            dataName: 'name',
-            options: countryData,
-            defaultValue: null
-        },
-        {
-            elementType: "ad_dropdown",
-            name: "company",
-            label: "Company",
-            required: true,
-            validate: {
-                errorMessage: "Company is required",
-            },
-            dataName: 'companyName',
-            options: Companies,
-            defaultValue: null
-        },
-    ];
 
     const showAddModal = () => {
         isEdit.current = false;
-        const { resetForm } = formApi.current;
-        resetForm();
         setOpenPopup(true);
     }
 
     return (
         <>
-            <Popup
-                title="Add Country"
-                openPopup={openPopup}
-                maxWidth="sm"
-                isEdit={isEdit.current}
-                keepMounted={true}
-                addOrEditFunc={handleSubmit}
-                setOpenPopup={setOpenPopup}>
-                <AutoForm formData={formData} ref={formApi} isValidate={true} />
-            </Popup>
+            <AddCountry openPopup={openPopup} setOpenPopup={setOpenPopup} row={row.current} isEdit={isEdit.current} />
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={countries}
                 loading={isLoading}
@@ -275,16 +291,10 @@ function CountryToolbar(props) {
     const { apiRef, onAdd, onDelete, selectionModel } = props;
 
     return (
-        <>
-            <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
-
-                <Box >
-                    {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
-                    <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add record" />
-                </Box>
-            </GridToolbarContainer>
-        </>
-
+        <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
+            {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
+            <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add record" />
+        </GridToolbarContainer>
     );
 }
 

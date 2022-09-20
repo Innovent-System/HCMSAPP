@@ -5,16 +5,16 @@ const Styles = {
     m: 0.5,
   },
   small: {
-    w: 4,
-    h: 4,
+    width: 30,
+    height: 30
   },
   medium: {
-    w: 8,
-    h: 8,
+    width: 50,
+    height: 50
   },
   large: {
-    w: 12,
-    h: 12,
+    width: 100,
+    height: 100
   }
 };
 
@@ -29,7 +29,7 @@ export default function Avatar(props) {
       sx={[
         Styles.root,
         (size && Styles[size])
-      ]}   
-     />
+      ]}
+    />
   );
 }

@@ -61,7 +61,7 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
         {
             field: 'departhead', headerName: "Department Head", width: 180, hideable: false
         },
-        
+
         { field: 'modifiedOn', headerName: 'Modified On', hideable: false },
         { field: 'createdOn', headerName: 'Created On', hideable: false },
         {
@@ -77,83 +77,57 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
 }
 
 
-const designation = {
-    elementType: "dropdown",
-    name: "id",
-    label: "Designation",
-    dataId: "_id",
-    dataName: "name",
-    breakpoints: { md: 6 },
-}
-
 let editId = 0;
-const Department = () => {
-    const dispatch = useDispatch();
-    const [openPopup, setOpenPopup] = useState(false);
-    const [pageSize, setPageSize] = useState(30);
-    const isEdit = React.useRef(false);
-    const formApi = React.useRef(null);
+const AddDepartment = ({ openPopup, setOpenPopup, isEdit = false, row = null }) => {
+    const formApi = useRef(null);
     const designationData = React.useRef(null);
-    const [selectionModel, setSelectionModel] = React.useState([]);
     const [mapDesignation, setMapDesignation] = useState([]);
-    const offSet = useRef({
-        isLoadMore: false,
-        isLoadFirstTime: true
-    })
-
     const [error, setError] = useState(false);
 
-    const [filter, setFilter] = useState({
-        lastKey: null,
-        limit: 10,
-        totalRecord: 0
-    })
-
-    const [confirmDialog, setConfirmDialog] = useState({
-        isOpen: false,
-        title: "",
-        subTitle: "",
-    });
-
-    const [records, setRecords] = useState([]);
-
-    const gridApiRef = useGridApi();
-    const query = useSelector(e => e.appdata.query.builder);
+    const { addEntity } = useEntityAction();
     const { Designations: designations, Employees } = useSelector(e => e.appdata.employeeData);
-
-    const { data, status, isLoading, refetch } = useEntitiesQuery({
-        url: DEFAULT_API,
-        params: {
-            limit: filter.limit,
-            lastKeyId: filter.lastKey,
-            searchParams: JSON.stringify(query)
-        }
-    });
-
-    const { addEntity, updateOneEntity, removeEntity } = useEntityAction();
-
     useEffect(() => {
-        if (status === "fulfilled") {
-            const { entityData, totalRecord } = data.result;
-            if (offSet.current.isLoadMore) {
-                setRecords([...entityData, ...records]);
-            }
-            else
-                setRecords(entityData)
-
-            setFilter({ ...filter, totalRecord: totalRecord });
-            offSet.current.isLoadMore = false;
+        if (!formApi.current || !openPopup) return;
+        const { resetForm, setFormValue } = formApi.current;
+        const { resetForms } = designationData.current;
+        if (openPopup && !isEdit) {
+            resetForms();
+            resetForm();
         }
+        else {
+            const data = row;
+            setMapDesignation(data.designations.map(d => [{
+                elementType: "ad_dropdown",
+                name: "id",
+                label: "Designation",
+                dataId: "_id",
+                dataName: "name",
+                defaultValue: designations.find(c => c._id === d.id),
+                options: designations
+            },
+            {
+                elementType: "inputfield",
+                name: "noOfPositions",
+                label: "No Of Positions",
+                required: true,
+                type: 'number',
+                validate: {
+                    errorMessage: "You have exceeded the employees limit",
+                    validate: (val) => {
+                        const { getValue } = formApi.current;
+                        return val.noOfPositions < getValue().employeeLimit && val.noOfPositions > 0
+                    }
+                },
+                defaultValue: d.noOfPositions
+            }]))
 
-    }, [data, status])
-
-    const { socketData } = useSocketIo(`changeIn${DEFAULT_NAME}`, refetch);
-
-    useEffect(() => {
-        if (Array.isArray(socketData)) {
-            setRecords(socketData);
+            setFormValue({
+                departmentName: data.departmentName,
+                employeeLimit: data.employeeLimit,
+                code: data.code,
+            });
         }
-    }, [socketData])
+    }, [openPopup, formApi])
 
     useEffect(() => {
         if (Array.isArray(designations)) {
@@ -189,6 +163,177 @@ const Department = () => {
 
     }, [designations])
 
+    const formData = [
+        {
+            elementType: "inputfield",
+            name: "code",
+            label: "Department Code",
+            required: true,
+            validate: {
+                errorMessage: `Code is required`
+            },
+            defaultValue: ""
+        },
+        {
+            elementType: "inputfield",
+            name: "departmentName",
+            label: DEFAULT_NAME,
+            required: true,
+            validate: {
+                errorMessage: `${DEFAULT_NAME} is required`
+            },
+            defaultValue: ""
+        },
+        {
+            elementType: "inputfield",
+            name: "employeeLimit",
+            label: "Employees Limit",
+            required: true,
+            type: 'number',
+            validate: {
+                errorMessage: "You have exceeded the limit",
+                validate: (val) => val.employeeLimit < 300 && val.employeeLimit > 0
+            },
+            defaultValue: ""
+        },
+        {
+            elementType: "ad_dropdown",
+            name: "departmentHead",
+            label: "Department Head",
+            dataId: "_id",
+            dataName: "fullName",
+            defaultValue: null,
+            options: Employees
+        },
+        {
+            elementType: "fieldarray",
+            breakpoints: { md: 12 },
+            NodeElement: () => <BulkInsert as="div" buttonName="Map Designation"
+                ref={designationData}
+                BulkformData={mapDesignation} />
+        }
+    ];
+
+    const handleSubmit = (e) => {
+        const { getValue, validateFields } = formApi.current;
+        const { getFieldArray } = designationData.current;
+        let { isValid, dataSet } = getFieldArray();
+
+        if (validateFields() && isValid) {
+            const { departmentName, employeeLimit, code, departmentHead } = getValue();
+            let dataToInsert = {};
+
+            const total = dataSet.reduce((total, obj) => (+obj.noOfPositions ?? 0) + total, 0);
+            if (total > employeeLimit) return setError(true);
+            else {
+                setError(false);
+                dataSet = groupBySum(dataSet, "id", "noOfPositions");
+            }
+
+            dataToInsert.departmentName = departmentName;
+            dataToInsert.employeeLimit = employeeLimit;
+            dataToInsert.code = code;
+            if (departmentHead?._id) {
+                dataToInsert.departmentHead = departmentHead._id;
+            }
+            dataToInsert.designations = dataSet;
+            if (isEdit)
+                dataToInsert._id = editId
+
+            addEntity({ url: DEFAULT_API, data: [dataToInsert] });
+
+        }
+    }
+
+    return <Popup
+        title={`Add ${DEFAULT_NAME}`}
+        openPopup={openPopup}
+
+        isEdit={isEdit}
+        keepMounted={true}
+        addOrEditFunc={handleSubmit}
+        setOpenPopup={setOpenPopup}>
+
+        <AutoForm formData={formData} ref={formApi} isValidate={true} />
+        <FormHelperText
+            error={error}
+            sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                padding: "0 10px"
+            }}
+        >
+            {error && <span>Total No. of positions should be less then employees limit</span>}
+        </FormHelperText>
+    </Popup>
+}
+
+const Department = () => {
+    const dispatch = useDispatch();
+    const [openPopup, setOpenPopup] = useState(false);
+    const [pageSize, setPageSize] = useState(30);
+    const isEdit = React.useRef(false);
+    const row = React.useRef(null);
+
+    const [selectionModel, setSelectionModel] = React.useState([]);
+
+    const offSet = useRef({
+        isLoadMore: false,
+        isLoadFirstTime: true
+    })
+
+
+    const [filter, setFilter] = useState({
+        lastKey: null,
+        limit: 10,
+        totalRecord: 0
+    })
+
+    const [confirmDialog, setConfirmDialog] = useState({
+        isOpen: false,
+        title: "",
+        subTitle: "",
+    });
+
+    const [records, setRecords] = useState([]);
+
+    const gridApiRef = useGridApi();
+    const query = useSelector(e => e.appdata.query.builder);
+    const { data, status, isLoading, refetch } = useEntitiesQuery({
+        url: DEFAULT_API,
+        params: {
+            limit: filter.limit,
+            lastKeyId: filter.lastKey,
+            searchParams: JSON.stringify(query)
+        }
+    });
+
+    const { updateOneEntity, removeEntity } = useEntityAction();
+
+    useEffect(() => {
+        if (status === "fulfilled") {
+            const { entityData, totalRecord } = data.result;
+            if (offSet.current.isLoadMore) {
+                setRecords([...entityData, ...records]);
+            }
+            else
+                setRecords(entityData)
+
+            setFilter({ ...filter, totalRecord: totalRecord });
+            offSet.current.isLoadMore = false;
+        }
+
+    }, [data, status])
+
+    const { socketData } = useSocketIo(`changeIn${DEFAULT_NAME}`, refetch);
+
+    useEffect(() => {
+        if (Array.isArray(socketData)) {
+            setRecords(socketData);
+        }
+    }, [socketData])
+
+
     const loadMoreData = (params) => {
         if (records.length < filter.totalRecord && params.viewportPageSize !== 0) {
             offSet.current.isLoadMore = true;
@@ -199,40 +344,8 @@ const Department = () => {
     const handleEdit = (id) => {
         isEdit.current = true;
         editId = id;
-        const { setFormValue } = formApi.current;
-
         const data = records.find(a => a.id === id);
-
-        setMapDesignation(data.designations.map(d => [{
-            elementType: "ad_dropdown",
-            name: "id",
-            label: "Designation",
-            dataId: "_id",
-            dataName: "name",
-            defaultValue: designations.find(c => c._id === d.id),
-            options: designations
-        },
-        {
-            elementType: "inputfield",
-            name: "noOfPositions",
-            label: "No Of Positions",
-            required: true,
-            type: 'number',
-            validate: {
-                errorMessage: "You have exceeded the employees limit",
-                validate: (val) => {
-                    const { getValue } = formApi.current;
-                    return val.noOfPositions < getValue().employeeLimit && val.noOfPositions > 0
-                }
-            },
-            defaultValue: d.noOfPositions
-        }]))
-
-        setFormValue({
-            departmentName: data.departmentName,
-            employeeLimit: data.employeeLimit,
-            code: data.code,
-        });
+        row.current = data;
         setOpenPopup(true);
     }
 
@@ -269,121 +382,16 @@ const Department = () => {
 
     const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive, handelDeleteItems);
 
-    const handleSubmit = (e) => {
-        const { getValue, validateFields } = formApi.current;
-        const { getFieldArray } = designationData.current;
-        let { isValid, dataSet } = getFieldArray();
 
-        if (validateFields() && isValid) {
-            const { departmentName, employeeLimit, code, departmentHead } = getValue();
-            let dataToInsert = {};
-
-            const total = dataSet.reduce((total, obj) => (+obj.noOfPositions ?? 0) + total, 0);
-            if (total > employeeLimit) return setError(true);
-            else {
-                setError(false);
-                dataSet = groupBySum(dataSet, "id", "noOfPositions");
-            }
-
-            dataToInsert.departmentName = departmentName;
-            dataToInsert.employeeLimit = employeeLimit;
-            dataToInsert.code = code;
-            if (departmentHead?._id) {
-                dataToInsert.departmentHead = departmentHead._id;
-            }
-            dataToInsert.designations = dataSet;
-            if (isEdit.current)
-                dataToInsert._id = editId
-
-            addEntity({ url: DEFAULT_API, data: [dataToInsert] });
-
-        }
-    }
-
-
-    const formData = [
-        {
-            elementType: "inputfield",
-            name: "departmentName",
-            label: DEFAULT_NAME,
-            required: true,
-            validate: {
-                errorMessage: `${DEFAULT_NAME} is required`
-            },
-            defaultValue: ""
-        },
-        {
-            elementType: "inputfield",
-            name: "employeeLimit",
-            label: "Employees Limit",
-            required: true,
-            type: 'number',
-            validate: {
-                errorMessage: "You have exceeded the limit",
-                validate: (val) => val.employeeLimit < 300 && val.employeeLimit > 0
-            },
-            defaultValue: ""
-        },
-        {
-            elementType: "inputfield",
-            name: "code",
-            label: "Department Code",
-            required: true,
-            validate: {
-                errorMessage: `Code is required`
-            },
-            defaultValue: ""
-        },
-        {
-            elementType: "ad_dropdown",
-            name: "departmentHead",
-            label: "Department Head",
-            dataId: "_id",
-            dataName: "fullName",
-            defaultValue: null,
-            options: Employees
-        },
-        {
-            elementType: "fieldarray",
-            breakpoints: { md: 12 },
-            NodeElement: () => <BulkInsert as="div" buttonName="Map Designation"
-                ref={designationData}
-                BulkformData={mapDesignation} />
-        }
-    ];
 
     const showAddModal = () => {
         isEdit.current = false;
-        const { resetForm } = formApi.current;
-        const { resetForms } = designationData.current;
-        resetForms();
-        resetForm();
         setOpenPopup(true);
     }
 
     return (
         <>
-            <Popup
-                title={`Add ${DEFAULT_NAME}`}
-                openPopup={openPopup}
-                
-                isEdit={isEdit.current}
-                keepMounted={true}
-                addOrEditFunc={handleSubmit}
-                setOpenPopup={setOpenPopup}>
-
-                <AutoForm formData={formData} ref={formApi} isValidate={true} />
-                <FormHelperText
-                    error={error}
-                    sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        padding: "0 10px"
-                    }}
-                >
-                    {error && <span>Total No. of positions should be less then employees limit</span>}
-                </FormHelperText>
-            </Popup>
+            <AddDepartment setOpenPopup={setOpenPopup} openPopup={openPopup} isEdit={isEdit.current} row={row.current} />
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={records}
                 loading={isLoading} pageSize={pageSize}
@@ -410,14 +418,10 @@ function DepartmentToolbar(props) {
     const { apiRef, onAdd, onDelete, selectionModel } = props;
 
     return (
-        <>
-            <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
-                <Box >
-                    {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
-                    <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add record" />
-                </Box>
-            </GridToolbarContainer>
-        </>
+        <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
+            {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
+            <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add record" />
+        </GridToolbarContainer>
     );
 }
 

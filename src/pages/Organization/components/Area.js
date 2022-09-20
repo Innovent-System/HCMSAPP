@@ -85,142 +85,29 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
   ]
 }
 let editId = 0;
-const Area = () => {
-  const dispatch = useDispatch();
-  const [openPopup, setOpenPopup] = useState(false);
-  const [pageSize, setPageSize] = useState(30);
-  const isEdit = React.useRef(false);
-  const formApi = React.useRef(null);
-  const [loader, setloader] = useState(false);
-  const [selectionModel, setSelectionModel] = React.useState([]);
-  const offSet = useRef({
-    isLoadMore: false,
-    isLoadFirstTime: true,
-  })
 
-  const [gridFilter, setGridFilter] = useState({
-    lastKey: null,
-    limit: 10,
-    totalRecord: 0
-  })
-
-  const [confirmDialog, setConfirmDialog] = useState({
-    isOpen: false,
-    title: "",
-    subTitle: "",
-  });
-
-  const [areas, setArea] = useState([]);
-
-  const gridApiRef = useGridApi();
+export const AddArea = ({ openPopup, setOpenPopup, isEdit = false, row = null }) => {
+  const { addEntity } = useEntityAction();
+  const formApi = useRef(null);
   const { countries, cities, states, filterType, setFilter } = useDropDown();
-  const query = useSelector(e => e.appdata.query.builder);
-  const { countryIds, stateIds, cityIds } = useDropDownIds();
-
-
-  const { data, isLoading, status, refetch, currentData } = useEntitiesQuery({
-    url: API.AREA,
-    params: {
-      limit: offSet.current.limit,
-      lastKeyId: offSet.current.isLoadMore ? offSet.current.lastKeyId : "",
-      searchParams: JSON.stringify({
-        ...query,
-        ...(countryIds && { "country.country_id": countryIds }),
-        ...(stateIds && { "state.state_id": stateIds }),
-        ...(cityIds && { "city.city_id": cityIds })
-      })
-    }
-  });
-
-  console.log({ data, currentData });
-  const { addEntity, updateEntity, updateOneEntity, removeEntity } = useEntityAction();
 
   useEffect(() => {
-    if (status === "fulfilled") {
-      const { entityData, totalRecord } = data.result;
-      if (offSet.current.isLoadMore) {
-        setArea([...entityData, ...areas]);
-      }
-      else
-        setArea(entityData)
-
-      setGridFilter({ ...gridFilter, totalRecord: totalRecord });
-      offSet.current.isLoadMore = false;
-    }
-
-  }, [data, status])
-
-  const { socketData } = useSocketIo("changeInArea", refetch);
-  useEffect(() => {
-    if (Array.isArray(socketData)) {
-      setArea(socketData);
-    }
-  }, [socketData])
-
-  const loadMoreData = (params) => {
-    if (areas.length < gridFilter.totalRecord && params.viewportPageSize !== 0) {
-      offSet.current.isLoadMore = true;
-      setGridFilter({ ...gridFilter, lastKey: areas.length ? areas[areas.length - 1].id : null });
-    }
-  }
-
-  const handleEdit = (id) => {
-    isEdit.current = true;
-    editId = id;
-    const { setFormValue } = formApi.current;
-
-    const area = areas.find(a => a.id === id);
-    setFilter(countries.find(c => c._id === area.country_id), filterType.COUNTRY, "id", (data) => {
-      const { states, cities } = data;
-      setFormValue({
-        fkCountryId: countries.find(c => c._id === area.country_id),
-        fkStateId: states.find(s => s._id === area.state_id),
-        fkCityId: cities.find(ct => ct._id === area.city_id),
-        areaName: area.areaName
+    if (!formApi.current || !openPopup) return;
+    const { resetForm, setFormValue } = formApi.current;
+    if (openPopup && !isEdit)
+      resetForm();
+    else {
+      setFilter(countries.find(c => c._id === row.country_id), filterType.COUNTRY, "id", (data) => {
+        const { states, cities } = data;
+        setFormValue({
+          fkCountryId: countries.find(c => c._id === row.country_id),
+          fkStateId: states.find(s => s._id === row.state_id),
+          fkCityId: cities.find(ct => ct._id === row.city_id),
+          areaName: row.areaName
+        });
       });
-      setOpenPopup(true);
-    });
-
-
-  }
-
-  const handleActiveInActive = (id) => {
-    updateOneEntity({ url: API.AREA, data: { _id: id } });
-  }
-
-  const handelDeleteItems = (ids) => {
-    let idTobeDelete = ids;
-    if (Array.isArray(ids)) {
-      idTobeDelete = ids.join(',');
     }
-
-    setConfirmDialog({
-      isOpen: true,
-      title: "Are you sure to delete this records?",
-      subTitle: "You can't undo this operation",
-      onConfirm: () => {
-        removeEntity({ url: API.AREA, params: idTobeDelete }).then(res => {
-          setSelectionModel([]);
-        })
-      },
-    });
-
-  }
-
-  useEffect(() => {
-    offSet.current.isLoadFirstTime = false;
-
-    dispatch(showDropDownFilterAction({
-      country: true,
-      state: true,
-      city: true
-    }))
-    dispatch(enableFilterAction(true));
-    dispatch(builderFieldsAction(fields))
-
-  }, [dispatch])
-
-  const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive, handelDeleteItems);
+  }, [openPopup, formApi])
 
   const handleSubmit = (e) => {
     const { getValue, validateFields } = formApi.current
@@ -231,7 +118,7 @@ const Area = () => {
       dataToInsert.country = { country_id: values.fkCountryId._id, countryName: values.fkCountryId.name, intId: values.fkCountryId.id };
       dataToInsert.state = { state_id: values.fkStateId._id, stateName: values.fkStateId.name, intId: values.fkStateId.id };
       dataToInsert.city = { city_id: values.fkCityId._id, cityName: values.fkCityId.name, intId: values.fkCityId.id };
-      if (isEdit.current)
+      if (isEdit)
         dataToInsert._id = editId
 
       addEntity({ url: API.AREA, data: [dataToInsert] });
@@ -289,29 +176,157 @@ const Area = () => {
     }
   ];
 
+  return <Popup
+    title="Add Area"
+    openPopup={openPopup}
+    maxWidth="sm"
+    isEdit={isEdit}
+    keepMounted={true}
+    addOrEditFunc={handleSubmit}
+    setOpenPopup={setOpenPopup}>
+    <AutoForm formData={formData} ref={formApi} isValidate={true} />
+  </Popup>
+
+}
+
+const Area = () => {
+  const dispatch = useDispatch();
+  const [openPopup, setOpenPopup] = useState(false);
+  const [pageSize, setPageSize] = useState(30);
+  const isEdit = React.useRef(false);
+  const row = useRef(null);
+  const [selectionModel, setSelectionModel] = React.useState([]);
+  const offSet = useRef({
+    isLoadMore: false,
+    isLoadFirstTime: true,
+  })
+
+  const [gridFilter, setGridFilter] = useState({
+    lastKey: null,
+    limit: 10,
+    totalRecord: 0
+  })
+
+  const [confirmDialog, setConfirmDialog] = useState({
+    isOpen: false,
+    title: "",
+    subTitle: "",
+  });
+
+  const [areas, setArea] = useState([]);
+
+  const gridApiRef = useGridApi();
+  const query = useSelector(e => e.appdata.query.builder);
+  const { countryIds, stateIds, cityIds } = useDropDownIds();
+
+
+  const { data, isLoading, status, refetch } = useEntitiesQuery({
+    url: API.AREA,
+    params: {
+      limit: offSet.current.limit,
+      lastKeyId: offSet.current.isLoadMore ? offSet.current.lastKeyId : "",
+      searchParams: JSON.stringify({
+        ...query,
+        ...(countryIds && { "country.country_id": countryIds }),
+        ...(stateIds && { "state.state_id": stateIds }),
+        ...(cityIds && { "city.city_id": cityIds })
+      })
+    }
+  });
+
+
+  const { updateOneEntity, removeEntity } = useEntityAction();
+
+  useEffect(() => {
+    if (status === "fulfilled") {
+      const { entityData, totalRecord } = data.result;
+      if (offSet.current.isLoadMore) {
+        setArea([...entityData, ...areas]);
+      }
+      else
+        setArea(entityData)
+
+      setGridFilter({ ...gridFilter, totalRecord: totalRecord });
+      offSet.current.isLoadMore = false;
+    }
+
+  }, [data, status])
+
+  const { socketData } = useSocketIo("changeInArea", refetch);
+  useEffect(() => {
+    if (Array.isArray(socketData)) {
+      setArea(socketData);
+    }
+  }, [socketData])
+
+  const loadMoreData = (params) => {
+    if (areas.length < gridFilter.totalRecord && params.viewportPageSize !== 0) {
+      offSet.current.isLoadMore = true;
+      setGridFilter({ ...gridFilter, lastKey: areas.length ? areas[areas.length - 1].id : null });
+    }
+  }
+
+  const handleEdit = (id) => {
+    isEdit.current = true;
+    editId = id;
+    const area = areas.find(a => a.id === id);
+    row.current = area;
+    setOpenPopup(true);
+
+  }
+
+  const handleActiveInActive = (id) => {
+    updateOneEntity({ url: API.AREA, data: { _id: id } });
+  }
+
+  const handelDeleteItems = (ids) => {
+    let idTobeDelete = ids;
+    if (Array.isArray(ids)) {
+      idTobeDelete = ids.join(',');
+    }
+
+    setConfirmDialog({
+      isOpen: true,
+      title: "Are you sure to delete this records?",
+      subTitle: "You can't undo this operation",
+      onConfirm: () => {
+        removeEntity({ url: API.AREA, params: idTobeDelete }).then(res => {
+          setSelectionModel([]);
+        })
+      },
+    });
+
+  }
+
+  useEffect(() => {
+    offSet.current.isLoadFirstTime = false;
+
+    dispatch(showDropDownFilterAction({
+      country: true,
+      state: true,
+      city: true
+    }))
+    dispatch(enableFilterAction(true));
+    dispatch(builderFieldsAction(fields))
+
+  }, [dispatch])
+
+  const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive, handelDeleteItems);
+
+
+
   const showAddModal = () => {
     isEdit.current = false;
-    const { resetForm } = formApi.current;
-    resetForm();
     setOpenPopup(true);
   }
 
   return (
     <>
-      <Popup
-        title="Add Area"
-        openPopup={openPopup}
-        maxWidth="sm"
-        isEdit={isEdit.current}
-        keepMounted={true}
-        addOrEditFunc={handleSubmit}
-        setOpenPopup={setOpenPopup}>
-        <AutoForm formData={formData} ref={formApi} isValidate={true} />
-      </Popup>
+      <AddArea openPopup={openPopup} setOpenPopup={setOpenPopup} row={row.current} isEdit={isEdit.current} />
       <DataGrid apiRef={gridApiRef}
         columns={columns} rows={areas}
         totalCount={gridFilter.totalRecord}
-        loading={loader} pageSize={pageSize}
+        loading={isLoading} pageSize={pageSize}
         toolbarProps={{
           apiRef: gridApiRef,
           onAdd: showAddModal,
@@ -334,15 +349,10 @@ function AreaToolbar(props) {
 
 
   return (
-    <>
-      <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
-        <Box >
-          {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
-          <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add record" />
-        </Box>
-      </GridToolbarContainer>
-    </>
-
+    <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
+      {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
+      <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add record" />
+    </GridToolbarContainer>
   );
 }
 

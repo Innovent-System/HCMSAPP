@@ -13,7 +13,6 @@ import { useSocketIo } from '../../../components/useSocketio';
 import ConfirmDialog from '../../../components/ConfirmDialog';
 import PropTypes from 'prop-types'
 import { formateISODateTime, formateISOTime } from '../../../services/dateTimeService'
-import InfoToolTip from "../../../components/InfoToolTip";
 
 const fields = {
     shiftName: {
@@ -72,144 +71,30 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
     ]
 }
 
-const Weeks = [{ id: "Sunday", name: "Sunday" },
-{ id: "Monday", name: "Monday" },
-{ id: "Tuesday", name: "Tuesday" },
-{ id: "Wednesday", name: "Wednesday" },
-{ id: "Thursday", name: "Thursday" },
-{ id: "Friday", name: "Friday" },
-{ id: "Saturday", name: "Saturday" }
-];
-
 const DEFAUL_API = API.Shift;
 let editId = 0;
-const Shift = () => {
-    const dispatch = useDispatch();
-    const [openPopup, setOpenPopup] = useState(false);
-    const [openShift, setOpenShift] = useState(false);
-    const [pageSize, setPageSize] = useState(30);
-    const isEdit = React.useRef(false);
-    const formApi = React.useRef(null);
-
-    const [selectionModel, setSelectionModel] = React.useState([]);
-
-    const offSet = useRef({
-        isLoadMore: false,
-        isLoadFirstTime: true,
-        ShiftId: null
-    })
-
-    const [filter, setFilter] = useState({
-        lastKey: null,
-        limit: 10,
-        totalRecord: 0
-    })
-
-    const [confirmDialog, setConfirmDialog] = useState({
-        isOpen: false,
-        title: "",
-        subTitle: "",
-    });
-
-    const [records, setRecords] = useState([]);
-
-    const gridApiRef = useGridApi();
-    const query = useSelector(e => e.appdata.query.builder);
-
-    const { data, status, isLoading, refetch } = useEntitiesQuery({
-        url: DEFAUL_API,
-        params: {
-            limit: filter.limit,
-            lastKeyId: filter.lastKey,
-            searchParams: JSON.stringify(query)
-        }
-    });
-
-    const { addEntity, updateOneEntity, removeEntity } = useEntityAction();
-
+export const AddShift = ({ openPopup, setOpenPopup, isEdit = false, row = null }) => {
+    const { addEntity } = useEntityAction();
+    const formApi = useRef(null);
     useEffect(() => {
-        if (status === "fulfilled") {
-            const { entityData, totalRecord } = data.result;
-            if (offSet.current.isLoadMore) {
-                setRecords([...entityData, ...records]);
-            }
-            else
-                setRecords(entityData)
-
-            setFilter({ ...filter, totalRecord: totalRecord });
-            offSet.current.isLoadMore = false;
+        if (!formApi.current || !openPopup) return;
+        const { resetForm, setFormValue } = formApi.current;
+        if (openPopup && !isEdit)
+            resetForm();
+        else {
+            setFormValue(row);
         }
-
-    }, [data, status])
-
-    const { socketData } = useSocketIo("changeInShift", refetch);
-
-    useEffect(() => {
-        if (Array.isArray(socketData)) {
-            setRecords(socketData);
-        }
-    }, [socketData])
-
-    const loadMoreData = (params) => {
-        if (records.length < filter.totalRecord && params.viewportPageSize !== 0) {
-            offSet.current.isLoadMore = true;
-            setFilter({ ...filter, lastKey: records.length ? records[records.length - 1].id : null });
-        }
-    }
-
-    const handleEdit = (id) => {
-        isEdit.current = true;
-        editId = id;
-        const { setFormValue } = formApi.current;
-
-        const data = records.find(a => a.id === id);
-        setFormValue(data);
-        setOpenPopup(true);
-    }
-
-    const handleActiveInActive = (id) => {
-        updateOneEntity({ url: DEFAUL_API, data: { _id: id } });
-    }
-
-    const handelDeleteItems = (ids) => {
-        let idTobeDelete = ids;
-        if (Array.isArray(ids)) {
-            idTobeDelete = ids.join(',');
-        }
-
-        setConfirmDialog({
-            isOpen: true,
-            title: "Are you sure to delete this records?",
-            subTitle: "You can't undo this operation",
-            onConfirm: () => {
-                removeEntity({ url: DEFAUL_API, params: idTobeDelete }).then(res => {
-                    setSelectionModel([]);
-                })
-            },
-        });
-
-    }
-
-
-    useEffect(() => {
-        offSet.current.isLoadFirstTime = false;
-        dispatch(enableFilterAction(false));
-        dispatch(builderFieldsAction(fields));
-    }, [dispatch])
-
-    const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive, handelDeleteItems);
-
+    }, [openPopup, formApi])
     const handleSubmit = (e) => {
         const { getValue, validateFields } = formApi.current
         if (validateFields()) {
             let values = getValue();
-            if (isEdit.current)
+            if (isEdit)
                 values._id = editId
 
             addEntity({ url: DEFAUL_API, data: [values] });
         }
     }
-
 
     const formData = [
         {
@@ -311,26 +196,141 @@ const Shift = () => {
             defaultValue: 0
         },
     ];
+    return <Popup
+        title="Add Shift"
+        openPopup={openPopup}
+        maxWidth="sm"
+        keepMounted={true}
+        isEdit={isEdit.current}
+        addOrEditFunc={handleSubmit}
+        setOpenPopup={setOpenPopup}>
+        <AutoForm formData={formData} ref={formApi} isValidate={true} />
+    </Popup>
+}
+
+const Shift = () => {
+    const dispatch = useDispatch();
+    const [openPopup, setOpenPopup] = useState(false);
+    const [pageSize, setPageSize] = useState(30);
+    const isEdit = React.useRef(false);
+    const row = React.useRef(null);
+
+    const [selectionModel, setSelectionModel] = React.useState([]);
+
+    const offSet = useRef({
+        isLoadMore: false,
+        isLoadFirstTime: true,
+        ShiftId: null
+    })
+
+    const [filter, setFilter] = useState({
+        lastKey: null,
+        limit: 10,
+        totalRecord: 0
+    })
+
+    const [confirmDialog, setConfirmDialog] = useState({
+        isOpen: false,
+        title: "",
+        subTitle: "",
+    });
+
+    const [records, setRecords] = useState([]);
+
+    const gridApiRef = useGridApi();
+    const query = useSelector(e => e.appdata.query.builder);
+
+    const { data, status, isLoading, refetch } = useEntitiesQuery({
+        url: DEFAUL_API,
+        params: {
+            limit: filter.limit,
+            lastKeyId: filter.lastKey,
+            searchParams: JSON.stringify(query)
+        }
+    });
+
+    const { updateOneEntity, removeEntity } = useEntityAction();
+
+    useEffect(() => {
+        if (status === "fulfilled") {
+            const { entityData, totalRecord } = data.result;
+            if (offSet.current.isLoadMore) {
+                setRecords([...entityData, ...records]);
+            }
+            else
+                setRecords(entityData)
+
+            setFilter({ ...filter, totalRecord: totalRecord });
+            offSet.current.isLoadMore = false;
+        }
+
+    }, [data, status])
+
+    const { socketData } = useSocketIo("changeInShift", refetch);
+
+    useEffect(() => {
+        if (Array.isArray(socketData)) {
+            setRecords(socketData);
+        }
+    }, [socketData])
+
+    const loadMoreData = (params) => {
+        if (records.length < filter.totalRecord && params.viewportPageSize !== 0) {
+            offSet.current.isLoadMore = true;
+            setFilter({ ...filter, lastKey: records.length ? records[records.length - 1].id : null });
+        }
+    }
+
+    const handleEdit = (id) => {
+        isEdit.current = true;
+        editId = id;
+        const data = records.find(a => a.id === id);
+        row.current = data;
+        setOpenPopup(true);
+    }
+
+    const handleActiveInActive = (id) => {
+        updateOneEntity({ url: DEFAUL_API, data: { _id: id } });
+    }
+
+    const handelDeleteItems = (ids) => {
+        let idTobeDelete = ids;
+        if (Array.isArray(ids)) {
+            idTobeDelete = ids.join(',');
+        }
+
+        setConfirmDialog({
+            isOpen: true,
+            title: "Are you sure to delete this records?",
+            subTitle: "You can't undo this operation",
+            onConfirm: () => {
+                removeEntity({ url: DEFAUL_API, params: idTobeDelete }).then(res => {
+                    setSelectionModel([]);
+                })
+            },
+        });
+
+    }
+
+
+    useEffect(() => {
+        offSet.current.isLoadFirstTime = false;
+        dispatch(enableFilterAction(false));
+        dispatch(builderFieldsAction(fields));
+    }, [dispatch])
+
+    const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive, handelDeleteItems);
+
+
 
     const showAddModal = () => {
         isEdit.current = false;
-        const { resetForm } = formApi.current;
-        resetForm();
         setOpenPopup(true);
     }
 
     return (
         <>
-            <Popup
-                title="Add Shift"
-                openPopup={openPopup}
-                maxWidth="sm"
-                keepMounted={true}
-                isEdit={isEdit.current}
-                addOrEditFunc={handleSubmit}
-                setOpenPopup={setOpenPopup}>
-                <AutoForm formData={formData} ref={formApi} isValidate={true} />
-            </Popup>
+            <AddShift openPopup={openPopup} setOpenPopup={setOpenPopup} isEdit={isEdit.current} row={row.current} />
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={records}
                 loading={isLoading} pageSize={pageSize}
@@ -356,15 +356,10 @@ function ShiftToolbar(props) {
     const { apiRef, onAdd, onDelete, selectionModel } = props;
 
     return (
-        <>
-            <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
-                <Box >
-                    {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
-                    <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add record" />
-                </Box>
-            </GridToolbarContainer>
-        </>
-
+        <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
+            {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
+            <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add record" />
+        </GridToolbarContainer>
     );
 }
 

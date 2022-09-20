@@ -10,7 +10,8 @@ import { useDropDown } from '../../../components/useDropDown';
 import PropTypes from 'prop-types'
 import { useEntityAction, useLazyEntityQuery } from '../../../store/actions/httpactions';
 import Loader from '../../../components/Circularloading'
-import { } from 'date-fns'
+import { AddCountry } from '../../Organization/components/Country';
+import { AddArea } from '../../Organization/components/Area';
 
 
 const Styles = {
@@ -29,21 +30,23 @@ const Styles = {
   },
 }
 
-const AddDepartmentModal = () => {
+const MapModel = {
+  country: AddCountry,
+  area: AddArea
+}
+const AddModal = ({ name }) => {
   const [openPopup, setOpenPopup] = useState(false);
+  const formApi = useRef(null);
+  const Modal = MapModel[name];
   return (
     <Box position="absolute" top={0} right={0}>
-      <IconButton size='small' onClick={() => setOpenPopup(true)}>
+      <IconButton size='small' onClick={() => {
+        const { resetForm } = formApi.current;
+        resetForm(); setOpenPopup(true);
+      }}>
         <Launch fontSize="small" />
       </IconButton>
-      <Popup
-        title="Add Department"
-        openPopup={openPopup}
-        setOpenPopup={setOpenPopup}
-      >
-        <DepartmentModel />
-      </Popup>
-
+      <Modal formApi={formApi} openPopup={openPopup} setOpenPopup={setOpenPopup} />
     </Box>
   )
 }
@@ -80,7 +83,7 @@ const mapEmployee = (values) => {
     punchCode: values.punchCode,
     firstName: values.firstName,
     lastName: values.lastName,
-    isAllowManualAttendance: values.isAllowManualAttendance,
+    isAllowLogin: values.isAllowLogin,
     fkCompanyId: values.fkCompanyId._id,
     generalInfo: {
       maritalstatus: values.maritalstatus,
@@ -110,10 +113,11 @@ const mapEmployee = (values) => {
   return employee;
 }
 
+const breakpoints = { md: 4, sm: 6, xs: 6 }
 export default function EmployaaModal({ isEdit = false, editId }) {
 
   const formApi = useRef(null);
-  const [activeStep, setActiveStep] = React.useState(0);
+  const [activeStep, setActiveStep] = React.useState(1);
   const [loader, setLoader] = useState(isEdit);
   const steps = getSteps();
   const [GetEmpolyee] = useLazyEntityQuery();
@@ -130,7 +134,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
         punchCode: values.punchCode,
         firstName: values.firstName,
         lastName: values.lastName,
-        isAllowManualAttendance: values.isAllowManualAttendance,
+        isAllowLogin: values.isAllowLogin,
         fkCompanyId: companies.find(c => c._id === values.fkCompanyId),
         maritalstatus: values.generalInfo.maritalstatus,
         email: values.generalInfo.email,
@@ -168,7 +172,6 @@ export default function EmployaaModal({ isEdit = false, editId }) {
     {
       Component: Collapse,
       in: activeStep === 0,
-      style: { width: 'inherit' },
       _children: [
         {
           elementType: "uploadavatar",
@@ -182,6 +185,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           label: "Employee Code",
           required: true,
           type: 'number',
+          breakpoints,
           validate: {
             when: 0,
             errorMessage: "Employee Ref is required",
@@ -194,6 +198,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           label: "Punch Code",
           required: true,
           type: 'number',
+          breakpoints,
           validate: {
             when: 0,
             errorMessage: "Punch Code is required"
@@ -208,6 +213,8 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           elementType: "inputfield",
           name: "firstName",
           label: "First Name",
+          required: true,
+          breakpoints,
           validate: {
             when: 0,
             errorMessage: "First Name is required",
@@ -218,6 +225,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           elementType: "inputfield",
           name: "lastName",
           label: "Last Name",
+          breakpoints,
           required: true,
           validate: {
             errorMessage: "Last Name is required",
@@ -229,6 +237,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           elementType: "inputfield",
           name: "fName",
           label: "Father/Husband Name",
+          breakpoints,
           required: true,
           validate: {
             when: 0,
@@ -237,38 +246,10 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           defaultValue: ""
         },
         {
-          elementType: "inputfield",
-          name: "email",
-          label: "Email",
-          required: (value) => value["isAllowManualAttendance"],
-          type: "email",
-          validate: {
-            when: 0,
-            errorMessage: "Email is required",
-            validate: (val) => /$^|.+@.+..+/.test(val.email)
-          },
-          defaultValue: ""
-        },
-        {
-          elementType: "checkbox",
-          name: "isAllowManualAttendance",
-          label: "Manual Attendance",
-          defaultValue: false,
-        },
-        {
-          elementType: "dropdown",
-          name: "fkRoleTemplateId",
-          label: "User Template",
-          dataId: "_id",
-          dataName: "templateName",
-          disabled: (value) => value["isAllowManualAttendance"] === false,
-          defaultValue: "",
-          options: roleTemplates
-        },
-        {
           elementType: "ad_dropdown",
           name: "fkManagerId",
           label: "Reports To",
+          breakpoints,
           dataName: 'fullName',
           dataId: '_id',
           options: employees,
@@ -282,15 +263,17 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           elementType: "dropdown",
           name: "maritalstatus",
           label: "Marital Status",
+          breakpoints,
           dataId: "id",
           dataName: "title",
-          defaultValue: "",
+          defaultValue: "Single",
           options: Maritalstatus
         },
         {
           elementType: "dropdown",
           name: "gender",
           label: "Gender",
+          breakpoints,
           dataId: "id",
           dataName: "title",
           defaultValue: "Male",
@@ -300,6 +283,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           elementType: "dropdown",
           name: "religion",
           label: "Religion",
+          breakpoints,
           dataId: "id",
           dataName: "title",
           defaultValue: "",
@@ -308,20 +292,53 @@ export default function EmployaaModal({ isEdit = false, editId }) {
         {
           elementType: "datetimepicker",
           name: "dateofBirth",
+          breakpoints,
           label: "D.O.B",
           defaultValue: null
-        }
+        },
+        {
+          elementType: "checkbox",
+          name: "isAllowLogin",
+          breakpoints: { md: 12, sm: 12, xs: 12 },
+          label: "Allow Login",
+          defaultValue: false,
+        },
+        {
+          elementType: "inputfield",
+          name: "email",
+          label: "Email",
+          breakpoints,
+          required: (value) => value["isAllowLogin"],
+          type: "email",
+          validate: {
+            when: 0,
+            errorMessage: "Email is required",
+            validate: (val) => /$^|.+@.+..+/.test(val.email)
+          },
+          defaultValue: ""
+        },
+        {
+          elementType: "dropdown",
+          name: "fkRoleTemplateId",
+          label: "User Template",
+          breakpoints,
+          dataId: "_id",
+          dataName: "templateName",
+          disabled: (value) => value["isAllowLogin"] === false,
+          defaultValue: "",
+          options: roleTemplates
+        },
       ]
     },
     {
       Component: Collapse,
       in: activeStep === 1,
-      style: { width: 'inherit' },
       _children: [
         {
           elementType: "ad_dropdown",
           name: "fkCompanyId",
           label: "Company",
+          breakpoints,
           required: true,
           validate: {
             when: 1,
@@ -337,7 +354,11 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           elementType: "ad_dropdown",
           name: "fkCountryId",
           label: "Country",
+          breakpoints,
           required: true,
+          modal: {
+            Component: <AddModal name="country" />,
+          },
           validate: {
             when: 1,
             errorMessage: "Country is required",
@@ -352,6 +373,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           elementType: "ad_dropdown",
           name: "fkStateId",
           label: "State",
+          breakpoints,
           required: true,
           dataName: "name",
           dataId: 'id',
@@ -367,6 +389,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           elementType: "ad_dropdown",
           name: "fkCityId",
           label: "City",
+          breakpoints,
           required: true,
           dataId: 'id',
           dataName: "name",
@@ -382,6 +405,10 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           elementType: "ad_dropdown",
           name: "fkAreaId",
           label: "Area",
+          modal: {
+            Component: <AddModal name="area" />,
+          },
+          breakpoints,
           required: true,
           dataName: "areaName",
           validate: {
@@ -394,6 +421,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           elementType: "ad_dropdown",
           name: "fkEmployeeGroupId",
           label: "Group",
+          breakpoints,
           required: true,
           dataName: "groupName",
           validate: {
@@ -407,11 +435,12 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           elementType: "ad_dropdown",
           name: "fkDepartmentId",
           label: "Department",
+          breakpoints,
           required: true,
           dataName: "departmentName",
-          modal: {
-            Component: <AddDepartmentModal />,
-          },
+          // modal: {
+          //   Component: <AddModal name="country" />,
+          // },
           validate: {
             when: 1,
             errorMessage: "Department is required",
@@ -423,6 +452,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           elementType: "ad_dropdown",
           name: "fkDesignationId",
           label: "Designation",
+          breakpoints,
           dataName: "name",
           options: designations,
           defaultValue: null
@@ -437,12 +467,14 @@ export default function EmployaaModal({ isEdit = false, editId }) {
         {
           elementType: "datetimepicker",
           name: "joiningDate",
+          breakpoints,
           label: "Joining Date",
           defaultValue: new Date()
         },
         {
           elementType: "datetimepicker",
           name: "confirmationDate",
+          breakpoints,
           label: "Confrimation Date",
           defaultValue: null
         },
@@ -450,6 +482,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           elementType: "datetimepicker",
           name: "resignationDate",
           label: "Resign Date",
+          breakpoints,
           defaultValue: null
         }
       ]

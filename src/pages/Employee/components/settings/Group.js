@@ -65,12 +65,66 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
 }
 
 let editId = 0;
+
+export const AddGroup = ({ openPopup, setOpenPopup, isEdit = false, row = null }) => {
+    const formApi = useRef(null);
+    const { addEntity } = useEntityAction();
+    useEffect(() => {
+        if (!formApi.current ||  !openPopup) return;
+        const { resetForm, setFormValue } = formApi.current;
+        if (openPopup && !isEdit)
+            resetForm();
+        else {
+            setFormValue({
+                groupName: row.groupName
+            });
+        }
+    }, [openPopup, formApi])
+
+    const handleSubmit = (e) => {
+        const { getValue, validateFields } = formApi.current
+        if (validateFields()) {
+            let values = getValue();
+            let dataToInsert = {};
+            dataToInsert.groupName = values.groupName;
+            if (isEdit)
+                dataToInsert._id = editId
+
+            addEntity({ url: API.Group, data: [dataToInsert] });
+
+        }
+    }
+
+    const formData = [
+        {
+            elementType: "inputfield",
+            name: "groupName",
+            label: "Group",
+            required: true,
+            validate: {
+                errorMessage: "Group is required"
+            },
+            defaultValue: ""
+        }
+    ];
+    return <Popup
+        title="Add Group"
+        openPopup={openPopup}
+        maxWidth="sm"
+        isEdit={isEdit}
+        keepMounted={true}
+        addOrEditFunc={handleSubmit}
+        setOpenPopup={setOpenPopup}>
+        <AutoForm formData={formData} ref={formApi} isValidate={true} />
+    </Popup>
+}
+
 const Group = () => {
     const dispatch = useDispatch();
     const [openPopup, setOpenPopup] = useState(false);
     const [pageSize, setPageSize] = useState(30);
     const isEdit = React.useRef(false);
-    const formApi = React.useRef(null);
+    const row = React.useRef(null);
     const [selectionModel, setSelectionModel] = React.useState([]);
 
     const offSet = useRef({
@@ -104,7 +158,7 @@ const Group = () => {
         }
     });
 
-    const { addEntity, updateOneEntity, removeEntity } = useEntityAction();
+    const { updateOneEntity, removeEntity } = useEntityAction();
 
     useEffect(() => {
         if (status === "fulfilled") {
@@ -139,12 +193,8 @@ const Group = () => {
     const handleEdit = (id) => {
         isEdit.current = true;
         editId = id;
-        const { setFormValue } = formApi.current;
-
         const data = records.find(a => a.id === id);
-        setFormValue({
-            groupName: data.groupName
-        });
+        row.current = data;
         setOpenPopup(true);
     }
 
@@ -180,52 +230,15 @@ const Group = () => {
 
     const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive, handelDeleteItems);
 
-    const handleSubmit = (e) => {
-        const { getValue, validateFields } = formApi.current
-        if (validateFields()) {
-            let values = getValue();
-            let dataToInsert = {};
-            dataToInsert.groupName = values.groupName;
-            if (isEdit.current)
-                dataToInsert._id = editId
-
-            addEntity({ url: API.Group, data: [dataToInsert] });
-
-        }
-    }
-
-    const formData = [
-        {
-            elementType: "inputfield",
-            name: "groupName",
-            label: "Group",
-            required: true,
-            validate: {
-                errorMessage: "Group is required"
-            },
-            defaultValue: ""
-        }
-    ];
 
     const showAddModal = () => {
         isEdit.current = false;
-        const { resetForm } = formApi.current;
-        resetForm();
         setOpenPopup(true);
     }
 
     return (
         <>
-            <Popup
-                title="Add Group"
-                openPopup={openPopup}
-                maxWidth="sm"
-                isEdit={isEdit.current}
-                keepMounted={true}
-                addOrEditFunc={handleSubmit}
-                setOpenPopup={setOpenPopup}>
-                <AutoForm formData={formData} ref={formApi} isValidate={true} />
-            </Popup>
+            <AddGroup openPopup={openPopup} setOpenPopup={setOpenPopup} isEdit={isEdit.current} row={row.current} />
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={records}
                 loading={isLoading} pageSize={pageSize}
@@ -251,16 +264,11 @@ function GroupToolbar(props) {
     const { apiRef, onAdd, onDelete, selectionModel } = props;
 
     return (
-        <>
-            <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
-
-                <Box >
+            <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>    
                     {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
                     <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add record" />
-                </Box>
+                
             </GridToolbarContainer>
-        </>
-
     );
 }
 

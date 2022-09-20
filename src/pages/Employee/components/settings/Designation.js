@@ -65,12 +65,63 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
 }
 const DEFAUL_API = API.Designation;
 let editId = 0;
+export const AddDesignation = ({ openPopup, setOpenPopup, isEdit = false, row = null }) => {
+    const formApi = useRef(null);
+    const { addEntity } = useEntityAction();
+    useEffect(() => {
+        if (!formApi.current || !openPopup) return;
+        const { resetForm, setFormValue } = formApi.current;
+        if (openPopup && !isEdit)
+            resetForm();
+        else {
+            setFormValue({
+                name: row.name
+            });
+        }
+    }, [openPopup, formApi])
+    const handleSubmit = (e) => {
+        const { getValue, validateFields } = formApi.current
+        if (validateFields()) {
+            let values = getValue();
+            let dataToInsert = {};
+            dataToInsert.name = values.name;
+            if (isEdit)
+                dataToInsert._id = editId
+
+            addEntity({ url: DEFAUL_API, data: [dataToInsert] });
+
+        }
+    }
+
+    const formData = [
+        {
+            elementType: "inputfield",
+            name: "name",
+            label: "Designation",
+            required: true,
+            validate: {
+                errorMessage: "Designation is required"
+            },
+            defaultValue: ""
+        }
+    ];
+    return <Popup
+        title="Add Designation"
+        openPopup={openPopup}
+        maxWidth="sm"
+        isEdit={isEdit.current}
+        keepMounted={true}
+        addOrEditFunc={handleSubmit}
+        setOpenPopup={setOpenPopup}>
+        <AutoForm formData={formData} ref={formApi} isValidate={true} />
+    </Popup>
+}
 const Designation = () => {
     const dispatch = useDispatch();
     const [openPopup, setOpenPopup] = useState(false);
     const [pageSize, setPageSize] = useState(30);
     const isEdit = React.useRef(false);
-    const formApi = React.useRef(null);
+    const row = React.useRef(null);
     const [selectionModel, setSelectionModel] = React.useState([]);
 
     const offSet = useRef({
@@ -104,7 +155,7 @@ const Designation = () => {
         }
     });
 
-    const { addEntity, updateOneEntity, removeEntity } = useEntityAction();
+    const { updateOneEntity, removeEntity } = useEntityAction();
 
     useEffect(() => {
         if (status === "fulfilled") {
@@ -139,12 +190,8 @@ const Designation = () => {
     const handleEdit = (id) => {
         isEdit.current = true;
         editId = id;
-        const { setFormValue } = formApi.current;
-
         const data = records.find(a => a.id === id);
-        setFormValue({
-            name: data.name
-        });
+        row.current = data;
         setOpenPopup(true);
     }
 
@@ -180,52 +227,16 @@ const Designation = () => {
 
     const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive, handelDeleteItems);
 
-    const handleSubmit = (e) => {
-        const { getValue, validateFields } = formApi.current
-        if (validateFields()) {
-            let values = getValue();
-            let dataToInsert = {};
-            dataToInsert.name = values.name;
-            if (isEdit.current)
-                dataToInsert._id = editId
 
-            addEntity({ url: DEFAUL_API, data: [dataToInsert] });
-
-        }
-    }
-
-    const formData = [
-        {
-            elementType: "inputfield",
-            name: "name",
-            label: "Designation",
-            required: true,
-            validate: {
-                errorMessage: "Designation is required"
-            },
-            defaultValue: ""
-        }
-    ];
 
     const showAddModal = () => {
         isEdit.current = false;
-        const { resetForm } = formApi.current;
-        resetForm();
         setOpenPopup(true);
     }
 
     return (
         <>
-            <Popup
-                title="Add Designation"
-                openPopup={openPopup}
-                maxWidth="sm"
-                isEdit={isEdit.current}
-                keepMounted={true}
-                addOrEditFunc={handleSubmit}
-                setOpenPopup={setOpenPopup}>
-                <AutoForm formData={formData} ref={formApi} isValidate={true} />
-            </Popup>
+            <AddDesignation openPopup={openPopup} setOpenPopup={setOpenPopup} isEdit={isEdit.current} row={row.current} />
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={records}
                 loading={isLoading} pageSize={pageSize}

@@ -13,7 +13,6 @@ import ConfirmDialog from '../../components/ConfirmDialog';
 import { AutoForm } from '../../components/useForm'
 import PropTypes from 'prop-types'
 import PageHeader from '../../components/PageHeader'
-import OutlinedDiv from "../../components/OutlinePanel";
 import { startOfDay, addDays, isEqual } from '../../services/dateTimeService'
 import { formateISODateTime } from "../../services/dateTimeService";
 import Loader from '../../components/Circularloading'
@@ -54,99 +53,18 @@ const columns = [
     { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) }
 ];
 
-
-const AttendanceRequest = () => {
-    const dispatch = useDispatch();
-    const [openPopup, setOpenPopup] = useState(false);
+const AddAttendanceRequest = ({ openPopup, setOpenPopup }) => {
+    const formApi = useRef(null);
     const [loader, setLoader] = useState(false);
-    const [pageSize, setPageSize] = useState(30);
-    const isEdit = React.useRef(false);
-    const formApi = React.useRef(null);
-    const [selectionModel, setSelectionModel] = React.useState([]);
     const { Employees } = useSelector(e => e.appdata.employeeData);
-    const offSet = useRef({
-        isLoadMore: false,
-        isLoadFirstTime: true,
-    })
-
-    const [gridFilter, setGridFilter] = useState({
-        lastKey: null,
-        limit: 10,
-        totalRecord: 0
-    })
-
-    const [confirmDialog, setConfirmDialog] = useState({
-        isOpen: false,
-        title: "",
-        subTitle: "",
-    });
-
-    const [records, setRecords] = useState([]);
-
-    const gridApiRef = useGridApi();
-    const query = useSelector(e => e.appdata.query.builder);
-
-    const { data, isLoading, status, refetch } = useEntitiesQuery({
-        url: API.AttendanceRequest,
-        params: {
-            limit: offSet.current.limit,
-            lastKeyId: offSet.current.isLoadMore ? offSet.current.lastKeyId : "",
-            searchParams: JSON.stringify(query)
-        }
-    });
-
-    const { addEntity, removeEntity } = useEntityAction();
-
-    useEffect(() => {
-        if (status === "fulfilled") {
-            const { entityData, totalRecord } = data.result;
-            if (offSet.current.isLoadMore) {
-                setRecords([...entityData, ...records]);
-            }
-            else
-                setRecords(entityData)
-
-            setGridFilter({ ...gridFilter, totalRecord: totalRecord });
-            offSet.current.isLoadMore = false;
-        }
-    }, [data, status])
-
-    const { socketData } = useSocketIo("changeInAttendanceRequest", refetch);
-
-    useEffect(() => {
-        if (Array.isArray(socketData)) {
-            setRecords(socketData);
-        }
-    }, [socketData])
-
-
-    const loadMoreData = (params) => {
-        if (records.length < gridFilter.totalRecord && params.viewportPageSize !== 0) {
-            offSet.current.isLoadMore = true;
-            setGridFilter({ ...gridFilter, lastKey: records.length ? records[records.length - 1].id : null });
-        }
-    }
-
-    const handelDeleteItems = (ids) => {
-        let idTobeDelete = ids;
-        if (Array.isArray(ids)) {
-            idTobeDelete = ids.join(',');
-        }
-
-        setConfirmDialog({
-            isOpen: true,
-            title: "Are you sure to delete this records?",
-            subTitle: "You can't undo this operation",
-            onConfirm: () => {
-                removeEntity({ url: API.AttendanceRequest, params: idTobeDelete }).then(res => {
-                    setSelectionModel([]);
-                })
-            },
-        });
-    }
-
+    const { addEntity } = useEntityAction();
     const [getAttendanceRequest] = useLazySingleQuery();
-
+    useEffect(() => {
+        if (formApi.current && openPopup) {
+            const { resetForm } = formApi.current;
+            resetForm();
+        }
+    }, [openPopup, formApi])
     const formData = [
         {
             elementType: "ad_dropdown",
@@ -242,7 +160,112 @@ const AttendanceRequest = () => {
 
         }
     }
+    return <>
+        <Loader open={loader} />
+        <Popup
+            title="Attendance Request"
+            openPopup={openPopup}
+            maxWidth="sm"
+            isEdit={false}
+            keepMounted={true}
+            addOrEditFunc={handleSubmit}
+            setOpenPopup={setOpenPopup}>
+            <Stack >
+                <Typography variant="body2"><strong>Schedule Name :</strong>Morning</Typography>
+                <Typography variant="body2"><strong>Schdule In :</strong>09:00 AM</Typography>
+                <Typography variant="body2"><strong>Schedule Out :</strong>08:00 PM</Typography>
+                <AutoForm formData={formData} ref={formApi} isValidate={true} />
+            </Stack>
+        </Popup>
+    </>
+}
+const AttendanceRequest = () => {
+    const dispatch = useDispatch();
+    const [openPopup, setOpenPopup] = useState(false);
+    const [pageSize, setPageSize] = useState(30);
+    
+    const [selectionModel, setSelectionModel] = React.useState([]);
 
+    const offSet = useRef({
+        isLoadMore: false,
+        isLoadFirstTime: true,
+    })
+
+    const [gridFilter, setGridFilter] = useState({
+        lastKey: null,
+        limit: 10,
+        totalRecord: 0
+    })
+
+    const [confirmDialog, setConfirmDialog] = useState({
+        isOpen: false,
+        title: "",
+        subTitle: "",
+    });
+
+    const [records, setRecords] = useState([]);
+
+    const gridApiRef = useGridApi();
+    const query = useSelector(e => e.appdata.query.builder);
+
+    const { data, isLoading, status, refetch } = useEntitiesQuery({
+        url: API.AttendanceRequest,
+        params: {
+            limit: offSet.current.limit,
+            lastKeyId: offSet.current.isLoadMore ? offSet.current.lastKeyId : "",
+            searchParams: JSON.stringify(query)
+        }
+    });
+
+    const { removeEntity } = useEntityAction();
+
+    useEffect(() => {
+        if (status === "fulfilled") {
+            const { entityData, totalRecord } = data.result;
+            if (offSet.current.isLoadMore) {
+                setRecords([...entityData, ...records]);
+            }
+            else
+                setRecords(entityData)
+
+            setGridFilter({ ...gridFilter, totalRecord: totalRecord });
+            offSet.current.isLoadMore = false;
+        }
+    }, [data, status])
+
+    const { socketData } = useSocketIo("changeInAttendanceRequest", refetch);
+
+    useEffect(() => {
+        if (Array.isArray(socketData)) {
+            setRecords(socketData);
+        }
+    }, [socketData])
+
+
+    const loadMoreData = (params) => {
+        if (records.length < gridFilter.totalRecord && params.viewportPageSize !== 0) {
+            offSet.current.isLoadMore = true;
+            setGridFilter({ ...gridFilter, lastKey: records.length ? records[records.length - 1].id : null });
+        }
+    }
+
+    const handelDeleteItems = (ids) => {
+        let idTobeDelete = ids;
+        if (Array.isArray(ids)) {
+            idTobeDelete = ids.join(',');
+        }
+
+        setConfirmDialog({
+            isOpen: true,
+            title: "Are you sure to delete this records?",
+            subTitle: "You can't undo this operation",
+            onConfirm: () => {
+                removeEntity({ url: API.AttendanceRequest, params: idTobeDelete }).then(res => {
+                    setSelectionModel([]);
+                })
+            },
+        });
+    }
 
     useEffect(() => {
         offSet.current.isLoadFirstTime = false;
@@ -254,38 +277,18 @@ const AttendanceRequest = () => {
 
 
     const showAddModal = () => {
-        isEdit.current = false;
-        const { resetForm } = formApi.current;
-        resetForm();
         setOpenPopup(true);
     }
 
     return (
         <>
-            <Loader open={loader} />
             <PageHeader
                 title="Attendance Request"
                 enableFilter={true}
                 subTitle="Manage Attendance Request"
                 icon={<PeopleOutline fontSize="large" />}
             />
-            <Popup
-                title="Attendance Request"
-                openPopup={openPopup}
-                maxWidth="sm"
-                isEdit={isEdit.current}
-                keepMounted={true}
-                addOrEditFunc={handleSubmit}
-                setOpenPopup={setOpenPopup}>
-                <Stack >
-                    <OutlinedDiv label="Schedule Detail" >
-                        <Typography variant="body2"><strong>Schedule Name :</strong>Morning</Typography>
-                        <Typography variant="body2"><strong>Schdule In :</strong>09:00 AM</Typography>
-                        <Typography variant="body2"><strong>Schedule Out :</strong>08:00 PM</Typography>
-                    </OutlinedDiv>
-                    <AutoForm formData={formData} ref={formApi} isValidate={true} />
-                </Stack>
-            </Popup>
+            <AddAttendanceRequest openPopup={openPopup} setOpenPopup={setOpenPopup} />
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={records}
                 loading={isLoading} pageSize={pageSize}
@@ -312,16 +315,10 @@ function RequestToolbar(props) {
     const { apiRef, onAdd, onDelete, selectionModel } = props;
 
     return (
-        <>
-            <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
-
-                <Box >
-                    {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
-                    <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add record" />
-                </Box>
-            </GridToolbarContainer>
-        </>
-
+        <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
+            {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
+            <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add record" />
+        </GridToolbarContainer>
     );
 }
 
