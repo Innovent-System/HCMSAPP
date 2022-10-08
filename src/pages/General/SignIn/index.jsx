@@ -91,7 +91,11 @@ const SignIn = () => {
       dispatch(AuthThunk({ url: API_USER_LOGIN, params: signInData })).unwrap().then(res => {
         if (res) {
           const { data } = res;
-          Auth.setItem("userInfo", { "email": data.email, "c_Id": data.clientId, "com_Id": data.companyId, username: data.username });
+          
+          Auth.setItem("userInfo", {
+            "email": data.email, "c_Id": data.clientId, "com_Id": data.companyId, username: data.username,
+            fkEmployeeId: data.fkEmployeeId
+          });
           socket.emit("joinclient", data.clientId);
           socket.emit("joincompany", data.companyId);
           navigate("/dashboard");
@@ -207,7 +211,7 @@ const SignIn = () => {
 
                 <Box className={classes.Wrapper}>
                   <Controls.Button
-                text="Login"
+                    text="Login"
                     type="submit"
                     disabled={loader}
                   />

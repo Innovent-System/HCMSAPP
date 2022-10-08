@@ -13,13 +13,15 @@ import {
   DataGridPro,
   GridToolbarContainer,
   GridActionsCellItem,
-  LicenseInfo, GridOverlay, GridToolbarExport, GridToolbarFilterButton
+  LicenseInfo,
+  GridOverlay, GridToolbarExport, GridToolbarFilterButton
 } from '@mui/x-data-grid-pro';
 import LinearProgress from '@mui/material/LinearProgress';
 
-LicenseInfo.setLicenseKey(
-  '0f94d8b65161817ca5d7f7af8ac2f042T1JERVI6TVVJLVN0b3J5Ym9vayxFWFBJUlk9MTY1NDg1ODc1MzU1MCxLRVlWRVJTSU9OPTE=',
-);
+
+const Key = '0f94d8b65161817ca5d7f7af8ac2f042T1JERVI6TVVJLVN0b3J5Ym9vayxFWFBJUlk9MTY1NDg1ODc1MzU1MCxLRVlWRVJTSU9OPTE=';
+LicenseInfo.setLicenseKey(Key);
+
 
 
 export const getCrudActions = (apiRef, onSave, onDelete) => {
@@ -170,7 +172,9 @@ export default function FeaturedCrudGrid(props) {
 
   const { apiRef, columns, rows, loading,
     pageSize, onRowsScrollEnd,
-    selectionModel, setSelectionModel,
+    setSelectionModel,
+    density = "compact",
+    checkboxSelection = true,
     totalCount = 0,
     gridToolBar: GridToolBar, toolbarProps, ...others
   } = props;
@@ -200,14 +204,16 @@ export default function FeaturedCrudGrid(props) {
       }}
     >
       <DataGridPro
+        density={density}
         rows={rows}
         loading={loading}
-        onSelectionModelChange={(newSelectionModel) => {
-          setSelectionModel(newSelectionModel);
-        }}
-        selectionModel={selectionModel}
+        {...(setSelectionModel && {
+          onSelectionModelChange: (newSelectionModel) => {
+            setSelectionModel(newSelectionModel);
+          }
+        })}
         columns={columns}
-        checkboxSelection
+        checkboxSelection={checkboxSelection}
         rowsPerPageOptions={[pageSize]}
         {...(onRowsScrollEnd && { onRowsScrollEnd })}
         apiRef={apiRef}
@@ -219,7 +225,7 @@ export default function FeaturedCrudGrid(props) {
         onCellFocusOut={handleCellFocusOut}
         components={{
           LoadingOverlay: CustomLoadingOverlay,
-          Toolbar: GridToolBar
+          Toolbar: GridToolBar,
         }}
         {...others}
         componentsProps={{
@@ -237,6 +243,7 @@ FeaturedCrudGrid.propTypes = {
   apiRef: PropTypes.shape({
     current: PropTypes.object.isRequired,
   }),
+  density: PropTypes.oneOfType(["compact", "standard", "comfortable"]),
   pageSize: PropTypes.number,
   checkboxSelection: PropTypes.bool,
   onRowsScrollEnd: PropTypes.func,

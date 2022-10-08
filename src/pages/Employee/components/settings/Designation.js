@@ -109,7 +109,7 @@ export const AddDesignation = ({ openPopup, setOpenPopup, isEdit = false, row = 
         title="Add Designation"
         openPopup={openPopup}
         maxWidth="sm"
-        isEdit={isEdit.current}
+        isEdit={isEdit}
         keepMounted={true}
         addOrEditFunc={handleSubmit}
         setOpenPopup={setOpenPopup}>
@@ -262,16 +262,10 @@ function DesignationToolbar(props) {
     const { apiRef, onAdd, onDelete, selectionModel } = props;
 
     return (
-        <>
-            <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
-
-                <Box >
-                    {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
-                    <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add record" />
-                </Box>
-            </GridToolbarContainer>
-        </>
-
+        <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
+            {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
+            <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add record" />
+        </GridToolbarContainer>
     );
 }
 

@@ -234,7 +234,12 @@ export const AutoForm = forwardRef(function (props, ref) {
             return values
         }
     }));
-
+    const handleShowHide = (name, func) => {
+        const isShow = func(values);
+        const error = errorProps.find(f => name in f);
+        if (error) error.required = isShow;
+        return isShow;
+    }
     const handleConditionalField = (name, required) => {
         //Required Field ka kam krna yhn pe logic
         let isRequired = required;
@@ -247,11 +252,11 @@ export const AutoForm = forwardRef(function (props, ref) {
 
     return (
         <Grid  {...breakpoints} {...other} flexDirection={flexDirection} spacing={2} container>
-            {Object.keys(initialValues).length ? formData.map(({ name, label, required, elementType, Component = null, disabled, classes, _children, breakpoints = DEFAULT_BREAK_POINTS, onChange, modal, defaultValue, ...others }, index) => (
+            {Object.keys(initialValues).length ? formData.map(({ name, label, required, elementType, Component = null, disabled, classes, _children, breakpoints = DEFAULT_BREAK_POINTS, onChange, modal, defaultValue, isShow, ...others }, index) => (
                 Component ? <Component {...others} key={index + "comp"}>
                     <Grid spacing={2} container>
                         {Array.isArray(_children) ? _children.map(({ name, label, required, elementType, breakpoints = DEFAULT_BREAK_POINTS, classes, disabled, onChange, modal, _defaultValue, ..._others }, innerIndex) => (
-                            <Grid {...(modal && { style: { position: "relative" } })}  {...(breakpoints && { ...breakpoints })} key={innerIndex + name} item>
+                            <Grid {...(modal && { style: { position: "relative" } })}  {...(breakpoints && { ...breakpoints })} key={String(innerIndex) + name} item>
                                 {modal && modal.Component}
                                 <Element elementType={elementType}
                                     name={name}
@@ -269,7 +274,20 @@ export const AutoForm = forwardRef(function (props, ref) {
                         )) : null}
                     </Grid>
                 </Component> :
-                    <Grid {...(modal && { style: { position: "relative" } })} {...(breakpoints && { ...breakpoints })} key={index + name} item>
+                    typeof isShow === "function" ? handleShowHide(name, isShow) && <Grid {...(modal && { style: { position: "relative" } })} {...(breakpoints && { ...breakpoints })} key={index + name} item>
+                        {modal && modal.Component}
+                        <Element elementType={elementType}
+                            name={name}
+                            label={label}
+                            value={values[name]}
+                            {...(required && { required: handleConditionalField(name, required) })}
+                            {...(disabled && { disabled: (typeof disabled === "function" ? disabled(values) : required) })}
+                            onChange={(e) => handleInputChange(e, onChange)}
+                            {...((changeErrors[name] || errors[name]) && { error: (changeErrors[name] || errors[name]) })}
+                            {...(classes && { className: clsx(classes) })}
+                            {...others}
+                        />
+                    </Grid> : <Grid {...(modal && { style: { position: "relative" } })} {...(breakpoints && { ...breakpoints })} key={index + name} item>
                         {modal && modal.Component}
                         <Element elementType={elementType}
                             name={name}

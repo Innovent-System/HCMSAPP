@@ -87,6 +87,7 @@ const Employee = () => {
     const isEdit = React.useRef(false);
     const formApi = React.useRef(null);
     const [selectionModel, setSelectionModel] = React.useState([]);
+    const [word, setWord] = useState("");
 
     const offSet = useRef({
         isLoadMore: false,
@@ -115,7 +116,10 @@ const Employee = () => {
         params: {
             limit: offSet.current.limit,
             lastKeyId: offSet.current.isLoadMore ? offSet.current.lastKeyId : "",
-            searchParams: JSON.stringify(query)
+            searchParams: JSON.stringify({
+                ...query,
+                ...(word && { firstName: {"$regex":`^${word}`,"$options":"i"} })
+            })
         }
     });
 
@@ -180,7 +184,10 @@ const Employee = () => {
 
     }
     const handleAlphabetSearch = (e) => {
-        console.log(e);
+        if (word === e.target.innerText)
+            setWord("")
+        else
+            setWord(e.target.innerText)
     }
 
     useEffect(() => {

@@ -3,7 +3,7 @@ import PageHeader from '../../components/PageHeader'
 import { PeopleOutline } from '../../deps/ui/icons'
 import Tabs from '../../components/Tabs'
 import Shift from './components/Shift';
-
+import ApprovalStages from '../ApprovalStages';
 
 const tabs = [
     {
@@ -11,12 +11,13 @@ const tabs = [
         panel: <Shift />
     },
     {
-        title: "Designation",
-        panel: <></>
+        title: "Approval Stages",
+        panel: <ApprovalStages moduleName="ATTENDANCE" />
     }
 ]
 
 export default function Manage() {
+    
     return (
         <>
             <PageHeader

@@ -5,7 +5,9 @@ export const API = {
     Shift: "attendance/shift",
     ScheduleDetail: "attendance/schedule/scheduledetail",
     Schedule: "attendance/schedule",
-    UpdateSchedule: "attendance/schedule/updateSchedule"
+    UpdateSchedule: "attendance/schedule/updateSchedule",
+    Approval: "attendance/approval",
+    ApprovalAction: "attendance/approval/action",
     // Designation: "employee/designation",
 }
 

@@ -15,6 +15,7 @@ export default function Input(props) {
             value={value}
             sx={sx}
             size="small"
+            // onBlur={onChange}
             InputLabelProps={{
                 shrink: true,
               }}

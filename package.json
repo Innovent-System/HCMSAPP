@@ -11,7 +11,7 @@
     "@mui/lab": "^5.0.0-alpha.78",
     "@mui/material": "^5.5.3",
     "@mui/styles": "^5.5.3",
-    "@mui/x-data-grid-pro": "^5.7.0",
+    "@mui/x-data-grid-pro": "5.12.1",
     "@reduxjs/toolkit": "^1.8.3",
     "axios": "^0.27.2",
     "chart.js": "^2.9.4",

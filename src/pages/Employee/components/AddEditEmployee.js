@@ -1,17 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Stepper, Collapse, Box, Step, StepLabel, Typography, IconButton } from '../../../deps/ui';
-import { Launch } from '../../../deps/ui/icons';
+import { Stepper, Collapse, Box, Step, StepLabel, Divider, Typography, IconButton, Chip } from '../../../deps/ui';
+import { Launch, Person, Call, Business } from '../../../deps/ui/icons';
 import { AutoForm } from '../../../components/useForm';
 import Controls from '../../../components/controls/Controls';
 import { API } from '../_Service';
-import Popup from '../../../components/Popup';
-import DepartmentModel from './DepartmentModal'
+
 import { useDropDown } from '../../../components/useDropDown';
 import PropTypes from 'prop-types'
 import { useEntityAction, useLazyEntityQuery } from '../../../store/actions/httpactions';
 import Loader from '../../../components/Circularloading'
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import { AddCountry } from '../../Organization/components/Country';
 import { AddArea } from '../../Organization/components/Area';
+
 
 
 const Styles = {
@@ -73,7 +75,7 @@ const Maritalstatus = [
 
 
 const getSteps = () => {
-  return ['General', 'Company', 'Educational'];
+  return ['General', 'Company', 'Work & Educational'];
 }
 
 const mapEmployee = (values) => {
@@ -88,8 +90,6 @@ const mapEmployee = (values) => {
     generalInfo: {
       maritalstatus: values.maritalstatus,
       email: values.email,
-      // addresses: [],
-      // mobileNumber: values.mobileNumber,
       gender: values.gender,
       dateofBirth: values.dateofBirth,
       religion: values.religion,
@@ -103,8 +103,21 @@ const mapEmployee = (values) => {
       fkEmployeeGroupId: values.fkEmployeeGroupId._id,
       fkStateId: values.fkStateId._id,
       joiningDate: new Date().toISOString(),
-      confirmationDate: values.confirmationDate
-    }
+      confirmationDate: values.confirmationDate,
+      fkManagerId: values.fkManagerId?._id ?? null
+    },
+    contactDetial: {
+      address1: values.address1,
+      address2: values.address2,
+      zipCode: values.zipCode,
+      country: values.country,
+      state: values.state,
+      city: values.city,
+      mobileNo: values.mobileNo,
+      workNo: values.workNo,
+      emergencyNo: values.emergencyNo
+    },
+    scheduleId: values?.scheduleId._id
   }
   if (values.fkRoleTemplateId)
     employee.companyInfo.fkRoleTemplateId = values.fkRoleTemplateId
@@ -117,15 +130,16 @@ const breakpoints = { md: 4, sm: 6, xs: 6 }
 export default function EmployaaModal({ isEdit = false, editId }) {
 
   const formApi = useRef(null);
-  const [activeStep, setActiveStep] = React.useState(1);
+  const [activeStep, setActiveStep] = React.useState(0);
   const [loader, setLoader] = useState(isEdit);
   const steps = getSteps();
   const [GetEmpolyee] = useLazyEntityQuery();
+  const theme = useTheme();
+  const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
 
-  const { companies, countries, states, cities, areas, designations, groups, departments, employees, roleTemplates, filterType, setFilter } = useDropDown();
+  const { companies, countries, states, cities, areas, designations, groups, schedules, departments, employees, roleTemplates, filterType, setFilter } = useDropDown();
 
   const handleEdit = () => {
-
 
     GetEmpolyee({ url: API.Employee, id: editId }).then(({ data: { result: values } }) => {
       const { setFormValue } = formApi.current;
@@ -138,7 +152,6 @@ export default function EmployaaModal({ isEdit = false, editId }) {
         fkCompanyId: companies.find(c => c._id === values.fkCompanyId),
         maritalstatus: values.generalInfo.maritalstatus,
         email: values.generalInfo.email,
-        // mobileNumber: values.generalInfo.mobileNumber,
         gender: values.generalInfo.gender,
         dateofBirth: values.generalInfo.dateofBirth,
         religion: values.generalInfo.religion,
@@ -149,9 +162,19 @@ export default function EmployaaModal({ isEdit = false, editId }) {
         fkDesignationId: designations.find(d => d._id === values.companyInfo.fkDesignationId),
         fkEmployeeGroupId: groups.find(g => g._id === values.companyInfo.fkEmployeeGroupId),
         fkStateId: states.find(s => s._id === values.companyInfo.fkStateId),
+        fkManagerId:employees.find(e => e._id === values.companyInfo?.fkManagerId) ?? null,
         fkRoleTemplateId: values.companyInfo.fkRoleTemplateId,
         joiningDate: values.companyInfo.joiningDate,
-        confirmationDate: values.companyInfo.confirmationDate
+        confirmationDate: values.companyInfo.confirmationDate,
+        address1: values?.contactDetial.address1,
+        address2: values?.contactDetial.address2,
+        zipCode: values?.contactDetial.zipCode,
+        country: values?.contactDetial.country,
+        state: values?.contactDetial.state,
+        city: values?.contactDetial.city,
+        mobileNo: values?.contactDetial.mobileNo,
+        workNo: values?.contactDetial.values,
+        emergencyNo: values?.contactDetial.emergencyNo
       });
     })
 
@@ -181,6 +204,13 @@ export default function EmployaaModal({ isEdit = false, editId }) {
         },
         {
           elementType: "inputfield",
+          name: "prefix",
+          label: "Prefix",
+          breakpoints,
+          defaultValue: ""
+        },
+        {
+          elementType: "inputfield",
           name: "emplyeeRefNo",
           label: "Employee Code",
           required: true,
@@ -204,10 +234,6 @@ export default function EmployaaModal({ isEdit = false, editId }) {
             errorMessage: "Punch Code is required"
           },
           defaultValue: ""
-        },
-        {
-          elementType: "clearfix",
-          breakpoints: { md: 12, sm: 12, xs: 12 }
         },
         {
           elementType: "inputfield",
@@ -238,11 +264,6 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           name: "fName",
           label: "Father/Husband Name",
           breakpoints,
-          required: true,
-          validate: {
-            when: 0,
-            errorMessage: "This Field is required",
-          },
           defaultValue: ""
         },
         {
@@ -412,6 +433,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           required: true,
           dataName: "areaName",
           validate: {
+            when: 1,
             errorMessage: "Area is required",
           },
           options: areas,
@@ -457,13 +479,26 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           options: designations,
           defaultValue: null
         },
-        // {
-        //   elementType: "inputfield",
-        //   name: "address",
-        //   label: "Address",
-        //   multiline:true,
-        //   defaultValue: ""
-        // },
+        {
+          elementType: "ad_dropdown",
+          name: "scheduleId",
+          label: "Assigne Schedule",
+          required: true,
+          breakpoints,
+          disabled: (value) => isEdit,
+          validate: {
+            when: 1,
+            errorMessage: "Schedule is required",
+          },
+          dataName: "scheduleName",
+          options: schedules,
+          defaultValue: null
+        },
+        {
+          elementType: "custom",
+          breakpoints: { sm: 12, md: 12, xl: 12 },
+          NodeElement: () => <Divider><Chip label="JCR Detail" icon={<Person />} /></Divider>
+        },
         {
           elementType: "datetimepicker",
           name: "joiningDate",
@@ -484,7 +519,90 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           label: "Resign Date",
           breakpoints,
           defaultValue: null
-        }
+        },
+        {
+          elementType: "custom",
+          breakpoints: { sm: 12, md: 12, xl: 12 },
+          NodeElement: () => <Divider><Chip label="Contact Detail" icon={<Person />} /></Divider>
+        },
+        {
+          elementType: "inputfield",
+          name: "address1",
+          label: "Street 1",
+          required: true,
+          breakpoints,
+          validate: {
+            when: 1,
+            errorMessage: "Street 1 is required",
+          },
+          defaultValue: ""
+        },
+        {
+          elementType: "inputfield",
+          name: "address2",
+          label: "Street 2",
+          breakpoints,
+          defaultValue: ""
+        },
+        {
+          elementType: "inputfield",
+          name: "city",
+          label: "City",
+          breakpoints,
+          defaultValue: ""
+        },
+        {
+          elementType: "inputfield",
+          name: "state",
+          label: "State",
+          breakpoints,
+          defaultValue: ""
+        },
+        {
+          elementType: "inputfield",
+          name: "zipCode",
+          label: "Zip/Postal Code",
+          breakpoints,
+          defaultValue: ""
+        },
+        {
+          elementType: "inputfield",
+          name: "country",
+          label: "Country",
+          breakpoints,
+          defaultValue: ""
+        },
+        {
+          elementType: "custom",
+          breakpoints: { sm: 12, md: 12, xl: 12 },
+          NodeElement: () => <Divider><Chip label="Telephone" icon={<Call />} /></Divider>
+        },
+        {
+          elementType: "inputfield",
+          name: "mobileNo",
+          label: "Mobile",
+          required: true,
+          validate: {
+            when: 1,
+            errorMessage: "Mobile No is required",
+          },
+          breakpoints,
+          defaultValue: ""
+        },
+        {
+          elementType: "inputfield",
+          name: "workNo",
+          label: "Work",
+          breakpoints,
+          defaultValue: ""
+        },
+        {
+          elementType: "inputfield",
+          name: "emergencyNo",
+          label: "Emergency",
+          breakpoints,
+          defaultValue: ""
+        },
       ]
     },
   ];
@@ -526,12 +644,13 @@ export default function EmployaaModal({ isEdit = false, editId }) {
   }
 
 
+
   return (
     <Box sx={Styles.root}>
       <Loader open={loader} />
       <Stepper sx={{
         flex: '1 0 15%',
-      }} activeStep={activeStep} orientation="vertical">
+      }} activeStep={activeStep} orientation={isDesktop ? "vertical" : "horizontal"}>
         {steps.map((label, index) => {
           return (
             <Step key={label} onClick={() => alert("working")}>

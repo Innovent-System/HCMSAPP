@@ -5,8 +5,8 @@ import Popup from '../../components/Popup';
 import { API } from './_Service';
 import { useDispatch, useSelector } from 'react-redux';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction, useLazySingleQuery } from '../../store/actions/httpactions';
-import { GridToolbarContainer, Stack, Typography } from "../../deps/ui";
-import { Add as AddIcon, Delete as DeleteIcon, PeopleOutline } from "../../deps/ui/icons";
+import { Chip, GridToolbarContainer, IconButton, Stack, Typography, GridActionsCellItem } from "../../deps/ui";
+import { Add as AddIcon, Delete as DeleteIcon, PeopleOutline, CheckCircle, Cancel, Description, AdminPanelSettings } from "../../deps/ui/icons";
 import DataGrid, { useGridApi } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
@@ -16,7 +16,7 @@ import PageHeader from '../../components/PageHeader'
 import { startOfDay, addDays, isEqual } from '../../services/dateTimeService'
 import { formateISODateTime } from "../../services/dateTimeService";
 import Loader from '../../components/Circularloading'
-import Speach from "../../components/Speech";
+import Auth from '../../services/AuthenticationService'
 
 const fields = {
     status: {
@@ -42,24 +42,64 @@ const fields = {
         preferWidgets: ['date'],
     }
 }
-const columns = [
+const getColumns = (handleApprove) => [
     { field: '_id', headerName: 'Id', hide: true },
     {
         field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.employees.fullName
     },
-    { field: 'requestDate', headerName: 'Request Date', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.requestDate) },
-    { field: 'changeType', headerName: 'Change Type', flex: 1, valueGetter: ({ row }) => row.changeType.join(',') },
-    { field: 'status', headerName: 'Status', flex: 1 },
+    {
+        field: 'status', headerName: 'Status', flex: 1, renderCell: ({ row }) => <Chip size="small" color={row.status === "Rejected" ? "error" : row.status === "Approved" ? "info" : "default"} label={row.status} />
+    },
+    {
+        field: 'appform', headerName: 'Request Type', flex: 1, valueGetter: ({ row }) => row.appform.title
+    },
+    { field: 'reason', headerName: 'Reason', flex: 1 },
+    {
+        field: 'detail', cellClassName: 'actions', type: "actions", headerName: 'Detail', flex: 1, align: 'center', hideable: false, renderCell: ({ row }) => (
+            <GridActionsCellItem
+                icon={<Description />}
+                label="Detail"
+                onClick={() => { }}
+            />
+        )
+    },
     { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
-    { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) }
+    { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
+    {
+        field: 'action', cellClassName: 'actions', type: "actions", headerName: 'Action', width: 180, align: 'center', hideable: false, renderCell: ({ row }) => (
+            <>
+                {row.actionTaken ? <GridActionsCellItem
+                    label="Action Taken"
+                    icon={<AdminPanelSettings fontSize="small" />}
+                /> : <>
+                    <GridActionsCellItem
+                        icon={<Chip size="small" variant="outlined" color="success" icon={<CheckCircle fontSize="small" />} label="Accept" />}
+                        label="Approve"
+                        onClick={() => handleApprove(1, row)}
+                    />
+                    <GridActionsCellItem
+                        icon={<Chip size="small" variant="outlined" color="error" icon={<Cancel fontSize="small" />} label="Reject" />}
+                        label="Reject"
+                        onClick={() => handleApprove(0, row)}
+                    />
+                </>
+
+
+                }
+
+            </>
+        )
+    }
 ];
 
-const AddAttendanceRequest = ({ openPopup, setOpenPopup }) => {
+const DEFAULT_API = API.Approval;
+
+const AddAttendanceApproval = ({ openPopup, setOpenPopup, selectionModel, row, isApproved, records }) => {
     const formApi = useRef(null);
     const [loader, setLoader] = useState(false);
-    const { Employees } = useSelector(e => e.appdata.employeeData);
+
     const { addEntity } = useEntityAction();
-    const [getAttendanceRequest] = useLazySingleQuery();
+
     useEffect(() => {
         if (formApi.current && openPopup) {
             const { resetForm } = formApi.current;
@@ -67,71 +107,6 @@ const AddAttendanceRequest = ({ openPopup, setOpenPopup }) => {
         }
     }, [openPopup, formApi])
     const formData = [
-        {
-            elementType: "ad_dropdown",
-            name: "fkEmployeeId",
-            label: "Employee",
-            variant: "outlined",
-            required: true,
-            validate: {
-                errorMessage: "Select Employee",
-            },
-            dataName: 'fullName',
-            dataId: "_id",
-            options: Employees,
-            onChange: (data) => {
-                if (!data) return;
-                setLoader(true);
-                const { setFormValue, getValue } = formApi.current;
-                getAttendanceRequest({ url: API.GetAttendanceDetail, params: { employeeId: data._id, requestDate: getValue()?.requestDate } }).then(c => {
-                    if (c.data?.result) {
-                        setFormValue({
-                            startDateTime: new Date(c.data.result.startDateTime),
-                            endDateTime: new Date(c.data.result.endDateTime)
-                        });
-                    }
-                    setLoader(false);
-                })
-            },
-            defaultValue: null
-        },
-        {
-            elementType: "datetimepicker",
-            name: "requestDate",
-            required: true,
-            disableFuture: true,
-            validate: {
-                errorMessage: "Select Date please",
-            },
-            label: "Date",
-            defaultValue: new Date()
-        },
-        {
-            elementType: "datetimepicker",
-            required: true,
-            validate: {
-                errorMessage: "Select Check In",
-            },
-            name: "startDateTime",
-            shouldDisableDate: (date) => !isEqual(startOfDay(date), startOfDay(formApi.current?.getValue()?.requestDate)),
-            disableFuture: true,
-            category: "datetime",
-            label: "Check In",
-            defaultValue: null
-        },
-        {
-            elementType: "datetimepicker",
-            category: "datetime",
-            shouldDisableDate: (date) => date < startOfDay(formApi.current?.getValue()?.startDateTime) || date >= addDays(startOfDay(formApi.current?.getValue()?.startDateTime), 2),
-            disableFuture: true,
-            required: true,
-            validate: {
-                errorMessage: "Select Check Out",
-            },
-            name: "endDateTime",
-            label: "Check Out",
-            defaultValue: null
-        },
         {
             elementType: "inputfield",
             name: "reason",
@@ -146,48 +121,64 @@ const AddAttendanceRequest = ({ openPopup, setOpenPopup }) => {
             breakpoints: { md: 12, sx: 12, xs: 12 },
             defaultValue: ""
         }
-
     ];
 
     const handleSubmit = (e) => {
         const { getValue, validateFields } = formApi.current
         if (validateFields()) {
             let values = getValue();
-            let dataToInsert = { ...values };
-            dataToInsert.fkEmployeeId = values.fkEmployeeId._id;
-            // ChangeType = [],
 
-            addEntity({ url: API.AttendanceRequest, data: [dataToInsert] });
+            let datalist = [];
+            const dataObj = {
+                _id: row._id,
+                requestId: row.requestId,
+                formId: row.formId,
+                type: "Request",
+                isApprove: isApproved,
+                reason: values.reason
+            };
+            if (selectionModel.length) {
+                datalist = records.filter(c => selectionModel.includes(c._id)).map(r => ({
+                    _id: r._id,
+                    requestId: r.requestId,
+                    formId: r.formId,
+                    type: "Request",
+                    isApprove: isApproved,
+                    reason: values.reason
+                }))
+            }
+            else {
+                datalist.push(dataObj)
+            }
+
+            addEntity({ url: API.ApprovalAction, data: datalist });
 
         }
     }
     return <>
         <Loader open={loader} />
         <Popup
-            title="Attendance Request"
+            title="Attendance Approvals"
             openPopup={openPopup}
             maxWidth="sm"
             isEdit={false}
             keepMounted={true}
             addOrEditFunc={handleSubmit}
             setOpenPopup={setOpenPopup}>
-            <Stack >
-                <Typography variant="body2"><strong>Schedule Name :</strong>Morning</Typography>
-                <Typography variant="body2"><strong>Schdule In :</strong>09:00 AM</Typography>
-                <Typography variant="body2"><strong>Schedule Out :</strong>08:00 PM</Typography>
-                <Speach />
-                <AutoForm formData={formData} ref={formApi} isValidate={true} />
-            </Stack>
+            <AutoForm formData={formData} ref={formApi} isValidate={true} />
         </Popup>
     </>
 }
-const AttendanceRequest = () => {
+
+const AttendanceApproval = () => {
     const dispatch = useDispatch();
     const [openPopup, setOpenPopup] = useState(false);
     const [pageSize, setPageSize] = useState(30);
 
     const [selectionModel, setSelectionModel] = React.useState([]);
 
+    const isApproved = useRef(false);
+    const row = useRef(null);
     const offSet = useRef({
         isLoadMore: false,
         isLoadFirstTime: true,
@@ -209,13 +200,19 @@ const AttendanceRequest = () => {
 
     const gridApiRef = useGridApi();
     const query = useSelector(e => e.appdata.query.builder);
-
+    console.log(Auth.getitem("userInfo"));
     const { data, isLoading, status, refetch } = useEntitiesQuery({
-        url: API.AttendanceRequest,
+        url: DEFAULT_API,
         params: {
             limit: offSet.current.limit,
             lastKeyId: offSet.current.isLoadMore ? offSet.current.lastKeyId : "",
-            searchParams: JSON.stringify(query)
+            searchParams: JSON.stringify({
+                ...query,
+                $and: [
+                    { routeBy: Auth.getitem("userInfo").fkEmployeeId },
+                    { $or: [{ isCurrentApproval: true }, { actionTaken: true }] }
+                ],
+            })
         }
     });
 
@@ -250,6 +247,13 @@ const AttendanceRequest = () => {
             setGridFilter({ ...gridFilter, lastKey: records.length ? records[records.length - 1].id : null });
         }
     }
+    const showAddModal = (isApprove, _row) => {
+        row.current = _row;
+        isApproved.current = isApprove === 1
+        setOpenPopup(true);
+    }
+
+    const columns = getColumns(showAddModal)
 
     const handelDeleteItems = (ids) => {
         let idTobeDelete = ids;
@@ -262,7 +266,7 @@ const AttendanceRequest = () => {
             title: "Are you sure to delete this records?",
             subTitle: "You can't undo this operation",
             onConfirm: () => {
-                removeEntity({ url: API.AttendanceRequest, params: idTobeDelete }).then(res => {
+                removeEntity({ url: DEFAULT_API, params: idTobeDelete }).then(res => {
                     setSelectionModel([]);
                 })
             },
@@ -278,19 +282,17 @@ const AttendanceRequest = () => {
     }, [dispatch])
 
 
-    const showAddModal = () => {
-        setOpenPopup(true);
-    }
+
 
     return (
         <>
             <PageHeader
-                title="Attendance Request"
+                title="Attendance Approval"
                 enableFilter={true}
-                subTitle="Manage Attendance Request"
+                subTitle="Manage Attendance Approval"
                 icon={<PeopleOutline fontSize="large" />}
             />
-            <AddAttendanceRequest openPopup={openPopup} setOpenPopup={setOpenPopup} />
+            <AddAttendanceApproval openPopup={openPopup} setOpenPopup={setOpenPopup} isApproved={isApproved.current} selectionModel={selectionModel} records={records} row={row.current} />
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={records}
                 loading={isLoading} pageSize={pageSize}
@@ -301,7 +303,7 @@ const AttendanceRequest = () => {
                     onDelete: handelDeleteItems,
                     selectionModel
                 }}
-                gridToolBar={RequestToolbar}
+                gridToolBar={ApprovalToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
                 onRowsScrollEnd={loadMoreData}
@@ -311,20 +313,20 @@ const AttendanceRequest = () => {
     );
 }
 
-export default AttendanceRequest;
+export default AttendanceApproval;
 
-function RequestToolbar(props) {
+function ApprovalToolbar(props) {
     const { apiRef, onAdd, onDelete, selectionModel } = props;
 
     return (
         <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
             {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
-            <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add record" />
+            {/* <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add record" /> */}
         </GridToolbarContainer>
     );
 }
 
-RequestToolbar.propTypes = {
+ApprovalToolbar.propTypes = {
     apiRef: PropTypes.shape({
         current: PropTypes.object,
     }),

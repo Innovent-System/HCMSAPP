@@ -233,6 +233,7 @@ export const useDropDown = () => {
         designations: employeeData.Designations,
         employees: employeeData.Employees,
         roleTemplates: employeeData.RoleTemplates,
+        schedules:employeeData.Schedules,
         setFilter: handleFilter,
         filterType: filterTypes
     }
