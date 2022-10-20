@@ -126,10 +126,10 @@ const Employee = () => {
             searchParams: JSON.stringify({
                 ...query,
                 ...(word && { firstName: { "$regex": `^${word}`, "$options": "i" } }),
-                ...(countryIds && { "companyInfo.fkCountryId": countryIds }),
-                ...(stateIds && { "companyInfo.fkStateId": stateIds }),
-                ...(cityIds && { "companyInfo.fkCityId": cityIds }),
-                ...(areaIds && { "companyInfo.fkAreaId": areaIds })
+                ...(countryIds && { "companyInfo.fkCountryId": { $in: countryIds.split(',') } }),
+                ...(stateIds && { "companyInfo.fkStateId": { $in: stateIds.split(',') } }),
+                ...(cityIds && { "companyInfo.fkCityId": { $in: cityIds.split(',') } }),
+                ...(areaIds && { "companyInfo.fkAreaId": { $in: areaIds.split(',') } })
             })
         }
     });

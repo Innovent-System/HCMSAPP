@@ -287,15 +287,16 @@ export const DROPDOWN_PROPS = {
         isMultiple: true,
         dataId: '_id',
         dataName: 'companyName',
-        defaultValue: null
+        defaultValue: []
     },
     [COUNTRY]: {
         elementType: "ad_dropdown",
         name: "country",
         label: "Country",
+        isMultiple: true,
         dataId: '_id',
         dataName: 'name',
-        defaultValue: null
+        defaultValue: []
     },
     [STATE]: {
         elementType: "ad_dropdown",
@@ -304,54 +305,60 @@ export const DROPDOWN_PROPS = {
         isMultiple: true,
         dataId: '_id',
         dataName: "name",
-        defaultValue: null
+        defaultValue: []
     },
     [CITY]: {
         elementType: "ad_dropdown",
         name: "city",
         label: "City",
+        isMultiple: true,
         dataId: '_id',
         dataName: "name",
-        defaultValue: null
+        defaultValue: []
     },
     [AREA]: {
         elementType: "ad_dropdown",
         name: "area",
         label: "Area",
         dataId: '_id',
+        isMultiple: true,
         dataName: "areaName",
-        defaultValue: null
+        defaultValue: []
     },
     [DEPARTMENT]: {
         elementType: "ad_dropdown",
         name: "department",
         label: "Department",
+        isMultiple: true,
         dataId: '_id',
         dataName: "departmentName",
-        defaultValue: null
+        defaultValue: []
     },
     [GROUP]: {
         elementType: "ad_dropdown",
         name: "group",
         label: "Group",
+        isMultiple: true,
         dataId: '_id',
         dataName: "groupName",
-        defaultValue: null
+        defaultValue: []
     },
     [DESIGNATION]: {
         elementType: "ad_dropdown",
         name: "designation",
         label: "Designation",
+        isMultiple: true,
         dataId: '_id',
         dataName: "name",
-        defaultValue: null
+        defaultValue: []
     },
     [EMPLOYEE]: {
         elementType: "ad_dropdown",
         name: "employee",
         label: "Employees",
+        isMultiple: true,
         dataId: '_id',
         dataName: "fullName",
-        defaultValue: null
+        defaultValue: []
     }
 }

@@ -29,7 +29,7 @@ function CommonDropDown({ isMultiple, showFilters, idset, setIdSet, setProps }) 
         const setOfIds = setDropDownIds(data, type, "_id");
         dispatch(dropDownIdsAction(setOfIds));
         if (typeof setIdSet === "function") setIdSet(setOfIds);
-        if (["company","area"].includes(type)) matchWith = "_id";
+        if (["company", "area"].includes(type)) matchWith = "_id";
         setFilter(data, type, matchWith);
     }
 
@@ -37,7 +37,7 @@ function CommonDropDown({ isMultiple, showFilters, idset, setIdSet, setProps }) 
 
     useEffect(() => {
         if (isReset) {
-            const { resetForm } = formApi.current;
+            const { resetForm, getValue } = formApi.current;
             resetForm();
             dispatch(clearDropDownIdsAction);
             setFilter(null, filterType.DEFAULT);
@@ -59,9 +59,7 @@ function CommonDropDown({ isMultiple, showFilters, idset, setIdSet, setProps }) 
         [showFilter, dropDown],
     )
 
-    return (
-        <AutoForm formData={formData()} ref={formApi} isValidate={true} />
-    )
+    return <AutoForm formData={formData()} ref={formApi} isValidate={true} />
 }
 
 CommonDropDown.defaultProps = {

@@ -40,6 +40,7 @@ const MyPopper = function (props) {
     </Popper>
   );
 }
+//Multiple ki default value array hai
 
 function MultiSelect(props) {
 
@@ -53,12 +54,7 @@ function MultiSelect(props) {
   })
 
 
-  const getOptionLabel = (option) => {
-    if (Array.isArray(options) && options.indexOf(option) !== -1) {
-      return option[dataName]
-    }
-    return ''
-  }
+  const getOptionLabel = (option) => option[dataName] ?? '';
 
   const handleInputeChange = (e, newValue) => {
     if (e === null && !newValue) {
@@ -70,7 +66,6 @@ function MultiSelect(props) {
   }
 
   return (
-
     <Autocomplete
       multiple={isMultiple}
       ref={autoCompleteRef}
@@ -78,13 +73,12 @@ function MultiSelect(props) {
       limitTags={2}
       // isOptionEqualToValue={(option, value) => option[dataId] === value[dataId]}
       {...other}
-      value={value ?? []}
+      value={value}
       onChange={(event, value) => onChange(convertToDefEventPara(name, value))}
-      id="multiple-limit-tags"
-      {...(isMultiple && { disableCloseOnSelect: true })}
+      id={`multiple-limit-tags-${name}`}
+      size="small"
       options={options}
       getOptionLabel={getOptionLabel}
-
       onInputChange={handleInputeChange}
       disableCloseOnSelect={isMultiple}
       disableListWrap
