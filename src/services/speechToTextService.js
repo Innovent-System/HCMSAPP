@@ -1,5 +1,6 @@
-import React from 'react'
+
 export function speachInit() {
+    
     window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
         let speech = {

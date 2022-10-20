@@ -178,6 +178,14 @@ const INITIAL_STATE = {
   employeeData: {},
   routeData: {},
   authData: {},
+  userInfo: {
+    email: '',
+    clientId: null,
+    userName: "",
+    companyId: null,
+    fkEmployeeId: null,
+    userId: null
+  },
   dropdownIds: {
     countryIds: '',
     employeeIds: '',
@@ -230,6 +238,9 @@ export const appSlice = createSlice({
     },
     builderFieldsAction(state, action) {
       state.query.fields = action.payload
+    },
+    setUserInfo(state, action) {
+      state.userInfo = { ...state.userInfo, ...action.payload }
     }
   },
   extraReducers: {
@@ -282,6 +293,7 @@ export const { builderQueryAction,
   dropDownIdsAction,
   enableFilterAction,
   showDropDownFilterAction,
+  setUserInfo,
   clearDropDownIdsAction } = appSlice.actions;
 
 export const handlePostActions = (url, data = {}) => dispatch => {

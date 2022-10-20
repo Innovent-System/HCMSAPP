@@ -82,7 +82,7 @@ export const AddCountry = ({ openPopup, setOpenPopup, isEdit = false, row = null
         if (openPopup && !isEdit)
             resetForm();
         else {
-            const { fkCompanyId,intId } = row;
+            const { fkCompanyId, intId } = row;
             setFormValue({
                 company: Companies.find(c => c._id === fkCompanyId),
                 country: countryData.find(c => c.id === intId)
@@ -123,7 +123,8 @@ export const AddCountry = ({ openPopup, setOpenPopup, isEdit = false, row = null
         const { getValue, validateFields } = formApi.current
         if (validateFields()) {
             let values = getValue();
-            let dataToInsert = values.country;
+            const { _id, ...country } = values.country;
+            let dataToInsert = country;
             dataToInsert.fkCompanyId = values.company._id;
             if (isEdit)
                 dataToInsert._id = editId

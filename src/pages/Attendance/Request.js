@@ -155,6 +155,7 @@ const AddAttendanceRequest = ({ openPopup, setOpenPopup }) => {
             let values = getValue();
             let dataToInsert = { ...values };
             dataToInsert.fkEmployeeId = values.fkEmployeeId._id;
+            dataToInsert.employeeCode = values.fkEmployeeId.punchCode;
             // ChangeType = [],
 
             addEntity({ url: API.AttendanceRequest, data: [dataToInsert] });

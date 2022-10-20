@@ -57,7 +57,7 @@ Popup.propTypes = {
     children: PropTypes.node.isRequired,
     addOrEditFunc: PropTypes.func,
     isEdit: PropTypes.bool,
-    maxWidth: PropTypes.oneOf(["xm", "sm", "md", "lg", "xl",]),
+    maxWidth: PropTypes.oneOf(["xs", "sm", "md", "lg", "xl",]),
     footer: PropTypes.node,
     keepMounted: PropTypes.bool,
     fullScreen: PropTypes.bool

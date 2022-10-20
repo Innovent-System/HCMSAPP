@@ -119,7 +119,7 @@ export default function Header() {
       []
   );
 
-  
+
   useEffect(() => {
     dispatch(AppRoutesThunk({ url: GET_ROUTES }))
       .unwrap()
@@ -174,8 +174,8 @@ export default function Header() {
         const info = Auth.getitem("userInfo") || {};
         Auth.remove("appConfigData");
 
-        socket.emit("leaveclient", info.c_Id);
-        socket.emit("leavecompany", info.com_Id);
+        socket.emit("leaveclient", info.clientId);
+        socket.emit("leavecompany", info.companyId);
         socket.off("leaveclient");
         socket.off("leavecompany");
 

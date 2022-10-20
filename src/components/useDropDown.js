@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { useSelector } from 'react-redux'
 
@@ -102,7 +102,7 @@ export const useDropDown = () => {
         setAreas(DropDownData.Areas);
     }
 
-    useLayoutEffect(() => {
+    useMemo(() => {
         if (!DropDownData) return;
         if (filter.type === filterTypes.DEFAULT) {
             getDefaultState();
@@ -155,25 +155,18 @@ export const useDropDown = () => {
                     count = DropDownData.States.length;
                     while (count--) {
                         const element = DropDownData.States[count];
-                        if (ids.indexOf(element.country_id) !== -1) {
-                            states.push(element);
-                        }
+                        if (ids.indexOf(element.country_id) !== -1) states.push(element);
                     }
                     count = DropDownData.Cities.length;
                     while (count--) {
                         const element = DropDownData.Cities[count];
-                        if (ids.indexOf(element.country_id) !== -1) {
-                            cities.push(element);
-                        }
+                        if (ids.indexOf(element.country_id) !== -1) cities.push(element);
                     }
                     count = DropDownData.Areas.length;
                     while (count--) {
                         const element = DropDownData.Areas[count];
-                        if (ids.indexOf(element.country.intId) !== -1) {
-                            areas.push(element);
-                        }
+                        if (ids.indexOf(element.country.intId) !== -1) areas.push(element);
                     }
-
                 }
                 setStates(states);
                 setCities(cities);
@@ -184,16 +177,12 @@ export const useDropDown = () => {
                     count = DropDownData.Cities.length;
                     while (count--) {
                         const element = DropDownData.Cities[count];
-                        if (ids.indexOf(element.state_id) !== -1) {
-                            cities.push(element);
-                        }
+                        if (ids.indexOf(element.state_id) !== -1) cities.push(element);
                     }
                     count = DropDownData.Areas.length;
                     while (count--) {
                         const element = DropDownData.Areas[count];
-                        if (ids.indexOf(element.state.intId) !== -1) {
-                            areas.push(element);
-                        }
+                        if (ids.indexOf(element.state.intId) !== -1) areas.push(element);
                     }
                 }
                 setCities(cities);
@@ -205,9 +194,7 @@ export const useDropDown = () => {
                     ids = filter.data.map(d => d._id);
                     while (count--) {
                         const element = DropDownData.Areas[count];
-                        if (ids.indexOf(element.city.city_id) !== -1) {
-                            areas.push(element);
-                        }
+                        if (ids.indexOf(element.city.city_id) !== -1) areas.push(element);
                     }
                 }
                 setAreas(areas);
@@ -233,7 +220,7 @@ export const useDropDown = () => {
         designations: employeeData.Designations,
         employees: employeeData.Employees,
         roleTemplates: employeeData.RoleTemplates,
-        schedules:employeeData.Schedules,
+        schedules: employeeData.Schedules,
         setFilter: handleFilter,
         filterType: filterTypes
     }
@@ -259,8 +246,8 @@ export const useFilterBarEvent = (onReset) => {
 const { DEFAULT, COMPANY, COUNTRY, STATE, CITY, AREA, DEPARTMENT, GROUP, DESIGNATION, EMPLOYEE } = filterTypes;
 
 export const showFilterProps = {
-    [COMPANY]: false,
-    [COUNTRY]: true,
+    [COMPANY]: true,
+    [COUNTRY]: false,
     [STATE]: false,
     [CITY]: false,
     [AREA]: false,
@@ -297,6 +284,8 @@ export const DROPDOWN_PROPS = {
         elementType: "ad_dropdown",
         name: "company",
         label: "Company",
+        isMultiple: true,
+        dataId: '_id',
         dataName: 'companyName',
         defaultValue: null
     },
@@ -304,6 +293,7 @@ export const DROPDOWN_PROPS = {
         elementType: "ad_dropdown",
         name: "country",
         label: "Country",
+        dataId: '_id',
         dataName: 'name',
         defaultValue: null
     },
@@ -311,6 +301,8 @@ export const DROPDOWN_PROPS = {
         elementType: "ad_dropdown",
         name: "state",
         label: "State",
+        isMultiple: true,
+        dataId: '_id',
         dataName: "name",
         defaultValue: null
     },
@@ -318,6 +310,7 @@ export const DROPDOWN_PROPS = {
         elementType: "ad_dropdown",
         name: "city",
         label: "City",
+        dataId: '_id',
         dataName: "name",
         defaultValue: null
     },
@@ -325,13 +318,39 @@ export const DROPDOWN_PROPS = {
         elementType: "ad_dropdown",
         name: "area",
         label: "Area",
+        dataId: '_id',
         dataName: "areaName",
+        defaultValue: null
+    },
+    [DEPARTMENT]: {
+        elementType: "ad_dropdown",
+        name: "department",
+        label: "Department",
+        dataId: '_id',
+        dataName: "departmentName",
+        defaultValue: null
+    },
+    [GROUP]: {
+        elementType: "ad_dropdown",
+        name: "group",
+        label: "Group",
+        dataId: '_id',
+        dataName: "groupName",
+        defaultValue: null
+    },
+    [DESIGNATION]: {
+        elementType: "ad_dropdown",
+        name: "designation",
+        label: "Designation",
+        dataId: '_id',
+        dataName: "name",
         defaultValue: null
     },
     [EMPLOYEE]: {
         elementType: "ad_dropdown",
         name: "employee",
         label: "Employees",
+        dataId: '_id',
         dataName: "fullName",
         defaultValue: null
     }

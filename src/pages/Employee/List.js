@@ -4,15 +4,18 @@ import Controls from '../../components/controls/Controls';
 import Popup from '../../components/Popup';
 import { API, alphabets } from './_Service';
 import { useDispatch, useSelector } from 'react-redux';
-import { builderFieldsAction, useEntityAction, useEntitiesQuery } from '../../store/actions/httpactions';
-import { GridToolbarContainer, Box, Typography, Stack, Link, ButtonGroup } from "../../deps/ui";
-import { Circle, Add as AddIcon, Delete as DeleteIcon, PeopleOutline } from "../../deps/ui/icons";
+import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction } from '../../store/actions/httpactions';
+import { GridToolbarContainer, Box, Typography, Stack, Link, ButtonGroup, Tooltip, IconButton, Input } from "../../deps/ui";
+import { Circle, Add as AddIcon, Delete as DeleteIcon, PeopleOutline, CloudUpload, Article } from "../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import PropTypes from 'prop-types'
 import EmpoyeeModal from './components/AddEditEmployee';
 import PageHeader from '../../components/PageHeader'
+import { useExcelReader } from "../../hooks/useExcelReader";
+import Loader from '../../components/Circularloading'
+import { useDropDownIds } from '../../components/useDropDown'
 
 const fields = {
     fullName: {
@@ -83,9 +86,9 @@ let editId = 0;
 const Employee = () => {
     const dispatch = useDispatch();
     const [openPopup, setOpenPopup] = useState(false);
+
     const [pageSize, setPageSize] = useState(30);
     const isEdit = React.useRef(false);
-    const formApi = React.useRef(null);
     const [selectionModel, setSelectionModel] = React.useState([]);
     const [word, setWord] = useState("");
 
@@ -93,6 +96,10 @@ const Employee = () => {
         isLoadMore: false,
         isLoadFirstTime: true,
     })
+
+    const excelColData = useRef([]);
+
+    const { inProcess, isDone, setFile, file, excelData, setWbData } = useExcelReader();
 
     const [gridFilter, setGridFilter] = useState({
         lastKey: null,
@@ -105,12 +112,12 @@ const Employee = () => {
         title: "",
         subTitle: "",
     });
-
     const [employees, setEmployees] = useState([]);
-
     const gridApiRef = useGridApi();
     const query = useSelector(e => e.appdata.query.builder);
 
+    const { countryIds, stateIds, cityIds, areaIds } = useDropDownIds();
+    console.log(stateIds)
     const { data, isLoading, status, refetch } = useEntitiesQuery({
         url: API.Employee,
         params: {
@@ -118,7 +125,11 @@ const Employee = () => {
             lastKeyId: offSet.current.isLoadMore ? offSet.current.lastKeyId : "",
             searchParams: JSON.stringify({
                 ...query,
-                ...(word && { firstName: {"$regex":`^${word}`,"$options":"i"} })
+                ...(word && { firstName: { "$regex": `^${word}`, "$options": "i" } }),
+                ...(countryIds && { "companyInfo.fkCountryId": countryIds }),
+                ...(stateIds && { "companyInfo.fkStateId": stateIds }),
+                ...(cityIds && { "companyInfo.fkCityId": cityIds }),
+                ...(areaIds && { "companyInfo.fkAreaId": areaIds })
             })
         }
     });
@@ -193,21 +204,45 @@ const Employee = () => {
     useEffect(() => {
         offSet.current.isLoadFirstTime = false;
         dispatch(builderFieldsAction(fields));
+        dispatch(showDropDownFilterAction({
+            company: true,
+            country: true,
+            state: true,
+            city: true,
+            area: true,
+            department: true,
+            group: true,
+            designation: true
+        }))
     }, [dispatch])
 
     const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive, handelDeleteItems);
+    useEffect(() => {
+        if (excelData) {
+            const excelCol = excelColData.current.flatMap(c => c._children).filter(c => c?.label);
 
+        }
+    }, [excelData])
 
     const showAddModal = () => {
         isEdit.current = false;
         setOpenPopup(true);
     }
 
+    const handleTemplate = () => {
+        if (Array.isArray(excelColData.current)) {
+            const excelCol = excelColData.current.flatMap(c => c._children).filter(c => c?.label).map(c => c.label);
+            setWbData([excelCol]);
+        }
+    }
+
     return (
         <>
+            <Loader open={inProcess} />
             <PageHeader
                 title="Employee"
                 enableFilter={true}
+                handleUpload={(e) => setFile(e.target.files[0])}
                 subTitle="Manage Employees"
                 icon={<PeopleOutline fontSize="large" />}
             />
@@ -218,10 +253,12 @@ const Employee = () => {
                 fullScreen={true}
                 isEdit={isEdit.current}
                 footer={<></>}
-                // addOrEditFunc={handleSubmit}
+                keepMounted={true}
                 setOpenPopup={setOpenPopup}>
-                <EmpoyeeModal isEdit={isEdit.current} editId={editId} setOpenPopup={setOpenPopup} formRef={formApi} />
+                <EmpoyeeModal coldata={excelColData} isEdit={isEdit.current} editId={editId} setOpenPopup={setOpenPopup} />
             </Popup>
+
+            <Link style={{ float: "right" }} onClick={handleTemplate}> Employee Template</Link>
             <ButtonGroup fullWidth >
                 {alphabets.map(alpha => (
                     <Controls.Button onClick={handleAlphabetSearch} color="inherit" key={alpha} text={alpha} />

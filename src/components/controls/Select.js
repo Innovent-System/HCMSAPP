@@ -63,10 +63,10 @@ function Select(props) {
 
   return (
 
-    <FormControl {...others} fullWidth  {...others} size="small"
+    <FormControl  {...others} fullWidth  {...others} size="small"
       {...(error && { error: true })}>
       <InputLabel id={`demo-multiple-name-${name}`}>{label}</InputLabel>
-      {isMultiple ? <MuiSelect
+      {isMultiple ? <MuiSelect 
         labelId={`demo-multiple-name-${name}`}
         multiple
         name={name}

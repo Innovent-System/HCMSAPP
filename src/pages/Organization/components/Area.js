@@ -89,7 +89,7 @@ let editId = 0;
 export const AddArea = ({ openPopup, setOpenPopup, isEdit = false, row = null }) => {
   const { addEntity } = useEntityAction();
   const formApi = useRef(null);
-  const { countries, cities, states, filterType, setFilter } = useDropDown();
+  const { countries, cities, states,employees, filterType, setFilter } = useDropDown();
 
   useEffect(() => {
     if (!formApi.current || !openPopup) return;
@@ -113,8 +113,8 @@ export const AddArea = ({ openPopup, setOpenPopup, isEdit = false, row = null })
     const { getValue, validateFields } = formApi.current
     if (validateFields()) {
       let values = getValue();
-      let dataToInsert = {};
-      dataToInsert.areaName = values.areaName;
+      let dataToInsert = {...values};
+      dataToInsert.areaHead = dataToInsert.areaHead?._id ?? null;
       dataToInsert.country = { country_id: values.fkCountryId._id, countryName: values.fkCountryId.name, intId: values.fkCountryId.id };
       dataToInsert.state = { state_id: values.fkStateId._id, stateName: values.fkStateId.name, intId: values.fkStateId.id };
       dataToInsert.city = { city_id: values.fkCityId._id, cityName: values.fkCityId.name, intId: values.fkCityId.id };
@@ -173,7 +173,16 @@ export const AddArea = ({ openPopup, setOpenPopup, isEdit = false, row = null })
         errorMessage: "Area is required"
       },
       defaultValue: ""
-    }
+    },
+    {
+      elementType: "ad_dropdown",
+      name: "areaHead",
+      label: "Area Head",
+      dataName: 'fullName',
+      dataId: '_id',
+      options: employees,
+      defaultValue: null
+    },
   ];
 
   return <Popup

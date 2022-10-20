@@ -64,9 +64,9 @@ function StatusHanlder() {
           socket.off("leaveclient");
           socket.off("leavecompany");
           socket.off("leaveSession");
-          
-          socket.emit("leaveclient", info.c_Id);
-          socket.emit("leavecompany", info.com_Id);
+
+          socket.emit("leaveclient", info.clientId);
+          socket.emit("leavecompany", info.companyId);
           socket.emit("leaveSession", formId);
         }
 

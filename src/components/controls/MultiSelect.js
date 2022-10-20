@@ -74,34 +74,35 @@ function MultiSelect(props) {
     <Autocomplete
       multiple={isMultiple}
       ref={autoCompleteRef}
-      {...(isMultiple && { PopperComponent: MyPopper })}
+      // {...(isMultiple && { PopperComponent: MyPopper })}
       limitTags={2}
-      // isOptionEqualToValue={(option, value) => option[dataName] === value[dataName]}
+      // isOptionEqualToValue={(option, value) => option[dataId] === value[dataId]}
       {...other}
-      value={value}
+      value={value ?? []}
       onChange={(event, value) => onChange(convertToDefEventPara(name, value))}
       id="multiple-limit-tags"
       {...(isMultiple && { disableCloseOnSelect: true })}
       options={options}
       getOptionLabel={getOptionLabel}
+
       onInputChange={handleInputeChange}
+      disableCloseOnSelect={isMultiple}
       disableListWrap
       ListboxComponent={ListboxComponent}
       {...(isMultiple && {
-        renderOption: (option, state) => {
-          return (
-            <FormControlLabel sx={{ p: 1 }} key={option.id}
-              control={<Checkbox
-                icon={icon}
-                color='primary'
-                checkedIcon={checkedIcon}
-                style={{ marginRight: 8 }}
-                checked={state.selected}
-              />}
-              label={state[dataName]}
+        renderOption: (props, option, { selected }) =>
+        (
+          <li {...props}>
+            <Checkbox
+              icon={icon}
+              checkedIcon={checkedIcon}
+              style={{ marginRight: 8 }}
+              checked={selected}
             />
-          );
-        }
+            {option[dataName]}
+          </li>
+        )
+
       })}
 
       renderInput={(params) => (

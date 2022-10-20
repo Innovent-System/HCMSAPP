@@ -11,12 +11,12 @@ export const socketUrl = "http://localhost:5000/";
 
 export const headerOption = () => {
   const info = Auth.getitem('userInfo') || {};
-  return{
-  'Accept': 'application/json',
-  'Content-Type': 'application/json;charset=UTF-8',
-  'formid': window.location.pathname.substr(window.location.pathname.lastIndexOf("/") + 1),
-  'clientid':info.c_Id
-}
+  return {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json;charset=UTF-8',
+    'formid': window.location.pathname.substr(window.location.pathname.lastIndexOf("/") + 1),
+    'clientid': info.clientId
+  }
 };
 
 

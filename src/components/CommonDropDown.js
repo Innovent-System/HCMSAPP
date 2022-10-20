@@ -29,7 +29,7 @@ function CommonDropDown({ isMultiple, showFilters, idset, setIdSet, setProps }) 
         const setOfIds = setDropDownIds(data, type, "_id");
         dispatch(dropDownIdsAction(setOfIds));
         if (typeof setIdSet === "function") setIdSet(setOfIds);
-        if (["company"].includes(type)) matchWith = "_id";
+        if (["company","area"].includes(type)) matchWith = "_id";
         setFilter(data, type, matchWith);
     }
 

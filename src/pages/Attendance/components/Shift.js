@@ -165,6 +165,7 @@ export const AddShift = ({ openPopup, setOpenPopup, isEdit = false, row = null }
             elementType: "checkbox",
             name: "isNextDay",
             label: "Is Next Day",
+            breakpoints: { xs: 12, sm: 12, md: 12 },
             defaultValue: false,
         },
         {
@@ -201,7 +202,7 @@ export const AddShift = ({ openPopup, setOpenPopup, isEdit = false, row = null }
         openPopup={openPopup}
         maxWidth="sm"
         keepMounted={true}
-        isEdit={isEdit.current}
+        isEdit={isEdit}
         addOrEditFunc={handleSubmit}
         setOpenPopup={setOpenPopup}>
         <AutoForm formData={formData} ref={formApi} isValidate={true} />

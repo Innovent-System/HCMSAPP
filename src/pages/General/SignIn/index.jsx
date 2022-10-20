@@ -6,7 +6,7 @@ import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { InputAdornment, IconButton, Link, Box, Container, Typography, Paper, CircularProgress } from "../../../deps/ui";
 import { Visibility, VisibilityOff, Person } from '../../../deps/ui/icons';
 import { green } from '../../../deps/ui/colorschema';
-import { AppRoutesThunk, AuthThunk } from '../../../store/actions/httpactions';
+import { AppRoutesThunk, AuthThunk, setUserInfo } from '../../../store/actions/httpactions';
 import { useDispatch } from "react-redux";
 import { API_USER_LOGIN } from '../../../services/UrlService';
 import Auth from '../../../services/AuthenticationService';
@@ -91,10 +91,21 @@ const SignIn = () => {
       dispatch(AuthThunk({ url: API_USER_LOGIN, params: signInData })).unwrap().then(res => {
         if (res) {
           const { data } = res;
-          
+          dispatch(setUserInfo({
+            email: data.email,
+            clientId: data.clientId,
+            companyId: data.companyId,
+            userName: data.userName,
+            fkEmployeeId: data.fkEmployeeId,
+            userId: data.userId
+          }))
           Auth.setItem("userInfo", {
-            "email": data.email, "c_Id": data.clientId, "com_Id": data.companyId, username: data.username,
-            fkEmployeeId: data.fkEmployeeId
+            email: data.email,
+            clientId: data.clientId,
+            companyId: data.companyId,
+            userName: data.userName,
+            fkEmployeeId: data.fkEmployeeId,
+            userId: data.userId
           });
           socket.emit("joinclient", data.clientId);
           socket.emit("joincompany", data.companyId);

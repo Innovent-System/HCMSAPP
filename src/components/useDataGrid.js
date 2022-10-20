@@ -111,7 +111,7 @@ export const getActions = (apiRef, actionKit = { onActive: null, onApproval: nul
     field: 'actions',
     type: 'actions',
     headerName: 'Actions',
-    flex: '0 1 30%',
+    flex: 1,
     align: 'center',
     hideable: false,
     cellClassName: 'actions',
@@ -212,6 +212,7 @@ export default function FeaturedCrudGrid(props) {
             setSelectionModel(newSelectionModel);
           }
         })}
+        getRowHeight={() => 'auto'}
         columns={columns}
         checkboxSelection={checkboxSelection}
         rowsPerPageOptions={[pageSize]}

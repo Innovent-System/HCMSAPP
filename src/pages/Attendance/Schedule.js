@@ -52,17 +52,17 @@ const getColumns = (apiRef, onEdit, onActive, onDelete, setOpenShift) => {
     return [
         { field: '_id', headerName: 'Id', hide: true, hideable: false },
         {
-            field: 'code', headerName: 'Code', width: 180, hideable: false
+            field: 'code', headerName: 'Code', flex: 1, hideable: false
         },
         {
-            field: 'scheduleName', headerName: 'Name', width: 180, hideable: false
+            field: 'scheduleName', headerName: 'Name', flex: 1, hideable: false
         },
         {
-            field: 'totalAssigned', cellClassName: 'actions', type: "actions", headerName: 'Assigned Employees', width: 180, align: 'center', hideable: false, renderCell: ({ row }) => (
+            field: 'totalAssigned', cellClassName: 'actions', type: "actions", headerName: 'Assigned Employees', flex: 1, align: 'center', hideable: false, renderCell: ({ row }) => (
 
                 <GridActionsCellItem
                     icon={<Badge badgeContent={row.totalAssigned} color="primary" showZero>
-                        <People color="action" />
+                        <People fontSize="small" color="action" />
                     </Badge>}
                     label="Active"
                     onClick={() => { setOpenShift(row.id) }}
@@ -70,10 +70,10 @@ const getColumns = (apiRef, onEdit, onActive, onDelete, setOpenShift) => {
                 />
             )
         },
-        { field: 'modifiedOn', headerName: 'Modified On', hideable: false, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
-        { field: 'createdOn', headerName: 'Created On', hideable: false, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
+        { field: 'modifiedOn', headerName: 'Modified On', hideable: false, flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
+        { field: 'createdOn', headerName: 'Created On', hideable: false, flex: 1,valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
         {
-            field: 'isActive', headerName: 'Status', renderCell: (param) => (
+            field: 'isActive', headerName: 'Status',flex: 1, renderCell: (param) => (
                 param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
             ),
             flex: '0 1 5%',

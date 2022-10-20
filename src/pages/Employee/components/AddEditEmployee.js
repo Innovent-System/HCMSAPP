@@ -38,17 +38,16 @@ const MapModel = {
 }
 const AddModal = ({ name }) => {
   const [openPopup, setOpenPopup] = useState(false);
-  const formApi = useRef(null);
+
   const Modal = MapModel[name];
   return (
     <Box position="absolute" top={0} right={0}>
       <IconButton size='small' onClick={() => {
-        const { resetForm } = formApi.current;
-        resetForm(); setOpenPopup(true);
+        setOpenPopup(true);
       }}>
         <Launch fontSize="small" />
       </IconButton>
-      <Modal formApi={formApi} openPopup={openPopup} setOpenPopup={setOpenPopup} />
+      <Modal openPopup={openPopup} setOpenPopup={setOpenPopup} />
     </Box>
   )
 }
@@ -127,7 +126,7 @@ const mapEmployee = (values) => {
 }
 
 const breakpoints = { md: 4, sm: 6, xs: 6 }
-export default function EmployaaModal({ isEdit = false, editId }) {
+export default function EmployaaModal({ isEdit = false, editId, coldata }) {
 
   const formApi = useRef(null);
   const [activeStep, setActiveStep] = React.useState(0);
@@ -162,7 +161,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
         fkDesignationId: designations.find(d => d._id === values.companyInfo.fkDesignationId),
         fkEmployeeGroupId: groups.find(g => g._id === values.companyInfo.fkEmployeeGroupId),
         fkStateId: states.find(s => s._id === values.companyInfo.fkStateId),
-        fkManagerId:employees.find(e => e._id === values.companyInfo?.fkManagerId) ?? null,
+        fkManagerId: employees.find(e => e._id === values.companyInfo?.fkManagerId) ?? null,
         fkRoleTemplateId: values.companyInfo.fkRoleTemplateId,
         joiningDate: values.companyInfo.joiningDate,
         confirmationDate: values.companyInfo.confirmationDate,
@@ -385,7 +384,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
             errorMessage: "Country is required",
           },
           dataName: 'name',
-          dataId: 'id',
+          dataId: '_id',
           options: countries,
           onChange: (data) => setFilter(data, filterType.COUNTRY, "id"),
           defaultValue: countries?.length ? countries[0] : null
@@ -397,7 +396,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           breakpoints,
           required: true,
           dataName: "name",
-          dataId: 'id',
+          dataId: '_id',
           validate: {
             when: 1,
             errorMessage: "State is required",
@@ -412,7 +411,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           label: "City",
           breakpoints,
           required: true,
-          dataId: 'id',
+          dataId: '_id',
           dataName: "name",
           onChange: (data) => setFilter(data, filterType.CITY, "_id"),
           validate: {
@@ -431,6 +430,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           },
           breakpoints,
           required: true,
+          dataId: '_id',
           dataName: "areaName",
           validate: {
             when: 1,
@@ -445,6 +445,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           label: "Group",
           breakpoints,
           required: true,
+          dataId: '_id',
           dataName: "groupName",
           validate: {
             when: 1,
@@ -460,6 +461,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           breakpoints,
           required: true,
           dataName: "departmentName",
+          dataId: '_id',
           // modal: {
           //   Component: <AddModal name="country" />,
           // },
@@ -475,6 +477,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
           name: "fkDesignationId",
           label: "Designation",
           breakpoints,
+          dataId: '_id',
           dataName: "name",
           options: designations,
           defaultValue: null
@@ -490,6 +493,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
             when: 1,
             errorMessage: "Schedule is required",
           },
+          dataId: '_id',
           dataName: "scheduleName",
           options: schedules,
           defaultValue: null
@@ -607,6 +611,8 @@ export default function EmployaaModal({ isEdit = false, editId }) {
     },
   ];
 
+  coldata.current = formData;
+
   useEffect(() => {
     if (companies?.length) {
       setFilter(companies[0], filterType.COMPANY, "_id");
@@ -633,6 +639,7 @@ export default function EmployaaModal({ isEdit = false, editId }) {
   const handleSubmit = (e) => {
     const { getValue, validateFields } = formApi.current
     if (validateFields()) {
+      
       const values = getValue();
       const setEmployee = mapEmployee(values);
       if (isEdit)

@@ -4,6 +4,8 @@ import {
   GridView as GridViewIcon,
   ExpandMore as ExpandMoreIcon,
   FilterList as FilterListIcon,
+  CloudUpload,
+  Article
 } from "../deps/ui/icons";
 import PropTypes from "prop-types";
 import Controls from "./controls/Controls";
@@ -17,6 +19,8 @@ import {
   AccordionSummary,
   IconButton,
   AccordionDetails,
+  Input,
+  Tooltip,
   TextField,
 } from "../deps/ui";
 import CommonDropDown from "./CommonDropDown";
@@ -94,7 +98,7 @@ function trigger(eventType, data) {
 
 export default function PageHeader(props) {
   const classes = useStyles();
-  const { title, subTitle, icon, handleUpload, enableFilter } = props;
+  const { title, subTitle, icon, handleUpload, handleTemplate, enableFilter } = props;
   const dispatch = useDispatch();
   const [drawer, setDrawer] = useState(false);
 
@@ -127,16 +131,27 @@ export default function PageHeader(props) {
         justifyContent="space-between"
         alignItems="center"
         className={`${classes.Root} page-heading`}>
-        <Grid item  className="left">
+        <Grid item className="left">
           <Typography variant="h1"> {title} </Typography>
         </Grid>
         <Grid item className="right">
+
           {typeof handleUpload === "function" && (
-            <Controls.Button onClick={handleUpload} text="+ Upload" />
+            <Tooltip title="Upload Template" placement="top" arrow>
+              <label htmlFor="icon-button-excel-file">
+                <Input style={{ display: 'none' }} onChange={handleUpload} accept="image/*" id="icon-button-excel-file" type="file" />
+                <IconButton size='small' aria-label="upload picture" component="span">
+                  <CloudUpload />
+                </IconButton>
+              </label>
+            </Tooltip>
           )}
-          <IconButton onClick={() => setDrawer(true)}>
-            <FilterListIcon />
-          </IconButton>
+          <Tooltip title="Filter" placement="top" arrow>
+            <IconButton size="small" onClick={() => setDrawer(true)}>
+              <FilterListIcon />
+            </IconButton>
+          </Tooltip>
+
         </Grid>
       </Grid>
       <Grid container spacing={2}>
@@ -144,9 +159,12 @@ export default function PageHeader(props) {
           <Drawer
             className={classes.Drawer}
             anchor={"right"}
+            sx={{
+              maxWidth: 300
+            }}
             open={drawer}
             onClose={() => setDrawer(!drawer)}>
-            <Box role="presentation" onKeyDown={() => setDrawer(!drawer)}>
+            <Box role="presentation">
               {setEnableFilter && (
                 <Accordion>
                   <AccordionSummary
@@ -161,37 +179,9 @@ export default function PageHeader(props) {
                   </AccordionDetails>
                 </Accordion>
               )}
-              <Accordion>
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls="panel12a-content"
-                  id="panel2a-header">
-                  <GridViewIcon />
-                  <Typography> Amount</Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <Grid container className="fields" spacing={2}>
-                    <Grid item md={6} xs={12}>
-                      <TextField
-                        label="From"
-                        id="outlined-size-small"
-                        defaultValue="4200"
-                        size="small"
-                      />
-                    </Grid>
-                    <Grid item md={6} xs={12}>
-                      <TextField
-                        label="To"
-                        id="outlined-size-small"
-                        defaultValue="4600"
-                        size="small"
-                      />
-                    </Grid>
-                  </Grid>
-                </AccordionDetails>
-              </Accordion>
+
+              <QueryBuilder query={query} setQuery={setQuery} fields={fields} />
             </Box>
-            <QueryBuilder query={query} setQuery={setQuery} fields={fields} />
             {/* <Controls.Button text='Apply' onClick={handleApply} /> */}
             <Controls.Button
               color="primary"
@@ -210,5 +200,7 @@ PageHeader.propTypes = {
   subTitle: PropTypes.string,
   icon: PropTypes.node,
   handleAdd: PropTypes.func,
+  handleUpload: PropTypes.func,
+  handleTemplate: PropTypes.func,
   enableFilter: PropTypes.bool,
 };

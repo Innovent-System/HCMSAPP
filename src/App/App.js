@@ -9,6 +9,7 @@ import { store } from "../store/reducers/store";
 import { SocketContext, appsocket } from '../services/socketService';
 import { SnackbarProvider } from 'notistack';
 import { theme } from '../config/theme';
+import { WorkerContext, excelWorker } from '../services/workerService'
 
 
 
@@ -26,10 +27,12 @@ function App() {
       <SnackbarProvider maxSnack={3}>
         <Router>
           <Provider store={store}>
-            <SocketContext.Provider value={appsocket}>
-              <GlobalStyles />
-              <Routes />
-            </SocketContext.Provider>
+            <WorkerContext.Provider value={{ excelWorker }}>
+              <SocketContext.Provider value={appsocket}>
+                <GlobalStyles />
+                <Routes />
+              </SocketContext.Provider>
+            </WorkerContext.Provider>
           </Provider >
         </Router>
       </SnackbarProvider>

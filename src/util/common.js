@@ -1,6 +1,6 @@
 import Chart from 'chart.js';
 
-const MimeTypesMap = {
+export const MimeTypesMap = {
     png: 'image/png',
     gif: 'image/gif',
     jpg: 'image/jpg',
@@ -98,8 +98,8 @@ export const throttle = (func, limit) => {
 export class WorkerBuilder extends Worker {
     constructor(worker) {
         const code = worker.toString();
-        const blob = new Blob([`(${code})()`]);
-        return new Worker(URL.createObjectURL(blob));
+        const blob = new Blob([`(${code})()`], { type: "text/javascript" });
+        return new Worker(URL.createObjectURL(blob), { type: "module" });
     }
 }
 
