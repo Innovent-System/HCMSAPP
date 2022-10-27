@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, startTransition } from 'react'
 import PropTypes from 'prop-types'
 import { useDropDown, DROPDOWN_PROPS, Name_MAP, filterTypes } from "./useDropDown";
 import { AutoForm } from './useForm';
@@ -26,18 +26,21 @@ function CommonDropDown({ isMultiple, showFilters, idset, setIdSet, setProps }) 
     const showFilter = useSelector(e => showFilters ?? e.appdata.showFilterProps);
 
     const handleDropDownIds = (data, type, matchWith) => {
-        const setOfIds = setDropDownIds(data, type, "_id");
-        dispatch(dropDownIdsAction(setOfIds));
-        if (typeof setIdSet === "function") setIdSet(setOfIds);
-        if (["company", "area"].includes(type)) matchWith = "_id";
-        setFilter(data, type, matchWith);
+        startTransition(() => {
+            const setOfIds = setDropDownIds(data, type, "_id");
+            dispatch(dropDownIdsAction(setOfIds));
+            if (typeof setIdSet === "function") setIdSet(setOfIds);
+            if (["company", "area"].includes(type)) matchWith = "_id";
+            setFilter(data, type, matchWith);
+        })
+
     }
 
     const isReset = useSelector(e => e.appdata.isReset);
 
     useEffect(() => {
         if (isReset) {
-            const { resetForm, getValue } = formApi.current;
+            const { resetForm } = formApi.current;
             resetForm();
             dispatch(clearDropDownIdsAction);
             setFilter(null, filterType.DEFAULT);
@@ -59,7 +62,7 @@ function CommonDropDown({ isMultiple, showFilters, idset, setIdSet, setProps }) 
         [showFilter, dropDown],
     )
 
-    return <AutoForm formData={formData()} ref={formApi} isValidate={true} />
+    return <AutoForm formData={formData()} ref={formApi} />
 }
 
 CommonDropDown.defaultProps = {

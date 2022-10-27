@@ -79,9 +79,9 @@ export const useDropDown = () => {
     })
 
     const handleFilter = (data, type, matchWith, callback) => {
-        if (!Array.isArray(data)) {
-            data = [data];
-        }
+
+        if (!Array.isArray(data)) data = [data];
+
 
         if (typeof callback === "function") {
             callbackRef.current = callback;
@@ -89,7 +89,8 @@ export const useDropDown = () => {
         }
         else {
             callbackRef.current = null;
-            setFilter({ type, data, matchWith });
+            console.log({ type, data, matchWith });
+            setFilter((pre) => ({ ...pre, type, data, matchWith }));
         }
 
     }
@@ -103,12 +104,12 @@ export const useDropDown = () => {
     }
 
     useMemo(() => {
+        console.log(filter.type);
         if (!DropDownData) return;
         if (filter.type === filterTypes.DEFAULT) {
             getDefaultState();
             return;
         }
-
         let ids = filter.data[0] ? filter.data.map(d => d[filter.matchWith]) : [];
         const countries = [], states = [], cities = [], areas = [];
         let count = -1;
@@ -207,7 +208,7 @@ export const useDropDown = () => {
             callbackRef.current({ countries, states, cities, areas })
         }
 
-    }, [DropDownData, filter])
+    }, [filter, DropDownData])
 
     return {
         companies,

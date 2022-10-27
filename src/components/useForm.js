@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, forwardRef, useImperativeHandle } from 'react'
-import { makeStyles, Grid, Box } from "../deps/ui";
+import { makeStyles, Grid } from "../deps/ui";
 import clsx from 'clsx';
 import { Element, ElementType } from '../components/controls/Controls';
 import Loader from '../components/Circularloading';
@@ -15,7 +15,7 @@ export function useForm(initialFValues, validateOnChange = false, validate) {
     const handleInputChange = (e, exec) => {
         const { name, value } = e.target
         let _value = value;
-
+        
         if (typeof _value === "string") {
             _value = _value.trimStart()
         }

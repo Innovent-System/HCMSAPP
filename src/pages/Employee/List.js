@@ -11,11 +11,12 @@ import DataGrid, { useGridApi, getActions } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import PropTypes from 'prop-types'
-import EmpoyeeModal from './components/AddEditEmployee';
+import EmpoyeeModal, { mapEmployee } from './components/AddEditEmployee';
 import PageHeader from '../../components/PageHeader'
 import { useExcelReader } from "../../hooks/useExcelReader";
 import Loader from '../../components/Circularloading'
-import { useDropDownIds } from '../../components/useDropDown'
+import { useDropDownIds } from '../../components/useDropDown';
+
 
 const fields = {
     fullName: {
@@ -99,7 +100,7 @@ const Employee = () => {
 
     const excelColData = useRef([]);
 
-    const { inProcess, isDone, setFile, file, excelData, setWbData } = useExcelReader();
+    const { inProcess, isDone, setFile, file, processAndVerifyData, excelData, setWbData } = useExcelReader();
 
     const [gridFilter, setGridFilter] = useState({
         lastKey: null,
@@ -117,7 +118,7 @@ const Employee = () => {
     const query = useSelector(e => e.appdata.query.builder);
 
     const { countryIds, stateIds, cityIds, areaIds } = useDropDownIds();
-    console.log(stateIds)
+
     const { data, isLoading, status, refetch } = useEntitiesQuery({
         url: API.Employee,
         params: {
@@ -134,7 +135,7 @@ const Employee = () => {
         }
     });
 
-    const { updateOneEntity, removeEntity } = useEntityAction();
+    const { updateOneEntity, addEntity, removeEntity } = useEntityAction();
 
     useEffect(() => {
         if (status === "fulfilled") {
@@ -219,8 +220,16 @@ const Employee = () => {
     const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive, handelDeleteItems);
     useEffect(() => {
         if (excelData) {
-            const excelCol = excelColData.current.flatMap(c => c._children).filter(c => c?.label);
+            const [error, resultData] = processAndVerifyData({
+                colInfo: excelColData.current,
+                excelData: excelData,
+                transformData: mapEmployee
+            })
+            if (!error.length) {
+                addEntity({ url: API.Employee, data: resultData });
+            }
 
+            console.log({ error, });
         }
     }, [excelData])
 
@@ -232,7 +241,8 @@ const Employee = () => {
     const handleTemplate = () => {
         if (Array.isArray(excelColData.current)) {
             const excelCol = excelColData.current.flatMap(c => c._children).filter(c => c?.label).map(c => c.label);
-            setWbData([excelCol]);
+            const dummyData = ["Any", 2222, 2222, "Faizan", "Siddiqui", "Aqeel Ahmed", "-", "Single", "Male", "Islam", "10/02/1990", false, "faizan@gmail.com", "-", "Innovent Systems", "Pakistan", "Sindh", "Karachi", "R.M.R", "Head Group", "Accounts", "Developer", "Casual", "27/10/2022", "-", "-", "ABC", "", "Karachi", "Sindh", 75080, "Pakistan", "03418", "-", "-"];
+            setWbData([excelCol, dummyData]);
         }
     }
 
@@ -250,6 +260,7 @@ const Employee = () => {
                 title="Add Employee Information"
                 openPopup={openPopup}
                 maxWidth="xl"
+
                 fullScreen={true}
                 isEdit={isEdit.current}
                 footer={<></>}

@@ -77,7 +77,7 @@ const getSteps = () => {
   return ['General', 'Company', 'Work & Educational'];
 }
 
-const mapEmployee = (values) => {
+export const mapEmployee = (values) => {
   if (!Object.keys(values).length) return;
   const employee = {
     emplyeeRefNo: values.emplyeeRefNo,
@@ -119,7 +119,7 @@ const mapEmployee = (values) => {
     scheduleId: values?.scheduleId._id
   }
   if (values.fkRoleTemplateId)
-    employee.companyInfo.fkRoleTemplateId = values.fkRoleTemplateId
+    employee.companyInfo.fkRoleTemplateId = values.fkRoleTemplateId._id;
 
 
   return employee;
@@ -639,7 +639,7 @@ export default function EmployaaModal({ isEdit = false, editId, coldata }) {
   const handleSubmit = (e) => {
     const { getValue, validateFields } = formApi.current
     if (validateFields()) {
-      
+
       const values = getValue();
       const setEmployee = mapEmployee(values);
       if (isEdit)

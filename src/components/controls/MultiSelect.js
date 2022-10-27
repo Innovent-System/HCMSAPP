@@ -1,21 +1,12 @@
 /* eslint-disable no-use-before-define */
-import React, { useRef, useState } from 'react';
-import { Autocomplete, TextField, Checkbox, FormControlLabel, Popper, ButtonGroup, Button, Box } from '../../deps/ui'
+import React, { useEffect, useRef, useState } from 'react';
+import { Autocomplete, TextField, Checkbox, FormControlLabel, Popper, ButtonGroup, Button, Box, Chip } from '../../deps/ui'
 import { Check, Clear, CheckBox as CheckBoxIcon, CheckBoxOutlineBlank as CheckBoxOutlineBlankIcon } from '../../deps/ui/icons'
 import ListboxComponent from '../ReactWindow';
 import PropTypes from 'prop-types'
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
-
-const Styles = {
-  root: {
-    '& > * + *': {
-      mt: 3,
-    },
-
-  }
-};
 
 const MyPopper = function (props) {
   const addAllClick = (e) => {
@@ -53,7 +44,15 @@ function MultiSelect(props) {
     }
   })
 
+  useEffect(() => {
+    if (isMultiple && autoCompleteRef.current && !options.length && value.length) {
+      const close = autoCompleteRef.current.getElementsByClassName(
+        "MuiAutocomplete-clearIndicator"
+      )[0];
 
+      close.click();
+    }
+  }, [options])
   const getOptionLabel = (option) => option[dataName] ?? '';
 
   const handleInputeChange = (e, newValue) => {
@@ -96,11 +95,24 @@ function MultiSelect(props) {
             {option[dataName]}
           </li>
         )
+        // renderTags: (value, getTagProps) => {
+        //   console.log(value, name);
+        //   return value.map((option, index) => (
+        //     <Chip
+        //       variant="outlined"
+        //       onChange={console.log}
+        //       label={option[dataName]}
+        //       size="small"
+        //       {...getTagProps({ index })}
+        //     />
+        //   ))
+        // }
+
 
       })}
 
       renderInput={(params) => (
-        <TextField {...params}    {...(error && { error: true, helperText: error })} variant="outlined" size='small' label={label} />
+        <TextField {...params} {...(error && { error: true, helperText: error })} variant="outlined" size='small' label={label} />
       )}
     />
   );
