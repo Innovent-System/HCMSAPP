@@ -10,7 +10,7 @@ import {
   Box,
   Drawer,
 } from "../../deps/ui";
-import * as iconMapping from "../../assests/icons";
+import * as iconMapping from "../../assets/icons";
 import NavItem from "./NavItem";
 
 import {
@@ -36,7 +36,7 @@ import {
 } from "../../store/actions/httpactions";
 import { useDispatch } from "react-redux";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
-import Logo from "../../assests/images/Logo.png";
+import Logo from "../../assets/images/Logo.png";
 
 // Drawer
 import { useSelector } from "react-redux";

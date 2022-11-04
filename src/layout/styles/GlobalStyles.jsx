@@ -1,5 +1,5 @@
 import { createStyles, makeStyles } from '@mui/styles';
-import BodyBG from '../../assests/images/bg-0.jpg';
+import BodyBG from '../../assets/images/bg-0.jpg';
 
 const useStyles = makeStyles(() => createStyles({
   '@global': {

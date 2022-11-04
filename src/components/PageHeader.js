@@ -4,24 +4,13 @@ import {
   GridView as GridViewIcon,
   ExpandMore as ExpandMoreIcon,
   FilterList as FilterListIcon,
-  CloudUpload,
-  Article
+  CloudUpload
 } from "../deps/ui/icons";
 import PropTypes from "prop-types";
 import Controls from "./controls/Controls";
 import {
-  Paper,
-  Typography,
-  Grid,
-  Drawer,
-  Box,
-  Accordion,
-  AccordionSummary,
-  IconButton,
-  AccordionDetails,
-  Input,
-  Tooltip,
-  TextField,
+  Paper, Typography, Grid, Drawer, Box, Accordion, AccordionSummary,
+  IconButton, AccordionDetails, Input, Tooltip
 } from "../deps/ui";
 import CommonDropDown from "./CommonDropDown";
 import { useSelector, useDispatch } from "react-redux";
@@ -30,6 +19,7 @@ import {
   builderQueryAction,
   enableFilterAction,
   resetAction,
+  showDropDownFilterAction,
 } from "../store/actions/httpactions";
 import QueryBuilder, {
   defultValue,
@@ -119,6 +109,17 @@ export default function PageHeader(props) {
     return () => {
       dispatch(clearDropDownIdsAction);
       dispatch(enableFilterAction(false));
+      // dispatch(showDropDownFilterAction({
+      //   company: true,
+      //   country: false,
+      //   state: false,
+      //   city: false,
+      //   area: false,
+      //   department: false,
+      //   group: false,
+      //   designation: false,
+      //   employee: false
+      // }))
     };
   }, []);
 

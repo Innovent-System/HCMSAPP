@@ -7,10 +7,12 @@ import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Close';
 import { ToggleOff, ToggleOn, Search } from '../deps/ui/icons'
 import { InputAdornment, IconButton, Box } from '../deps/ui'
+import { alpha, styled } from '@mui/material/styles';
 import Controls from '../components/controls/Controls'
 import {
   useGridApiRef,
   DataGridPro,
+  gridClasses,
   GridToolbarContainer,
   GridActionsCellItem,
   LicenseInfo,
@@ -105,6 +107,41 @@ export const getCrudActions = (apiRef, onSave, onDelete) => {
   }
 }
 
+const ODD_OPACITY = 0.2;
+
+const StripedDataGrid = styled(DataGridPro)(({ theme }) => ({
+  [`& .${gridClasses.row}.even`]: {
+    backgroundColor: theme.palette.grey[200],
+    '&:hover, &.Mui-hovered': {
+      backgroundColor: alpha(theme.palette.primary.main, ODD_OPACITY),
+      '@media (hover: none)': {
+        backgroundColor: 'transparent',
+      },
+    },
+    '&.Mui-selected': {
+      backgroundColor: alpha(
+        theme.palette.primary.main,
+        ODD_OPACITY + theme.palette.action.selectedOpacity,
+      ),
+      '&:hover, &.Mui-hovered': {
+        backgroundColor: alpha(
+          theme.palette.primary.main,
+          ODD_OPACITY +
+            theme.palette.action.selectedOpacity +
+            theme.palette.action.hoverOpacity,
+        ),
+        // Reset on touch devices, it doesn't add specificity
+        '@media (hover: none)': {
+          backgroundColor: alpha(
+            theme.palette.primary.main,
+            ODD_OPACITY + theme.palette.action.selectedOpacity,
+          ),
+        },
+      },
+    },
+  },
+}));
+
 export const getActions = (apiRef, actionKit = { onActive: null, onApproval: null, onEdit: null, onDelete: null }) => {
 
   return {
@@ -120,34 +157,38 @@ export const getActions = (apiRef, actionKit = { onActive: null, onApproval: nul
       const { onActive, onApproval, onEdit, onDelete } = actionKit;
       if (typeof onActive === "function") {
         toolKit.push(<GridActionsCellItem
-          icon={<ToggleOn />}
+          icon={<ToggleOn fontSize='small' />}
           label="Active"
           onClick={() => onActive(id)}
           color={"primary"}
+
         />)
       }
       if (typeof onEdit === "function") {
         toolKit.push(<GridActionsCellItem
-          icon={<EditIcon />}
+          icon={<EditIcon fontSize='small' />}
           label="Edit"
           onClick={() => onEdit(id)}
           color={"primary"}
+          showInMenu
         />)
       }
       if (typeof onDelete === "function") {
         toolKit.push(<GridActionsCellItem
-          icon={<DeleteIcon />}
+          icon={<DeleteIcon fontSize='small' />}
           label="Delete"
           onClick={() => onDelete(id)}
           color={"primary"}
+          showInMenu
         />)
       }
       if (typeof onApproval === "function") {
         toolKit.push(<GridActionsCellItem
-          icon={<SaveIcon />}
+          icon={<SaveIcon fontSize='small' />}
           label="Approval"
           onClick={() => onApproval(id)}
           color={"primary"}
+          showInMenu
         />)
       }
 
@@ -175,20 +216,21 @@ export default function FeaturedCrudGrid(props) {
     setSelectionModel,
     density = "compact",
     checkboxSelection = true,
+    rowHeight = null,
     totalCount = 0,
     gridToolBar: GridToolBar, toolbarProps, ...others
   } = props;
-  const handleRowEditStart = (params, event) => {
-    event.defaultMuiPrevented = true;
-  };
+  // const handleRowEditStart = (params, event) => {
+  //   event.defaultMuiPrevented = true;
+  // };
 
-  const handleRowEditStop = (params, event) => {
-    event.defaultMuiPrevented = true;
-  };
+  // const handleRowEditStop = (params, event) => {
+  //   event.defaultMuiPrevented = true;
+  // };
 
-  const handleCellFocusOut = (params, event) => {
-    event.defaultMuiPrevented = true;
-  };
+  // const handleCellFocusOut = (params, event) => {
+  //   event.defaultMuiPrevented = true;
+  // };
 
   return (
     <Box
@@ -203,7 +245,7 @@ export default function FeaturedCrudGrid(props) {
         },
       }}
     >
-      <DataGridPro
+      <StripedDataGrid
         density={density}
         rows={rows}
         loading={loading}
@@ -212,18 +254,21 @@ export default function FeaturedCrudGrid(props) {
             setSelectionModel(newSelectionModel);
           }
         })}
-        getRowHeight={() => 'auto'}
+        getRowHeight={() =>  rowHeight ?? 'auto'}
         columns={columns}
         checkboxSelection={checkboxSelection}
         rowsPerPageOptions={[pageSize]}
         {...(onRowsScrollEnd && { onRowsScrollEnd })}
         apiRef={apiRef}
+        getRowClassName={(params) =>
+          params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd'
+        }
         editMode="row"
         scrollEndThreshold={20}
         rowCount={totalCount}
-        onRowEditStart={handleRowEditStart}
-        onRowEditStop={handleRowEditStop}
-        onCellFocusOut={handleCellFocusOut}
+        // onRowEditStart={handleRowEditStart}
+        // onRowEditStop={handleRowEditStop}
+        // onCellFocusOut={handleCellFocusOut}
         components={{
           LoadingOverlay: CustomLoadingOverlay,
           Toolbar: GridToolBar,

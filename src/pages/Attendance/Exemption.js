@@ -48,19 +48,18 @@ const columns = [
     {
         field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.employees.fullName
     },
-    { field: 'requestDate', headerName: 'Request Date', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.requestDate) },
-    { field: 'changeType', headerName: 'Change Type', flex: 1, valueGetter: ({ row }) => row.changeType.join(',') },
+    { field: 'exemptionDate', headerName: 'Exemption Date', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.requestDate) },
     { field: 'status', headerName: 'Status', flex: 1 },
     { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
     { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) }
 ];
 
-const AddAttendanceRequest = ({ openPopup, setOpenPopup }) => {
+const AddExemptionRequest = ({ openPopup, setOpenPopup }) => {
     const formApi = useRef(null);
     const [loader, setLoader] = useState(false);
     const { Employees } = useSelector(e => e.appdata.employeeData);
     const { addEntity } = useEntityAction();
-    const [getAttendanceRequest] = useLazySingleQuery();
+    const [getExemptionRequest] = useLazySingleQuery();
     useEffect(() => {
         if (formApi.current && openPopup) {
             const { resetForm } = formApi.current;
@@ -84,12 +83,13 @@ const AddAttendanceRequest = ({ openPopup, setOpenPopup }) => {
                 if (!data) return;
                 setLoader(true);
                 const { setFormValue, getValue } = formApi.current;
-                getAttendanceRequest({ url: API.GetAttendanceDetail, params: { employeeId: data._id, requestDate: getValue()?.requestDate } }).then(c => {
+                getExemptionRequest({ url: API.GetExemptionDetail, params: { employeeId: data._id, exemptionDate: getValue()?.exemptionDate } }).then(c => {
+                    console.log(c);
                     if (c.data?.result) {
-                        setFormValue({
-                            startDateTime: new Date(c.data.result.startDateTime),
-                            endDateTime: new Date(c.data.result.endDateTime)
-                        });
+                        // setFormValue({
+                        //     startDateTime: new Date(c.data.result.startDateTime),
+                        //     endDateTime: new Date(c.data.result.endDateTime)
+                        // });
                     }
                     setLoader(false);
                 })
@@ -98,7 +98,7 @@ const AddAttendanceRequest = ({ openPopup, setOpenPopup }) => {
         },
         {
             elementType: "datetimepicker",
-            name: "requestDate",
+            name: "exemptionDate",
             required: true,
             disableFuture: true,
             validate: {
@@ -107,32 +107,7 @@ const AddAttendanceRequest = ({ openPopup, setOpenPopup }) => {
             label: "Date",
             defaultValue: new Date()
         },
-        {
-            elementType: "datetimepicker",
-            required: true,
-            validate: {
-                errorMessage: "Select Check In",
-            },
-            name: "startDateTime",
-            shouldDisableDate: (date) => !isEqual(startOfDay(date), startOfDay(formApi.current?.getValue()?.requestDate)),
-            disableFuture: true,
-            category: "datetime",
-            label: "Check In",
-            defaultValue: null
-        },
-        {
-            elementType: "datetimepicker",
-            category: "datetime",
-            shouldDisableDate: (date) => date < startOfDay(formApi.current?.getValue()?.startDateTime) || date >= addDays(startOfDay(formApi.current?.getValue()?.startDateTime), 2),
-            disableFuture: true,
-            required: true,
-            validate: {
-                errorMessage: "Select Check Out",
-            },
-            name: "endDateTime",
-            label: "Check Out",
-            defaultValue: null
-        },
+        
         {
             elementType: "inputfield",
             name: "reason",
@@ -159,14 +134,14 @@ const AddAttendanceRequest = ({ openPopup, setOpenPopup }) => {
             dataToInsert.employeeCode = values.fkEmployeeId.punchCode;
             // ChangeType = [],
 
-            addEntity({ url: API.AttendanceRequest, data: [dataToInsert] });
+            addEntity({ url: API.ExemptionRequest, data: [dataToInsert] });
 
         }
     }
     return <>
         <Loader open={loader} />
         <Popup
-            title="Attendance Request"
+            title="Exemption Request"
             openPopup={openPopup}
             maxWidth="sm"
             isEdit={false}
@@ -183,7 +158,7 @@ const AddAttendanceRequest = ({ openPopup, setOpenPopup }) => {
         </Popup>
     </>
 }
-const AttendanceRequest = () => {
+const ExemptionRequest = () => {
     const dispatch = useDispatch();
     const [openPopup, setOpenPopup] = useState(false);
     const [pageSize, setPageSize] = useState(30);
@@ -213,7 +188,7 @@ const AttendanceRequest = () => {
     const query = useSelector(e => e.appdata.query.builder);
     const { countryIds, stateIds, cityIds, areaIds } = useDropDownIds();
     const { data, isLoading, status, refetch } = useEntitiesQuery({
-        url: API.AttendanceRequest,
+        url: API.ExemptionRequest,
         params: {
             limit: offSet.current.limit,
             lastKeyId: offSet.current.isLoadMore ? offSet.current.lastKeyId : "",
@@ -237,7 +212,7 @@ const AttendanceRequest = () => {
         }
     }, [data, status])
 
-    const { socketData } = useSocketIo("changeInAttendanceRequest", refetch);
+    const { socketData } = useSocketIo("changeInExemptionRequest", refetch);
 
     useEffect(() => {
         if (Array.isArray(socketData)) {
@@ -264,7 +239,7 @@ const AttendanceRequest = () => {
             title: "Are you sure to delete this records?",
             subTitle: "You can't undo this operation",
             onConfirm: () => {
-                removeEntity({ url: API.AttendanceRequest, params: idTobeDelete }).then(res => {
+                removeEntity({ url: API.ExemptionRequest, params: idTobeDelete }).then(res => {
                     setSelectionModel([]);
                 })
             },
@@ -287,12 +262,12 @@ const AttendanceRequest = () => {
     return (
         <>
             <PageHeader
-                title="Attendance Request"
+                title="Exemption Request"
                 enableFilter={true}
-                subTitle="Manage Attendance Request"
+                subTitle="Manage Exemption Request"
                 icon={<PeopleOutline fontSize="large" />}
             />
-            <AddAttendanceRequest openPopup={openPopup} setOpenPopup={setOpenPopup} />
+            <AddExemptionRequest openPopup={openPopup} setOpenPopup={setOpenPopup} />
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={records}
                 loading={isLoading} pageSize={pageSize}
@@ -313,7 +288,7 @@ const AttendanceRequest = () => {
     );
 }
 
-export default AttendanceRequest;
+export default ExemptionRequest;
 
 function RequestToolbar(props) {
     const { apiRef, onAdd, onDelete, selectionModel } = props;

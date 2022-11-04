@@ -4,7 +4,7 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { List, ListItem, ListItemIcon, ListItemText, Typography } from '../../deps/ui'
 import { NavLink as RouterLink } from 'react-router-dom';
-import * as iconMapping from '../../assests/icons';
+import * as iconMapping from '../../assets/icons';
 import PropTypes from 'prop-types';
 
 const styles = {

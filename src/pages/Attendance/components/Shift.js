@@ -6,13 +6,14 @@ import { AutoForm } from '../../../components/useForm';
 import { API } from '../_Service';
 import { useDispatch, useSelector } from 'react-redux';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAction } from '../../../store/actions/httpactions';
-import { GridToolbarContainer, Box } from "../../../deps/ui";
+import { GridToolbarContainer, InputAdornment } from "../../../deps/ui";
 import { Circle, Add as AddIcon, Delete as DeleteIcon, } from "../../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions } from '../../../components/useDataGrid';
 import { useSocketIo } from '../../../components/useSocketio';
 import ConfirmDialog from '../../../components/ConfirmDialog';
 import PropTypes from 'prop-types'
 import { formateISODateTime, formateISOTime } from '../../../services/dateTimeService'
+
 
 const fields = {
     shiftName: {
@@ -71,11 +72,35 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
     ]
 }
 
+const flagCol = [
+    {
+        field: 'index', headerName: 'Sr#', hideable: false, valueGetter: ({ api, row }) => api.getRowIndex(row.id) + 1
+    },
+    {
+        field: 'name', headerName: 'Attendance Flag', width: 180, hideable: false
+    },
+    {
+        field: 'at', headerName: 'At', width: 180, hideable: false, editable: true,
+        preProcessEditCellProps: ({ props, ...values }) => {
+            const hasError = +props.value < 0 || +props.value > 1440;
+            return { ...props, error: hasError };
+        },
+        type: "number"
+
+    }
+]
 const DEFAUL_API = API.Shift;
 let editId = 0;
 export const AddShift = ({ openPopup, setOpenPopup, isEdit = false, row = null }) => {
     const { addEntity } = useEntityAction();
+
+    const attendanceFlag = useSelector(e => e.appdata.employeeData?.AttendanceFlag
+        .filter(c => ![6, 7].includes(c.flagId))
+        .map((m, i) => ({ id: m.id, name: m.name, flagId: m._id, flagCode: m.flagId, order: i + 1, at: 0 }))
+    );
+    const [flagRows, setFlagRow] = useState(attendanceFlag);
     const formApi = useRef(null);
+
     useEffect(() => {
         if (!formApi.current || !openPopup) return;
         const { resetForm, setFormValue } = formApi.current;
@@ -83,16 +108,32 @@ export const AddShift = ({ openPopup, setOpenPopup, isEdit = false, row = null }
             resetForm();
         else {
             setFormValue(row);
+            setFlagRow(row.attendanceflag.map(a => ({ ...a, name: attendanceFlag.find(c => c.flagCode === a.flagCode).name, id: a._id })));
+
         }
     }, [openPopup, formApi])
+    const processRowUpdate = (newRow) => {
+        const updatedRow = { ...newRow, isNew: false };
+        setFlagRow(flagRows.map((row) => (row.id === newRow.id ? updatedRow : row)));
+        return updatedRow;
+    };
+    const handleRowOrderChange = (params) => {
+        const { oldIndex, targetIndex } = params;
+        const rowsClone = [...flagRows];
+        const row = rowsClone.splice(oldIndex, 1)[0];
+        rowsClone.splice(targetIndex, 0, row);
+        setFlagRow(rowsClone.map((r, index) => ({ ...r, order: ++index })));
+    }
     const handleSubmit = (e) => {
-        const { getValue, validateFields } = formApi.current
+        const { getValue, validateFields } = formApi.current;
+
         if (validateFields()) {
             let values = getValue();
+
             if (isEdit)
                 values._id = editId
 
-            addEntity({ url: DEFAUL_API, data: [values] });
+            addEntity({ url: DEFAUL_API, data: [{ ...values, attendanceflag: flagRows }] });
         }
     }
 
@@ -167,36 +208,9 @@ export const AddShift = ({ openPopup, setOpenPopup, isEdit = false, row = null }
             label: "Is Next Day",
             breakpoints: { xs: 12, sm: 12, md: 12 },
             defaultValue: false,
-        },
-        {
-            elementType: "inputfield",
-            name: "late",
-            type: "number",
-            label: "Late",
-            defaultValue: 0
-        },
-        {
-            elementType: "inputfield",
-            name: "early",
-            type: "number",
-            label: "Early",
-            defaultValue: 0
-        },
-        {
-            elementType: "inputfield",
-            name: "halfDay",
-            type: "number",
-            label: "Half Day",
-            defaultValue: 0
-        },
-        {
-            elementType: "inputfield",
-            name: "shortDay",
-            type: "number",
-            label: "Short Day",
-            defaultValue: 0
-        },
+        }
     ];
+
     return <Popup
         title="Add Shift"
         openPopup={openPopup}
@@ -205,7 +219,17 @@ export const AddShift = ({ openPopup, setOpenPopup, isEdit = false, row = null }
         isEdit={isEdit}
         addOrEditFunc={handleSubmit}
         setOpenPopup={setOpenPopup}>
+
         <AutoForm formData={formData} ref={formApi} isValidate={true} />
+        <DataGrid
+            rowHeight={35}
+            onRowOrderChange={handleRowOrderChange}
+            processRowUpdate={processRowUpdate}
+            rowReordering={true}
+            experimentalFeatures={{ newEditingApi: true }}
+            checkboxSelection={false}
+            columns={flagCol} rows={flagRows}
+        />
     </Popup>
 }
 

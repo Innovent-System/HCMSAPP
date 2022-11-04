@@ -2,6 +2,8 @@ export const API = {
     Attendance: "attendance/list",
     AttendanceRequest: "attendance/request",
     GetAttendanceDetail: "attendance/request/detail",
+    ExemptionRequest: "attendance/exemption",
+    GetExemptionDetail: "attendance/exemption/detail",
     Shift: "attendance/shift",
     ScheduleDetail: "attendance/schedule/scheduledetail",
     Schedule: "attendance/schedule",
