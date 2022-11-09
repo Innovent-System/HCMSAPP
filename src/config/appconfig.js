@@ -5,9 +5,11 @@ import Auth from '../services/AuthenticationService';
 export const history = createBrowserHistory();
 
 
+// export const domain = 'http://13.230.226.16:5000/api/';
+// export const socketUrl = "http://13.230.226.16:5000/";
+
 export const domain = 'http://localhost:5000/api/';
 export const socketUrl = "http://localhost:5000/";
-
 
 export const headerOption = () => {
   const info = Auth.getitem('userInfo') || {};
@@ -18,5 +20,3 @@ export const headerOption = () => {
     'clientid': info.clientId
   }
 };
-
-

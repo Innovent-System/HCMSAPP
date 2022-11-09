@@ -85,6 +85,7 @@ export const mapEmployee = (values) => {
     firstName: values.firstName,
     lastName: values.lastName,
     isAllowLogin: values.isAllowLogin,
+    timezone: values.fkCountryId.timezones[0].zoneName,
     fkCompanyId: values.fkCompanyId._id,
     generalInfo: {
       maritalstatus: values.maritalstatus,

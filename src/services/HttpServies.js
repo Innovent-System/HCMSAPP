@@ -1,6 +1,7 @@
 import axios from 'axios';
+import { domain } from '../config/appconfig';
 
-const domain = 'http://localhost:5000/api/';
+
 
 const headerOption = {
     token: document.cookie || '',

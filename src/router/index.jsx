@@ -1,7 +1,6 @@
-import React, { lazy, Suspense, useState } from 'react';
-import { Navigate, Routes, Route } from 'react-router-dom';
+import React, { lazy, Suspense } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import PrivateRoute from './wrapper';
-import SignIn from "../pages/General/SignIn";
 import Layout from '../layout';
 import CircularLoading from '../components/Circularloading'
 import Auth from '../services/AuthenticationService';
@@ -9,6 +8,8 @@ import StatusSnack from './StatusHandler';
 import Dashboard from '../pages/General/Dashboard'
 import { useSelector } from 'react-redux';
 
+const LazySignIn = lazy(() => import(`../pages/General/SignIn`));
+const LazyDashboard = lazy(() => import(`../pages/General/Dashboard`));
 
 const Routers = () => {
 
@@ -16,23 +17,23 @@ const Routers = () => {
 
   return (
     <>
-
-      <Routes>
-        <Route path="/" index element={<SignIn />} />
-        <Route element={<PrivateRoute />}>
-          <Route element={<Layout />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-
-            {routes?.map((prop, key) => {
-              return (
-                <Route path={`${prop.path.substring(5).toLowerCase()}/:id`} key={prop.path} element={<DynamicLoader component={prop.path} />} />
-              );
-            })}
-            <Route path="*" element={<Dashboard />} />
+      <Suspense fallback={<CircularLoading />}>
+        <Routes>
+          <Route path="/" index element={<LazySignIn />} />
+          <Route element={<PrivateRoute />}>
+            <Route element={<Layout />}>
+              <Route path="/dashboard" element={<LazyDashboard />} />
+              {routes?.map((prop, key) => {
+                return (
+                  <Route path={`${prop.path.substring(5).toLowerCase()}/:id`} key={prop.path} element={<DynamicLoader component={prop.path} />} />
+                );
+              })}
+              <Route path="*" element={<LazyDashboard />} />
+            </Route>
           </Route>
-        </Route>
-        {/* <Route path="*" element={<Navigate to="/dashboard"/>} /> */}
-      </Routes>
+          {/* <Route path="*" element={<Navigate to="/dashboard"/>} /> */}
+        </Routes>
+      </Suspense>
       <StatusSnack />
     </>
   );

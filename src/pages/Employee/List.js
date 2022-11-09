@@ -117,7 +117,8 @@ const Employee = () => {
     const gridApiRef = useGridApi();
     const query = useSelector(e => e.appdata.query.builder);
 
-    const { countryIds, stateIds, cityIds, areaIds } = useDropDownIds();
+
+    const { countryIds, stateIds, cityIds, areaIds, departmentIds, groupIds, designationIds } = useDropDownIds();
 
     const { data, isLoading, status, refetch } = useEntitiesQuery({
         url: API.Employee,
@@ -130,7 +131,10 @@ const Employee = () => {
                 ...(countryIds && { "companyInfo.fkCountryId": { $in: countryIds.split(',') } }),
                 ...(stateIds && { "companyInfo.fkStateId": { $in: stateIds.split(',') } }),
                 ...(cityIds && { "companyInfo.fkCityId": { $in: cityIds.split(',') } }),
-                ...(areaIds && { "companyInfo.fkAreaId": { $in: areaIds.split(',') } })
+                ...(areaIds && { "companyInfo.fkAreaId": { $in: areaIds.split(',') } }),
+                ...(groupIds && { "companyInfo.fkGroupId": { $in: groupIds.split(',') } }),
+                ...(departmentIds && { "companyInfo.fkDepartmentId": { $in: departmentIds.split(',') } }),
+                ...(designationIds && { "companyInfo.fkDesignationId": { $in: designationIds.split(',') } })
             })
         }
     });

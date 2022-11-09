@@ -48,7 +48,8 @@ const columns = [
     {
         field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.employees.fullName
     },
-    { field: 'exemptionDate', headerName: 'Exemption Date', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.requestDate) },
+    { field: 'exemptionDate', headerName: 'Exemption Date', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.exemptionDate) },
+    { field: 'attendanceFlag', headerName: 'Attendance Flag', flex: 1, valueGetter: ({ row }) => row.att_flag.name },
     { field: 'status', headerName: 'Status', flex: 1 },
     { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
     { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) }
@@ -57,7 +58,7 @@ const columns = [
 const AddExemptionRequest = ({ openPopup, setOpenPopup }) => {
     const formApi = useRef(null);
     const [loader, setLoader] = useState(false);
-    const { Employees } = useSelector(e => e.appdata.employeeData);
+    const { Employees, AttendanceFlag } = useSelector(e => e.appdata.employeeData);
     const { addEntity } = useEntityAction();
     const [getExemptionRequest] = useLazySingleQuery();
     useEffect(() => {
@@ -86,10 +87,7 @@ const AddExemptionRequest = ({ openPopup, setOpenPopup }) => {
                 getExemptionRequest({ url: API.GetExemptionDetail, params: { employeeId: data._id, exemptionDate: getValue()?.exemptionDate } }).then(c => {
                     console.log(c);
                     if (c.data?.result) {
-                        // setFormValue({
-                        //     startDateTime: new Date(c.data.result.startDateTime),
-                        //     endDateTime: new Date(c.data.result.endDateTime)
-                        // });
+                        setFormValue({ attendanceFlagId: AttendanceFlag.find(f => f.flagId === c.data?.result.flagCode)._id });
                     }
                     setLoader(false);
                 })
@@ -105,9 +103,37 @@ const AddExemptionRequest = ({ openPopup, setOpenPopup }) => {
                 errorMessage: "Select Date please",
             },
             label: "Date",
-            defaultValue: new Date()
+            defaultValue: new Date(),
+            onChange: (data) => {
+                console.log({ data });
+                if (!data) return;
+                const { setFormValue, getValue } = formApi.current;
+                const { fkEmployeeId } = getValue();
+                if (!fkEmployeeId?._id) return;
+                setLoader(true);
+                getExemptionRequest({ url: API.GetExemptionDetail, params: { employeeId: fkEmployeeId?._id, exemptionDate: data } }).then(c => {
+                    console.log(c);
+                    if (c.data?.result) {
+                        setFormValue({ attendanceFlagId: AttendanceFlag.find(f => f.flagId === c.data?.result.flagCode)._id });
+                    }
+                    setLoader(false);
+                })
+            },
         },
-        
+        {
+            elementType: "dropdown",
+            name: "attendanceFlagId",
+            label: "Attendance Flag",
+            required: true,
+            disabled: true,
+            validate: {
+                errorMessage: "Flag is required",
+            },
+            dataId: "_id",
+            dataName: "name",
+            options: AttendanceFlag,
+            defaultValue: ""
+        },
         {
             elementType: "inputfield",
             name: "reason",
@@ -131,8 +157,6 @@ const AddExemptionRequest = ({ openPopup, setOpenPopup }) => {
             let values = getValue();
             let dataToInsert = { ...values };
             dataToInsert.fkEmployeeId = values.fkEmployeeId._id;
-            dataToInsert.employeeCode = values.fkEmployeeId.punchCode;
-            // ChangeType = [],
 
             addEntity({ url: API.ExemptionRequest, data: [dataToInsert] });
 
@@ -148,13 +172,7 @@ const AddExemptionRequest = ({ openPopup, setOpenPopup }) => {
             keepMounted={true}
             addOrEditFunc={handleSubmit}
             setOpenPopup={setOpenPopup}>
-            <Stack >
-                <Typography variant="body2"><strong>Schedule Name :</strong>Morning</Typography>
-                <Typography variant="body2"><strong>Schdule In :</strong>09:00 AM</Typography>
-                <Typography variant="body2"><strong>Schedule Out :</strong>08:00 PM</Typography>
-                <Speach />
-                <AutoForm formData={formData} ref={formApi} isValidate={true} />
-            </Stack>
+            <AutoForm formData={formData} ref={formApi} isValidate={true} />
         </Popup>
     </>
 }

@@ -112,12 +112,12 @@ QueryBuilder.propTypes = {
                 ])
             ),
         })
-    }).isRequired,
+    }),
     query: PropTypes.shape({
         tree: PropTypes.object,
         config: PropTypes.object
-    }).isRequired,
-    setQuery: PropTypes.func.isRequired
+    }),
+    setQuery: PropTypes.func
 }
 
 export default QueryBuilder;
