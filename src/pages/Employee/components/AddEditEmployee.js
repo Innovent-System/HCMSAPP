@@ -347,7 +347,7 @@ export default function EmployaaModal({ isEdit = false, editId, coldata }) {
           dataName: "templateName",
           disabled: (value) => value["isAllowLogin"] === false,
           defaultValue: "",
-          options: roleTemplates
+          options: roleTemplates?.length ? roleTemplates : []
         },
       ]
     },

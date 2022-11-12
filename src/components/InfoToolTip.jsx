@@ -1,10 +1,18 @@
 import React from 'react'
 import { Box, Tooltip } from '../deps/ui'
 import { InfoSharp } from '../deps/ui/icons'
+import { BoxProps } from '@mui/material'
 
-const InfoToolTip = ({ title, placement = "top" }) => {
+
+/**
+ * Assign the Data for Modify.
+ * @param {BoxProps} data
+ * @param {string} data.placement
+ * @param {string} data.title
+ */
+const InfoToolTip = ({ title, placement = "top", ...others }) => {
     return (
-        <Box position="absolute" top={0} right={0}><Tooltip title={title} placement={placement}><InfoSharp fontSize="small" /></Tooltip></Box>
+        <Box {...others}><Tooltip title={title} placement={placement}><InfoSharp fontSize="small" /></Tooltip></Box>
     )
 }
 

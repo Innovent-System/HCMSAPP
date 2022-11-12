@@ -233,7 +233,7 @@ const Employee = () => {
                 addEntity({ url: API.Employee, data: resultData });
             }
 
-            console.log({ error, });
+            console.log({ error });
         }
     }, [excelData])
 
