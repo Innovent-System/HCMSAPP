@@ -84,7 +84,6 @@ const getColumns = (handleApprove) => [
                     />
                 </>
 
-
                 }
 
             </>
@@ -200,7 +199,7 @@ const AttendanceApproval = () => {
 
     const gridApiRef = useGridApi();
     const query = useSelector(e => e.appdata.query.builder);
-    console.log(Auth.getitem("userInfo"));
+    
     const { data, isLoading, status, refetch } = useEntitiesQuery({
         url: DEFAULT_API,
         params: {
@@ -232,7 +231,7 @@ const AttendanceApproval = () => {
         }
     }, [data, status])
 
-    const { socketData } = useSocketIo("changeInAttendanceRequest", refetch);
+    const { socketData } = useSocketIo("changeInAttendanceApproval", refetch);
 
     useEffect(() => {
         if (Array.isArray(socketData)) {
@@ -321,7 +320,6 @@ function ApprovalToolbar(props) {
     return (
         <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
             {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
-            {/* <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add record" /> */}
         </GridToolbarContainer>
     );
 }

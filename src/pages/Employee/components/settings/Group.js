@@ -1,17 +1,15 @@
 // eslint-disable-next-line react-hooks/exhaustive-deps
 import React, { useEffect, useRef, useState } from "react";
-import Controls from '../../../../components/controls/Controls';
 import Popup from '../../../../components/Popup';
 import { AutoForm } from '../../../../components/useForm';
 import { API } from '../../_Service';
 import { useDispatch, useSelector } from 'react-redux';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAction } from '../../../../store/actions/httpactions';
-import { GridToolbarContainer, Box } from "../../../../deps/ui";
-import { Circle, Add as AddIcon, Delete as DeleteIcon } from "../../../../deps/ui/icons";
-import DataGrid, { useGridApi, getActions } from '../../../../components/useDataGrid';
+import { Circle } from "../../../../deps/ui/icons";
+import DataGrid, { useGridApi, getActions, GridToolbar } from '../../../../components/useDataGrid';
 import { useSocketIo } from '../../../../components/useSocketio';
 import ConfirmDialog from '../../../../components/ConfirmDialog';
-import PropTypes from 'prop-types'
+
 
 const fields = {
     groupName: {
@@ -65,7 +63,7 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
 }
 
 let editId = 0;
-
+const DEFAULT_API = API.Group;
 export const AddGroup = ({ openPopup, setOpenPopup, isEdit = false, row = null }) => {
     const formApi = useRef(null);
     const { addEntity } = useEntityAction();
@@ -90,7 +88,7 @@ export const AddGroup = ({ openPopup, setOpenPopup, isEdit = false, row = null }
             if (isEdit)
                 dataToInsert._id = editId
 
-            addEntity({ url: API.Group, data: [dataToInsert] });
+            addEntity({ url: DEFAULT_API, data: [dataToInsert] });
 
         }
     }
@@ -150,7 +148,7 @@ const Group = () => {
     const query = useSelector(e => e.appdata.query.builder);
 
     const { data, status, isLoading, refetch } = useEntitiesQuery({
-        url: API.Group,
+        url: DEFAULT_API,
         params: {
             limit: filter.limit,
             lastKeyId: filter.lastKey,
@@ -199,7 +197,7 @@ const Group = () => {
     }
 
     const handleActiveInActive = (id) => {
-        updateOneEntity({ url: API.Group, data: { _id: id } });
+        updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
     }
 
     const handelDeleteItems = (ids) => {
@@ -213,7 +211,7 @@ const Group = () => {
             title: "Are you sure to delete this records?",
             subTitle: "You can't undo this operation",
             onConfirm: () => {
-                removeEntity({ url: API.Group, params: idTobeDelete }).then(res => {
+                removeEntity({ url: DEFAULT_API, params: idTobeDelete }).then(res => {
                     setSelectionModel([]);
                 })
             },
@@ -249,7 +247,7 @@ const Group = () => {
                     onDelete: handelDeleteItems,
                     selectionModel
                 }}
-                gridToolBar={GroupToolbar}
+                gridToolBar={GridToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
                 onRowsScrollEnd={loadMoreData}
@@ -259,24 +257,3 @@ const Group = () => {
     );
 }
 export default Group;
-
-function GroupToolbar(props) {
-    const { apiRef, onAdd, onDelete, selectionModel } = props;
-
-    return (
-            <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>    
-                    {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
-                    <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add record" />
-                
-            </GridToolbarContainer>
-    );
-}
-
-GroupToolbar.propTypes = {
-    apiRef: PropTypes.shape({
-        current: PropTypes.object,
-    }).isRequired,
-    onAdd: PropTypes.func,
-    onDelete: PropTypes.func,
-    selectionModel: PropTypes.array
-};

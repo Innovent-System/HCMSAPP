@@ -5,12 +5,11 @@ import Popup from '../../components/Popup';
 import { API, alphabets } from './_Service';
 import { useDispatch, useSelector } from 'react-redux';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction } from '../../store/actions/httpactions';
-import { GridToolbarContainer, Box, Typography, Stack, Link, ButtonGroup, Tooltip, IconButton, Input } from "../../deps/ui";
-import { Circle, Add as AddIcon, Delete as DeleteIcon, PeopleOutline, CloudUpload, Article } from "../../deps/ui/icons";
-import DataGrid, { useGridApi, getActions } from '../../components/useDataGrid';
+import { Typography, Stack, Link, ButtonGroup } from "../../deps/ui";
+import { Circle, PeopleOutline } from "../../deps/ui/icons";
+import DataGrid, { useGridApi, getActions, GridToolbar } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
-import PropTypes from 'prop-types'
 import EmpoyeeModal, { mapEmployee } from './components/AddEditEmployee';
 import PageHeader from '../../components/PageHeader'
 import { useExcelReader } from "../../hooks/useExcelReader";
@@ -83,12 +82,10 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
     ]
 }
 let editId = 0;
-
+const DEFAULT_API = API.Employee;
 const Employee = () => {
     const dispatch = useDispatch();
     const [openPopup, setOpenPopup] = useState(false);
-
-    const [pageSize, setPageSize] = useState(30);
     const isEdit = React.useRef(false);
     const [selectionModel, setSelectionModel] = React.useState([]);
     const [word, setWord] = useState("");
@@ -113,15 +110,14 @@ const Employee = () => {
         title: "",
         subTitle: "",
     });
-    const [employees, setEmployees] = useState([]);
+    const [records, setRecords] = useState([]);
     const gridApiRef = useGridApi();
     const query = useSelector(e => e.appdata.query.builder);
-
 
     const { countryIds, stateIds, cityIds, areaIds, departmentIds, groupIds, designationIds } = useDropDownIds();
 
     const { data, isLoading, status, refetch } = useEntitiesQuery({
-        url: API.Employee,
+        url: DEFAULT_API,
         params: {
             limit: offSet.current.limit,
             lastKeyId: offSet.current.isLoadMore ? offSet.current.lastKeyId : "",
@@ -145,10 +141,10 @@ const Employee = () => {
         if (status === "fulfilled") {
             const { entityData, totalRecord } = data.result;
             if (offSet.current.isLoadMore) {
-                setEmployees([...entityData, ...employees]);
+                setRecords([...entityData, ...records]);
             }
             else
-                setEmployees(entityData)
+                setRecords(entityData)
 
             setGridFilter({ ...gridFilter, totalRecord: totalRecord });
             offSet.current.isLoadMore = false;
@@ -159,15 +155,15 @@ const Employee = () => {
 
     useEffect(() => {
         if (Array.isArray(socketData)) {
-            setEmployees(socketData);
+            setRecords(socketData);
         }
     }, [socketData])
 
 
     const loadMoreData = (params) => {
-        if (employees.length < gridFilter.totalRecord && params.viewportPageSize !== 0) {
+        if (records.length < gridFilter.totalRecord && params.viewportPageSize !== 0) {
             offSet.current.isLoadMore = true;
-            setGridFilter({ ...gridFilter, lastKey: employees.length ? employees[employees.length - 1].id : null });
+            setGridFilter({ ...gridFilter, lastKey: records.length ? records[records.length - 1].id : null });
         }
     }
 
@@ -178,7 +174,7 @@ const Employee = () => {
     }
 
     const handleActiveInActive = (id) => {
-        updateOneEntity({ url: API.Employee, data: { _id: id } });
+        updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
     }
 
     const handelDeleteItems = (ids) => {
@@ -192,7 +188,7 @@ const Employee = () => {
             title: "Are you sure to delete this records?",
             subTitle: "You can't undo this operation",
             onConfirm: () => {
-                removeEntity({ url: API.Employee, params: idTobeDelete }).then(res => {
+                removeEntity({ url: DEFAULT_API, params: idTobeDelete }).then(res => {
                     setSelectionModel([]);
                 })
             },
@@ -207,7 +203,6 @@ const Employee = () => {
     }
 
     useEffect(() => {
-        offSet.current.isLoadFirstTime = false;
         dispatch(builderFieldsAction(fields));
         dispatch(showDropDownFilterAction({
             company: true,
@@ -230,7 +225,7 @@ const Employee = () => {
                 transformData: mapEmployee
             })
             if (!error.length) {
-                addEntity({ url: API.Employee, data: resultData });
+                addEntity({ url: DEFAULT_API, data: resultData });
             }
 
             console.log({ error });
@@ -262,13 +257,9 @@ const Employee = () => {
             />
             <Popup
                 title="Add Employee Information"
-                openPopup={openPopup}
-                maxWidth="xl"
-
-                fullScreen={true}
-                isEdit={isEdit.current}
-                footer={<></>}
-                keepMounted={true}
+                openPopup={openPopup} maxWidth="xl"
+                fullScreen={true} isEdit={isEdit.current}
+                footer={<></>} keepMounted={true}
                 setOpenPopup={setOpenPopup}>
                 <EmpoyeeModal coldata={excelColData} isEdit={isEdit.current} editId={editId} setOpenPopup={setOpenPopup} />
             </Popup>
@@ -280,17 +271,17 @@ const Employee = () => {
                 ))}
             </ButtonGroup>
             <DataGrid apiRef={gridApiRef}
-                columns={columns} rows={employees}
-                loading={isLoading} pageSize={pageSize}
+                columns={columns} rows={records}
                 totalCount={offSet.current.totalRecord}
                 rowHeight={100}
+                loading={isLoading}
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: showAddModal,
                     onDelete: handelDeleteItems,
                     selectionModel
                 }}
-                gridToolBar={EmployeeToolbar}
+                gridToolBar={GridToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
                 onRowsScrollEnd={loadMoreData}
@@ -300,23 +291,3 @@ const Employee = () => {
     );
 }
 export default Employee;
-
-function EmployeeToolbar(props) {
-    const { apiRef, onAdd, onDelete, selectionModel } = props;
-
-    return (
-        <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
-            {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
-            <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add record" />
-        </GridToolbarContainer>
-    );
-}
-
-EmployeeToolbar.propTypes = {
-    apiRef: PropTypes.shape({
-        current: PropTypes.object,
-    }),
-    onAdd: PropTypes.func,
-    onDelete: PropTypes.func,
-    selectionModel: PropTypes.array
-};

@@ -1,17 +1,15 @@
 // eslint-disable-next-line react-hooks/exhaustive-deps
 import React, { useEffect, useRef, useState } from "react";
-import Controls from '../../../../components/controls/Controls';
 import Popup from '../../../../components/Popup';
 import { AutoForm } from '../../../../components/useForm';
 import { API } from '../../_Service';
 import { useDispatch, useSelector } from 'react-redux';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAction } from '../../../../store/actions/httpactions';
-import { GridToolbarContainer, Box } from "../../../../deps/ui";
-import { Circle, Add as AddIcon, Delete as DeleteIcon } from "../../../../deps/ui/icons";
-import DataGrid, { useGridApi, getActions } from '../../../../components/useDataGrid';
+import { Circle } from "../../../../deps/ui/icons";
+import DataGrid, { useGridApi, getActions, GridToolbar } from '../../../../components/useDataGrid';
 import { useSocketIo } from '../../../../components/useSocketio';
 import ConfirmDialog from '../../../../components/ConfirmDialog';
-import PropTypes from 'prop-types'
+
 
 const fields = {
     name: {
@@ -119,7 +117,6 @@ export const AddDesignation = ({ openPopup, setOpenPopup, isEdit = false, row = 
 const Designation = () => {
     const dispatch = useDispatch();
     const [openPopup, setOpenPopup] = useState(false);
-    const [pageSize, setPageSize] = useState(30);
     const isEdit = React.useRef(false);
     const row = React.useRef(null);
     const [selectionModel, setSelectionModel] = React.useState([]);
@@ -227,8 +224,6 @@ const Designation = () => {
 
     const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive, handelDeleteItems);
 
-
-
     const showAddModal = () => {
         isEdit.current = false;
         setOpenPopup(true);
@@ -239,7 +234,7 @@ const Designation = () => {
             <AddDesignation openPopup={openPopup} setOpenPopup={setOpenPopup} isEdit={isEdit.current} row={row.current} />
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={records}
-                loading={isLoading} pageSize={pageSize}
+                loading={isLoading}
                 totalCount={offSet.current.totalRecord}
                 toolbarProps={{
                     apiRef: gridApiRef,
@@ -247,7 +242,7 @@ const Designation = () => {
                     onDelete: handelDeleteItems,
                     selectionModel
                 }}
-                gridToolBar={DesignationToolbar}
+                gridToolBar={GridToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
                 onRowsScrollEnd={loadMoreData}
@@ -257,23 +252,3 @@ const Designation = () => {
     );
 }
 export default Designation;
-
-function DesignationToolbar(props) {
-    const { apiRef, onAdd, onDelete, selectionModel } = props;
-
-    return (
-        <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
-            {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
-            <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add record" />
-        </GridToolbarContainer>
-    );
-}
-
-DesignationToolbar.propTypes = {
-    apiRef: PropTypes.shape({
-        current: PropTypes.object,
-    }).isRequired,
-    onAdd: PropTypes.func,
-    onDelete: PropTypes.func,
-    selectionModel: PropTypes.array
-};

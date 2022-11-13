@@ -24,7 +24,8 @@ function isValidDate(date) {
 const processAndVerifyData = ({ colInfo, excelData, transformData }) => {
     const excelCol = colInfo.flatMap(c => c._children).filter(c => c?.label),
         modifyData = [], errors = [], errorPrefix = "#On Row --> ";
-    let objectData = {};
+    let objectData = {}, errorMsg = "";
+
     if (excelData[0].length !== excelCol.length) {
         errors.push("Template Format not correct");
         return [errors, modifyData];
@@ -36,7 +37,8 @@ const processAndVerifyData = ({ colInfo, excelData, transformData }) => {
         for (let j = 0; j < values.length; j++) {
             let value = values[j];
             const prop = excelCol[j];
-            if (prop?.required && notValid.includes(value)) { errors.push(`${errorPrefix}${j + 1}${prop.label} is required`); continue };
+            errorMsg = "";
+            if (prop?.required && notValid.includes(value)) { errorMsg = `${errorPrefix}${j + 1}${prop.label} is required`; continue };
             if (prop?.options) {
                 value = value.toLowerCase();
                 if (notValid.includes(value)) {
@@ -47,7 +49,7 @@ const processAndVerifyData = ({ colInfo, excelData, transformData }) => {
                         objectData[prop.name] = prop.elementType === "dropdown" ? isExist[prop?.dataId] : { ...isExist };
                     }
                     else
-                        errors.push(`${errorPrefix}${j + 1} value not correct for ${prop.label}`);
+                        errorMsg = `${errorPrefix}${j + 1} value not correct for ${prop.label}`;
 
                 }
 
@@ -58,12 +60,16 @@ const processAndVerifyData = ({ colInfo, excelData, transformData }) => {
                 else if (parse(value, "dd/MM/yyyy", new Date()).toString() !== "Invalid Date")
                     objectData[prop.name] = parse(value, "dd/MM/yyyy", new Date());
                 else
-                    errors.push(`${errorPrefix}${j + 1}${prop.label} is not valid`)
+                    errorMsg = `${errorPrefix}${j + 1}${prop.label} is not valid`;
             }
             else {
                 objectData[prop.name] = value;
             }
+
+            if (errorMsg)
+                errors.push(errorMsg);
         }
+        if (errors.length) continue;
         if (typeof transformData === "function")
             modifyData.push(transformData(objectData));
         else

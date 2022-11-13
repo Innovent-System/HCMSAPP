@@ -1,17 +1,15 @@
 // eslint-disable-next-line react-hooks/exhaustive-deps
 import React, {  useEffect, useRef, useState } from "react";
-import Controls from '../../../components/controls/Controls';
 import Popup from '../../../components/Popup';
 import { AutoForm } from '../../../components/useForm';
 import { API } from '../_Service';
 import { useDispatch, useSelector } from 'react-redux';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAction } from '../../../store/actions/httpactions';
-import { GridToolbarContainer, Box } from "../../../deps/ui";
-import { Circle, Add as AddIcon, Delete as DeleteIcon } from "../../../deps/ui/icons";
-import DataGrid, { useGridApi, getActions } from '../../../components/useDataGrid';
+import { Circle } from "../../../deps/ui/icons";
+import DataGrid, { useGridApi, getActions, GridToolbar } from '../../../components/useDataGrid';
 import { useSocketIo } from '../../../components/useSocketio';
 import ConfirmDialog from '../../../components/ConfirmDialog';
-import PropTypes from 'prop-types'
+
 
 const fields = {
     companyName: {
@@ -65,6 +63,7 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
 }
 
 let editId = 0;
+const DEFAULT_API = API.COMPANY;
 const Company = () => {
     const dispatch = useDispatch();
     const [openPopup, setOpenPopup] = useState(false);
@@ -90,13 +89,13 @@ const Company = () => {
         subTitle: "",
     });
 
-    const [company, setCompany] = useState([]);
+    const [records, setRecords] = useState([]);
 
     const gridApiRef = useGridApi();
     const query = useSelector(e => e.appdata.query.builder);
 
     const { data, status, isLoading, refetch } = useEntitiesQuery({
-        url: API.COMPANY,
+        url: DEFAULT_API,
         params: {
             limit: filter.limit,
             lastKeyId: filter.lastKey,
@@ -110,10 +109,10 @@ const Company = () => {
         if (status === "fulfilled") {
             const { entityData, totalRecord } = data.result;
             if (offSet.current.isLoadMore) {
-                setCompany([...entityData, ...company]);
+                setRecords([...entityData, ...records]);
             }
             else
-                setCompany(entityData)
+                setRecords(entityData)
 
             setFilter({ ...filter, totalRecord: totalRecord });
             offSet.current.isLoadMore = false;
@@ -125,14 +124,14 @@ const Company = () => {
 
     useEffect(() => {
         if (Array.isArray(socketData)) {
-            setCompany(socketData);
+            setRecords(socketData);
         }
     }, [socketData])
 
     const loadMoreData = (params) => {
-        if (company.length < filter.totalRecord && params.viewportPageSize !== 0) {
+        if (records.length < filter.totalRecord && params.viewportPageSize !== 0) {
             offSet.current.isLoadMore = true;
-            setFilter({ ...filter, lastKey: company.length ? company[company.length - 1].id : null });
+            setFilter({ ...filter, lastKey: records.length ? records[records.length - 1].id : null });
         }
     }
 
@@ -141,7 +140,7 @@ const Company = () => {
         editId = id;
         const { setFormValue } = formApi.current;
 
-        const companydata = company.find(a => a.id === id);
+        const companydata = records.find(a => a.id === id);
         setFormValue({
             companyName: companydata.companyName
         });
@@ -151,7 +150,7 @@ const Company = () => {
     }
 
     const handleActiveInActive = (id) => {
-        updateOneEntity({ url: API.COMPANY, data: { _id: id } });
+        updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
     }
 
     const handelDeleteItems = (ids) => {
@@ -165,7 +164,7 @@ const Company = () => {
             title: "Are you sure to delete this records?",
             subTitle: "You can't undo this operation",
             onConfirm: () => {
-                removeEntity({ url: API.COMPANY, params: idTobeDelete }).then(res => {
+                removeEntity({ url: DEFAULT_API, params: idTobeDelete }).then(res => {
                     setSelectionModel([]);
                 })
             },
@@ -191,7 +190,7 @@ const Company = () => {
             if (isEdit.current)
                 dataToInsert._id = editId
 
-            addEntity({ url: API.COMPANY, data: [dataToInsert] });
+            addEntity({ url: DEFAULT_API, data: [dataToInsert] });
 
         }
     }
@@ -229,7 +228,7 @@ const Company = () => {
                 <AutoForm formData={formData} ref={formApi} isValidate={true} />
             </Popup>
             <DataGrid apiRef={gridApiRef}
-                columns={columns} rows={company}
+                columns={columns} rows={records}
                 loading={isLoading} pageSize={pageSize}
                 totalCount={offSet.current.totalRecord}
                 toolbarProps={{
@@ -238,7 +237,7 @@ const Company = () => {
                     onDelete: handelDeleteItems,
                     selectionModel
                 }}
-                gridToolBar={CompanyToolbar}
+                gridToolBar={GridToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
                 onRowsScrollEnd={loadMoreData}
@@ -248,29 +247,3 @@ const Company = () => {
     );
 }
 export default Company;
-
-function CompanyToolbar(props) {
-    const { apiRef, onAdd, onDelete, selectionModel } = props;
-
-    return (
-        <>
-            <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
-
-                <Box >
-                    {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
-                    <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add record" />
-                </Box>
-            </GridToolbarContainer>
-        </>
-
-    );
-}
-
-CompanyToolbar.propTypes = {
-    apiRef: PropTypes.shape({
-        current: PropTypes.object,
-    }).isRequired,
-    onAdd: PropTypes.func,
-    onDelete: PropTypes.func,
-    selectionModel: PropTypes.array
-};

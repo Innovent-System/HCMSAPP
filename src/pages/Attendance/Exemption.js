@@ -5,20 +5,17 @@ import Popup from '../../components/Popup';
 import { API } from './_Service';
 import { useDispatch, useSelector } from 'react-redux';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction, useLazySingleQuery } from '../../store/actions/httpactions';
-import { GridToolbarContainer, Stack, Typography } from "../../deps/ui";
-import { Add as AddIcon, Delete as DeleteIcon, PeopleOutline } from "../../deps/ui/icons";
-import DataGrid, { useGridApi } from '../../components/useDataGrid';
+import { PeopleOutline } from "../../deps/ui/icons";
+import DataGrid, { GridToolbar, useGridApi } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { AutoForm } from '../../components/useForm'
-import PropTypes from 'prop-types'
+
 import PageHeader from '../../components/PageHeader'
-import { startOfDay, addDays, isEqual } from '../../services/dateTimeService'
 import { formateISODateTime } from "../../services/dateTimeService";
 import Loader from '../../components/Circularloading'
-import Speach from "../../components/Speech";
 import { useDropDownIds } from "../../components/useDropDown";
-import InfoToolTip from "../../components/InfoToolTip";
+
 
 const fields = {
     status: {
@@ -297,7 +294,7 @@ const ExemptionRequest = () => {
                     onDelete: handelDeleteItems,
                     selectionModel
                 }}
-                gridToolBar={RequestToolbar}
+                gridToolBar={GridToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
                 onRowsScrollEnd={loadMoreData}
@@ -308,23 +305,3 @@ const ExemptionRequest = () => {
 }
 
 export default ExemptionRequest;
-
-function RequestToolbar(props) {
-    const { apiRef, onAdd, onDelete, selectionModel } = props;
-
-    return (
-        <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
-            {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
-            <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add record" />
-        </GridToolbarContainer>
-    );
-}
-
-RequestToolbar.propTypes = {
-    apiRef: PropTypes.shape({
-        current: PropTypes.object,
-    }),
-    onAdd: PropTypes.func,
-    onDelete: PropTypes.func,
-    selectionModel: PropTypes.array
-};

@@ -1,17 +1,15 @@
 // eslint-disable-next-line react-hooks/exhaustive-deps
 import React, { useEffect, useRef, useState } from "react";
-import Controls from '../../../components/controls/Controls';
 import Popup from '../../../components/Popup';
 import { AutoForm } from '../../../components/useForm';
 import { API } from '../_Service';
 import { useDispatch, useSelector } from 'react-redux';
-import { useEntitiesQuery, useEntityAction, handleGetActions, enableFilterAction, builderFieldsAction } from '../../../store/actions/httpactions';
-import { GridToolbarContainer, Box } from "../../../deps/ui";
-import { Circle, Add as AddIcon, Delete as DeleteIcon } from "../../../deps/ui/icons";
-import DataGrid, { useGridApi, getActions } from '../../../components/useDataGrid';
+import { useEntitiesQuery, useEntityAction, enableFilterAction, builderFieldsAction, useLazySingleQuery } from '../../../store/actions/httpactions';
+
+import { Circle } from "../../../deps/ui/icons";
+import DataGrid, { useGridApi, getActions, GridToolbar } from '../../../components/useDataGrid';
 import { useSocketIo } from '../../../components/useSocketio';
 import ConfirmDialog from '../../../components/ConfirmDialog';
-import PropTypes from 'prop-types'
 
 const fields = {
     name: {
@@ -65,16 +63,18 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
     ]
 }
 let editId = 0;
+const DEFAULT_API = API.COUNTRY;
 export const AddCountry = ({ openPopup, setOpenPopup, isEdit = false, row = null }) => {
     const formApi = useRef(null);
     const Companies = useSelector(e => e.appdata.DropDownData?.Companies);
     const dispatch = useDispatch();
+    const [getAllCountry] = useLazySingleQuery()
     const [countryData, setCountryData] = useState([]);
     useEffect(() => {
-        dispatch(handleGetActions(API.ALL_COUNTRY)).then(res => {
-            setCountryData(res.data);
+        getAllCountry({ url: API.ALL_COUNTRY }).then(res => {
+            setCountryData(res.data?.result || []);
         });
-    }, [dispatch])
+    }, [])
 
     useEffect(() => {
         if (!formApi.current || !openPopup) return;
@@ -129,7 +129,7 @@ export const AddCountry = ({ openPopup, setOpenPopup, isEdit = false, row = null
             if (isEdit)
                 dataToInsert._id = editId
 
-            addEntity({ url: API.COUNTRY, data: [dataToInsert] });
+            addEntity({ url: DEFAULT_API, data: [dataToInsert] });
         }
     }
 
@@ -172,12 +172,11 @@ const Country = () => {
 
     const [countries, setCountry] = useState([]);
 
-
     const gridApiRef = useGridApi();
     const query = useSelector(e => e.appdata.query.builder);
 
     const { data, isLoading, status, refetch } = useEntitiesQuery({
-        url: API.COUNTRY,
+        url: DEFAULT_API,
         params: {
             limit: offSet.current.limit,
             lastKeyId: offSet.current.isLoadMore ? offSet.current.lastKeyId : "",
@@ -227,7 +226,7 @@ const Country = () => {
     }
 
     const handleActiveInActive = (id) => {
-        updateOneEntity({ url: API.COUNTRY, data: { _id: id } });
+        updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
     }
 
     const handelDeleteItems = (ids) => {
@@ -241,7 +240,7 @@ const Country = () => {
             title: "Are you sure to delete this records?",
             subTitle: "You can't undo this operation",
             onConfirm: () => {
-                removeEntity({ url: API.COUNTRY, params: idTobeDelete }).then(res => {
+                removeEntity({ url: DEFAULT_API, params: idTobeDelete }).then(res => {
                     setSelectionModel([]);
                 })
             },
@@ -277,7 +276,7 @@ const Country = () => {
                     onDelete: handelDeleteItems,
                     selectionModel
                 }}
-                gridToolBar={CountryToolbar}
+                gridToolBar={GridToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
                 onRowsScrollEnd={loadMoreData}
@@ -287,23 +286,3 @@ const Country = () => {
     );
 }
 export default Country;
-
-function CountryToolbar(props) {
-    const { apiRef, onAdd, onDelete, selectionModel } = props;
-
-    return (
-        <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
-            {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
-            <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add record" />
-        </GridToolbarContainer>
-    );
-}
-
-CountryToolbar.propTypes = {
-    apiRef: PropTypes.shape({
-        current: PropTypes.object,
-    }).isRequired,
-    onAdd: PropTypes.func,
-    onDelete: PropTypes.func,
-    selectionModel: PropTypes.array
-};

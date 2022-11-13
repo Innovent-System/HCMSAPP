@@ -32,7 +32,7 @@ import {
   AppRoutesThunk,
   CommonDropDownThunk,
   EmployeeDataThunk,
-  handleGetActions,
+  useLazySingleQuery,
 } from "../../store/actions/httpactions";
 import { useDispatch } from "react-redux";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
@@ -119,6 +119,7 @@ export default function Header() {
       []
   );
 
+  const [userSignOut] = useLazySingleQuery();
 
   useEffect(() => {
     dispatch(AppRoutesThunk({ url: GET_ROUTES }))
@@ -169,7 +170,8 @@ export default function Header() {
   });
 
   const handleLogout = () => {
-    dispatch(handleGetActions(API_USER_LOGOUT)).then((res) => {
+
+    userSignOut({ url: API_USER_LOGOUT }).then((res) => {
       if (res.isSuccess) {
         const info = Auth.getitem("userInfo") || {};
         Auth.remove("appConfigData");

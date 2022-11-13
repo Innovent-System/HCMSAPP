@@ -5,13 +5,12 @@ import Popup from '../../components/Popup';
 import { API } from './_Service';
 import { useDispatch, useSelector } from 'react-redux';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction, useLazySingleQuery } from '../../store/actions/httpactions';
-import { GridToolbarContainer, Stack, Typography } from "../../deps/ui";
-import { Add as AddIcon, Delete as DeleteIcon, PeopleOutline } from "../../deps/ui/icons";
-import DataGrid, { useGridApi } from '../../components/useDataGrid';
+import {  Stack, Typography } from "../../deps/ui";
+import { PeopleOutline } from "../../deps/ui/icons";
+import DataGrid, { GridToolbar, useGridApi } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { AutoForm } from '../../components/useForm'
-import PropTypes from 'prop-types'
 import PageHeader from '../../components/PageHeader'
 import { startOfDay, addDays, isEqual } from '../../services/dateTimeService'
 import { formateISODateTime } from "../../services/dateTimeService";
@@ -159,7 +158,7 @@ const AddAttendanceRequest = ({ openPopup, setOpenPopup }) => {
             dataToInsert.employeeCode = values.fkEmployeeId.punchCode;
             // ChangeType = [],
 
-            addEntity({ url: API.AttendanceRequest, data: [dataToInsert] });
+            addEntity({ url: DEFAULT_API, data: [dataToInsert] });
 
         }
     }
@@ -183,6 +182,7 @@ const AddAttendanceRequest = ({ openPopup, setOpenPopup }) => {
         </Popup>
     </>
 }
+const DEFAULT_API = API.AttendanceRequest;
 const AttendanceRequest = () => {
     const dispatch = useDispatch();
     const [openPopup, setOpenPopup] = useState(false);
@@ -213,7 +213,7 @@ const AttendanceRequest = () => {
     const query = useSelector(e => e.appdata.query.builder);
     const { countryIds, stateIds, cityIds, areaIds } = useDropDownIds();
     const { data, isLoading, status, refetch } = useEntitiesQuery({
-        url: API.AttendanceRequest,
+        url: DEFAULT_API,
         params: {
             limit: offSet.current.limit,
             lastKeyId: offSet.current.isLoadMore ? offSet.current.lastKeyId : "",
@@ -264,7 +264,7 @@ const AttendanceRequest = () => {
             title: "Are you sure to delete this records?",
             subTitle: "You can't undo this operation",
             onConfirm: () => {
-                removeEntity({ url: API.AttendanceRequest, params: idTobeDelete }).then(res => {
+                removeEntity({ url: DEFAULT_API, params: idTobeDelete }).then(res => {
                     setSelectionModel([]);
                 })
             },
@@ -303,7 +303,7 @@ const AttendanceRequest = () => {
                     onDelete: handelDeleteItems,
                     selectionModel
                 }}
-                gridToolBar={RequestToolbar}
+                gridToolBar={GridToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
                 onRowsScrollEnd={loadMoreData}
@@ -314,23 +314,3 @@ const AttendanceRequest = () => {
 }
 
 export default AttendanceRequest;
-
-function RequestToolbar(props) {
-    const { apiRef, onAdd, onDelete, selectionModel } = props;
-
-    return (
-        <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
-            {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
-            <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add record" />
-        </GridToolbarContainer>
-    );
-}
-
-RequestToolbar.propTypes = {
-    apiRef: PropTypes.shape({
-        current: PropTypes.object,
-    }),
-    onAdd: PropTypes.func,
-    onDelete: PropTypes.func,
-    selectionModel: PropTypes.array
-};

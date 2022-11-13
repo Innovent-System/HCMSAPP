@@ -89,7 +89,7 @@ const flagCol = [
 
     }
 ]
-const DEFAUL_API = API.Shift;
+const DEFAULT_API = API.Shift;
 let editId = 0;
 export const AddShift = ({ openPopup, setOpenPopup, isEdit = false, row = null }) => {
     const { addEntity } = useEntityAction();
@@ -133,7 +133,7 @@ export const AddShift = ({ openPopup, setOpenPopup, isEdit = false, row = null }
             if (isEdit)
                 values._id = editId
 
-            addEntity({ url: DEFAUL_API, data: [{ ...values, attendanceflag: flagRows }] });
+            addEntity({ url: DEFAULT_API, data: [{ ...values, attendanceflag: flagRows }] });
         }
     }
 
@@ -266,7 +266,7 @@ const Shift = () => {
     const query = useSelector(e => e.appdata.query.builder);
 
     const { data, status, isLoading, refetch } = useEntitiesQuery({
-        url: DEFAUL_API,
+        url: DEFAULT_API,
         params: {
             limit: filter.limit,
             lastKeyId: filter.lastKey,
@@ -315,7 +315,7 @@ const Shift = () => {
     }
 
     const handleActiveInActive = (id) => {
-        updateOneEntity({ url: DEFAUL_API, data: { _id: id } });
+        updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
     }
 
     const handelDeleteItems = (ids) => {
@@ -329,7 +329,7 @@ const Shift = () => {
             title: "Are you sure to delete this records?",
             subTitle: "You can't undo this operation",
             onConfirm: () => {
-                removeEntity({ url: DEFAUL_API, params: idTobeDelete }).then(res => {
+                removeEntity({ url: DEFAULT_API, params: idTobeDelete }).then(res => {
                     setSelectionModel([]);
                 })
             },

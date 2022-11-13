@@ -257,7 +257,6 @@ export default function FeaturedCrudGrid(props) {
         getRowHeight={() =>  rowHeight ?? 'auto'}
         columns={columns}
         checkboxSelection={checkboxSelection}
-        rowsPerPageOptions={[pageSize]}
         {...(onRowsScrollEnd && { onRowsScrollEnd })}
         apiRef={apiRef}
         getRowClassName={(params) =>
@@ -309,3 +308,23 @@ FeaturedCrudGrid.defaultProps = {
   loading: false,
   editable: false
 }
+
+export function GridToolbar(props) {
+  const { apiRef, onAdd, onDelete, selectionModel } = props;
+
+  return (
+      <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
+          {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
+          <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add Record" />
+      </GridToolbarContainer>
+  );
+}
+
+GridToolbar.propTypes = {
+  apiRef: PropTypes.shape({
+      current: PropTypes.object,
+  }),
+  onAdd: PropTypes.func,
+  onDelete: PropTypes.func,
+  selectionModel: PropTypes.array
+};

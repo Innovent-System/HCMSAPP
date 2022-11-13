@@ -93,7 +93,7 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
     ]
 
 }
-const DEFAUL_API = GET_STAGES;
+const DEFAULT_API = GET_STAGES;
 let editId = 0;
 const stages = [{ id: 1, title: "Line Manager" },
 { id: 2, title: "Hr Manager" },
@@ -158,7 +158,7 @@ export const AddApprovalStages = ({ openPopup, setOpenPopup, isEdit = false, for
             if (isEdit)
                 dataToInsert._id = editId
 
-            addEntity({ url: DEFAUL_API, data: [dataToInsert] });
+            addEntity({ url: DEFAULT_API, data: [dataToInsert] });
 
         }
     }
@@ -267,7 +267,7 @@ const ApprovalStages = ({ moduleName }) => {
     const query = useSelector(e => e.appdata.query.builder);
 
     const { data, status, isLoading, refetch } = useEntitiesQuery({
-        url: DEFAUL_API,
+        url: DEFAULT_API,
         params: {
             limit: filter.limit,
             lastKeyId: filter.lastKey,
@@ -318,7 +318,7 @@ const ApprovalStages = ({ moduleName }) => {
     }
 
     const handleActiveInActive = (id) => {
-        updateOneEntity({ url: DEFAUL_API, data: { _id: id } });
+        updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
     }
 
     const handelDeleteItems = (ids) => {
@@ -332,7 +332,7 @@ const ApprovalStages = ({ moduleName }) => {
             title: "Are you sure to delete this records?",
             subTitle: "You can't undo this operation",
             onConfirm: () => {
-                removeEntity({ url: DEFAUL_API, params: idTobeDelete }).then(res => {
+                removeEntity({ url: DEFAULT_API, params: idTobeDelete }).then(res => {
                     setSelectionModel([]);
                 })
             },

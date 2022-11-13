@@ -6,13 +6,12 @@ import { API } from './_Service';
 import { useDispatch, useSelector } from 'react-redux';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAction, useLazySingleQuery } from '../../store/actions/httpactions';
 import {
-    GridToolbarContainer, Box, GridActionsCellItem, Badge, Grid, Typography
+     GridActionsCellItem, Badge, Grid, Typography
 } from "../../deps/ui";
-import { Circle, Add as AddIcon, Delete as DeleteIcon, People, PeopleOutline } from "../../deps/ui/icons";
-import DataGrid, { useGridApi, getActions } from '../../components/useDataGrid';
+import { Circle, People, PeopleOutline } from "../../deps/ui/icons";
+import DataGrid, { useGridApi, getActions, GridToolbar } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
-import PropTypes from 'prop-types'
 import { formateISODateTime, formateISOTime } from '../../services/dateTimeService'
 import ShiftCard from "./components/ShiftCard";
 import PageHeader from '../../components/PageHeader'
@@ -378,7 +377,7 @@ const Schedule = () => {
                     onDelete: handelDeleteItems,
                     selectionModel
                 }}
-                gridToolBar={ScheduleToolbar}
+                gridToolBar={GridToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
                 onRowsScrollEnd={loadMoreData}
@@ -388,28 +387,3 @@ const Schedule = () => {
     );
 }
 export default Schedule;
-
-function ScheduleToolbar(props) {
-    const { apiRef, onAdd, onDelete, selectionModel } = props;
-
-    return (
-        <>
-            <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
-                <Box >
-                    {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
-                    <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add record" />
-                </Box>
-            </GridToolbarContainer>
-        </>
-
-    );
-}
-
-ScheduleToolbar.propTypes = {
-    apiRef: PropTypes.shape({
-        current: PropTypes.object,
-    }).isRequired,
-    onAdd: PropTypes.func,
-    onDelete: PropTypes.func,
-    selectionModel: PropTypes.array
-};

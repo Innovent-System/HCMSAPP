@@ -7,7 +7,7 @@ import { API } from '../_Service';
 import { useDispatch, useSelector } from 'react-redux';
 import { enableFilterAction, builderFieldsAction, showDropDownFilterAction, useEntitiesQuery, useEntityAction } from '../../../store/actions/httpactions';
 import { useDropDown, useDropDownIds } from "../../../components/useDropDown";
-import { Typography, Stack, GridToolbarContainer, Box } from "../../../deps/ui";
+import { Typography, Stack, GridToolbarContainer } from "../../../deps/ui";
 import { Circle, Add as AddIcon, Delete as DeleteIcon } from "../../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions } from '../../../components/useDataGrid';
 import { useSocketIo } from '../../../components/useSocketio';
@@ -85,7 +85,7 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
   ]
 }
 let editId = 0;
-
+const DEFAULT_API = API.AREA;
 export const AddArea = ({ openPopup, setOpenPopup, isEdit = false, row = null }) => {
   const { addEntity } = useEntityAction();
   const formApi = useRef(null);
@@ -121,7 +121,7 @@ export const AddArea = ({ openPopup, setOpenPopup, isEdit = false, row = null })
       if (isEdit)
         dataToInsert._id = editId
 
-      addEntity({ url: API.AREA, data: [dataToInsert] });
+      addEntity({ url: DEFAULT_API, data: [dataToInsert] });
     }
   }
 
@@ -222,7 +222,7 @@ const Area = () => {
     subTitle: "",
   });
 
-  const [areas, setArea] = useState([]);
+  const [records, setRecords] = useState([]);
 
   const gridApiRef = useGridApi();
   const query = useSelector(e => e.appdata.query.builder);
@@ -230,7 +230,7 @@ const Area = () => {
 
 
   const { data, isLoading, status, refetch } = useEntitiesQuery({
-    url: API.AREA,
+    url: DEFAULT_API,
     params: {
       limit: offSet.current.limit,
       lastKeyId: offSet.current.isLoadMore ? offSet.current.lastKeyId : "",
@@ -250,10 +250,10 @@ const Area = () => {
     if (status === "fulfilled") {
       const { entityData, totalRecord } = data.result;
       if (offSet.current.isLoadMore) {
-        setArea([...entityData, ...areas]);
+        setRecords([...entityData, ...records]);
       }
       else
-        setArea(entityData)
+        setRecords(entityData)
 
       setGridFilter({ ...gridFilter, totalRecord: totalRecord });
       offSet.current.isLoadMore = false;
@@ -264,28 +264,28 @@ const Area = () => {
   const { socketData } = useSocketIo("changeInArea", refetch);
   useEffect(() => {
     if (Array.isArray(socketData)) {
-      setArea(socketData);
+      setRecords(socketData);
     }
   }, [socketData])
 
   const loadMoreData = (params) => {
-    if (areas.length < gridFilter.totalRecord && params.viewportPageSize !== 0) {
+    if (records.length < gridFilter.totalRecord && params.viewportPageSize !== 0) {
       offSet.current.isLoadMore = true;
-      setGridFilter({ ...gridFilter, lastKey: areas.length ? areas[areas.length - 1].id : null });
+      setGridFilter({ ...gridFilter, lastKey: records.length ? records[records.length - 1].id : null });
     }
   }
 
   const handleEdit = (id) => {
     isEdit.current = true;
     editId = id;
-    const area = areas.find(a => a.id === id);
+    const area = records.find(a => a.id === id);
     row.current = area;
     setOpenPopup(true);
 
   }
 
   const handleActiveInActive = (id) => {
-    updateOneEntity({ url: API.AREA, data: { _id: id } });
+    updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
   }
 
   const handelDeleteItems = (ids) => {
@@ -299,7 +299,7 @@ const Area = () => {
       title: "Are you sure to delete this records?",
       subTitle: "You can't undo this operation",
       onConfirm: () => {
-        removeEntity({ url: API.AREA, params: idTobeDelete }).then(res => {
+        removeEntity({ url: DEFAULT_API, params: idTobeDelete }).then(res => {
           setSelectionModel([]);
         })
       },
@@ -333,7 +333,7 @@ const Area = () => {
     <>
       <AddArea openPopup={openPopup} setOpenPopup={setOpenPopup} row={row.current} isEdit={isEdit.current} />
       <DataGrid apiRef={gridApiRef}
-        columns={columns} rows={areas}
+        columns={columns} rows={records}
         totalCount={gridFilter.totalRecord}
         loading={isLoading} pageSize={pageSize}
         toolbarProps={{
