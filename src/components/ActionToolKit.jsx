@@ -2,7 +2,6 @@ import React,{useState,useRef} from 'react'
 import PropTypes from 'prop-types'
 import {ToggleButton,ToggleButtonGroup} from '../deps/ui'
 import {Delete as DeleteIcon,SaveTwoTone as SaveTwoToneIcon,EditTwoTone as EditTwoToneIcon} from '../deps/ui/icons'
-import { handlePostActions } from '../store/actions/httpactions';
 import { useDispatch } from "react-redux";
 
 
@@ -71,7 +70,7 @@ function ActionToolKit ({isShowEditBtn = true,isShowActiveBtn = true,isShowDownl
           id:row._id,
           ...columnToBeEdit.current, 
         }
-        dispatch(handlePostActions(apiName,updateModel));
+        // dispatch(handlePostActions(apiName,updateModel));
       }
         
        }

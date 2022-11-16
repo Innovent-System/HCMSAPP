@@ -4,7 +4,6 @@ import { Launch, Person, Call, Business } from '../../../deps/ui/icons';
 import { AutoForm } from '../../../components/useForm';
 import Controls from '../../../components/controls/Controls';
 import { API } from '../_Service';
-
 import { useDropDown } from '../../../components/useDropDown';
 import PropTypes from 'prop-types'
 import { useEntityAction, useLazyEntityQuery } from '../../../store/actions/httpactions';
@@ -120,14 +119,14 @@ export const mapEmployee = (values) => {
     scheduleId: values?.scheduleId._id
   }
   if (values.fkRoleTemplateId)
-    employee.companyInfo.fkRoleTemplateId = values.fkRoleTemplateId._id;
+    employee.companyInfo.fkRoleTemplateId = values.fkRoleTemplateId;
 
 
   return employee;
 }
 
 const breakpoints = { md: 4, sm: 6, xs: 6 }
-export default function EmployaaModal({ isEdit = false, editId, coldata }) {
+export default function EmployaaModal({ isEdit = false, editId, coldata, add_edit_API = API.Employee }) {
 
   const formApi = useRef(null);
   const [activeStep, setActiveStep] = React.useState(0);
@@ -141,7 +140,7 @@ export default function EmployaaModal({ isEdit = false, editId, coldata }) {
 
   const handleEdit = () => {
 
-    GetEmpolyee({ url: API.Employee, id: editId }).then(({ data: { result: values } }) => {
+    GetEmpolyee({ url: add_edit_API, id: editId }).then(({ data: { result: values } }) => {
       const { setFormValue } = formApi.current;
       setFormValue({
         emplyeeRefNo: values.emplyeeRefNo,
@@ -162,6 +161,7 @@ export default function EmployaaModal({ isEdit = false, editId, coldata }) {
         fkDesignationId: designations.find(d => d._id === values.companyInfo.fkDesignationId),
         fkEmployeeGroupId: groups.find(g => g._id === values.companyInfo.fkEmployeeGroupId),
         fkStateId: states.find(s => s._id === values.companyInfo.fkStateId),
+        scheduleId: schedules.find(s => s._id === values.schedule?._id) ?? null,
         fkManagerId: employees.find(e => e._id === values.companyInfo?.fkManagerId) ?? null,
         fkRoleTemplateId: values.companyInfo.fkRoleTemplateId,
         joiningDate: values.companyInfo.joiningDate,
@@ -646,7 +646,7 @@ export default function EmployaaModal({ isEdit = false, editId, coldata }) {
       if (isEdit)
         setEmployee._id = editId
 
-      addEntity({ url: API.Employee, data: [setEmployee] });
+      addEntity({ url: add_edit_API, data: [setEmployee] });
 
     }
   }

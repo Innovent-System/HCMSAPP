@@ -5,8 +5,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Close';
-import { ToggleOff, ToggleOn, Search } from '../deps/ui/icons'
-import { InputAdornment, IconButton, Box } from '../deps/ui'
+import {  ToggleOn } from '../deps/ui/icons'
+import {  Box,Chip } from '../deps/ui'
 import { alpha, styled } from '@mui/material/styles';
 import Controls from '../components/controls/Controls'
 import {
@@ -127,8 +127,8 @@ const StripedDataGrid = styled(DataGridPro)(({ theme }) => ({
         backgroundColor: alpha(
           theme.palette.primary.main,
           ODD_OPACITY +
-            theme.palette.action.selectedOpacity +
-            theme.palette.action.hoverOpacity,
+          theme.palette.action.selectedOpacity +
+          theme.palette.action.hoverOpacity,
         ),
         // Reset on touch devices, it doesn't add specificity
         '@media (hover: none)': {
@@ -141,6 +141,8 @@ const StripedDataGrid = styled(DataGridPro)(({ theme }) => ({
     },
   },
 }));
+
+export const renderStatusCell = ({ row }) => <Chip size="small" color={row.status === "Rejected" ? "error" : row.status === "Approved" ? "info" : "default"} label={row.status} />
 
 export const getActions = (apiRef, actionKit = { onActive: null, onApproval: null, onEdit: null, onDelete: null }) => {
 
@@ -254,7 +256,7 @@ export default function FeaturedCrudGrid(props) {
             setSelectionModel(newSelectionModel);
           }
         })}
-        getRowHeight={() =>  rowHeight ?? 'auto'}
+        getRowHeight={() => rowHeight ?? 'auto'}
         columns={columns}
         checkboxSelection={checkboxSelection}
         {...(onRowsScrollEnd && { onRowsScrollEnd })}
@@ -313,16 +315,16 @@ export function GridToolbar(props) {
   const { apiRef, onAdd, onDelete, selectionModel } = props;
 
   return (
-      <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
-          {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
-          <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add Record" />
-      </GridToolbarContainer>
+    <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
+      {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
+      <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add Record" />
+    </GridToolbarContainer>
   );
 }
 
 GridToolbar.propTypes = {
   apiRef: PropTypes.shape({
-      current: PropTypes.object,
+    current: PropTypes.object,
   }),
   onAdd: PropTypes.func,
   onDelete: PropTypes.func,

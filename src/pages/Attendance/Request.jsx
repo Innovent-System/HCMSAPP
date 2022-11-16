@@ -1,13 +1,12 @@
 // eslint-disable-next-line react-hooks/exhaustive-deps
 import React, { useEffect, useRef, useState } from "react";
-import Controls from '../../components/controls/Controls';
 import Popup from '../../components/Popup';
 import { API } from './_Service';
 import { useDispatch, useSelector } from 'react-redux';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction, useLazySingleQuery } from '../../store/actions/httpactions';
-import {  Stack, Typography } from "../../deps/ui";
+import { Stack, Typography } from "../../deps/ui";
 import { PeopleOutline } from "../../deps/ui/icons";
-import DataGrid, { GridToolbar, useGridApi } from '../../components/useDataGrid';
+import DataGrid, { GridToolbar, renderStatusCell, useGridApi } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { AutoForm } from '../../components/useForm'
@@ -49,7 +48,9 @@ const columns = [
     },
     { field: 'requestDate', headerName: 'Request Date', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.requestDate) },
     { field: 'changeType', headerName: 'Change Type', flex: 1, valueGetter: ({ row }) => row.changeType.join(',') },
-    { field: 'status', headerName: 'Status', flex: 1 },
+    {
+        field: 'status', headerName: 'Status', flex: 1, renderCell: renderStatusCell
+    },
     { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
     { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) }
 ];

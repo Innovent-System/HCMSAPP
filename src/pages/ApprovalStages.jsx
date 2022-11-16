@@ -102,7 +102,8 @@ const stages = [{ id: 1, title: "Line Manager" },
 { id: 5, title: "Specific Employee" }
 ]
 const ModuleSetting = {
-    "ATTENDANCE": ["Requests", "Exemptions"]
+    "ATTENDANCE": ["Requests", "Exemptions"],
+    "EMPLOYEE": ["Profile Request"]
 }
 export const AddApprovalStages = ({ openPopup, setOpenPopup, isEdit = false, formId, row = null }) => {
     const formApi = useRef(null);

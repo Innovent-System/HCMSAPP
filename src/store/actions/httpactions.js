@@ -1,9 +1,4 @@
 import axios from 'axios';
-import {
-  POST_DATA,
-  POST_DATA_SUCCESS,
-  POST_DATA_FAILED,
-} from "./types";
 import { domain, headerOption } from '../../config/appconfig';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
@@ -264,40 +259,3 @@ export const { builderQueryAction,
   showDropDownFilterAction,
   setUserInfo,
   clearDropDownIdsAction } = appSlice.actions;
-
-export const handlePostActions = (url, data = {}) => dispatch => {
-
-  dispatch({
-    type: POST_DATA,
-    payload: null
-  });
-
-  return axios.post(domain.concat(url), data, {
-    headers: headerOption(),
-    withCredentials: true,
-  })
-    .then(response => {
-      if (response.status) {
-        const { result, message } = response.data;
-
-        dispatch({
-          type: POST_DATA_SUCCESS,
-          payload: result,
-          message
-        });
-
-        return {
-          data: result,
-          isSuccess: true,
-          message
-        }
-      }
-    })
-    .catch(function (err) {
-      dispatch({
-        type: POST_DATA_FAILED,
-        payload: { msg: (err.response?.data ? err.response.data.message : err.message), code: err.response.status }
-      })
-    });
-
-};

@@ -4,6 +4,7 @@ import { PeopleOutline } from '../../deps/ui/icons'
 import Tabs from '../../components/Tabs'
 import Group from './components/settings/Group'
 import Designation from './components/settings/Designation'
+import ApprovalStages from '../ApprovalStages';
 
 
 
@@ -15,6 +16,10 @@ const tabs = [
     {
         title: "Designation",
         panel: <Designation />
+    },
+    {
+        title: "Approval Stages",
+        panel: <ApprovalStages moduleName="EMPLOYEE" />
     }
 ]
 

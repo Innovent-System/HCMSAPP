@@ -4,16 +4,15 @@ import Controls from '../../components/controls/Controls';
 import Popup from '../../components/Popup';
 import { API } from './_Service';
 import { useDispatch, useSelector } from 'react-redux';
-import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction, useLazySingleQuery } from '../../store/actions/httpactions';
-import { Chip, GridToolbarContainer, IconButton, Stack, Typography, GridActionsCellItem } from "../../deps/ui";
-import { Add as AddIcon, Delete as DeleteIcon, PeopleOutline, CheckCircle, Cancel, Description, AdminPanelSettings } from "../../deps/ui/icons";
-import DataGrid, { useGridApi } from '../../components/useDataGrid';
+import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction } from '../../store/actions/httpactions';
+import { Chip, GridToolbarContainer, GridActionsCellItem } from "../../deps/ui";
+import {  Delete as DeleteIcon, PeopleOutline, CheckCircle, Cancel, Description, AdminPanelSettings } from "../../deps/ui/icons";
+import DataGrid, { renderStatusCell, useGridApi } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { AutoForm } from '../../components/useForm'
 import PropTypes from 'prop-types'
 import PageHeader from '../../components/PageHeader'
-import { startOfDay, addDays, isEqual } from '../../services/dateTimeService'
 import { formateISODateTime } from "../../services/dateTimeService";
 import Loader from '../../components/Circularloading'
 import Auth from '../../services/AuthenticationService'
@@ -48,7 +47,7 @@ const getColumns = (handleApprove) => [
         field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.employees.fullName
     },
     {
-        field: 'status', headerName: 'Status', flex: 1, renderCell: ({ row }) => <Chip size="small" color={row.status === "Rejected" ? "error" : row.status === "Approved" ? "info" : "default"} label={row.status} />
+        field: 'status', headerName: 'Status', flex: 1, renderCell: renderStatusCell
     },
     {
         field: 'appform', headerName: 'Request Type', flex: 1, valueGetter: ({ row }) => row.appform.title
@@ -93,7 +92,7 @@ const getColumns = (handleApprove) => [
 
 const DEFAULT_API = API.Approval;
 
-const AddAttendanceApproval = ({ openPopup, setOpenPopup, selectionModel, row, isApproved, records }) => {
+const AddEmployeeApproval = ({ openPopup, setOpenPopup, selectionModel, row, isApproved, records }) => {
     const formApi = useRef(null);
     const [loader, setLoader] = useState(false);
 
@@ -131,8 +130,8 @@ const AddAttendanceApproval = ({ openPopup, setOpenPopup, selectionModel, row, i
             const dataObj = {
                 _id: row._id,
                 requestId: row.requestId,
-                formId: row.formId,
-                type: "Request",
+                formId: row.appform.formId,
+                type: "Profile Request",
                 isApprove: isApproved,
                 reason: values.reason
             };
@@ -141,7 +140,7 @@ const AddAttendanceApproval = ({ openPopup, setOpenPopup, selectionModel, row, i
                     _id: r._id,
                     requestId: r.requestId,
                     formId: r.formId,
-                    type: "Request",
+                    type: "Profile Request",
                     isApprove: isApproved,
                     reason: values.reason
                 }))
@@ -157,7 +156,7 @@ const AddAttendanceApproval = ({ openPopup, setOpenPopup, selectionModel, row, i
     return <>
         <Loader open={loader} />
         <Popup
-            title="Attendance Approvals"
+            title="Employee Approvals"
             openPopup={openPopup}
             maxWidth="sm"
             isEdit={false}
@@ -169,7 +168,7 @@ const AddAttendanceApproval = ({ openPopup, setOpenPopup, selectionModel, row, i
     </>
 }
 
-const AttendanceApproval = () => {
+const EmployeeApproval = () => {
     const dispatch = useDispatch();
     const [openPopup, setOpenPopup] = useState(false);
     const [pageSize, setPageSize] = useState(30);
@@ -231,7 +230,7 @@ const AttendanceApproval = () => {
         }
     }, [data, status])
 
-    const { socketData } = useSocketIo("changeInAttendanceApproval", refetch);
+    const { socketData } = useSocketIo("changeInEmployeeApproval", refetch);
 
     useEffect(() => {
         if (Array.isArray(socketData)) {
@@ -286,12 +285,12 @@ const AttendanceApproval = () => {
     return (
         <>
             <PageHeader
-                title="Attendance Approval"
+                title="Employee Approval"
                 enableFilter={true}
-                subTitle="Manage Attendance Approval"
+                subTitle="Manage Employee Approval"
                 icon={<PeopleOutline fontSize="large" />}
             />
-            <AddAttendanceApproval openPopup={openPopup} setOpenPopup={setOpenPopup} isApproved={isApproved.current} selectionModel={selectionModel} records={records} row={row.current} />
+            <AddEmployeeApproval openPopup={openPopup} setOpenPopup={setOpenPopup} isApproved={isApproved.current} selectionModel={selectionModel} records={records} row={row.current} />
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={records}
                 loading={isLoading} pageSize={pageSize}
@@ -312,7 +311,7 @@ const AttendanceApproval = () => {
     );
 }
 
-export default AttendanceApproval;
+export default EmployeeApproval;
 
 function ApprovalToolbar(props) {
     const { apiRef, onAdd, onDelete, selectionModel } = props;

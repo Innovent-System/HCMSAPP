@@ -6,7 +6,7 @@ import { API } from './_Service';
 import { useDispatch, useSelector } from 'react-redux';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction, useLazySingleQuery } from '../../store/actions/httpactions';
 import { PeopleOutline } from "../../deps/ui/icons";
-import DataGrid, { GridToolbar, useGridApi } from '../../components/useDataGrid';
+import DataGrid, { GridToolbar, renderStatusCell, useGridApi } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { AutoForm } from '../../components/useForm'
@@ -48,7 +48,9 @@ const columns = [
     },
     { field: 'exemptionDate', headerName: 'Exemption Date', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.exemptionDate) },
     { field: 'attendanceFlag', headerName: 'Attendance Flag', flex: 1, valueGetter: ({ row }) => row.att_flag.name },
-    { field: 'status', headerName: 'Status', flex: 1 },
+    {
+        field: 'status', headerName: 'Status', flex: 1, renderCell: renderStatusCell
+    },
     { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
     { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) }
 ];

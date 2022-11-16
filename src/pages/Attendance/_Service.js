@@ -12,4 +12,3 @@ export const API = {
     ApprovalAction: "attendance/approval/action",
     // Designation: "employee/designation",
 }
-
