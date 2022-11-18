@@ -3,6 +3,7 @@ import { useEffect, useContext } from 'react';
 import { SocketContext } from '../services/socketService';
 import { Outlet,useParams } from 'react-router-dom';
 import Header from '../layout/header/Header';
+import Speech from '../components/speech/SpeechRecognition';
 
 const Layout = () => {
 
@@ -26,6 +27,7 @@ const Layout = () => {
       <Paper className={"content-area"}>
         <Outlet />
       </Paper>
+      <Speech mode='obey'/>
     </>
   )
 }

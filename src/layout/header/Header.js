@@ -32,6 +32,7 @@ import {
   AppRoutesThunk,
   CommonDropDownThunk,
   EmployeeDataThunk,
+  setCommand,
   useLazySingleQuery,
 } from "../../store/actions/httpactions";
 import { useDispatch } from "react-redux";
@@ -40,6 +41,7 @@ import Logo from "../../assets/images/Logo.png";
 
 // Drawer
 import { useSelector } from "react-redux";
+import { routeCommand } from "./routecommand";
 
 const useStyles = makeStyles((theme) => ({
   Appbar: {
@@ -126,10 +128,15 @@ export default function Header() {
       .unwrap()
       .then((res) => {
         const { data } = res;
+
         Auth.setItem("appConfigData", {
           appRoutes: data.appRoutes,
           sideMenuData: data.sideMenuData,
         });
+        
+        const command = routeCommand(data.appRoutes, navigate);
+
+        dispatch(setCommand(command));
         dispatch(EmployeeDataThunk({ url: GET_EMPLOYEE_DATA }));
         dispatch(CommonDropDownThunk({ url: GET_REGULAR_DROPDOWN }));
       });

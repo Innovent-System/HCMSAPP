@@ -14,7 +14,6 @@ import PageHeader from '../../components/PageHeader'
 import { startOfDay, addDays, isEqual } from '../../services/dateTimeService'
 import { formateISODateTime } from "../../services/dateTimeService";
 import Loader from '../../components/Circularloading'
-import Speach from "../../components/Speech";
 import { useDropDownIds } from "../../components/useDropDown";
 
 const fields = {
@@ -177,7 +176,6 @@ const AddAttendanceRequest = ({ openPopup, setOpenPopup }) => {
                 <Typography variant="body2"><strong>Schedule Name :</strong>Morning</Typography>
                 <Typography variant="body2"><strong>Schdule In :</strong>09:00 AM</Typography>
                 <Typography variant="body2"><strong>Schedule Out :</strong>08:00 PM</Typography>
-                <Speach />
                 <AutoForm formData={formData} ref={formApi} isValidate={true} />
             </Stack>
         </Popup>

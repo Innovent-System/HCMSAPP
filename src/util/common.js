@@ -104,22 +104,49 @@ export class WorkerBuilder extends Worker {
 }
 
 
-// function pluralize( /* n, [ n2, n3, ... ] str */) {
-//     var n = Array.prototype.slice.call(arguments);
-//     var str = n.pop(), iMax = n.length - 1, i = -1, j;
-//     str = str.replace(/\$\$|\$(\d+)/g,
-//         function (m, p1) { return m == '$$' ? '$' : n[+p1 - 1] }
-//     );
-//     return str.replace(/[(](.*?)([+-])(\d*)(?:,([^,)]*))?(?:,([^)]*))?[)]/g,
-//         function (match, one, sign, abs, not1, zero) {
-//             // if abs, use indicated element in the array of numbers
-//             // instead of using the next element in sequence
-//             abs ? (j = +abs - 1) : (i < iMax && i++, j = i);
-//             if (zero != undefined && n[j] == 0) return zero;
-//             return (n[j] != 1) == (sign == '+') ? (not1 || 's') : one;
-//         }
-//     );
-// }
+const optionalParam = /\s*\((.*?)\)\s*/g
+const optionalRegex = /(\(\?:[^)]+\))\?/g
+const namedParam = /(\(\?)?:\w+/g
+const splatParam = /\*/g
+const escapeRegExp = /[-{}[\]+?.,\\^$|#]/g
+export const commandToRegExp = (command) => {
+  if (command instanceof RegExp) {
+    return new RegExp(command.source, 'i')
+  }
+  command = command
+    .replace(escapeRegExp, '\\$&')
+    .replace(optionalParam, '(?:$1)?')
+    .replace(namedParam, (match, optional) => {
+      return optional ? match : '([^\\s]+)'
+    })
+    .replace(splatParam, '(.*?)')
+    .replace(optionalRegex, '\\s*$1?\\s*')
+  return new RegExp('^' + command + '$', 'i')
+}
+
+
+export function pluralize( /* n, [ n2, n3, ... ] str */) {
+    var n = Array.prototype.slice.call(arguments);
+    var str = n.pop(), iMax = n.length - 1, i = -1, j;
+    str = str.replace(/\$\$|\$(\d+)/g,
+        function (m, p1) { return m == '$$' ? '$' : n[+p1 - 1] }
+    );
+    return str.replace(/[(](.*?)([+-])(\d*)(?:,([^,)]*))?(?:,([^)]*))?[)]/g,
+        function (match, one, sign, abs, not1, zero) {
+            // if abs, use indicated element in the array of numbers
+            // instead of using the next element in sequence
+            if (abs)
+                (j = +abs - 1)
+            else if (i < iMax){
+                i++; 
+                j = i;
+            }
+
+            if (zero != undefined && n[j] == 0) return zero;
+            return (n[j] != 1) == (sign == '+') ? (not1 || 's') : one;
+        }
+    );
+}
 
 /**
  * console.log( pluralize( 1, 'the cat(+) live(-) outside' ) ) ;

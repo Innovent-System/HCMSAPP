@@ -42,7 +42,6 @@ export const useEntityAction = () => {
   const [updateOneEntity] = useUpdateOneMutation();
   const [removeEntity] = useRemoveMutation();
 
-
   return {
     addEntity,
     updateEntity,
@@ -136,11 +135,13 @@ export const EmployeeDataThunk = createAsyncThunk('employeedata/requestStatus', 
   }
 })
 
+
 const INITIAL_STATE = {
   status: false,
   DropDownData: {},
   employeeData: {},
   routeData: {},
+  commands: [],
   authData: {},
   userInfo: {
     email: '',
@@ -205,6 +206,12 @@ export const appSlice = createSlice({
     },
     setUserInfo(state, action) {
       state.userInfo = { ...state.userInfo, ...action.payload }
+    },
+    setCommand(state, action) {
+      if (Array.isArray(action.payload))
+        state.commands = [...state.commands, ...action.payload]
+      else
+        state.commands = [...state.commands, action.payload]
     }
   },
   extraReducers: {
@@ -258,4 +265,4 @@ export const { builderQueryAction,
   enableFilterAction,
   showDropDownFilterAction,
   setUserInfo,
-  clearDropDownIdsAction } = appSlice.actions;
+  clearDropDownIdsAction,setCommand } = appSlice.actions;
