@@ -124,6 +124,7 @@ export const commandToRegExp = (command) => {
   return new RegExp('^' + command + '$', 'i')
 }
 
+export const wait = (s) => new Promise((rs) => setTimeout(rs, s));
 
 export function pluralize( /* n, [ n2, n3, ... ] str */) {
     var n = Array.prototype.slice.call(arguments);

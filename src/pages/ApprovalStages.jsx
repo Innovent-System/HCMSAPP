@@ -102,8 +102,9 @@ const stages = [{ id: 1, title: "Line Manager" },
 { id: 5, title: "Specific Employee" }
 ]
 const ModuleSetting = {
-    "ATTENDANCE": ["Requests", "Exemptions"],
-    "EMPLOYEE": ["Profile Request"]
+    "ATTENDANCE": [12, 13],
+    "EMPLOYEE": [4],
+    "LEAVE": [17]
 }
 export const AddApprovalStages = ({ openPopup, setOpenPopup, isEdit = false, formId, row = null }) => {
     const formApi = useRef(null);
@@ -368,7 +369,7 @@ const ApprovalStages = ({ moduleName }) => {
         <>
             <AddApprovalStages formId={formId} openPopup={openPopup} setOpenPopup={setOpenPopup} isEdit={isEdit.current} row={row.current} />
             <Controls.Select onChange={(e) => setFormId(e.target.value)} name="formId" label="Form Name" options={formList.find(c => c.title == moduleName).
-                children.filter(c => ModuleSetting[moduleName].includes(c.title))}
+                children.filter(c => ModuleSetting[moduleName].includes(c.formId))}
                 dataId="_id" dataName="title" />
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={records}

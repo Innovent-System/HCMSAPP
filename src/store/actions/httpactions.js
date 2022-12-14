@@ -214,47 +214,48 @@ export const appSlice = createSlice({
         state.commands = [...state.commands, action.payload]
     }
   },
-  extraReducers: {
-    [AppRoutesThunk.pending.type]: (state, action) => {
+  extraReducers: (builder) => {
+    builder.addCase(AppRoutesThunk.pending, (state, action) => {
       state.status = true;
-    },
-    [AppRoutesThunk.fulfilled.type]: (state, action) => {
+    })
+
+    builder.addCase(AppRoutesThunk.fulfilled, (state, action) => {
       state.status = false;
       state.routeData = action.payload.data;
-    },
-    [AppRoutesThunk.rejected.type]: (state, action) => {
+    })
+    builder.addCase(AppRoutesThunk.rejected, (state, action) => {
       state.status = false;
-    },
-    [CommonDropDownThunk.pending.type]: (state, action) => {
+    })
+    builder.addCase(CommonDropDownThunk.pending, (state, action) => {
       state.status = true;
-    },
-    [CommonDropDownThunk.fulfilled.type]: (state, action) => {
+    })
+    builder.addCase(CommonDropDownThunk.fulfilled, (state, action) => {
       state.status = false;
       state.DropDownData = action.payload.data
-    },
-    [CommonDropDownThunk.rejected.type]: (state, action) => {
+    })
+    builder.addCase(CommonDropDownThunk.rejected, (state, action) => {
       state.status = false;
-    },
-    [EmployeeDataThunk.pending.type]: (state, action) => {
+    })
+    builder.addCase(EmployeeDataThunk.pending, (state, action) => {
       state.status = true;
-    },
-    [EmployeeDataThunk.fulfilled.type]: (state, action) => {
+    })
+    builder.addCase(EmployeeDataThunk.fulfilled, (state, action) => {
       state.status = false;
       state.employeeData = action.payload.data
-    },
-    [EmployeeDataThunk.rejected.type]: (state, action) => {
+    })
+    builder.addCase(EmployeeDataThunk.rejected, (state, action) => {
       state.status = false;
-    },
-    [AuthThunk.pending.type]: (state, action) => {
+    })
+    builder.addCase(AuthThunk.pending, (state, action) => {
       state.status = true;
-    },
-    [AuthThunk.fulfilled.type]: (state, action) => {
+    })
+    builder.addCase(AuthThunk.fulfilled, (state, action) => {
       state.status = false;
       state.authData = action.payload.data
-    },
-    [AuthThunk.rejected.type]: (state, action) => {
+    })
+    builder.addCase(AuthThunk.rejected, (state, action) => {
       state.status = false;
-    }
+    })
   }
 })
 
@@ -265,4 +266,4 @@ export const { builderQueryAction,
   enableFilterAction,
   showDropDownFilterAction,
   setUserInfo,
-  clearDropDownIdsAction,setCommand } = appSlice.actions;
+  clearDropDownIdsAction, setCommand } = appSlice.actions;

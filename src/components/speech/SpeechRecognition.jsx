@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { KeyboardVoice, MicOff } from '../../deps/ui/icons'
-import { SpeedDialIcon, SpeedDial, Fab, Box } from '../../deps/ui'
+import { Fab, Box } from '../../deps/ui'
 import { useSpeechSynthesis } from './useSpeechSynthesis';
 
 
@@ -22,6 +22,7 @@ const Speech = ({ mode = "write" }) => {
     useEffect(() => {
 
         const resultHandler = (event) => {
+
             const audio = event.results[event.results.length - 1];
             speech.text = audio[0].transcript;
             if (mode === "write") {
@@ -45,12 +46,13 @@ const Speech = ({ mode = "write" }) => {
             speech.recognition.interimResults = true;
             speech.recognition.lang = 'en-US';
             speech.recognition.addEventListener('result', resultHandler)
-            speech.recognition.onend = () =>  setListening(false);
+            speech.recognition.onend = () => setListening(false);
         }
 
         return () => {
             speech.recognition?.removeEventListener('result', resultHandler);
             speech.recognition?.stop();
+            speech.recognition.onend = null;
         }
     }, [])
 
@@ -68,11 +70,12 @@ const Speech = ({ mode = "write" }) => {
 
     return (
         <>
-        
-            <Box ref={resultRef} sx={{ position: 'absolute', bottom: 30, right: '50%' }}  component="code">
+
+            <Box ref={resultRef} sx={{ position: 'absolute', bottom: 30, right: '50%' }} component="code">
+               
             </Box>
             <Fab
-                onClick={handleClick}
+                onClick={handleClick}s
                 sx={{ position: 'absolute', bottom: 16, right: 16 }}
                 hidden={!isReady} color="primary" aria-label="add">
                 {listening ? <MicOff color='secondary' /> : <KeyboardVoice color='secondary' />}

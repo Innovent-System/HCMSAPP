@@ -91,7 +91,7 @@ export const mapEmployee = (values) => {
       email: values.email,
       gender: values.gender,
       dateofBirth: values.dateofBirth,
-      religion: values.religion,
+      fkReligionId: values.fkReligionId,
     },
     companyInfo: {
       fkAreaId: values.fkAreaId._id,
@@ -136,7 +136,7 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
 
-  const { companies, countries, states, cities, areas, designations, groups, schedules, departments, employees, roleTemplates, filterType, setFilter } = useDropDown();
+  const { companies, countries, states, cities, areas, designations, groups, schedules, departments, employees, roleTemplates, religion, employeeStatus, filterType, setFilter } = useDropDown();
 
   const handleEdit = () => {
 
@@ -153,7 +153,7 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
         email: values.generalInfo.email,
         gender: values.generalInfo.gender,
         dateofBirth: values.generalInfo.dateofBirth,
-        religion: values.generalInfo.religion,
+        fkReligionId: values.generalInfo.fkReligionId,
         fkAreaId: areas.find(a => a._id === values.companyInfo.fkAreaId),
         fkCityId: cities.find(a => a._id === values.companyInfo.fkCityId),
         fkCountryId: countries.find(c => c._id === values.companyInfo.fkCountryId),
@@ -302,13 +302,13 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
         },
         {
           elementType: "dropdown",
-          name: "religion",
+          name: "fkReligionId",
           label: "Religion",
           breakpoints,
-          dataId: "id",
-          dataName: "title",
+          dataId: "_id",
+          dataName: "name",
           defaultValue: "",
-          options: Religion
+          options: religion
         },
         {
           elementType: "datetimepicker",

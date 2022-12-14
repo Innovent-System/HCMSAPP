@@ -3,6 +3,7 @@ import RadioGroup from "./RadioGroup";
 import Select from "./Select";
 import Checkbox from "./Checkbox";
 import DatePicker from "./DatePicker";
+import DateRangePicker from './DateRangPicker'
 import Button from "./Button";
 import ActionButton from "./ActionButton";
 import Avatar from "./AvatarUpload";
@@ -24,7 +25,7 @@ const Controls = {
 export default Controls;
 
 
-export const ElementType = Object.freeze(["inputfield", "radiogroup", "checkbox", "dropdown", "clearfix", "ad_dropdown", "datetimepicker", "uploadavatar", "fieldarray","custom"]);
+export const ElementType = Object.freeze(["inputfield", "radiogroup", "checkbox", "dropdown", "clearfix", "ad_dropdown", "datetimepicker","daterangepicker" ,"uploadavatar", "fieldarray", "custom"]);
 
 
 export function Element(props) {
@@ -43,6 +44,9 @@ export function Element(props) {
             break;
         case "datetimepicker":
             nodeElement = <DatePicker {...others} />
+            break;
+        case "daterangepicker":
+            nodeElement = <DateRangePicker {...others} />
             break;
         case "dropdown":
             nodeElement = <Select  {...others} />

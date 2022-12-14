@@ -235,6 +235,9 @@ export const useDropDown = () => {
         employees,
         roleTemplates: employeeData.RoleTemplates,
         schedules: employeeData.Schedules,
+        religion: employeeData.Religion,
+        employeeStatus: employeeData.EmployeeStatus,
+        leaveAccural:employeeData.LeaveAccural,
         setFilter: handleFilter,
         filterType: filterTypes
     }
