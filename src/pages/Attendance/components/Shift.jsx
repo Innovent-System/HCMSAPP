@@ -1,5 +1,5 @@
 // eslint-disable-next-line react-hooks/exhaustive-deps
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Controls from '../../../components/controls/Controls';
 import Popup from '../../../components/Popup';
 import { AutoForm } from '../../../components/useForm';
@@ -97,7 +97,8 @@ export const AddShift = ({ openPopup, setOpenPopup, isEdit = false, row = null }
     const attendanceFlag = useSelector(e => e.appdata.employeeData?.AttendanceFlag
         .filter(c => ![6, 7].includes(c.flagId))
         .map((m, i) => ({ id: m.id, name: m.name, flagId: m._id, flagCode: m.flagId, order: i + 1, at: 0 }))
-    );
+    )
+    
     const [flagRows, setFlagRow] = useState(attendanceFlag);
     const formApi = useRef(null);
 
@@ -109,14 +110,15 @@ export const AddShift = ({ openPopup, setOpenPopup, isEdit = false, row = null }
         else {
             setFormValue(row);
             setFlagRow(row.attendanceflag.map(a => ({ ...a, name: attendanceFlag.find(c => c.flagCode === a.flagCode).name, id: a._id })));
-
         }
     }, [openPopup, formApi])
+
     const processRowUpdate = (newRow) => {
         const updatedRow = { ...newRow, isNew: false };
         setFlagRow(flagRows.map((row) => (row.id === newRow.id ? updatedRow : row)));
         return updatedRow;
-    };
+    }
+
     const handleRowOrderChange = (params) => {
         const { oldIndex, targetIndex } = params;
         const rowsClone = [...flagRows];
@@ -124,6 +126,7 @@ export const AddShift = ({ openPopup, setOpenPopup, isEdit = false, row = null }
         rowsClone.splice(targetIndex, 0, row);
         setFlagRow(rowsClone.map((r, index) => ({ ...r, order: ++index })));
     }
+
     const handleSubmit = (e) => {
         const { getValue, validateFields } = formApi.current;
 
@@ -215,7 +218,7 @@ export const AddShift = ({ openPopup, setOpenPopup, isEdit = false, row = null }
         title="Add Shift"
         openPopup={openPopup}
         maxWidth="sm"
-        keepMounted={true}
+        // keepMounted={true}
         isEdit={isEdit}
         addOrEditFunc={handleSubmit}
         setOpenPopup={setOpenPopup}>
@@ -337,7 +340,6 @@ const Shift = () => {
 
     }
 
-
     useEffect(() => {
         offSet.current.isLoadFirstTime = false;
         dispatch(enableFilterAction(false));
@@ -345,8 +347,6 @@ const Shift = () => {
     }, [dispatch])
 
     const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive, handelDeleteItems);
-
-
 
     const showAddModal = () => {
         isEdit.current = false;

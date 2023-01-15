@@ -28,8 +28,8 @@ function TabsComponent({ TabsConfig, orientation = "vertical" }) {
         <Box sx={{ width: '100%', typography: 'body1' }}>
             <TabContext value={value}>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                    <TabList orientation={orientation} variant="scrollable" scrollButtons="auto" onChange={handleChange} aria-label="lab API tabs example">
-                        {TabsConfig.map((tab, index) => <Tab key={tab.title} label={tab.title} value={String(index)} />)}
+                    <TabList orientation={orientation}  variant="scrollable" scrollButtons="auto" onChange={handleChange} aria-label="lab API tabs example">
+                        {TabsConfig.map((tab, index) => <Tab LinkComponent="button" key={tab.title} label={tab.title} value={String(index)} />)}
                     </TabList>
                 </Box>
                 <div>

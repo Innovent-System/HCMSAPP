@@ -4,14 +4,18 @@ import Popup from '../../../components/Popup';
 import { AutoForm } from '../../../components/useForm';
 import { API } from '../_Service';
 import { useDispatch, useSelector } from 'react-redux';
-import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAction } from '../../../store/actions/httpactions';
-import { Circle } from "../../../deps/ui/icons";
+import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAction, useLazyPostQuery } from '../../../store/actions/httpactions';
+import { Circle, Add as AddIcon } from "../../../deps/ui/icons";
+import { GridToolbarContainer, Select, MenuItem, FormControl, InputLabel } from "../../../deps/ui";
 import DataGrid, { useGridApi, getActions, GridToolbar } from '../../../components/useDataGrid';
 import { useSocketIo } from '../../../components/useSocketio';
 import ConfirmDialog from '../../../components/ConfirmDialog';
 import { useDropDown } from "../../../components/useDropDown";
-import { formateISODateTime } from "../../../services/dateTimeService";
-import InfoToolTip from "../../../components/InfoToolTip";
+import { formateISODate, formateISODateTime } from "../../../services/dateTimeService";
+import QuotaCard from "./QuotaCard";
+import Controls from "../../../components/controls/Controls";
+import useTable from "../../../components/useTable";
+import { getYears } from "../../../util/common";
 
 
 const fields = {
@@ -49,19 +53,11 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
     return [
         { field: '_id', headerName: 'Id', hide: true, hideable: false },
         {
-            field: 'title', headerName: 'Leave Type', width: 180, hideable: false
+            field: 'fullName', headerName: 'Employee Name', width: 180, hideable: false
         },
-        { field: 'modifiedOn', headerName: 'Modified On', width: 180, hideable: false, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
-        { field: 'createdOn', headerName: 'Created On', width: 180, hideable: false, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
-        {
-            field: 'isActive', headerName: 'Status', renderCell: (param) => (
-                param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
-            ),
-            flex: '0 1 5%',
-            hideable: false,
-            align: 'center',
-        },
-        getActions(apiRef, actionKit)
+        { field: 'quotaStartDate', headerName: 'Start Date', width: 180, hideable: false, valueGetter: ({ row }) => formateISODate(row.quotaStartDate) },
+        { field: 'quotaEndDate', headerName: 'End Date', width: 180, hideable: false, valueGetter: ({ row }) => formateISODate(row.quotaEndDate) },
+
     ]
 }
 const genderItems = [
@@ -70,9 +66,9 @@ const genderItems = [
     { id: "Female", title: "Female" },
 ]
 
-const DEFAUL_API = API.LeaveType;
+const DEFAUL_API = API.LeaveQuota;
 let editId = 0;
-export const AddLeaveType = ({ openPopup, setOpenPopup, isEdit = false, row = null }) => {
+export const AddLeaveQuota = ({ openPopup, setOpenPopup, isEdit = false, row = null }) => {
     const formApi = useRef(null);
     const { addEntity } = useEntityAction();
     const { groups, leaveAccural } = useDropDown();
@@ -135,7 +131,7 @@ export const AddLeaveType = ({ openPopup, setOpenPopup, isEdit = false, row = nu
             validate: {
                 errorMessage: "Group is required",
             },
-            options: groups ?? [],
+            options: groups,
             defaultValue: []
         },
         {
@@ -155,7 +151,7 @@ export const AddLeaveType = ({ openPopup, setOpenPopup, isEdit = false, row = nu
             breakpoints: { md: 12, sm: 12, xs: 12 },
             dataName: "name",
             defaultValue: "",
-            options: leaveAccural ?? []
+            options: leaveAccural
         },
         {
             elementType: "checkbox",
@@ -194,13 +190,34 @@ export const AddLeaveType = ({ openPopup, setOpenPopup, isEdit = false, row = nu
         <AutoForm formData={formData} ref={formApi} isValidate={true} />
     </Popup>
 }
-const LeaveType = () => {
+
+const TableHead = [
+    { id: 'title', disableSorting: false, label: 'Leave Type' },
+    { id: 'entitled', disableSorting: false, label: 'Allowed' },
+    { id: 'pending', disableSorting: false, label: 'Pending' },
+    { id: 'taken', disableSorting: false, label: 'Taken' },
+    { id: 'remaining', disableSorting: false, label: 'Remaining' }
+
+];
+const Years = getYears();
+const currentYear = new Date().getFullYear();
+const DetailPanelContent = ({ row }) => {
+    const { TblContainer, TblHead, TblBody } = useTable(row, TableHead)
+    return (
+        <TblContainer>
+            <TblHead />
+            <TblBody />
+        </TblContainer>
+    )
+}
+
+const LeaveQuota = () => {
     const dispatch = useDispatch();
     const [openPopup, setOpenPopup] = useState(false);
     const isEdit = React.useRef(false);
     const row = React.useRef(null);
     const [selectionModel, setSelectionModel] = React.useState([]);
-
+    const [year, setYear] = useState(currentYear)
     const offSet = useRef({
         isLoadMore: false,
         isLoadFirstTime: true,
@@ -211,6 +228,22 @@ const LeaveType = () => {
         limit: 10,
         totalRecord: 0
     })
+
+    const getDetailPanelContent = React.useCallback(
+        ({ row }) => <DetailPanelContent row={row.leaveTypes} />,
+        [],
+    );
+
+    const getDetailPanelHeight = React.useCallback(() => 180, []);
+
+    const [detailPanelExpandedRowIds, setDetailPanelExpandedRowIds] = React.useState(
+        [],
+    );
+
+    const handleDetailPanelExpandedRowIdsChange = React.useCallback((newIds) => {
+        setDetailPanelExpandedRowIds(newIds);
+    }, []);
+
 
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,
@@ -223,39 +256,18 @@ const LeaveType = () => {
     const gridApiRef = useGridApi();
     const query = useSelector(e => e.appdata.query.builder);
 
-    const { data, status, isLoading, refetch } = useEntitiesQuery({
-        url: DEFAUL_API,
-        params: {
-            limit: filter.limit,
-            lastKeyId: filter.lastKey,
-            searchParams: JSON.stringify(query)
-        }
-    });
+    const [getLeaveQuota] = useLazyPostQuery();
+    // const _qu = usePostfixQuery({
+    //     url: DEFAUL_API,
+    //     dataa: {
+    //         "employeeIds": ["63a7015948deb2d63f4cb8a9", "63a701a348deb2d63f4cb8d0"]
+    //     }
+    // });
 
-    const { updateOneEntity, removeEntity } = useEntityAction();
+    //console.log(_qu);
 
-    useEffect(() => {
-        if (status === "fulfilled") {
-            const { entityData, totalRecord } = data.result;
-            if (offSet.current.isLoadMore) {
-                setRecords([...entityData, ...records]);
-            }
-            else
-                setRecords(entityData)
+    const { updateOneEntity, removeEntity, addEntity } = useEntityAction();
 
-            setFilter({ ...filter, totalRecord: totalRecord });
-            offSet.current.isLoadMore = false;
-        }
-
-    }, [data, status])
-
-    const { socketData } = useSocketIo("changeInLeaveType", refetch);
-
-    useEffect(() => {
-        if (Array.isArray(socketData)) {
-            setRecords(socketData);
-        }
-    }, [socketData])
 
     const loadMoreData = (params) => {
         if (records.length < filter.totalRecord && params.viewportPageSize !== 0) {
@@ -282,6 +294,7 @@ const LeaveType = () => {
             idTobeDelete = ids.join(',');
         }
 
+
         setConfirmDialog({
             isOpen: true,
             title: "Are you sure to delete this records?",
@@ -295,6 +308,20 @@ const LeaveType = () => {
 
     }
 
+    const handleLeaveQuota = () => {
+        getLeaveQuota({
+            url: DEFAUL_API, data: {
+                year,
+                employeeIds: []
+            }
+        }).then(({ data }) => {
+            if (data)
+                setRecords(data.result);
+        })
+    }
+    const handleCreateQuota = () => {
+        addEntity({ url: API.LeaveQuotaInsert, data: records })
+    }
 
     useEffect(() => {
         offSet.current.isLoadFirstTime = false;
@@ -311,18 +338,28 @@ const LeaveType = () => {
 
     return (
         <>
-            <AddLeaveType openPopup={openPopup} setOpenPopup={setOpenPopup} isEdit={isEdit.current} row={row.current} />
+            {/* <AddLeaveQuota openPopup={openPopup} setOpenPopup={setOpenPopup} isEdit={isEdit.current} row={row.current} /> */}
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={records}
-                loading={isLoading}
+                loading={false}
                 totalCount={offSet.current.totalRecord}
                 toolbarProps={{
                     apiRef: gridApiRef,
-                    onAdd: showAddModal,
-                    onDelete: handelDeleteItems,
+                    onAdd: handleCreateQuota,
+                    getQuota: handleLeaveQuota,
+                    year,
+                    setYear,
+                    records,
+                    //onDelete: handelDeleteItems,
                     selectionModel
                 }}
-                gridToolBar={GridToolbar}
+
+                checkboxSelection={false}
+                detailPanelExpandedRowIds={detailPanelExpandedRowIds}
+                onDetailPanelExpandedRowIdsChange={handleDetailPanelExpandedRowIdsChange}
+                getDetailPanelContent={getDetailPanelContent}
+                getDetailPanelHeight={getDetailPanelHeight} // Height based on the content.
+                gridToolBar={QuotaToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
                 onRowsScrollEnd={loadMoreData}
@@ -331,4 +368,22 @@ const LeaveType = () => {
         </>
     );
 }
-export default LeaveType;
+
+export function QuotaToolbar(props) {
+    const { apiRef, onAdd, getQuota, year, setYear, records, selectionModel } = props;
+
+    return (
+        <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
+            <FormControl sx={{ width: 120 }} size="small">
+                <InputLabel size="small" id={`demo-multiple-name-year`}>Year</InputLabel>
+                <Select size="small" value={year} onChange={(e) => setYear(e.target.value)} variant="outlined" name="year" label="Year">
+                    {Years.map(y => <MenuItem key={y} value={y}>{y}</MenuItem>)}
+                </Select>
+            </FormControl>
+            {records?.length ? <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add Quota" /> : null}
+            <Controls.Button onClick={getQuota} startIcon={<AddIcon />} text="Create Quota" />
+        </GridToolbarContainer>
+    );
+}
+
+export default LeaveQuota;

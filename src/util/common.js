@@ -110,18 +110,18 @@ const namedParam = /(\(\?)?:\w+/g
 const splatParam = /\*/g
 const escapeRegExp = /[-{}[\]+?.,\\^$|#]/g
 export const commandToRegExp = (command) => {
-  if (command instanceof RegExp) {
-    return new RegExp(command.source, 'i')
-  }
-  command = command
-    .replace(escapeRegExp, '\\$&')
-    .replace(optionalParam, '(?:$1)?')
-    .replace(namedParam, (match, optional) => {
-      return optional ? match : '([^\\s]+)'
-    })
-    .replace(splatParam, '(.*?)')
-    .replace(optionalRegex, '\\s*$1?\\s*')
-  return new RegExp('^' + command + '$', 'i')
+    if (command instanceof RegExp) {
+        return new RegExp(command.source, 'i')
+    }
+    command = command
+        .replace(escapeRegExp, '\\$&')
+        .replace(optionalParam, '(?:$1)?')
+        .replace(namedParam, (match, optional) => {
+            return optional ? match : '([^\\s]+)'
+        })
+        .replace(splatParam, '(.*?)')
+        .replace(optionalRegex, '\\s*$1?\\s*')
+    return new RegExp('^' + command + '$', 'i')
 }
 
 export const wait = (s) => new Promise((rs) => setTimeout(rs, s));
@@ -138,8 +138,8 @@ export function pluralize( /* n, [ n2, n3, ... ] str */) {
             // instead of using the next element in sequence
             if (abs)
                 (j = +abs - 1)
-            else if (i < iMax){
-                i++; 
+            else if (i < iMax) {
+                i++;
                 j = i;
             }
 
@@ -147,6 +147,17 @@ export function pluralize( /* n, [ n2, n3, ... ] str */) {
             return (n[j] != 1) == (sign == '+') ? (not1 || 's') : one;
         }
     );
+}
+
+export const getYears = (earliestYear = 2010) => {
+    let currentYear = new Date().getFullYear();
+    const years = [];
+    while (currentYear >= earliestYear) {
+        years.push(currentYear);
+        currentYear -= 1;
+    }
+
+    return years;
 }
 
 /**

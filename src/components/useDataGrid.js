@@ -238,13 +238,13 @@ export default function FeaturedCrudGrid(props) {
     <Box
       sx={{
         height: 500,
-        width: '100%',
-        '& .actions': {
-          color: 'text.secondary',
-        },
-        '& .textPrimary': {
-          color: 'text.primary',
-        },
+        //width: '100%',
+        // '& .actions': {
+        //   color: 'text.secondary',
+        // },
+        // '& .textPrimary': {
+        //   color: 'text.primary',
+        // },
       }}
     >
       <StripedDataGrid
@@ -256,6 +256,7 @@ export default function FeaturedCrudGrid(props) {
             setSelectionModel(newSelectionModel);
           }
         })}
+        
         getRowHeight={() => rowHeight ?? 'auto'}
         columns={columns}
         checkboxSelection={checkboxSelection}

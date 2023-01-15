@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { Table, TableHead, TableRow, TableCell, TablePagination, TableSortLabel } from '../deps/ui'
+import React, { useCallback, useState } from 'react'
+import { Table, TableHead, TableRow, TableBody, TableCell, TablePagination, TableSortLabel, TableContainer, Paper } from '../deps/ui'
 
 const Styles = {
     table: {
@@ -19,9 +19,16 @@ const Styles = {
     }
 }
 
-export default function useTable(records, headCells,filterFn) {
+/**
+ * 
+ * @param {Array<any>} records 
+ * @param {Array<{id:string,disableSorting:boolean,label:string}>} headCells 
+ * @param {Function} filterFn 
+ * @returns 
+ */
+export default function useTable(records, headCells, filterFn) {
 
-    
+
 
     const pages = [5, 10, 25]
     const [page, setPage] = useState(0)
@@ -29,13 +36,15 @@ export default function useTable(records, headCells,filterFn) {
     const [order, setOrder] = useState()
     const [orderBy, setOrderBy] = useState()
 
-    const TblContainer = props => (
-        <Table sx={Styles.table}>
-            {props.children}
-        </Table>
-    )
+    const TblContainer = useCallback(props => (
+        <TableContainer sx={{ px: 5 }} >
+            <Table>
+                {props.children}
+            </Table>
+        </TableContainer>
+    ), []);
 
-    const TblHead = props => {
+    const TblHead = useCallback(props => {
 
         const handleSortRequest = cellId => {
             const isAsc = orderBy === cellId && order === "asc";
@@ -61,7 +70,30 @@ export default function useTable(records, headCells,filterFn) {
                 }
             </TableRow>
         </TableHead>)
+    }, [])
+
+    const TblBody = useCallback((props) => {
+
+        const cols = records.length ? headCells.filter(f => Object.keys(records[0]).includes(f.id)) : [];
+        return (<TableBody>
+            {records.map((row) => (
+                <TableRow
+                    key={row.id}
+                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                >
+                    {cols.map((_key, index) =>
+                        <>
+                            {index === 0 ? <TableCell component="th" scope="row">
+                                {row[_key.id]}
+                            </TableCell> : <TableCell sx={{ paddingLeft: 4 }} >{row[_key.id]}</TableCell>}
+                        </>
+                    )
+                    }
+                </TableRow>
+            ))}
+        </TableBody>)
     }
+        , [records])
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
@@ -116,6 +148,7 @@ export default function useTable(records, headCells,filterFn) {
     return {
         TblContainer,
         TblHead,
+        TblBody,
         TblPagination,
         recordsAfterPagingAndSorting
     }

@@ -4,6 +4,7 @@ import { PeopleOutline } from '../../deps/ui/icons'
 import Tabs from '../../components/Tabs'
 import ApprovalStages from '../ApprovalStages';
 import LeaveType from './components/LeaveType';
+import LeaveQuota from './components/LeaveQuota';
 
 
 
@@ -11,6 +12,10 @@ const tabs = [
     {
         title: "Leave Type",
         panel: <LeaveType />
+    },
+    {
+        title: "Leave Quota",
+        panel: <LeaveQuota />
     },
     {
         title: "Approval Stages",

@@ -6,7 +6,7 @@ export {
     AppBar, Badge, InputBase, Toolbar, ListItem, Tooltip, ClickAwayListener, Divider, Fade, List,
     Collapse, Step, StepLabel, Stepper, Link, Input, ButtonGroup, Popper, ListItemIcon, ListItemText, Drawer, Zoom, Snackbar,
     Card, Dialog, DialogTitle, DialogContent, ListSubheader, StepContent,
-    Table, TableHead, TableRow, TableCell, TablePagination, TableSortLabel, Autocomplete, createFilterOptions,
+    TableContainer,TableBody, Table, TableHead, TableRow, TableCell, TablePagination, TableSortLabel, Autocomplete, createFilterOptions,
     DialogActions, Stack, Tab, Tabs, Accordion, AccordionSummary, AccordionDetails, Backdrop, CardActionArea, CardContent, CardActions, CardHeader, MenuList
     ,SpeedDial,SpeedDialAction,SpeedDialIcon,Chip,Fab
 } from '@mui/material';

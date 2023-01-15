@@ -5,6 +5,8 @@ export const API = {
     GetExemptionDetail: "leave/exemption/detail",
     Approval: "leave/approval",
     LeaveType: "leave/type",
+    LeaveQuota: "leave/quota",
+    LeaveQuotaInsert: "leave/quota/insert",
     ApprovalAction: "leave/approval/action",
     // Designation: "employee/designation",
 }
