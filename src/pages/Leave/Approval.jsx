@@ -1,20 +1,21 @@
 // eslint-disable-next-line react-hooks/exhaustive-deps
 import React, { useEffect, useRef, useState } from "react";
+import Controls from '../../components/controls/Controls';
 import Popup from '../../components/Popup';
 import { API } from './_Service';
 import { useDispatch, useSelector } from 'react-redux';
-import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction, useLazySingleQuery } from '../../store/actions/httpactions';
-import { Stack, Typography } from "../../deps/ui";
-import { PeopleOutline } from "../../deps/ui/icons";
-import DataGrid, { GridToolbar, renderStatusCell, useGridApi } from '../../components/useDataGrid';
+import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction } from '../../store/actions/httpactions';
+import { Chip, GridToolbarContainer, GridActionsCellItem } from "../../deps/ui";
+import {  Delete as DeleteIcon, PeopleOutline, CheckCircle, Cancel, Description, AdminPanelSettings } from "../../deps/ui/icons";
+import DataGrid, { renderStatusCell, useGridApi } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { AutoForm } from '../../components/useForm'
+import PropTypes from 'prop-types'
 import PageHeader from '../../components/PageHeader'
-import { startOfDay, addDays, isEqual, formateISODate } from '../../services/dateTimeService'
 import { formateISODateTime } from "../../services/dateTimeService";
 import Loader from '../../components/Circularloading'
-import { useDropDownIds } from "../../components/useDropDown";
+import Auth from '../../services/AuthenticationService'
 
 const fields = {
     status: {
@@ -40,35 +41,63 @@ const fields = {
         preferWidgets: ['date'],
     }
 }
-
-const Duration = [
-    { id: "FullDay", title: "Full Day" },
-    { id: "HalfDay", title: "Half Day" }
-];
-
-
-const columns = [
+const getColumns = (handleApprove) => [
     { field: '_id', headerName: 'Id', hide: true },
     {
         field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.employees.fullName
     },
-    { field: 'fromDate', headerName: 'From', flex: 1, valueGetter: ({ row }) => formateISODate(row.fromDate) },
-    { field: 'toDate', headerName: 'To', flex: 1, valueGetter: ({ row }) => formateISODate(row.toDate) },
-    { field: 'leavetype', headerName: 'Leave Type', flex: 1, valueGetter: ({ row }) => row.leavetype.title },
     {
         field: 'status', headerName: 'Status', flex: 1, renderCell: renderStatusCell
     },
+    {
+        field: 'appform', headerName: 'Request Type', flex: 1, valueGetter: ({ row }) => row.appform.title
+    },
+    { field: 'reason', headerName: 'Reason', flex: 1 },
+    {
+        field: 'detail', cellClassName: 'actions', type: "actions", headerName: 'Detail', flex: 1, align: 'center', hideable: false, renderCell: ({ row }) => (
+            <GridActionsCellItem
+                icon={<Description />}
+                label="Detail"
+                onClick={() => { }}
+            />
+        )
+    },
     { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
-    { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) }
+    { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
+    {
+        field: 'action', cellClassName: 'actions', type: "actions", headerName: 'Action', width: 180, align: 'center', hideable: false, renderCell: ({ row }) => (
+            <>
+                {row.actionTaken ? <GridActionsCellItem
+                    label="Action Taken"
+                    icon={<AdminPanelSettings fontSize="small" />}
+                /> : <>
+                    <GridActionsCellItem
+                        icon={<Chip size="small" variant="outlined" color="success" icon={<CheckCircle fontSize="small" />} label="Accept" />}
+                        label="Approve"
+                        onClick={() => handleApprove(1, row)}
+                    />
+                    <GridActionsCellItem
+                        icon={<Chip size="small" variant="outlined" color="error" icon={<Cancel fontSize="small" />} label="Reject" />}
+                        label="Reject"
+                        onClick={() => handleApprove(0, row)}
+                    />
+                </>
+
+                }
+
+            </>
+        )
+    }
 ];
 
-const AddLeaveRequest = ({ openPopup, setOpenPopup }) => {
+const DEFAULT_API = API.Approval;
+
+const AddLeaveApproval = ({ openPopup, setOpenPopup, selectionModel, row, isApproved, records }) => {
     const formApi = useRef(null);
     const [loader, setLoader] = useState(false);
-    const [leaveTypes, setLeaveTypes] = useState([]);
-    const { Employees } = useSelector(e => e.appdata.employeeData);
+
     const { addEntity } = useEntityAction();
-    const [getLeaveDetail] = useLazySingleQuery();
+
     useEffect(() => {
         if (formApi.current && openPopup) {
             const { resetForm } = formApi.current;
@@ -76,68 +105,6 @@ const AddLeaveRequest = ({ openPopup, setOpenPopup }) => {
         }
     }, [openPopup, formApi])
     const formData = [
-        {
-            elementType: "ad_dropdown",
-            name: "fkEmployeeId",
-            label: "Employee",
-            variant: "outlined",
-            required: true,
-            validate: {
-                errorMessage: "Select Employee",
-            },
-            dataName: 'fullName',
-            dataId: "_id",
-            options: Employees,
-            onChange: (data) => {
-                if (!data) return;
-                setLoader(true);
-                const { setFormValue, getValue } = formApi.current;
-                getLeaveDetail({ url: API.GetLeaveDetail, params: { employeeId: data._id } }).then(c => {
-                    if (c.data?.result) {
-                       setLeaveTypes(c.data.result);
-                    }
-                    setLoader(false);
-                })
-            },
-            defaultValue: null
-        },
-        {
-            elementType: "dropdown",
-            name: "fkLeaveTypeId",
-            label: "Leave Type",
-            dataId: "_id",
-            dataName: "title",
-            required: true,
-            validate: {
-                errorMessage: "Leave Type required",
-            },
-            options: leaveTypes,
-            defaultValue: ""
-        },
-        {
-            elementType: "daterangepicker",
-            name: "leavesDate",
-            required: true,
-            disableFuture: true,
-            breakpoints: { md: 12, sx: 12, xs: 12 },
-            validate: {
-                errorMessage: "Select Date please",
-            },
-            defaultValue: [new Date(), new Date()]
-        },
-        {
-            elementType: "dropdown",
-            name: "leaveDuration",
-            label: "Duration",
-            dataId: "id",
-            dataName: "title",
-            defaultValue: "FullDay",
-            required: true,
-            validate: {
-                errorMessage: "Leave Duration required",
-            },
-            options: Duration
-        },
         {
             elementType: "inputfield",
             name: "reason",
@@ -158,21 +125,38 @@ const AddLeaveRequest = ({ openPopup, setOpenPopup }) => {
         const { getValue, validateFields } = formApi.current
         if (validateFields()) {
             let values = getValue();
-            let dataToInsert = { ...values };
-            dataToInsert.fkEmployeeId = values.fkEmployeeId._id;
-            dataToInsert.employeeCode = values.fkEmployeeId.punchCode;
-            dataToInsert.fromDate = values.leavesDate[0];
-            dataToInsert.toDate = values.leavesDate[1]
-            // ChangeType = [],
 
-            addEntity({ url: DEFAULT_API, data: [dataToInsert] });
+            let datalist = [];
+            const dataObj = {
+                _id: row._id,
+                requestId: row.requestId,
+                formId: row.appform.formId,
+                type: "Request",
+                isApprove: isApproved,
+                reason: values.reason
+            };
+            if (selectionModel.length) {
+                datalist = records.filter(c => selectionModel.includes(c._id)).map(r => ({
+                    _id: r._id,
+                    requestId: r.requestId,
+                    formId: r.formId,
+                    type: "Request",
+                    isApprove: isApproved,
+                    reason: values.reason
+                }))
+            }
+            else {
+                datalist.push(dataObj)
+            }
+
+            addEntity({ url: API.ApprovalAction, data: datalist });
 
         }
     }
     return <>
         <Loader open={loader} />
         <Popup
-            title="Leave Request"
+            title="Attendance Approvals"
             openPopup={openPopup}
             maxWidth="sm"
             isEdit={false}
@@ -183,14 +167,16 @@ const AddLeaveRequest = ({ openPopup, setOpenPopup }) => {
         </Popup>
     </>
 }
-const DEFAULT_API = API.LeaveRequest;
-const LeaveRequest = () => {
+
+const LeaveApproval = () => {
     const dispatch = useDispatch();
     const [openPopup, setOpenPopup] = useState(false);
     const [pageSize, setPageSize] = useState(30);
 
     const [selectionModel, setSelectionModel] = React.useState([]);
 
+    const isApproved = useRef(false);
+    const row = useRef(null);
     const offSet = useRef({
         isLoadMore: false,
         isLoadFirstTime: true,
@@ -212,13 +198,19 @@ const LeaveRequest = () => {
 
     const gridApiRef = useGridApi();
     const query = useSelector(e => e.appdata.query.builder);
-    const { countryIds, stateIds, cityIds, areaIds } = useDropDownIds();
+    
     const { data, isLoading, status, refetch } = useEntitiesQuery({
         url: DEFAULT_API,
         params: {
             limit: offSet.current.limit,
             lastKeyId: offSet.current.isLoadMore ? offSet.current.lastKeyId : "",
-            searchParams: JSON.stringify(query)
+            searchParams: JSON.stringify({
+                ...query,
+                $and: [
+                    { routeBy: Auth.getitem("userInfo").fkEmployeeId },
+                    { $or: [{ isCurrentApproval: true }, { actionTaken: true }] }
+                ],
+            })
         }
     });
 
@@ -238,7 +230,7 @@ const LeaveRequest = () => {
         }
     }, [data, status])
 
-    const { socketData } = useSocketIo("changeInLeaveRequest", refetch);
+    const { socketData } = useSocketIo("changeInLeaveApproval", refetch);
 
     useEffect(() => {
         if (Array.isArray(socketData)) {
@@ -253,6 +245,13 @@ const LeaveRequest = () => {
             setGridFilter({ ...gridFilter, lastKey: records.length ? records[records.length - 1].id : null });
         }
     }
+    const showAddModal = (isApprove, _row) => {
+        row.current = _row;
+        isApproved.current = isApprove === 1
+        setOpenPopup(true);
+    }
+
+    const columns = getColumns(showAddModal)
 
     const handelDeleteItems = (ids) => {
         let idTobeDelete = ids;
@@ -281,19 +280,17 @@ const LeaveRequest = () => {
     }, [dispatch])
 
 
-    const showAddModal = () => {
-        setOpenPopup(true);
-    }
+
 
     return (
         <>
             <PageHeader
-                title="Leave Request"
+                title="Leave Approval"
                 enableFilter={true}
-                subTitle="Manage Leave Request"
+                subTitle="Manage Leave Approval"
                 icon={<PeopleOutline fontSize="large" />}
             />
-            <AddLeaveRequest openPopup={openPopup} setOpenPopup={setOpenPopup} />
+            <AddLeaveApproval openPopup={openPopup} setOpenPopup={setOpenPopup} isApproved={isApproved.current} selectionModel={selectionModel} records={records} row={row.current} />
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={records}
                 loading={isLoading} pageSize={pageSize}
@@ -304,7 +301,7 @@ const LeaveRequest = () => {
                     onDelete: handelDeleteItems,
                     selectionModel
                 }}
-                gridToolBar={GridToolbar}
+                gridToolBar={ApprovalToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
                 onRowsScrollEnd={loadMoreData}
@@ -314,4 +311,23 @@ const LeaveRequest = () => {
     );
 }
 
-export default LeaveRequest;
+export default LeaveApproval;
+
+function ApprovalToolbar(props) {
+    const { apiRef, onAdd, onDelete, selectionModel } = props;
+
+    return (
+        <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
+            {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
+        </GridToolbarContainer>
+    );
+}
+
+ApprovalToolbar.propTypes = {
+    apiRef: PropTypes.shape({
+        current: PropTypes.object,
+    }),
+    onAdd: PropTypes.func,
+    onDelete: PropTypes.func,
+    selectionModel: PropTypes.array
+};

@@ -7,6 +7,7 @@ export const API = {
     LeaveType: "leave/type",
     LeaveQuota: "leave/quota",
     LeaveQuotaInsert: "leave/quota/insert",
+    Approval: "leave/approval",
     ApprovalAction: "leave/approval/action",
     // Designation: "employee/designation",
 }

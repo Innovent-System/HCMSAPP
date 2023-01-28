@@ -380,7 +380,7 @@ export function QuotaToolbar(props) {
                     {Years.map(y => <MenuItem key={y} value={y}>{y}</MenuItem>)}
                 </Select>
             </FormControl>
-            {records?.length ? <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add Quota" /> : null}
+            {records?.length ? <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Update Quota" /> : null}
             <Controls.Button onClick={getQuota} startIcon={<AddIcon />} text="Create Quota" />
         </GridToolbarContainer>
     );
