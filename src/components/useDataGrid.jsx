@@ -8,7 +8,7 @@ import CancelIcon from '@mui/icons-material/Close';
 import {  ToggleOn } from '../deps/ui/icons'
 import {  Box,Chip } from '../deps/ui'
 import { alpha, styled } from '@mui/material/styles';
-import Controls from '../components/controls/Controls'
+import Controls from './controls/Controls'
 import {
   useGridApiRef,
   DataGridPro,

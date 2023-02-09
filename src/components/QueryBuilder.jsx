@@ -1,12 +1,11 @@
 import React, { useEffect, useRef } from 'react';
-import { Query, Builder, BasicConfig, Utils as QbUtils } from 'react-awesome-query-builder';
-import MuiConfig from 'react-awesome-query-builder/lib/config/mui';
-import 'react-awesome-query-builder/lib/css/styles.css';
-import 'react-awesome-query-builder/lib/css/compact_styles.css'; //optional, for more compact styles
+import { Query, Builder, BasicConfig, Utils as QbUtils } from '@react-awesome-query-builder/mui';
+import { MuiConfig } from '@react-awesome-query-builder/mui';
+import '@react-awesome-query-builder/mui/css/styles.css' //optional, for more compact styles
 import PropTypes from 'prop-types'
 import { useDispatch } from 'react-redux';
 import { builderQueryAction } from '../store/actions/httpactions'
-import { throttle,debounce } from '../util/common'
+import { throttle, debounce } from '../util/common'
 // Choose your skin (ant/material/vanilla):
 const InitialConfig = MuiConfig; // or MaterialConfig or MuiConfig or BootstrapConfig or BasicConfig
 

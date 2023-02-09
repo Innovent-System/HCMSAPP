@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState, forwardRef, useImperativeHandle } from 'react'
 import { makeStyles, Grid } from "../deps/ui";
 import clsx from 'clsx';
-import { Element, ElementType } from '../components/controls/Controls';
-import Loader from '../components/Circularloading';
+import { Element, ElementType } from './controls/Controls';
+import Loader from './Circularloading';
 import PropTypes from 'prop-types';
 
 export function useForm(initialFValues, validateOnChange = false, validate) {

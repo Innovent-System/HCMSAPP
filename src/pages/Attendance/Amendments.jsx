@@ -1,19 +1,16 @@
 // eslint-disable-next-line react-hooks/exhaustive-deps
 import React, { useEffect, useRef, useState } from "react";
-import Popup from '../../../components/Popup';
-import { AutoForm } from '../../../components/useForm';
-import { API } from '../_Service';
+import { API } from './_Service';
 import { useDispatch, useSelector } from 'react-redux';
-import { builderFieldsAction, useEntityAction, enableFilterAction, useLazyPostQuery } from '../../../store/actions/httpactions';
-import { Circle, Add as AddIcon } from "../../../deps/ui/icons";
-import { GridToolbarContainer, Select, MenuItem, FormControl, InputLabel } from "../../../deps/ui";
-import DataGrid, { useGridApi } from '../../../components/useDataGrid';
-import ConfirmDialog from '../../../components/ConfirmDialog';
-import { useDropDown } from "../../../components/useDropDown";
-import { formateISODate } from "../../../services/dateTimeService";
-import Controls from "../../../components/controls/Controls";
-import useTable from "../../../components/useTable";
-import { getYears } from "../../../util/common";
+import { builderFieldsAction, useEntityAction, enableFilterAction, useLazyPostQuery } from '../../store/actions/httpactions';
+import { Circle, Add as AddIcon } from "../../deps/ui/icons";
+import { GridToolbarContainer, Select, MenuItem, FormControl, InputLabel } from "../../deps/ui";
+import DataGrid, { useGridApi } from '../../components/useDataGrid';
+import ConfirmDialog from '../../components/ConfirmDialog';
+import { formateISODate, formateISODateTime } from "../../services/dateTimeService";
+import Controls from "../../components/controls/Controls";
+import useTable from "../../components/useTable";
+import { getYears } from "../../util/common";
 
 
 const fields = {
@@ -42,10 +39,9 @@ const fields = {
     },
 }
 
-const getColumns = (apiRef, onEdit, onActive, onDelete) => {
+const getColumns = (apiRef, onActive, onDelete) => {
     const actionKit = {
         onActive: onActive,
-        onEdit: onEdit,
         onDelete: onDelete
     }
     return [
@@ -53,13 +49,14 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
         {
             field: 'fullName', headerName: 'Employee Name', width: 180, hideable: false
         },
-        { field: 'quotaStartDate', headerName: 'Start Date', width: 180, hideable: false, valueGetter: ({ row }) => formateISODate(row.quotaStartDate) },
-        { field: 'quotaEndDate', headerName: 'End Date', width: 180, hideable: false, valueGetter: ({ row }) => formateISODate(row.quotaEndDate) },
-
+        { field: 'scheduleStartDt', headerName: 'Schedule Start', width: 200, hideable: false, valueGetter: ({ value }) => formateISODateTime(value) },
+        { field: 'ScheduleEndDt', headerName: 'Schedule End', width: 200, hideable: false, valueGetter: ({ value }) => formateISODateTime(value) },
+        { field: 'startDateTime', headerName: 'Actual In', width: 200, hideable: false, type: 'dateTime', editable: true, valueGetter: ({ value }) => value ? new Date(value) : "--" },
+        { field: 'endDateTime', headerName: 'Actual Out', width: 200, hideable: false, type: 'dateTime', editable: true, valueGetter: ({ value }) => value ? new Date(value) : "--" },
     ]
 }
 
-const DEFAUL_API = API.LeaveQuota;
+const DEFAUL_API = API.Attendance;
 
 const TableHead = [
     { id: 'title', disableSorting: false, label: 'Leave Type' },
@@ -81,7 +78,7 @@ const DetailPanelContent = ({ row }) => {
     )
 }
 
-const LeaveQuota = () => {
+const Amend = () => {
     const dispatch = useDispatch();
     const [openPopup, setOpenPopup] = useState(false);
     const isEdit = React.useRef(false);
@@ -126,7 +123,7 @@ const LeaveQuota = () => {
     const gridApiRef = useGridApi();
     const query = useSelector(e => e.appdata.query.builder);
 
-    const [getLeaveQuota] = useLazyPostQuery();
+    const [getEmployeeAttendance] = useLazyPostQuery();
 
     const { updateOneEntity, removeEntity, addEntity } = useEntityAction();
 
@@ -136,13 +133,6 @@ const LeaveQuota = () => {
             offSet.current.isLoadMore = true;
             setFilter({ ...filter, lastKey: records.length ? records[records.length - 1].id : null });
         }
-    }
-
-    const handleEdit = (id) => {
-        isEdit.current = true;
-        const data = records.find(a => a.id === id);
-        row.current = data;
-        setOpenPopup(true);
     }
 
     const handleActiveInActive = (id) => {
@@ -170,10 +160,11 @@ const LeaveQuota = () => {
     }
 
     const handleLeaveQuota = () => {
-        getLeaveQuota({
+        getEmployeeAttendance({
             url: DEFAUL_API, data: {
-                year,
-                employeeIds: []
+                filter: null,
+                dateFrom: new Date("2023-02-01"),
+                dateTo: new Date()
             }
         }).then(({ data }) => {
             if (data)
@@ -181,7 +172,7 @@ const LeaveQuota = () => {
         })
     }
     const handleCreateQuota = () => {
-        addEntity({ url: API.LeaveQuotaInsert, data: records })
+        addEntity({ url: API.Attendance, data: records })
     }
 
     useEffect(() => {
@@ -190,7 +181,7 @@ const LeaveQuota = () => {
         dispatch(builderFieldsAction(fields));
     }, [dispatch])
 
-    const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive, handelDeleteItems);
+    const columns = getColumns(gridApiRef, handleActiveInActive, handelDeleteItems);
 
     const showAddModal = () => {
         isEdit.current = false;
@@ -203,6 +194,7 @@ const LeaveQuota = () => {
                 columns={columns} rows={records}
                 loading={false}
                 totalCount={offSet.current.totalRecord}
+                // isCellEditable={console.log}
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: handleCreateQuota,
@@ -213,12 +205,7 @@ const LeaveQuota = () => {
                     selectionModel
                 }}
 
-                checkboxSelection={false}
-                detailPanelExpandedRowIds={detailPanelExpandedRowIds}
-                onDetailPanelExpandedRowIdsChange={handleDetailPanelExpandedRowIdsChange}
-                getDetailPanelContent={getDetailPanelContent}
-                getDetailPanelHeight={getDetailPanelHeight} // Height based on the content.
-                gridToolBar={QuotaToolbar}
+                gridToolBar={AmendToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
                 onRowsScrollEnd={loadMoreData}
@@ -228,8 +215,8 @@ const LeaveQuota = () => {
     );
 }
 
-export function QuotaToolbar(props) {
-    const {  onAdd, getQuota, year, setYear, records } = props;
+export function AmendToolbar(props) {
+    const { onAdd, getQuota, year, setYear, records } = props;
 
     return (
         <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
@@ -245,4 +232,4 @@ export function QuotaToolbar(props) {
     );
 }
 
-export default LeaveQuota;
+export default Amend;

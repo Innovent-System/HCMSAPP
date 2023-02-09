@@ -1,5 +1,5 @@
 export const API = {
-    Attendance: "attendance/list",
+    Attendance: "attendance/amend",
     AttendanceRequest: "attendance/request",
     GetAttendanceDetail: "attendance/request/detail",
     ExemptionRequest: "attendance/exemption",
