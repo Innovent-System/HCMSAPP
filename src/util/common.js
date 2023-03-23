@@ -284,6 +284,7 @@ function commonBars(chartObject, dataSetArray, type = "bar") {
     return objectbar;
 }
 
+export const weekday = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 export const createChart = (chartId, type, parentLabel, data, options) => {
     if (typeof (chartId) !== 'string' &&
         typeof (type) !== 'string' &&

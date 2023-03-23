@@ -1,8 +1,8 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { LocalizationProvider, TextField, MobileDateTimePicker, DesktopDateTimePicker, DesktopDatePicker, MobileDatePicker, DesktopTimePicker, MobileTimePicker } from "../../deps/ui";
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import DateAdapter from '@mui/lab/AdapterDateFns';
+import { AdapterDateFns } from '@mui/x-date-pickers-pro/AdapterDateFns';
 import PropTypes from 'prop-types';
 
 
@@ -20,7 +20,7 @@ export default function DatePicker(props) {
         }
     })
 
-    const renderDateTime = () => {
+    const renderDateTime = useCallback(() => {
         if (category === "datetime") {
             return <>
                 {isDesktop ?
@@ -93,10 +93,10 @@ export default function DatePicker(props) {
                 }
             </>
         }
-    }
+    }, [value])
 
     return (
-        <LocalizationProvider dateAdapter={DateAdapter}>
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
             {renderDateTime()}
         </LocalizationProvider>
     )
@@ -107,11 +107,13 @@ DatePicker.defaultProps = {
 }
 
 DatePicker.propTypes = {
-    name: PropTypes.string.isRequired,
-    label: PropTypes.string.isRequired,
+    name: PropTypes.string,
+    label: PropTypes.string,
     value: PropTypes.any,
+    error:PropTypes.string,
     size: PropTypes.string,
     onChange: PropTypes.func,
+    category: PropTypes.oneOf(["datetime", 'date', 'time']),
     sx: PropTypes.oneOfType([
         PropTypes.object,
         PropTypes.func,

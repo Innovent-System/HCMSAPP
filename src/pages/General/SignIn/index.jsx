@@ -110,12 +110,10 @@ const SignIn = () => {
           socket.emit("joinclient", data.clientId);
           socket.emit("joincompany", data.companyId);
           navigate("/dashboard");
-          setLoader(false);
+          
         }
-        else {
-          setLoader(false);
-        }
-      });
+        
+      }).finally(c => setLoader(false));
 
     }
   };

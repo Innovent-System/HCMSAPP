@@ -1194,11 +1194,6 @@
   dependencies:
     postcss-value-parser "^4.2.0"
 
-"@date-io/core@^1.3.13":
-  version "1.3.13"
-  resolved "https://registry.npmjs.org/@date-io/core/-/core-1.3.13.tgz"
-  integrity sha512-AlEKV7TxjeK+jxWVKcCFrfYAk8spX9aCyiToFIiLPtfQbsjmRGLIhb5VZgptQcJdHtLXo7+m0DuurwFgUToQuA==
-
 "@date-io/core@^2.13.1":
   version "2.13.1"
   resolved "https://registry.npmjs.org/@date-io/core/-/core-2.13.1.tgz"
@@ -1236,13 +1231,6 @@
   integrity sha512-aeYp5K9PSHV28946pC+9UKUi/xMMYoaGelrpDibZSgHu2VWHXrr7zWLEr+pMPThSs5vt8Ei365PO+84pCm37WQ==
   dependencies:
     "@date-io/core" "^2.16.0"
-
-"@date-io/moment@^1.3.13":
-  version "1.3.13"
-  resolved "https://registry.npmjs.org/@date-io/moment/-/moment-1.3.13.tgz"
-  integrity sha512-3kJYusJtQuOIxq6byZlzAHoW/18iExJer9qfRF5DyyzdAk074seTuJfdofjz4RFfTd/Idk8WylOQpWtERqvFuQ==
-  dependencies:
-    "@date-io/core" "^1.3.13"
 
 "@date-io/moment@^2.15.0":
   version "2.16.1"
@@ -1906,10 +1894,10 @@
   resolved "https://registry.npmjs.org/@popperjs/core/-/core-2.11.6.tgz"
   integrity sha512-50/17A98tWUfQ176raKiOGXuYpLyyVMkxxG6oylzL3BPOlA6ADGdK7EYunSa4I064xerltq9TGXs8HmOk5E+vw==
 
-"@react-awesome-query-builder/core@^6.1.1":
-  version "6.1.1"
-  resolved "https://registry.yarnpkg.com/@react-awesome-query-builder/core/-/core-6.1.1.tgz#1d92d33e93ba414a0c031fff6b6534cf034a872c"
-  integrity sha512-Pt30DqEtyc9k10LaDnkhJCdWoVuxFEXLYTHcROetinoY6B5j+/RBx6aRmqD5KNSJZvLcofNLPdF1mGu0W76UqA==
+"@react-awesome-query-builder/core@^6.1.2":
+  version "6.1.2"
+  resolved "https://registry.yarnpkg.com/@react-awesome-query-builder/core/-/core-6.1.2.tgz#ad53e5c16748dddab102c9fd0e625ac2fecd0c93"
+  integrity sha512-7IxbQB7ts7ncTstr4nbu4DU1Sar8/XMgkk72ietBe8KhJCfJIcHloXAutXmMrDNuWRSEu5tJlNvEmZz8apo33Q==
   dependencies:
     clone "^2.1.2"
     immutable "^3.8.2"
@@ -1918,31 +1906,31 @@
     spel2js "^0.2.8"
     sqlstring "^2.3.3"
 
-"@react-awesome-query-builder/mui@^6.1.1":
-  version "6.1.1"
-  resolved "https://registry.yarnpkg.com/@react-awesome-query-builder/mui/-/mui-6.1.1.tgz#ea9f4dca8580d3982f4992c2bae309071972cf15"
-  integrity sha512-s4wUiERk98CoS23lmAZKQbMfjF2cPp1kULusJA/t5sDR/3FQpyIIn+2fK2kScYygNDkGHZ8u4dpKZ6qcuzz9Sg==
+"@react-awesome-query-builder/mui@^6.1.2":
+  version "6.1.2"
+  resolved "https://registry.yarnpkg.com/@react-awesome-query-builder/mui/-/mui-6.1.2.tgz#14d47c4c46556b25bb66b2c1c6e3979a0b74867f"
+  integrity sha512-xVqh5EpIHk59nKpBegnoo+XgTWHRFKjA17pUaq2F7qiuIPYGUf2+spbAJVOP+ozICoCwuWJOKTXw+zAqGKlm7A==
   dependencies:
-    "@react-awesome-query-builder/ui" "^6.1.1"
+    "@react-awesome-query-builder/ui" "^6.1.2"
     lodash "^4.17.21"
     material-ui-confirm "^3.0.5"
 
-"@react-awesome-query-builder/ui@^6.1.1":
-  version "6.1.1"
-  resolved "https://registry.yarnpkg.com/@react-awesome-query-builder/ui/-/ui-6.1.1.tgz#0f7edb1fad9142461139fb1b87bb033ad9d7b612"
-  integrity sha512-pfNuuMPDVqselhh4XfFpdQLxFtz7D/e6VkIcnoYuxST9ra6iZ28yiobnSS6aug8OPbVD8ike/7+N/xzxFBbj7w==
+"@react-awesome-query-builder/ui@^6.1.2":
+  version "6.1.2"
+  resolved "https://registry.yarnpkg.com/@react-awesome-query-builder/ui/-/ui-6.1.2.tgz#74deb2ee69e23bf64a107c08d46cbb04e6c4464d"
+  integrity sha512-h5S2UWvz4kXoJ+9he3ZeR/QAINdJ9KgmSXo/z85rGl9AVOm/K7R3TWsuZN56ethxpqzljWTfUUVDzF50eH3CVQ==
   dependencies:
-    "@react-awesome-query-builder/core" "^6.1.1"
+    "@react-awesome-query-builder/core" "^6.1.2"
     classnames "^2.3.1"
     lodash "^4.17.21"
     prop-types "^15.7.2"
     react-redux "^7.2.2"
     redux "^4.2.0"
 
-"@reduxjs/toolkit@^1.9.1":
-  version "1.9.1"
-  resolved "https://registry.yarnpkg.com/@reduxjs/toolkit/-/toolkit-1.9.1.tgz#4c34dc4ddcec161535288c60da5c19c3ef15180e"
-  integrity sha512-HikrdY+IDgRfRYlCTGUQaiCxxDDgM1mQrRbZ6S1HFZX5ZYuJ4o8EstNmhTwHdPl2rTmLxzwSu0b3AyeyTlR+RA==
+"@reduxjs/toolkit@^1.9.3":
+  version "1.9.3"
+  resolved "https://registry.yarnpkg.com/@reduxjs/toolkit/-/toolkit-1.9.3.tgz#27e1a33072b5a312e4f7fa19247fec160bbb2df9"
+  integrity sha512-GU2TNBQVofL09VGmuSioNPQIu6Ml0YLf4EJhgj0AvBadRlCGzUWet8372LjvO4fqKZF2vH1xU0htAa7BrK9pZg==
   dependencies:
     immer "^9.0.16"
     redux "^4.2.0"
@@ -3029,10 +3017,10 @@ axe-core@^4.3.5:
   resolved "https://registry.npmjs.org/axe-core/-/axe-core-4.4.1.tgz"
   integrity sha512-gd1kmb21kwNuWr6BQz8fv6GNECPBnUasepcoLbekws23NVBLODdsClRZ+bQ8+9Uomf3Sm3+Vwn0oYG9NvwnJCw==
 
-axios@^1.2.5:
-  version "1.2.5"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-1.2.5.tgz#858c129d286e7ee3b1e970961cde410ba3ea3740"
-  integrity sha512-9pU/8mmjSSOb4CXVsvGIevN+MlO/t9OWtKadTaLuN85Gge3HGorUckgp8A/2FH4V4hJ7JuQ3LIeI7KAV9ITZrQ==
+axios@^1.3.4:
+  version "1.3.4"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-1.3.4.tgz#f5760cefd9cfb51fd2481acf88c05f67c4523024"
+  integrity sha512-toYm+Bsyl6VC5wSkfkbbNB6ROv7KY93PEBBL6xyDczaIHasAiv4wPqQ/c4RjoQzipxRD2W5g21cOqQulZ7rHwQ==
   dependencies:
     follow-redirects "^1.15.0"
     form-data "^4.0.0"
@@ -4592,15 +4580,15 @@ end-of-stream@^1.1.0:
   dependencies:
     once "^1.4.0"
 
-engine.io-client@~6.2.3:
-  version "6.2.3"
-  resolved "https://registry.yarnpkg.com/engine.io-client/-/engine.io-client-6.2.3.tgz#a8cbdab003162529db85e9de31575097f6d29458"
-  integrity sha512-aXPtgF1JS3RuuKcpSrBtimSjYvrbhKW9froICH4s0F3XQWLxsKNxqzG39nnvQZQnva4CMvUK63T7shevxRyYHw==
+engine.io-client@~6.4.0:
+  version "6.4.0"
+  resolved "https://registry.yarnpkg.com/engine.io-client/-/engine.io-client-6.4.0.tgz#88cd3082609ca86d7d3c12f0e746d12db4f47c91"
+  integrity sha512-GyKPDyoEha+XZ7iEqam49vz6auPnNJ9ZBfy89f+rMMas8AuiMWOZ9PVzu8xb9ZC6rafUqiGHSCfu22ih66E+1g==
   dependencies:
     "@socket.io/component-emitter" "~3.1.0"
     debug "~4.3.1"
     engine.io-parser "~5.0.3"
-    ws "~8.2.3"
+    ws "~8.11.0"
     xmlhttprequest-ssl "~2.0.0"
 
 engine.io-parser@~5.0.3:
@@ -5600,6 +5588,11 @@ globby@^11.0.1, globby@^11.0.4:
     ignore "^5.2.0"
     merge2 "^1.4.1"
     slash "^3.0.0"
+
+goober@^2.0.33:
+  version "2.1.12"
+  resolved "https://registry.yarnpkg.com/goober/-/goober-2.1.12.tgz#6c1645314ac9a68fe76408e1f502c63df8a39042"
+  integrity sha512-yXHAvO08FU1JgTXX6Zn6sYCUFfB/OJSX8HHjDSgerZHZmFKAb08cykp5LBw5QnmyMcZyPRMqkdyHUSSzge788Q==
 
 graceful-fs@^4.1.2, graceful-fs@^4.1.6, graceful-fs@^4.2.0, graceful-fs@^4.2.4, graceful-fs@^4.2.6, graceful-fs@^4.2.9:
   version "4.2.9"
@@ -7072,7 +7065,7 @@ makeerror@1.0.12:
   dependencies:
     tmpl "1.0.5"
 
-material-ui-confirm@^3.0.5, material-ui-confirm@^3.0.8:
+material-ui-confirm@^3.0.5:
   version "3.0.8"
   resolved "https://registry.yarnpkg.com/material-ui-confirm/-/material-ui-confirm-3.0.8.tgz#b64e387e6f315c9ecc8c4358fd57d33f9171eddc"
   integrity sha512-FiMVNOf1axOoFX4iXvbdDkjrHdv4numwt8v2yan4rOARzcgWXHhm8mOcQiOdGswSVBpfGKxNvHOIR7Xr8HV9NQ==
@@ -7336,13 +7329,13 @@ normalize-url@^6.0.1:
   resolved "https://registry.npmjs.org/normalize-url/-/normalize-url-6.1.0.tgz"
   integrity sha512-DlL+XwOy3NxAQ8xuC0okPgK46iuVNAK01YN7RueYBqqFeGsBjV9XmCAzAdgt+667bCl5kPh9EqKKDwnaPG1I7A==
 
-notistack@^2.0.8:
-  version "2.0.8"
-  resolved "https://registry.yarnpkg.com/notistack/-/notistack-2.0.8.tgz#78cdf34c64e311bf1d1d71c2123396bcdea5e95b"
-  integrity sha512-/IY14wkFp5qjPgKNvAdfL5Jp6q90+MjgKTPh4c81r/lW70KeuX6b9pE/4f8L4FG31cNudbN9siiFS5ql1aSLRw==
+notistack@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/notistack/-/notistack-3.0.1.tgz#daf59888ab7e2c30a1fa8f71f9cba2978773236e"
+  integrity sha512-ntVZXXgSQH5WYfyU+3HfcXuKaapzAJ8fBLQ/G618rn3yvSzEbnOB8ZSOwhX+dAORy/lw+GC2N061JA0+gYWTVA==
   dependencies:
     clsx "^1.1.0"
-    hoist-non-react-statics "^3.3.0"
+    goober "^2.0.33"
 
 npm-run-path@^2.0.0:
   version "2.0.2"
@@ -8505,23 +8498,6 @@ react-app-polyfill@^3.0.0:
     regenerator-runtime "^0.13.9"
     whatwg-fetch "^3.6.2"
 
-react-awesome-query-builder@^5.4.1:
-  version "5.4.1"
-  resolved "https://registry.yarnpkg.com/react-awesome-query-builder/-/react-awesome-query-builder-5.4.1.tgz#27ac2b7fff0e5f5b55a25b7d55ab7d2cf2424141"
-  integrity sha512-3lKRQwBS51hycCaHKedOhC3CafNYf7aDNU1cjfuWaeFb+JFa0DGtXD7Av7BlSoC9elhQEr4RYY5wx7yC0XFEEQ==
-  dependencies:
-    "@date-io/moment" "^1.3.13"
-    classnames "^2.3.1"
-    clone "^2.1.2"
-    immutable "^3.8.2"
-    lodash "^4.17.21"
-    moment "^2.29.4"
-    prop-types "^15.7.2"
-    react-redux "^7.2.2"
-    redux "^4.2.0"
-    spel2js "^0.2.8"
-    sqlstring "^2.3.3"
-
 react-dev-utils@^12.0.1:
   version "12.0.1"
   resolved "https://registry.yarnpkg.com/react-dev-utils/-/react-dev-utils-12.0.1.tgz#ba92edb4a1f379bd46ccd6bcd4e7bc398df33e73"
@@ -8756,6 +8732,13 @@ redux@^4.2.0:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/redux/-/redux-4.2.0.tgz#46f10d6e29b6666df758780437651eeb2b969f13"
   integrity sha512-oSBmcKKIuIR4ME29/AeNUnl5L+hvBq7OaJWzaptTQJAntaPvxIJqfnjbaEiCzzaIz+XmVILfqAM3Ob0aXLPfjA==
+  dependencies:
+    "@babel/runtime" "^7.9.2"
+
+redux@^4.2.1:
+  version "4.2.1"
+  resolved "https://registry.yarnpkg.com/redux/-/redux-4.2.1.tgz#c08f4306826c49b5e9dc901dee0452ea8fce6197"
+  integrity sha512-LAUYz4lc+Do8/g7aeRa8JkyDErK6ekstQaqWQrNRW//MY1TvCEpMtpTWvlQ+FPbWCx+Xixu/6SHt5N0HR+SB4w==
   dependencies:
     "@babel/runtime" "^7.9.2"
 
@@ -9298,14 +9281,14 @@ slash@^4.0.0:
   resolved "https://registry.npmjs.org/slash/-/slash-4.0.0.tgz"
   integrity sha512-3dOsAHXXUkQTpOYcoAxLIorMTp4gIQr5IW3iVb7A7lFIp0VHhnynm9izx6TssdrIcVIESAlVjtnO2K8bg+Coew==
 
-socket.io-client@^4.5.4:
-  version "4.5.4"
-  resolved "https://registry.yarnpkg.com/socket.io-client/-/socket.io-client-4.5.4.tgz#d3cde8a06a6250041ba7390f08d2468ccebc5ac9"
-  integrity sha512-ZpKteoA06RzkD32IbqILZ+Cnst4xewU7ZYK12aS1mzHftFFjpoMz69IuhP/nL25pJfao/amoPI527KnuhFm01g==
+socket.io-client@^4.6.1:
+  version "4.6.1"
+  resolved "https://registry.yarnpkg.com/socket.io-client/-/socket.io-client-4.6.1.tgz#80d97d5eb0feca448a0fb6d69a7b222d3d547eab"
+  integrity sha512-5UswCV6hpaRsNg5kkEHVcbBIXEYoVbMQaHJBXJCyEQ+CiFPV1NIOY0XOFWG4XR4GZcB8Kn6AsRs/9cy9TbqVMQ==
   dependencies:
     "@socket.io/component-emitter" "~3.1.0"
     debug "~4.3.2"
-    engine.io-client "~6.2.3"
+    engine.io-client "~6.4.0"
     socket.io-parser "~4.2.1"
 
 socket.io-parser@~4.2.1:
@@ -10738,14 +10721,14 @@ ws@^8.4.2:
   resolved "https://registry.npmjs.org/ws/-/ws-8.5.0.tgz"
   integrity sha512-BWX0SWVgLPzYwF8lTzEy1egjhS4S4OEAHfsO8o65WOVsrnSRGaSiUaa9e0ggGlkMTtBlmOpEXiie9RUcBO86qg==
 
-ws@~8.2.3:
-  version "8.2.3"
-  resolved "https://registry.npmjs.org/ws/-/ws-8.2.3.tgz"
-  integrity sha512-wBuoj1BDpC6ZQ1B7DWQBYVLphPWkm8i9Y0/3YdHjHKHiohOJ1ws+3OccDWtH+PoC9DZD5WOTrJvNbWvjS6JWaA==
+ws@~8.11.0:
+  version "8.11.0"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-8.11.0.tgz#6a0d36b8edfd9f96d8b25683db2f8d7de6e8e143"
+  integrity sha512-HPG3wQd9sNQoT9xHyNCXoDUa+Xw/VevmY9FoHyQ+g+rrMn4j6FB4np7Z0OhdTgjx6MgQLK7jwSy1YecU1+4Asg==
 
 xlsx-js-style@^1.2.0:
   version "1.2.0"
-  resolved "https://registry.npmjs.org/xlsx-js-style/-/xlsx-js-style-1.2.0.tgz"
+  resolved "https://registry.yarnpkg.com/xlsx-js-style/-/xlsx-js-style-1.2.0.tgz#58455f2fd3c5e22807c2841f5b0631a07098b719"
   integrity sha512-DDT4FXFSWfT4DXMSok/m3TvmP1gvO3dn0Eu/c+eXHW5Kzmp7IczNkxg/iEPnImbG9X0Vb8QhROda5eatSR/97Q==
   dependencies:
     adler-32 "~1.2.0"
@@ -10761,7 +10744,7 @@ xlsx-js-style@^1.2.0:
 
 xlsx@^0.18.5:
   version "0.18.5"
-  resolved "https://registry.npmjs.org/xlsx/-/xlsx-0.18.5.tgz"
+  resolved "https://registry.yarnpkg.com/xlsx/-/xlsx-0.18.5.tgz#16711b9113c848076b8a177022799ad356eba7d0"
   integrity sha512-dmg3LCjBPHZnQp5/F/+nnTa+miPJxUXB6vtk42YjBBKayDNagxGEeIdWApkYPOf3Z3pm3k62Knjzp7lMeTEtFQ==
   dependencies:
     adler-32 "~1.3.0"

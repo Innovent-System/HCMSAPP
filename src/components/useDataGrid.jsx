@@ -5,8 +5,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Close';
-import {  ToggleOn } from '../deps/ui/icons'
-import {  Box,Chip } from '../deps/ui'
+import { ToggleOn } from '../deps/ui/icons'
+import { Box, Chip } from '../deps/ui'
 import { alpha, styled } from '@mui/material/styles';
 import Controls from './controls/Controls'
 import {
@@ -20,11 +20,8 @@ import {
 } from '@mui/x-data-grid-pro';
 import LinearProgress from '@mui/material/LinearProgress';
 
-
 const Key = '0f94d8b65161817ca5d7f7af8ac2f042T1JERVI6TVVJLVN0b3J5Ym9vayxFWFBJUlk9MTY1NDg1ODc1MzU1MCxLRVlWRVJTSU9OPTE=';
 LicenseInfo.setLicenseKey(Key);
-
-
 
 export const getCrudActions = (apiRef, onSave, onDelete) => {
 
@@ -237,7 +234,7 @@ export default function FeaturedCrudGrid(props) {
   return (
     <Box
       sx={{
-        height: 500,
+        height: 'calc(100vh - 150px)'
         //width: '100%',
         // '& .actions': {
         //   color: 'text.secondary',
@@ -256,7 +253,7 @@ export default function FeaturedCrudGrid(props) {
             setSelectionModel(newSelectionModel);
           }
         })}
-        
+
         getRowHeight={() => rowHeight ?? 'auto'}
         columns={columns}
         checkboxSelection={checkboxSelection}

@@ -3,25 +3,35 @@ import React, { useEffect, useRef, useState } from "react";
 import { API } from './_Service';
 import { useDispatch, useSelector } from 'react-redux';
 import { builderFieldsAction, useEntityAction, enableFilterAction, useLazyPostQuery } from '../../store/actions/httpactions';
-import { Circle, Add as AddIcon } from "../../deps/ui/icons";
-import { GridToolbarContainer, Select, MenuItem, FormControl, InputLabel } from "../../deps/ui";
+import { Circle, Add as AddIcon, PeopleOutline } from "../../deps/ui/icons";
+import { GridToolbarContainer, Select, MenuItem, FormControl, InputLabel, TextField, LocalizationProvider, DesktopDateTimePicker, FormHelperText } from "../../deps/ui";
 import DataGrid, { useGridApi } from '../../components/useDataGrid';
 import ConfirmDialog from '../../components/ConfirmDialog';
-import { formateISODate, formateISODateTime } from "../../services/dateTimeService";
+import { formateISODateTime } from "../../services/dateTimeService";
 import Controls from "../../components/controls/Controls";
-import useTable from "../../components/useTable";
-import { getYears } from "../../util/common";
+import PageHeader from '../../components/PageHeader'
+import { weekday } from "../../util/common";
 
 
 const fields = {
     title: {
-        label: 'Leave Type',
+        label: 'Employee Name',
         type: 'text',
         valueSources: ['value'],
         preferWidgets: ['text'],
     },
-    createdAt: {
-        label: 'Created Date',
+    scheduleStartDt: {
+        label: 'From',
+        type: 'date',
+        fieldSettings: {
+            dateFormat: "D/M/YYYY",
+            mongoFormatValue: val => ({ $date: new Date(val).toISOString() }),
+        },
+        valueSources: ['value'],
+        preferWidgets: ['date'],
+    },
+    ScheduleEndDt: {
+        label: 'To',
         type: 'date',
         fieldSettings: {
             dateFormat: "D/M/YYYY",
@@ -39,6 +49,39 @@ const fields = {
     },
 }
 
+const DateTimeCell = ({ apiRef, value, id, field, row, type = 'In' }) => {
+    const [error, setError] = useState(null);
+
+    const hanldechange = (e) => {
+        let { value } = e.target;
+        const schedule = row.schedule.at(0), schDt = new Date(type === "In" ? row.scheduleStartDt : row.ScheduleEndDt);
+
+        const dayShift = schedule.weeks.find(c => c.name === weekday[schDt.getDay()]);
+        const shift = schedule.shift.find(s => s._id === dayShift.fkShiftId);
+        const minDate = new Date(shift.minTime), maxDate = new Date(shift.maxTime);
+        minDate.setDate(schDt.getDate());
+        minDate.setMonth(schDt.getMonth());
+        minDate.setFullYear(schDt.getFullYear());
+
+        maxDate.setDate(schDt.getDate());
+        maxDate.setMonth(schDt.getMonth());
+        maxDate.setFullYear(schDt.getFullYear());
+        if (value.getTime() < minDate.getTime()) {
+            value = null;
+            setError(`${type} time should be greater than company ${type.toLowerCase()} time`);
+        } else if (value.getTime() > maxDate.getTime()) {
+            value = null;
+            setError(`${type} time should be  less than company ${type.toLowerCase()} time`);
+        }
+        else if (error)
+            setError(null)
+
+
+        apiRef.current.setEditCellValue({ id, field, value, debounceMs: 200 });
+    }
+    return <Controls.DatePicker error={error} name={id} key={id} onChange={hanldechange} category="datetime" value={value} />
+}
+
 const getColumns = (apiRef, onActive, onDelete) => {
     const actionKit = {
         onActive: onActive,
@@ -51,32 +94,29 @@ const getColumns = (apiRef, onActive, onDelete) => {
         },
         { field: 'scheduleStartDt', headerName: 'Schedule Start', width: 200, hideable: false, valueGetter: ({ value }) => formateISODateTime(value) },
         { field: 'ScheduleEndDt', headerName: 'Schedule End', width: 200, hideable: false, valueGetter: ({ value }) => formateISODateTime(value) },
-        { field: 'startDateTime', headerName: 'Actual In', width: 200, hideable: false, type: 'dateTime', editable: true, valueGetter: ({ value }) => value ? new Date(value) : "--" },
-        { field: 'endDateTime', headerName: 'Actual Out', width: 200, hideable: false, type: 'dateTime', editable: true, valueGetter: ({ value }) => value ? new Date(value) : "--" },
+        {
+            field: 'startDateTime', headerName: 'Actual In', width: 200, hideable: false,
+            type: 'dateTime',
+            editable: true,
+            valueGetter: ({ value }) => value ? new Date(value) : "--",
+            renderEditCell: (params) => <DateTimeCell apiRef={apiRef}  {...params} />,
+            // /**  @param {import("@mui/x-data-grid-pro").GridPreProcessEditCellProps} params   */
+            // preProcessEditCellProps: ({ props }) => {
+
+            //     const hasError = props.value.length < 3;
+            //     return { ...props, error: hasError };
+            // }
+        },
+        {
+            field: 'endDateTime', headerName: 'Actual Out', width: 200, hideable: false, type: 'dateTime',
+            editable: true,
+            valueGetter: ({ value }) => value ? new Date(value) : "--",
+            renderEditCell: (params) => <DateTimeCell type="Out" apiRef={apiRef} {...params} />
+        },
     ]
 }
 
 const DEFAUL_API = API.Attendance;
-
-const TableHead = [
-    { id: 'title', disableSorting: false, label: 'Leave Type' },
-    { id: 'entitled', disableSorting: false, label: 'Allowed' },
-    { id: 'pending', disableSorting: false, label: 'Pending' },
-    { id: 'taken', disableSorting: false, label: 'Taken' },
-    { id: 'remaining', disableSorting: false, label: 'Remaining' }
-
-];
-const Years = getYears();
-const currentYear = new Date().getFullYear();
-const DetailPanelContent = ({ row }) => {
-    const { TblContainer, TblHead, TblBody } = useTable(row, TableHead)
-    return (
-        <TblContainer>
-            <TblHead />
-            <TblBody />
-        </TblContainer>
-    )
-}
 
 const Amend = () => {
     const dispatch = useDispatch();
@@ -84,32 +124,18 @@ const Amend = () => {
     const isEdit = React.useRef(false);
     const row = React.useRef(null);
     const [selectionModel, setSelectionModel] = React.useState([]);
-    const [year, setYear] = useState(currentYear)
     const offSet = useRef({
         isLoadMore: false,
         isLoadFirstTime: true,
     })
+
+    const [cellModesModel, setCellModesModel] = React.useState({});
 
     const [filter, setFilter] = useState({
         lastKey: null,
         limit: 10,
         totalRecord: 0
     })
-
-    const getDetailPanelContent = React.useCallback(
-        ({ row }) => <DetailPanelContent row={row.leaveTypes} />,
-        [],
-    );
-
-    const getDetailPanelHeight = React.useCallback(() => 180, []);
-
-    const [detailPanelExpandedRowIds, setDetailPanelExpandedRowIds] = React.useState(
-        [],
-    );
-
-    const handleDetailPanelExpandedRowIdsChange = React.useCallback((newIds) => {
-        setDetailPanelExpandedRowIds(newIds);
-    }, []);
 
 
     const [confirmDialog, setConfirmDialog] = useState({
@@ -159,10 +185,10 @@ const Amend = () => {
 
     }
 
-    const handleLeaveQuota = () => {
+    const handleAmendAttendance = () => {
         getEmployeeAttendance({
             url: DEFAUL_API, data: {
-                filter: null,
+                filter: { fkEmployeeIds: ['63a7015948deb2d63f4cb8a9'] },
                 dateFrom: new Date("2023-02-01"),
                 dateTo: new Date()
             }
@@ -171,7 +197,7 @@ const Amend = () => {
                 setRecords(data.result);
         })
     }
-    const handleCreateQuota = () => {
+    const handleSaveAttendance = () => {
         addEntity({ url: API.Attendance, data: records })
     }
 
@@ -187,27 +213,55 @@ const Amend = () => {
         isEdit.current = false;
         setOpenPopup(true);
     }
+    /** @param {Array} _selectModels  */
+    const hanldeSelectionEdit = (_selectModels) => {
+
+        const id = _selectModels.at(-1);
+
+        if (selectionModel.length > _selectModels.length) {
+            const [offId] = selectionModel.filter(s => !_selectModels.includes(s));
+            setCellModesModel({
+                ...cellModesModel,
+                [offId]: { ...cellModesModel[offId], 'startDateTime': { mode: "view", ignoreModifications: true }, 'endDateTime': { mode: 'view', ignoreModifications: true } },
+            });
+        } else {
+            setCellModesModel({
+                ...cellModesModel,
+                [id]: { ...cellModesModel[id], 'startDateTime': { mode: "edit" }, 'endDateTime': { mode: 'edit' } },
+            });
+        }
+        setSelectionModel(_selectModels);
+    }
 
     return (
         <>
+            <PageHeader
+                title="Amend Attendance"
+                enableFilter={true}
+                subTitle="Manage Amend Attendance"
+                icon={<PeopleOutline fontSize="large" />}
+            />
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={records}
                 loading={false}
                 totalCount={offSet.current.totalRecord}
+                disableSelectionOnClick
+                cellModesModel={cellModesModel}
+                experimentalFeatures={{ newEditingApi: true }}
+                onCellModesModelChange={(model) => setCellModesModel(model)}
                 // isCellEditable={console.log}
                 toolbarProps={{
                     apiRef: gridApiRef,
-                    onAdd: handleCreateQuota,
-                    getQuota: handleLeaveQuota,
-                    year,
-                    setYear,
+                    onAdd: handleSaveAttendance,
+                    getQuota: handleAmendAttendance,
+
                     records,
                     selectionModel
                 }}
 
                 gridToolBar={AmendToolbar}
                 selectionModel={selectionModel}
-                setSelectionModel={setSelectionModel}
+                setSelectionModel={hanldeSelectionEdit}
                 onRowsScrollEnd={loadMoreData}
             />
             <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
@@ -216,18 +270,13 @@ const Amend = () => {
 }
 
 export function AmendToolbar(props) {
-    const { onAdd, getQuota, year, setYear, records } = props;
+    const { onAdd, getQuota, selectionModel, records } = props;
 
     return (
         <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
-            <FormControl sx={{ width: 120 }} size="small">
-                <InputLabel size="small" id={`demo-multiple-name-year`}>Year</InputLabel>
-                <Select size="small" value={year} onChange={(e) => setYear(e.target.value)} variant="outlined" name="year" label="Year">
-                    {Years.map(y => <MenuItem key={y} value={y}>{y}</MenuItem>)}
-                </Select>
-            </FormControl>
-            {records?.length ? <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Update Quota" /> : null}
-            <Controls.Button onClick={getQuota} startIcon={<AddIcon />} text="Create Quota" />
+
+            {selectionModel?.length ? <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Save" /> : null}
+            <Controls.Button onClick={getQuota} startIcon={<AddIcon />} text="Apply" />
         </GridToolbarContainer>
     );
 }

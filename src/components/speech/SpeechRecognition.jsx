@@ -75,7 +75,7 @@ const Speech = ({ mode = "write" }) => {
                
             </Box>
             <Fab
-                onClick={handleClick}s
+                onClick={handleClick}
                 sx={{ position: 'absolute', bottom: 16, right: 16 }}
                 hidden={!isReady} color="primary" aria-label="add">
                 {listening ? <MicOff color='secondary' /> : <KeyboardVoice color='secondary' />}
