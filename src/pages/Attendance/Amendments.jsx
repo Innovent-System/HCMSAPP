@@ -2,19 +2,20 @@
 import React, { useEffect, useRef, useState } from "react";
 import { API } from './_Service';
 import { useDispatch, useSelector } from 'react-redux';
-import { builderFieldsAction, useEntityAction, enableFilterAction, useLazyPostQuery } from '../../store/actions/httpactions';
+import { builderFieldsAction, useEntityAction, enableFilterAction, useLazyPostQuery, showDropDownFilterAction } from '../../store/actions/httpactions';
 import { Circle, Add as AddIcon, PeopleOutline } from "../../deps/ui/icons";
-import { GridToolbarContainer, Select, MenuItem, FormControl, InputLabel, TextField, LocalizationProvider, DesktopDateTimePicker, FormHelperText } from "../../deps/ui";
+import { GridToolbarContainer, Select, MenuItem, FormControl, InputLabel, TextField, LocalizationProvider, DesktopDateTimePicker, FormHelperText, Chip } from "../../deps/ui";
 import DataGrid, { useGridApi } from '../../components/useDataGrid';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { formateISODateTime } from "../../services/dateTimeService";
 import Controls from "../../components/controls/Controls";
 import PageHeader from '../../components/PageHeader'
 import { weekday } from "../../util/common";
+import { useDropDownIds } from "../../components/useDropDown";
 
 
 const fields = {
-    title: {
+    firstName: {
         label: 'Employee Name',
         type: 'text',
         valueSources: ['value'],
@@ -25,28 +26,28 @@ const fields = {
         type: 'date',
         fieldSettings: {
             dateFormat: "D/M/YYYY",
-            mongoFormatValue: val => ({ $date: new Date(val).toISOString() }),
+            mongoFormatValue: val => new Date(val).toISOString(),
         },
         valueSources: ['value'],
         preferWidgets: ['date'],
     },
-    ScheduleEndDt: {
+    scheduleEndDt: {
         label: 'To',
         type: 'date',
         fieldSettings: {
             dateFormat: "D/M/YYYY",
-            mongoFormatValue: val => ({ $date: new Date(val).toISOString() }),
+            mongoFormatValue: val => new Date(val).toISOString(),
         },
         valueSources: ['value'],
         preferWidgets: ['date'],
     },
+}
 
-    isActive: {
-        label: 'Status',
-        type: 'boolean',
-        operators: ['equal'],
-        valueSources: ['value'],
-    },
+const flagMap = {
+    0: { tag: "H", color: "info" },
+    1: { tag: "L", color: "warning" },
+    7: { tag: "A", color: "error" },
+    null: { tag: "P", color: "success" }
 }
 
 const DateTimeCell = ({ apiRef, value, id, field, row, type = 'In' }) => {
@@ -54,7 +55,7 @@ const DateTimeCell = ({ apiRef, value, id, field, row, type = 'In' }) => {
 
     const hanldechange = (e) => {
         let { value } = e.target;
-        const schedule = row.schedule.at(0), schDt = new Date(type === "In" ? row.scheduleStartDt : row.ScheduleEndDt);
+        const schedule = row.schedule.at(0), schDt = new Date(type === "In" ? row.scheduleStartDt : row.scheduleEndDt);
 
         const dayShift = schedule.weeks.find(c => c.name === weekday[schDt.getDay()]);
         const shift = schedule.shift.find(s => s._id === dayShift.fkShiftId);
@@ -66,18 +67,18 @@ const DateTimeCell = ({ apiRef, value, id, field, row, type = 'In' }) => {
         maxDate.setDate(schDt.getDate());
         maxDate.setMonth(schDt.getMonth());
         maxDate.setFullYear(schDt.getFullYear());
-        if (value.getTime() < minDate.getTime()) {
+        if (value.getTime() < minDate.getTime() || value.getTime() > maxDate.getTime()) {
             value = null;
-            setError(`${type} time should be greater than company ${type.toLowerCase()} time`);
-        } else if (value.getTime() > maxDate.getTime()) {
-            value = null;
-            setError(`${type} time should be  less than company ${type.toLowerCase()} time`);
+            setError(`${type} time should be between company ${type.toLowerCase()} time`);
         }
         else if (error)
             setError(null)
 
 
         apiRef.current.setEditCellValue({ id, field, value, debounceMs: 200 });
+        // .then(c => apiRef.current.setRows([...Array.from(apiRef.current.getRowModels().values()), { ...row, [field]: value }]));
+
+
     }
     return <Controls.DatePicker error={error} name={id} key={id} onChange={hanldechange} category="datetime" value={value} />
 }
@@ -93,7 +94,7 @@ const getColumns = (apiRef, onActive, onDelete) => {
             field: 'fullName', headerName: 'Employee Name', width: 180, hideable: false
         },
         { field: 'scheduleStartDt', headerName: 'Schedule Start', width: 200, hideable: false, valueGetter: ({ value }) => formateISODateTime(value) },
-        { field: 'ScheduleEndDt', headerName: 'Schedule End', width: 200, hideable: false, valueGetter: ({ value }) => formateISODateTime(value) },
+        { field: 'scheduleEndDt', headerName: 'Schedule End', width: 200, hideable: false, valueGetter: ({ value }) => formateISODateTime(value) },
         {
             field: 'startDateTime', headerName: 'Actual In', width: 200, hideable: false,
             type: 'dateTime',
@@ -113,10 +114,13 @@ const getColumns = (apiRef, onActive, onDelete) => {
             valueGetter: ({ value }) => value ? new Date(value) : "--",
             renderEditCell: (params) => <DateTimeCell type="Out" apiRef={apiRef} {...params} />
         },
+        {
+            field: 'status', headerName: 'Status', width: 180, hideable: false, renderCell: ({ row }) => <Chip color={flagMap[row.status].color} label={flagMap[row.status].tag} />
+        }
     ]
 }
 
-const DEFAUL_API = API.Attendance;
+const DEFAULT_API = API.Attendance;
 
 const Amend = () => {
     const dispatch = useDispatch();
@@ -150,7 +154,6 @@ const Amend = () => {
     const query = useSelector(e => e.appdata.query.builder);
 
     const [getEmployeeAttendance] = useLazyPostQuery();
-
     const { updateOneEntity, removeEntity, addEntity } = useEntityAction();
 
 
@@ -162,7 +165,7 @@ const Amend = () => {
     }
 
     const handleActiveInActive = (id) => {
-        updateOneEntity({ url: DEFAUL_API, data: { _id: id } });
+        updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
     }
 
     const handelDeleteItems = (ids) => {
@@ -177,20 +180,28 @@ const Amend = () => {
             title: "Are you sure to delete this records?",
             subTitle: "You can't undo this operation",
             onConfirm: () => {
-                removeEntity({ url: DEFAUL_API, params: idTobeDelete }).then(res => {
+                removeEntity({ url: DEFAULT_API, params: idTobeDelete }).then(res => {
                     setSelectionModel([]);
                 })
             },
         });
 
     }
+    const { countryIds, stateIds, cityIds, areaIds, departmentIds, groupIds, designationIds, employeeIds } = useDropDownIds();
 
     const handleAmendAttendance = () => {
+
         getEmployeeAttendance({
-            url: DEFAUL_API, data: {
-                filter: { fkEmployeeIds: ['63a7015948deb2d63f4cb8a9'] },
-                dateFrom: new Date("2023-02-01"),
-                dateTo: new Date()
+            url: DEFAULT_API, data: {
+                ...(employeeIds && { "_id": { $in: employeeIds.split(',') } }),
+                ...(countryIds && { "companyInfo.fkCountryId": { $in: countryIds.split(',') } }),
+                ...(stateIds && { "companyInfo.fkStateId": { $in: stateIds.split(',') } }),
+                ...(cityIds && { "companyInfo.fkCityId": { $in: cityIds.split(',') } }),
+                ...(areaIds && { "companyInfo.fkAreaId": { $in: areaIds.split(',') } }),
+                ...(groupIds && { "companyInfo.fkGroupId": { $in: groupIds.split(',') } }),
+                ...(departmentIds && { "companyInfo.fkDepartmentId": { $in: departmentIds.split(',') } }),
+                ...(designationIds && { "companyInfo.fkDesignationId": { $in: designationIds.split(',') } }),
+                ...query
             }
         }).then(({ data }) => {
             if (data)
@@ -198,12 +209,39 @@ const Amend = () => {
         })
     }
     const handleSaveAttendance = () => {
-        addEntity({ url: API.Attendance, data: records })
+
+        addEntity({
+            url: API.AttendanceInsert,
+            data: {
+                attendances: Array.from(gridApiRef.current.getRowModels().values()).filter(c => selectionModel.includes(c._id)),
+                ids: selectionModel
+            }
+        }).finally(() => {
+            setSelectionModel([]);
+
+
+            Object.keys(cellModesModel).forEach(c => {
+                cellModesModel[c] = { ...cellModesModel[c], 'startDateTime': { mode: "view", ignoreModifications: true }, 'endDateTime': { mode: 'view', ignoreModifications: true } }
+            });
+
+            setCellModesModel({ ...cellModesModel });
+
+        })
     }
 
     useEffect(() => {
         offSet.current.isLoadFirstTime = false;
-        dispatch(enableFilterAction(false));
+
+        dispatch(showDropDownFilterAction({
+            company: true,
+            country: true,
+            state: true,
+            city: true,
+            area: true,
+            department: true,
+            group: true,
+            designation: true
+        }));
         dispatch(builderFieldsAction(fields));
     }, [dispatch])
 
