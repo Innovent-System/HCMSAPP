@@ -133,7 +133,7 @@ export default function Header() {
           appRoutes: data.appRoutes,
           sideMenuData: data.sideMenuData,
         });
-        
+
         const command = routeCommand(data.appRoutes, navigate);
 
         dispatch(setCommand(command));
@@ -255,16 +255,17 @@ export default function Header() {
         className={classes.Drawer}
         anchor={"left"}
         open={state.left}
+        transitionDuration={{ exit: 800, enter: 500 }}
         onClose={toggleSidebar("left", false)}>
         <Box
           sx={{ width: 250 }}
           role="presentation"
-          //onClick={toggleSidebar("left", false)}
           onKeyDown={toggleSidebar("left", false)}>
           {sideMenuData.map((item) => (
             <NavItem
               key={item.title}
               title={item.title}
+              tabClick={toggleSidebar("left", false)}
               icon={iconMapping[item.icon]}
               routes={item?.children}
             />

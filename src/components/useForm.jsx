@@ -106,6 +106,7 @@ const validateAllFields = (fieldValues, values) => {
     return temp;
 }
 const DEFAULT_BREAK_POINTS = { xs: 12, sm: 6, md: 6 };
+
 export const AutoForm = forwardRef(function (props, ref) {
 
     const { formData, breakpoints, children, isValidate = false, isEdit = false, flexDirection = "row", as = "form", ...other } = props;

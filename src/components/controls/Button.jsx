@@ -9,34 +9,38 @@ const Styles = {
     textTransform: "none",
   }
 }
-
+/**
+ * 
+ * @param {import("@mui/material").ButtonProps} props 
+ * @returns 
+ */
 export default function Button(props) {
-  const { text, size, color, variant, onClick, icon:Icon = null,sx={},...other } = props;
-  
+  const { text, size, color, variant, onClick, icon: Icon = null, sx = {}, ...other } = props;
+
   return (
     <MuiButton
       variant={variant || "contained"}
       size={size || "small"}
       color={color || "primary"}
       onClick={onClick}
-      {...(Icon && {startIcon:<Icon/>})}
+      {...(Icon && { startIcon: <Icon /> })}
       {...other}
-      sx={[Styles.root,Styles.label,{...sx}]}
+      sx={[Styles.root, Styles.label, { ...sx }]}
     >
-    
-  {text}
+
+      {text}
     </MuiButton>
   );
 }
 
 Button.propTypes = {
-  text:PropTypes.string,
-  onClick:PropTypes.func,
-  color:PropTypes.string,
-  icon:PropTypes.any,
-  variant:PropTypes.string,
-  size:PropTypes.string,
-  sx:PropTypes.oneOfType([
+  text: PropTypes.string,
+  onClick: PropTypes.func,
+  color: PropTypes.string,
+  icon: PropTypes.any,
+  variant: PropTypes.string,
+  size: PropTypes.string,
+  sx: PropTypes.oneOfType([
     PropTypes.object,
     PropTypes.func,
     PropTypes.arrayOf(

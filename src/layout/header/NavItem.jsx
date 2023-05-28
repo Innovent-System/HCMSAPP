@@ -8,15 +8,15 @@ import * as iconMapping from '../../assets/icons';
 import PropTypes from 'prop-types';
 
 const styles = {
-    capitalize:{
+    capitalize: {
         textTransform: 'lowercase',
-        '&::first-letter':{
+        '&::first-letter': {
             textTransform: 'uppercase',
         }
     }
 }
 
-const NavItem = ({ title, routes, icon: Icon }) => {
+const NavItem = ({ title, routes, icon: Icon, tabClick }) => {
     return (
         <Accordion>
             <AccordionSummary
@@ -31,13 +31,13 @@ const NavItem = ({ title, routes, icon: Icon }) => {
                     {
                         routes.map(route => {
                             const InsideIcon = iconMapping[route.icon];
-                            return <ListItem key={route.title} component={RouterLink}
+                            return <ListItem key={route.title}  {...(tabClick && { onClick: tabClick })} component={RouterLink}
                                 to={`${route?.path.substring(5).toLowerCase()}/${encodeURIComponent(route._id)}`}
                             >
                                 <ListItemIcon>
                                     <InsideIcon size="small" />
                                 </ListItemIcon>
-                                <ListItemText  secondary={route.title} />
+                                <ListItemText secondary={route.title} />
                             </ListItem>
                         }
 

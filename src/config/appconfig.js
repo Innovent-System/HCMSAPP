@@ -1,8 +1,8 @@
-import { createBrowserHistory } from 'history';
+// import { createBrowserHistory } from 'history';
 import Auth from '../services/AuthenticationService';
 
 
-export const history = createBrowserHistory();
+// export const history = createBrowserHistory();
 
 
 // export const domain = 'http://13.230.226.16:5000/api/';

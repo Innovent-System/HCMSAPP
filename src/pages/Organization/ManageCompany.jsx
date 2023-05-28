@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import PageHeader from '../../components/PageHeader'
 import { PeopleOutline } from '../../deps/ui/icons'
 import Tabs from '../../components/Tabs'
@@ -28,6 +28,7 @@ const tabs = [
 ]
 
 export default function ManageCompany() {
+  const [value, setValue] = useState('0');
   return (
     <>
       <PageHeader
@@ -35,7 +36,7 @@ export default function ManageCompany() {
         subTitle="Manage Comapny"
         icon={<PeopleOutline fontSize="large" />}
       />
-      <Tabs orientation='horizontal' TabsConfig={tabs} />
+      <Tabs orientation='horizontal' value={value} setValue={setValue} TabsConfig={tabs} />
     </>
 
   );

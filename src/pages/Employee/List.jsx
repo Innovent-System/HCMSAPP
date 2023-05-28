@@ -15,6 +15,7 @@ import PageHeader from '../../components/PageHeader'
 import { useExcelReader } from "../../hooks/useExcelReader";
 import Loader from '../../components/Circularloading'
 import { useDropDownIds } from '../../components/useDropDown';
+import AddEmployee from "./components/AddEmployee";
 
 
 const fields = {
@@ -259,9 +260,10 @@ const Employee = () => {
                 title="Add Employee Information"
                 openPopup={openPopup} maxWidth="xl"
                 fullScreen={true} isEdit={isEdit.current}
-                footer={<></>} keepMounted={true}
+                footer={<></>} 
                 setOpenPopup={setOpenPopup}>
-                <EmpoyeeModal coldata={excelColData} isEdit={isEdit.current} editId={editId} setOpenPopup={setOpenPopup} />
+                <AddEmployee />
+                {/* <EmpoyeeModal coldata={excelColData} isEdit={isEdit.current} editId={editId} setOpenPopup={setOpenPopup} /> */}
             </Popup>
 
             <Link style={{ float: "right" }} onClick={handleTemplate}> Employee Template</Link>

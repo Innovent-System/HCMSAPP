@@ -31,10 +31,10 @@ const MenuProps = {
 
 function Select(props) {
 
-  const { name, label, value, error = null, onChange, dataId = "", dataName = "", isMultiple = false, options, ...others } = props;
+  const { name, label, value, error = null, onChange, dataId = "", dataName = "", isMultiple = false, options = [], ...others } = props;
 
   const isAllSelected =
-    options.length > 0 && value?.length === options.length;
+    options?.length > 0 && value?.length === options?.length;
 
   const renderValue = (selected) => {
 
