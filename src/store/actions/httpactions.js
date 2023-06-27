@@ -138,7 +138,7 @@ export const EmployeeDataThunk = createAsyncThunk('employeedata/requestStatus', 
   }
 })
 
-
+const emptyString = "";
 const INITIAL_STATE = {
   status: false,
   DropDownData: {},
@@ -262,6 +262,81 @@ export const appSlice = createSlice({
   }
 })
 
+const employeeInit = {
+  generalTab: {
+    emplyeeRefNo: emptyString,
+    punchCode: 0,
+    firstName: emptyString,
+    lastName: emptyString,
+    fName: emptyString,
+    isAllowLogin: false,
+    timezone: emptyString,
+    fkCompanyId: emptyString,
+    generalInfo: {
+      maritalstatus: emptyString,
+      email: emptyString,
+      gender: emptyString,
+      dateofBirth: emptyString,
+      fkReligionId: null,
+    },
+    companyInfo: {
+      fkManagerId: null
+    }
+  },
+  companyTab: {
+    scheduleId: null,
+    companyInfo: {
+      fkAreaId: null,
+      fkCityId: null,
+      fkCountryId: null,
+      fkDepartmentId: null,
+      fkDesignationId: null,
+      fkEmployeeGroupId: null,
+      fkStateId: null,
+      joiningDate: new Date().toISOString(),
+      confirmationDate: null,
+      fkManagerId: null
+    }
+  },
+  contactDetial: {
+    address1: emptyString,
+    address2: emptyString,
+    zipCode: emptyString,
+    country: emptyString,
+    state: emptyString,
+    city: emptyString,
+    mobileNo: emptyString,
+    workNo: emptyString,
+    emergencyNo: emptyString
+  },
+}
+
+export const empSlice = createSlice({
+  name: "employee",
+  initialState: structuredClone(employeeInit),
+  reducers: {
+    /**
+     * @param {import('@reduxjs/toolkit').PayloadAction<typeof employeeInit["generalTab"]>} action 
+     */
+    setGeneralAction(state, action) {
+      
+      state.generalTab = Object.assign(structuredClone(state.generalTab), { ...action.payload })
+    },
+    /**
+     * @param {import('@reduxjs/toolkit').PayloadAction<typeof employeeInit["companyTab"]>} action 
+     */
+    setCompanyAction(state, action) {
+      state.companyTab = Object.assign(structuredClone(state.companyTab), { ...action.payload })
+      state.companyTab.companyInfo.fkManagerId = state.generalTab.companyInfo?.fkManagerId ?? null
+    },
+
+  },
+  resetEmployee(state) {
+    state = structuredClone(employeeInit);
+  }
+
+})
+
 export const { builderQueryAction,
   builderFieldsAction,
   resetAction,
@@ -270,3 +345,5 @@ export const { builderQueryAction,
   showDropDownFilterAction,
   setUserInfo,
   clearDropDownIdsAction, setCommand } = appSlice.actions;
+
+export const { setGeneralAction, setCompanyAction, resetEmployee } = empSlice.actions

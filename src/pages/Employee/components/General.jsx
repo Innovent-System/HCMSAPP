@@ -2,8 +2,9 @@ import React, { useRef } from 'react'
 import { AutoForm } from '../../../components/useForm';
 import { useDropDown } from '../../../components/useDropDown';
 import Controls from '../../../components/controls/Controls';
-import { Divider } from '../../../deps/ui'
-
+import { setGeneralAction, useEntityAction } from '../../../store/actions/httpactions';
+import { useSelector } from 'react-redux';
+import { API } from '../_Service';
 
 const Maritalstatus = [
     { id: "Single", title: "Single" },
@@ -17,10 +18,13 @@ const genderItems = [
     { id: "Female", title: "Female" },
     { id: "Other", title: "Other" },
 ]
+const Add_Employee = API.Employee;
 const General = ({ isEdit = false, setTab }) => {
 
     const formApi = useRef(null);
     const { employees, religion } = useDropDown();
+    const generalData = useSelector(s => s.employee.generalTab);
+    const { addEntity } = useEntityAction();
 
     const formData = [
         {
@@ -178,10 +182,46 @@ const General = ({ isEdit = false, setTab }) => {
         // },
     ];
 
+    const handleNext = (e) => {
+
+        const { getValue, validateFields } = formApi.current
+        if (validateFields()) {
+            setTab('1');
+            const values = getValue();
+            setGeneralAction(
+                {
+                    emplyeeRefNo: values.emplyeeRefNo,
+                    punchCode: values.punchCode,
+                    firstName: values.firstName,
+                    lastName: values.lastName,
+                    isAllowLogin: values.isAllowLogin,
+                    //timezone: values.fkCountryId.timezones[0].zoneName,
+                    fkCompanyId: values.fkCompanyId._id,
+                    generalInfo: {
+                        maritalstatus: values.maritalstatus,
+                        email: values.email,
+                        gender: values.gender,
+                        dateofBirth: values.dateofBirth,
+                        fkReligionId: values.fkReligionId,
+                    },
+                }
+            ).then(c => {
+                console.log(c);
+                addEntity({ url: Add_Employee, data: [generalData] });
+            });
+
+            // const setEmployee = mapEmployee(values);
+            // if (isEdit)
+            //     setEmployee._id = editId
+
+
+        }
+    }
+
     return <>
         <AutoForm formData={formData} ref={formApi} isValidate={true} />
         {/* <Divider sx={{ margin: 2 }} /> */}
-        <Controls.Button onClick={() => setTab('1')} text="Next" />
+        <Controls.Button onClick={handleNext} text="Next" />
     </>
 
 }

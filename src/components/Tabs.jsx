@@ -32,11 +32,11 @@ function TabsComponent({ TabsConfig, orientation = "vertical", value = '0', setV
         <Box sx={{ width: '100%', typography: 'body1' }} {...other}>
             <TabContext value={value}>
                 <TabList sx={{ minWidth: 180 }} orientation={orientation} variant="scrollable" scrollButtons="auto" onChange={handleChange} aria-label="lab API tabs example">
-                    {TabsConfig.map((tab, index) => <Tab aria-orientation={orientation} LinkComponent="button" key={tab.title} label={tab.title} value={String(index)} />)}
+                    {TabsConfig.map((tab, index) => <Tab aria-orientation={orientation} sx={{ textTransform: 'capitalize' }} LinkComponent="button" key={tab.title} label={tab.title} value={String(index)} />)}
                 </TabList>
-                <div>
-                    {TabsConfig.map((m, index) => <TabPanel index={index} value={String(index)} key={index}> {m.panel}</TabPanel>)}
-                </div>
+
+                {TabsConfig.map((m, index) => <TabPanel index={index} value={String(index)} key={index}> {m.panel}</TabPanel>)}
+
             </TabContext>
         </Box>
     );
