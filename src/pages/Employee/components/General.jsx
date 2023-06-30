@@ -3,7 +3,7 @@ import { AutoForm } from '../../../components/useForm';
 import { useDropDown } from '../../../components/useDropDown';
 import Controls from '../../../components/controls/Controls';
 import { setGeneralAction, useEntityAction } from '../../../store/actions/httpactions';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { API } from '../_Service';
 
 const Maritalstatus = [
@@ -20,7 +20,7 @@ const genderItems = [
 ]
 const Add_Employee = API.Employee;
 const General = ({ isEdit = false, setTab }) => {
-
+    const dispatch = useDispatch();
     const formApi = useRef(null);
     const { employees, religion } = useDropDown();
     const generalData = useSelector(s => s.employee.generalTab);
@@ -188,7 +188,7 @@ const General = ({ isEdit = false, setTab }) => {
         if (validateFields()) {
             setTab('1');
             const values = getValue();
-            setGeneralAction(
+            dispatch(setGeneralAction(
                 {
                     emplyeeRefNo: values.emplyeeRefNo,
                     punchCode: values.punchCode,
@@ -205,7 +205,7 @@ const General = ({ isEdit = false, setTab }) => {
                         fkReligionId: values.fkReligionId,
                     },
                 }
-            ).then(c => {
+            )).then(c => {
                 console.log(c);
                 addEntity({ url: Add_Employee, data: [generalData] });
             });

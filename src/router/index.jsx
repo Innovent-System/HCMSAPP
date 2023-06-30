@@ -8,8 +8,8 @@ import StatusSnack from './StatusHandler';
 import { useSelector } from 'react-redux';
 
 
-const LazySignIn = lazy(() => import(`../pages/General/SignIn`));
-const LazyDashboard = lazy(() => import(`../pages/General/Dashboard`));
+const LazySignIn = lazy(() => import(/* @vite-ignore */ `../pages/General/SignIn`));
+const LazyDashboard = lazy(() => import(/* @vite-ignore */ `../pages/General/Dashboard`));
 
 const Routers = () => {
 
@@ -39,9 +39,14 @@ const Routers = () => {
   );
 };
 
+function importModule(path) {
+  // who knows what will be imported here?
+  return import(/* @vite-ignore */ path);
+}
+
 function DynamicLoader(props) {
 
-  const LazyComponent = lazy(() => import(`../${props.component}`)
+  const LazyComponent = lazy(() => importModule(`../${props.component}`)
     .catch(() => ({ default: () => <div>Not found</div> })));
   return (
     <Suspense fallback={<CircularLoading />}>

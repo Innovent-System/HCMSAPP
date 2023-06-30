@@ -2,7 +2,6 @@ import { useState, useEffect, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Notification from "../components/Notification";
 import { useSelector } from "react-redux";
-import { history } from '../config/appconfig';
 import { SocketContext } from '../services/socketService';
 import Auth from '../services/AuthenticationService';
 import { useSnackbar } from 'notistack';

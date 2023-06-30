@@ -320,13 +320,13 @@ export const empSlice = createSlice({
      */
     setGeneralAction(state, action) {
       
-      state.generalTab = Object.assign(structuredClone(state.generalTab), { ...action.payload })
+      state.generalTab = Object.assign(state.generalTab, { ...action.payload })
     },
     /**
      * @param {import('@reduxjs/toolkit').PayloadAction<typeof employeeInit["companyTab"]>} action 
      */
     setCompanyAction(state, action) {
-      state.companyTab = Object.assign(structuredClone(state.companyTab), { ...action.payload })
+      state.companyTab = Object.assign(state.companyTab, { ...action.payload })
       state.companyTab.companyInfo.fkManagerId = state.generalTab.companyInfo?.fkManagerId ?? null
     },
 
