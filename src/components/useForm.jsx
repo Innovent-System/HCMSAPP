@@ -123,7 +123,7 @@ export const AutoForm = forwardRef(function (props, ref) {
         if (!typeof fieldValues === "object") return temp;
 
         const key = Object.keys(fieldValues)[0];
-        singleField = { ...fieldValues };
+        singleField = structuredClone(fieldValues);
         fieldValues = errorProps.find(f => key in f);
 
         if (!fieldValues?.required) { temp[key] = ""; return temp };
@@ -198,7 +198,7 @@ export const AutoForm = forwardRef(function (props, ref) {
         setValues(currentValues => {
             return Object.assign({}, initialValues, currentValues)
         });
-    }, [formData])
+    }, [])
 
     const setFormValue = (properties = {}) => {
         // if(!isEdit) return console.warn("set Values only in Edit mode");

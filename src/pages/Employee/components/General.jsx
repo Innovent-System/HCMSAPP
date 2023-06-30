@@ -196,7 +196,7 @@ const General = ({ isEdit = false, setTab }) => {
                     lastName: values.lastName,
                     isAllowLogin: values.isAllowLogin,
                     //timezone: values.fkCountryId.timezones[0].zoneName,
-                    fkCompanyId: values.fkCompanyId._id,
+                    //fkCompanyId: values.fkCompanyId._id,
                     generalInfo: {
                         maritalstatus: values.maritalstatus,
                         email: values.email,

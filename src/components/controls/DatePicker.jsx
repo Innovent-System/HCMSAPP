@@ -93,7 +93,7 @@ export default function DatePicker(props) {
                 }
             </>
         }
-    }, [value])
+    }, [onChange])
 
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -110,7 +110,7 @@ DatePicker.propTypes = {
     name: PropTypes.string,
     label: PropTypes.string,
     value: PropTypes.any,
-    error:PropTypes.string,
+    error: PropTypes.string,
     size: PropTypes.string,
     onChange: PropTypes.func,
     category: PropTypes.oneOf(["datetime", 'date', 'time']),
