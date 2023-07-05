@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { AutoForm } from '../../../components/useForm';
 import { useDropDown } from '../../../components/useDropDown';
 import { Box, Divider, IconButton, Chip } from '../../../deps/ui';
@@ -6,6 +6,9 @@ import { AddCountry } from '../../Organization/components/Country';
 import { AddArea } from '../../Organization/components/Area';
 import { Launch, Person } from '../../../deps/ui/icons';
 import Controls from '../../../components/controls/Controls';
+import { useSelector } from 'react-redux';
+import { useEntityAction, setCompanyAction } from '../../../store/actions/httpactions';
+import { API } from '../_Service';
 
 const MapModel = {
     country: AddCountry,
@@ -27,11 +30,20 @@ const AddModal = ({ name }) => {
         </Box>
     )
 }
+const Add_Employee = API.Employee;
 const breakpoints = { md: 4, sm: 6, xs: 6 }
 const CompanyDetail = ({ isEdit = false, setTab }) => {
     const formApi = useRef(null);
     const { companies, countries, states, cities, areas, groups, departments, designations, schedules, filterType, setFilter } = useDropDown();
-
+    const comapnyData = useSelector(s => s.employee.companyTab);
+    const generalData = useSelector(s => s.employee.generalTab);
+    const { addEntity } = useEntityAction();
+    useEffect(() => {
+        if (comapnyData?.fkCompanyId) {
+            const { setFormValue } = formApi.current;
+            setFormValue(comapnyData);
+        }
+    }, [comapnyData])
     const formData = [{
         elementType: "ad_dropdown",
         name: "fkCompanyId",
@@ -203,11 +215,68 @@ const CompanyDetail = ({ isEdit = false, setTab }) => {
         defaultValue: null
     }];
 
+    const handleSubmit = () => {
+        const { getValue, validateFields } = formApi.current
+        if (validateFields()) {
+            const values = getValue();
+            const { payload } = setCompanyAction({
+                scheduleId: values.scheduleId,
+                fkAreaId: values.fkAreaId,
+                fkCityId: values.fkCityId,
+                fkCountryId: values.fkCountryId,
+                fkDepartmentId: values.fkDepartmentId,
+                fkDesignationId: values.fkDesignationId,
+                fkEmployeeGroupId: values.fkEmployeeGroupId,
+                fkStateId: values.fkStateId,
+                joiningDate: values.joiningDate,
+                confirmationDate: values.confirmationDate,
+                fkManagerId: generalData?.fkManagerId?._id
+
+            })
+            const employeeData = {
+                emplyeeRefNo: generalData.emplyeeRefNo,
+                punchCode: generalData.punchCode,
+                firstName: generalData.firstName,
+                lastName: generalData.lastName,
+                isAllowLogin: generalData.isAllowLogin,
+                timezone: values.fkCountryId.timezones[0].zoneName,
+                fkCompanyId: values.fkCompanyId._id,
+                generalInfo: generalData,
+                companyInfo: {
+                    fkAreaId: values.fkAreaId._id,
+                    fkCityId: values.fkCityId._id,
+                    fkCountryId: values.fkCountryId._id,
+                    fkDepartmentId: values.fkDepartmentId._id,
+                    fkDesignationId: values.fkDesignationId._id,
+                    fkEmployeeGroupId: values.fkEmployeeGroupId._id,
+                    fkStateId: values.fkStateId._id,
+                    joiningDate: new Date().toISOString(),
+                    confirmationDate: values.confirmationDate,
+                    fkManagerId: generalData?.fkManagerId?._id ?? null
+                },
+                // contactDetial: {
+                //     address1: values.address1,
+                //     address2: values.address2,
+                //     zipCode: values.zipCode,
+                //     country: values.country,
+                //     state: values.state,
+                //     city: values.city,
+                //     mobileNo: values.mobileNo,
+                //     workNo: values.workNo,
+                //     emergencyNo: values.emergencyNo
+                // },
+                scheduleId: values?.scheduleId._id
+            }
+
+            addEntity({ url: Add_Employee, data: [employeeData] });
+        }
+    }
+
     return <>
         <AutoForm formData={formData} ref={formApi} isValidate={true} />
         {/* <Divider /> */}
         <Controls.Button onClick={() => setTab('0')} text="Prev" />
-        <Controls.Button onClick={() => {}} text="Save" />
+        <Controls.Button onClick={handleSubmit} text="Save" />
     </>
 }
 

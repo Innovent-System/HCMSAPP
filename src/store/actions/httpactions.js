@@ -272,31 +272,28 @@ const employeeInit = {
     isAllowLogin: false,
     timezone: emptyString,
     fkCompanyId: emptyString,
-    generalInfo: {
-      maritalstatus: emptyString,
-      email: emptyString,
-      gender: emptyString,
-      dateofBirth: emptyString,
-      fkReligionId: null,
-    },
-    companyInfo: {
-      fkManagerId: null
-    }
+
+    maritalstatus: emptyString,
+    email: emptyString,
+    gender: emptyString,
+    dateofBirth: emptyString,
+    fkReligionId: null,
+    fkManagerId: null
+
   },
   companyTab: {
     scheduleId: null,
-    companyInfo: {
-      fkAreaId: null,
-      fkCityId: null,
-      fkCountryId: null,
-      fkDepartmentId: null,
-      fkDesignationId: null,
-      fkEmployeeGroupId: null,
-      fkStateId: null,
-      joiningDate: new Date().toISOString(),
-      confirmationDate: null,
-      fkManagerId: null
-    }
+    fkAreaId: null,
+    fkCityId: null,
+    fkCountryId: null,
+    fkDepartmentId: null,
+    fkDesignationId: null,
+    fkEmployeeGroupId: null,
+    fkStateId: null,
+    joiningDate: new Date().toISOString(),
+    confirmationDate: null,
+    fkManagerId: null
+
   },
   contactDetial: {
     address1: emptyString,
@@ -319,7 +316,7 @@ export const empSlice = createSlice({
      * @param {import('@reduxjs/toolkit').PayloadAction<typeof employeeInit["generalTab"]>} action 
      */
     setGeneralAction(state, action) {
-      
+
       state.generalTab = Object.assign(state.generalTab, { ...action.payload })
     },
     /**

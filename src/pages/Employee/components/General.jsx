@@ -1,10 +1,10 @@
-import React, { useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { AutoForm } from '../../../components/useForm';
 import { useDropDown } from '../../../components/useDropDown';
 import Controls from '../../../components/controls/Controls';
 import { setGeneralAction, useEntityAction } from '../../../store/actions/httpactions';
 import { useSelector, useDispatch } from 'react-redux';
-import { API } from '../_Service';
+
 
 const Maritalstatus = [
     { id: "Single", title: "Single" },
@@ -18,13 +18,13 @@ const genderItems = [
     { id: "Female", title: "Female" },
     { id: "Other", title: "Other" },
 ]
-const Add_Employee = API.Employee;
+
 const General = ({ isEdit = false, setTab }) => {
     const dispatch = useDispatch();
     const formApi = useRef(null);
     const { employees, religion } = useDropDown();
     const generalData = useSelector(s => s.employee.generalTab);
-    const { addEntity } = useEntityAction();
+
 
     const formData = [
         {
@@ -146,6 +146,7 @@ const General = ({ isEdit = false, setTab }) => {
             name: "dateofBirth",
             breakpoints,
             label: "D.O.B",
+            required: true,
             defaultValue: null
         },
         {
@@ -181,7 +182,13 @@ const General = ({ isEdit = false, setTab }) => {
         //     options: roleTemplates?.length ? roleTemplates : []
         // },
     ];
-
+    useEffect(() => {
+        if (generalData?.firstName) {
+            const { setFormValue } = formApi.current;
+            
+            setFormValue(generalData);
+        }
+    }, [generalData])
     const handleNext = (e) => {
 
         const { getValue, validateFields } = formApi.current
@@ -195,20 +202,19 @@ const General = ({ isEdit = false, setTab }) => {
                     firstName: values.firstName,
                     lastName: values.lastName,
                     isAllowLogin: values.isAllowLogin,
+                    fName: values.fName,
                     //timezone: values.fkCountryId.timezones[0].zoneName,
                     //fkCompanyId: values.fkCompanyId._id,
-                    generalInfo: {
-                        maritalstatus: values.maritalstatus,
-                        email: values.email,
-                        gender: values.gender,
-                        dateofBirth: values.dateofBirth,
-                        fkReligionId: values.fkReligionId,
-                    },
+                    maritalstatus: values.maritalstatus,
+                    email: values.email,
+                    gender: values.gender,
+                    dateofBirth: values.dateofBirth,
+                    fkReligionId: values.fkReligionId,
+                    fkManagerId: values.fkManagerId
+
                 }
-            )).then(c => {
-                console.log(c);
-                addEntity({ url: Add_Employee, data: [generalData] });
-            });
+            ))
+
 
             // const setEmployee = mapEmployee(values);
             // if (isEdit)
