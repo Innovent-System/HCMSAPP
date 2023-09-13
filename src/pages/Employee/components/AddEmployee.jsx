@@ -16,7 +16,8 @@ const AddEmployee = () => {
         },
         {
             title: "Company",
-            panel: <CompanyDetail setTab={setTab} />
+            panel: <CompanyDetail setTab={setTab} />,
+            disabled: true
         },
         {
             title: "Education",
