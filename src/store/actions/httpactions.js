@@ -139,11 +139,14 @@ export const EmployeeDataThunk = createAsyncThunk('employeedata/requestStatus', 
 })
 
 const emptyString = "";
+
 const INITIAL_STATE = {
   status: false,
   DropDownData: {},
   employeeData: {},
-  routeData: {},
+  routeData: {
+    sideMenuData: []
+  },
   commands: [],
   authData: {},
   userInfo: {

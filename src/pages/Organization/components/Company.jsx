@@ -1,5 +1,5 @@
 // eslint-disable-next-line react-hooks/exhaustive-deps
-import React, {  useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Popup from '../../../components/Popup';
 import { AutoForm } from '../../../components/useForm';
 import { API } from '../_Service';
@@ -118,7 +118,7 @@ const Company = () => {
             offSet.current.isLoadMore = false;
         }
 
-    }, [data,status])
+    }, [data, status])
 
     const { socketData } = useSocketIo("changeInCompany", refetch);
 
@@ -183,7 +183,8 @@ const Company = () => {
 
     const handleSubmit = (e) => {
         const { getValue, validateFields } = formApi.current
-        if (validateFields()) {
+        const isValid = validateFields();
+        if (isValid) {
             let values = getValue();
             let dataToInsert = {};
             dataToInsert.companyName = values.companyName;
@@ -193,6 +194,7 @@ const Company = () => {
             addEntity({ url: DEFAULT_API, data: [dataToInsert] });
 
         }
+        return isValid;
     }
 
     const formData = [
@@ -201,6 +203,7 @@ const Company = () => {
             name: "companyName",
             label: "Company",
             required: true,
+            onKeyDown: (e) => e.keyCode == 13 && handleSubmit() && setOpenPopup(false),
             validate: {
                 errorMessage: "Company is required"
             },
@@ -210,8 +213,8 @@ const Company = () => {
 
     const showAddModal = () => {
         isEdit.current = false;
-        const { resetForm } = formApi.current;
-        resetForm();
+       // const { resetForm } = formApi.current;
+        //resetForm();
         setOpenPopup(true);
     }
 
@@ -222,7 +225,6 @@ const Company = () => {
                 openPopup={openPopup}
                 maxWidth="sm"
                 isEdit={isEdit.current}
-                keepMounted={true}
                 addOrEditFunc={handleSubmit}
                 setOpenPopup={setOpenPopup}>
                 <AutoForm formData={formData} ref={formApi} isValidate={true} />

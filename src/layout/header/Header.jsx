@@ -116,9 +116,7 @@ export default function Header() {
   const socket = useContext(SocketContext);
   const sideMenuData = useSelector(
     (e) =>
-      e.appdata.routeData?.sideMenuData ||
-      Auth.getitem("appConfigData")?.sideMenuData ||
-      []
+      e.appdata.routeData?.sideMenuData
   );
 
   const [userSignOut] = useLazySingleQuery();
