@@ -94,7 +94,7 @@ const Company = () => {
     const gridApiRef = useGridApi();
     const query = useSelector(e => e.appdata.query.builder);
 
-    const { data, status, isLoading, refetch } = useEntitiesQuery({
+    const { data, status, isLoading, refetch, isSuccess } = useEntitiesQuery({
         url: DEFAULT_API,
         params: {
             limit: filter.limit,
@@ -106,6 +106,7 @@ const Company = () => {
     const { addEntity, updateOneEntity, removeEntity } = useEntityAction();
 
     useEffect(() => {
+        console.log(status, isSuccess);
         if (status === "fulfilled") {
             const { entityData, totalRecord } = data.result;
             if (offSet.current.isLoadMore) {
@@ -118,7 +119,7 @@ const Company = () => {
             offSet.current.isLoadMore = false;
         }
 
-    }, [data, status])
+    }, [status])
 
     const { socketData } = useSocketIo("changeInCompany", refetch);
 
@@ -191,7 +192,9 @@ const Company = () => {
             if (isEdit.current)
                 dataToInsert._id = editId
 
-            addEntity({ url: DEFAULT_API, data: [dataToInsert] });
+            addEntity({ url: DEFAULT_API, data: [dataToInsert] }).then(r => {
+                if (r?.data) setOpenPopup(false);
+            });
 
         }
         return isValid;
@@ -203,7 +206,7 @@ const Company = () => {
             name: "companyName",
             label: "Company",
             required: true,
-            onKeyDown: (e) => e.keyCode == 13 && handleSubmit() && setOpenPopup(false),
+            onKeyDown: (e) => e.keyCode == 13 && handleSubmit(),
             validate: {
                 errorMessage: "Company is required"
             },
@@ -213,7 +216,7 @@ const Company = () => {
 
     const showAddModal = () => {
         isEdit.current = false;
-       // const { resetForm } = formApi.current;
+        // const { resetForm } = formApi.current;
         //resetForm();
         setOpenPopup(true);
     }
@@ -232,7 +235,7 @@ const Company = () => {
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={records}
                 loading={isLoading} pageSize={pageSize}
-                totalCount={offSet.current.totalRecord}
+                totalCount={filter.totalRecord}
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: showAddModal,

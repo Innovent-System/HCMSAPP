@@ -96,6 +96,7 @@ export const AddCountry = ({ openPopup, setOpenPopup, isEdit = false, row = null
             name: "company",
             label: "Company",
             required: true,
+            onKeyDown: (e) => e.keyCode == 13 && handleSubmit(),
             validate: {
                 errorMessage: "Company is required",
             },
@@ -107,6 +108,7 @@ export const AddCountry = ({ openPopup, setOpenPopup, isEdit = false, row = null
             elementType: "ad_dropdown",
             name: "country",
             label: "Country",
+            onKeyDown: (e) => e.keyCode == 13 && handleSubmit(),
             required: true,
             validate: {
                 errorMessage: "Country is required",
@@ -129,7 +131,9 @@ export const AddCountry = ({ openPopup, setOpenPopup, isEdit = false, row = null
             if (isEdit)
                 dataToInsert._id = editId
 
-            addEntity({ url: DEFAULT_API, data: [dataToInsert] });
+            addEntity({ url: DEFAULT_API, data: [dataToInsert] }).then(r => {
+                if (r?.data) setOpenPopup(false);
+            });
         }
     }
 
@@ -138,7 +142,7 @@ export const AddCountry = ({ openPopup, setOpenPopup, isEdit = false, row = null
         openPopup={openPopup}
         maxWidth="sm"
         isEdit={isEdit}
-        keepMounted={true}
+        // keepMounted={true}
         addOrEditFunc={handleSubmit}
         setOpenPopup={setOpenPopup}>
         <AutoForm formData={formData} ref={formApi} isValidate={true} />

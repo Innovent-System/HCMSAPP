@@ -1,4 +1,4 @@
-import React, { useState, createRef, useEffect, forwardRef, useImperativeHandle } from 'react'
+import React, { useState, createRef, useEffect, forwardRef, useImperativeHandle, useMemo, useCallback, useRef } from 'react'
 import PropTypes from 'prop-types'
 import { Grid, Box, IconButton } from '../deps/ui'
 import Controls, { Element, ElementType } from '../components/controls/Controls';
@@ -24,15 +24,15 @@ const BulkInsert = forwardRef(({ buttonName = "", as = "form", BulkformData = [[
 
     const [bulkData, setBulkData] = useState(BulkformData);
     const [elRefs, setElRefs] = React.useState([]);
-
+    const emptyData = useRef([]);
     const Add = () => {
-        setBulkData([bulkData[0], ...bulkData]);
+        setBulkData([(bulkData[0] || emptyData.current), ...bulkData]);
     }
 
     useEffect(() => {
-        if (Array.isArray(BulkformData))
-            setBulkData(BulkformData);
-    }, [BulkformData.length])
+        if (BulkformData?.length)
+            emptyData.current = [...BulkformData[0]]
+    }, [])
 
     const deleteData = (index) => {
         bulkData.splice(index, 1);
@@ -86,7 +86,7 @@ const BulkInsert = forwardRef(({ buttonName = "", as = "form", BulkformData = [[
             startIcon={<AddIcon />}
         />
         {bulkData.map((data, i) => <Box key={i} width="100%" display="flex">
-            <AutoForm as={as} style={{ flex: 1 }} formData={data.map(d => ({ ...d }))} ref={elRefs[i]} />
+            <AutoForm as={as} style={{ flex: 1 }} formData={data?.map(d => ({ ...d }))} ref={elRefs[i]} />
             <IconButton onClick={() => deleteData(i)} sx={{
                 ml: 2
             }} color="warning" aria-label="delete">

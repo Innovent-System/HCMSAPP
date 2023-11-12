@@ -1,12 +1,12 @@
 import React from 'react'
 import { Box, Tooltip } from '../deps/ui'
 import { InfoSharp } from '../deps/ui/icons'
-import { BoxProps } from '@mui/material'
+
 
 
 /**
  * Assign the Data for Modify.
- * @param {BoxProps} data
+ * @param {import(@mui/material).BoxProps} data
  * @param {string} data.placement
  * @param {string} data.title
  */

@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import PrivateRoute from './wrapper';
 import Layout from '../layout';
@@ -6,10 +6,17 @@ import CircularLoading from '../components/Circularloading'
 import Auth from '../services/AuthenticationService';
 import StatusSnack from './StatusHandler';
 import { useSelector } from 'react-redux';
+import componentsToMap from './MapComponent';
 
+const LazySignIn = lazy(() => import(`../pages/General/SignIn`));
+const LazyDashboard = lazy(() => import(`../pages/General/Dashboard`));
 
-const LazySignIn = lazy(() => import(/* @vite-ignore */ `../pages/General/SignIn`));
-const LazyDashboard = lazy(() => import(/* @vite-ignore */ `../pages/General/Dashboard`));
+const MapToRoute = ({ formId }) => {
+  const Map = componentsToMap[formId];
+  return <Suspense fallback={<CircularLoading />}>{Map ? <Map /> : <div>Not Found</div>}</Suspense>
+
+}
+
 
 const Routers = () => {
 
@@ -23,9 +30,10 @@ const Routers = () => {
           <Route element={<PrivateRoute />}>
             <Route element={<Layout />}>
               <Route path="/dashboard" element={<LazyDashboard />} />
+
               {routes?.map((prop, key) => {
                 return (
-                  <Route path={`${prop.path.substring(5).toLowerCase()}/:id`} key={prop.path} element={<DynamicLoader component={prop.path} />} />
+                  <Route path={`${prop.path.substring(5).toLowerCase()}/:id`} key={prop.path} element={<MapToRoute formId={prop.formId} />} />
                 );
               })}
               <Route path="*" element={<LazyDashboard />} />
@@ -46,7 +54,7 @@ function importModule(path) {
 
 function DynamicLoader(props) {
 
-  const LazyComponent = lazy(() => importModule(`../${props.component}`)
+  const LazyComponent = lazy(() => import(`../${props.component}.jsx`)
     .catch(() => ({ default: () => <div>Not found</div> })));
   return (
     <Suspense fallback={<CircularLoading />}>
@@ -56,20 +64,20 @@ function DynamicLoader(props) {
 }
 
 // function DynamicLoader(props) {
-//   const [LazyComponent, setLazyComponent] = useState(() => () => 
-//   <div/>);
+//   const [LazyComponent, setLazyComponent] = useState(() => () =>
+//     <div />);
 
-//    useEffect(() => {
-//         const Lzy = lazy(() => import(`${props.component}`));
-//         setLazyComponent(Lzy);
-//    }, [props.component]);
+//   useEffect(() => {
+//     const Lzy = lazy(() => import(`../${props.component}`));
+//     setLazyComponent(Lzy);
+//   }, [props.component]);
 
 
 //   return (
 
 //     <Suspense fallback={<div>Loading...</div>}>
 //       <div>
-//        <LazyComponent/>
+//         <LazyComponent />
 //       </div>
 //     </Suspense>
 //   );

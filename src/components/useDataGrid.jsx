@@ -234,7 +234,7 @@ export default function FeaturedCrudGrid(props) {
   return (
     <Box
       sx={{
-        height: 'calc(100vh - 150px)'
+        height: 'calc(100vh - 190px)'
         //width: '100%',
         // '& .actions': {
         //   color: 'text.secondary',
@@ -288,7 +288,7 @@ FeaturedCrudGrid.propTypes = {
   apiRef: PropTypes.shape({
     current: PropTypes.object.isRequired,
   }),
-  density: PropTypes.oneOfType(["compact", "standard", "comfortable"]),
+  density: PropTypes.oneOf(["compact", "standard", "comfortable"]),
   pageSize: PropTypes.number,
   checkboxSelection: PropTypes.bool,
   onRowsScrollEnd: PropTypes.func,

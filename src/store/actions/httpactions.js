@@ -44,7 +44,7 @@ export const useEntityAction = () => {
   const [updateEntity] = useUpdateManyMutation();
   const [updateOneEntity] = useUpdateOneMutation();
   const [removeEntity] = useRemoveMutation();
-
+  
   return {
     addEntity,
     updateEntity,

@@ -5,7 +5,7 @@ import { AutoForm } from '../../../components/useForm';
 import { API } from '../_Service';
 import { useDispatch, useSelector } from 'react-redux';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAction } from '../../../store/actions/httpactions';
-import {  FormHelperText } from "../../../deps/ui";
+import { FormHelperText } from "../../../deps/ui";
 import { Circle } from "../../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions, GridToolbar } from '../../../components/useDataGrid';
 import { useSocketIo } from '../../../components/useSocketio';
@@ -238,7 +238,9 @@ const AddDepartment = ({ openPopup, setOpenPopup, isEdit = false, row = null }) 
             if (isEdit)
                 dataToInsert._id = editId
 
-            addEntity({ url: DEFAULT_API, data: [dataToInsert] });
+            addEntity({ url: DEFAULT_API, data: [dataToInsert] }).finally(c => {
+                setOpenPopup(false);
+            });
 
         }
     }
