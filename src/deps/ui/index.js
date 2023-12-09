@@ -18,8 +18,9 @@ export {
 
 } from '@mui/x-data-grid-pro';
 
-export { ThemeProvider, createTheme } from '@mui/material/styles';
-export { makeStyles } from '@mui/styles'
+export { createTheme } from '@mui/material/styles';
+export { makeStyles,ThemeProvider } from '@mui/styles'
+
 
 
 export {
