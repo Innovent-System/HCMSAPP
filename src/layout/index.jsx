@@ -27,7 +27,7 @@ const Layout = () => {
       <Paper className={"content-area"}>
         <Outlet />
       </Paper>
-      <Speech mode='obey'/>
+      {/* <Speech mode='obey'/> */}
     </>
   )
 }

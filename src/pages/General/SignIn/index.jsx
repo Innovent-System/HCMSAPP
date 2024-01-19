@@ -110,9 +110,9 @@ const SignIn = () => {
           socket.emit("joinclient", data.clientId);
           socket.emit("joincompany", data.companyId);
           navigate("/dashboard");
-          
+
         }
-        
+
       }).finally(c => setLoader(false));
 
     }
@@ -216,11 +216,12 @@ const SignIn = () => {
                 }}
               />
 
-              <Box mb={2} display='flex' justifyContent='center' alignItems='center'>
+              {/* <Box mb={2} display='flex' justifyContent='center' alignItems='center'>
 
-                <Box className={classes.Wrapper}>
+                <Box className={classes.Wrapper}> */}
                   <Controls.Button
                     text="Login"
+
                     type="submit"
                     disabled={loader}
                   />
@@ -228,10 +229,10 @@ const SignIn = () => {
                   {loader && (
                     <CircularProgress size={24} className={classes.ButtonProgress} />
                   )}
-                </Box>
+                  <Controls.Button text="Reset" color="inherit" onClick={() => { setLoader(false); resetForm() }} />
+                {/* </Box>
 
-                <Controls.Button text="Reset" color="inherit" onClick={() => { setLoader(false); resetForm() }} />
-              </Box>
+              </Box> */}
 
               <Link
                 component={RouterLink}

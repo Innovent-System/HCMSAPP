@@ -142,7 +142,7 @@ export const AddCountry = ({ openPopup, setOpenPopup, isEdit = false, row = null
         openPopup={openPopup}
         maxWidth="sm"
         isEdit={isEdit}
-        // keepMounted={true}
+        keepMounted={true}
         addOrEditFunc={handleSubmit}
         setOpenPopup={setOpenPopup}>
         <AutoForm formData={formData} ref={formApi} isValidate={true} />

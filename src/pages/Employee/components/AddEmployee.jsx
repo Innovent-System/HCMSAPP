@@ -1,13 +1,15 @@
 import React, { useMemo, useState } from 'react'
 import General from './General'
 import Tabs from '../../../components/Tabs'
-import { useMediaQuery } from '@mui/material'
+import useMediaQuery from '@mui/material/useMediaQuery'
 import CompanyDetail from './CompanyDetail'
-import { Fade, Grow } from '../../../deps/ui'
+import { Fade, Grow, useTheme } from '../../../deps/ui'
 
 
 const AddEmployee = () => {
-    const matches = useMediaQuery((theme) => theme.breakpoints.up('sm'));
+    const theme = useTheme();
+    
+    const matches = useMediaQuery(theme.breakpoints.up('sm'));
     const [tab, setTab] = useState('0');
     const tabs = useMemo(() => [
         {

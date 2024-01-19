@@ -4,7 +4,6 @@ import Controls from '../../../components/controls/Controls';
 import Popup from '../../../components/Popup';
 import { AutoForm } from '../../../components/useForm';
 import { API } from '../_Service';
-import { useDispatch, useSelector } from 'react-redux';
 import { enableFilterAction, builderFieldsAction, showDropDownFilterAction, useEntitiesQuery, useEntityAction } from '../../../store/actions/httpactions';
 import { useDropDown, useDropDownIds } from "../../../components/useDropDown";
 import { Typography, Stack, GridToolbarContainer } from "../../../deps/ui";
@@ -13,6 +12,7 @@ import DataGrid, { useGridApi, getActions } from '../../../components/useDataGri
 import { useSocketIo } from '../../../components/useSocketio';
 import ConfirmDialog from '../../../components/ConfirmDialog';
 import PropTypes from 'prop-types'
+import { useAppDispatch, useAppSelector } from "../../../store/storehook";
 
 function CombineDetail(params) {
   return (
@@ -121,7 +121,9 @@ export const AddArea = ({ openPopup, setOpenPopup, isEdit = false, row = null })
       if (isEdit)
         dataToInsert._id = editId
 
-      addEntity({ url: DEFAULT_API, data: [dataToInsert] });
+      addEntity({ url: DEFAULT_API, data: [dataToInsert] }).then(r => {
+        if (r?.data) setOpenPopup(false);
+      });
     }
   }
 
@@ -169,6 +171,7 @@ export const AddArea = ({ openPopup, setOpenPopup, isEdit = false, row = null })
       name: "areaName",
       label: "Area",
       required: true,
+      onKeyDown: (e) => e.keyCode == 13 && handleSubmit(),
       validate: {
         errorMessage: "Area is required"
       },
@@ -199,7 +202,7 @@ export const AddArea = ({ openPopup, setOpenPopup, isEdit = false, row = null })
 }
 
 const Area = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const [openPopup, setOpenPopup] = useState(false);
   const [pageSize, setPageSize] = useState(30);
   const isEdit = React.useRef(false);
@@ -225,7 +228,7 @@ const Area = () => {
   const [records, setRecords] = useState([]);
 
   const gridApiRef = useGridApi();
-  const query = useSelector(e => e.appdata.query.builder);
+  const query = useAppSelector(e => e.appdata.query.builder);
   const { countryIds, stateIds, cityIds } = useDropDownIds();
 
 

@@ -14,7 +14,7 @@ export function useForm(initialFValues, validateOnChange = false, validate) {
     const handleInputChange = (e, exec) => {
         const { name, value } = e.target
         let _value = value;
-        
+
         if (typeof _value === "string") {
             _value = _value.trimStart()
         }
@@ -46,7 +46,7 @@ export function useForm(initialFValues, validateOnChange = false, validate) {
     }
     const resetForm = () => {
         resetError();
-        setValues(initialFValues);
+        setValues(structuredClone(initialFValues));
     }
 
     return {
@@ -171,9 +171,12 @@ export const AutoForm = forwardRef(function (props, ref) {
 
                         delete childItem.validate;
                     }
-                    const value = childItem.defaultValue;
-                    delete childItem.defaultValue;
-                    childItem.name && Object.assign(initialValues, { [childItem.name]: value })
+                    if ("defaultValue" in childItem) {
+                        const value = childItem.defaultValue;
+                        delete childItem.defaultValue;
+                        childItem.name && Object.assign(initialValues, { [childItem.name]: value })
+                    }
+
                 }
                 continue;
             }
@@ -190,10 +193,12 @@ export const AutoForm = forwardRef(function (props, ref) {
                     })
                 delete item.validate;
             }
+            if ("defaultValue" in item) {
+                const value = item.defaultValue;
+                delete item.defaultValue;
+                item.name && Object.assign(initialValues, { [item.name]: value })
+            }
 
-            const value = item.defaultValue;
-            delete item.defaultValue;
-            item.name && Object.assign(initialValues, { [item.name]: value })
         }
         setValues(currentValues => {
             return Object.assign({}, initialValues, currentValues)

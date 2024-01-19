@@ -1,4 +1,3 @@
-import * as React from 'react';
 import PropTypes from 'prop-types';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -6,7 +5,7 @@ import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Close';
 import { ToggleOn } from '../deps/ui/icons'
-import { Box, Chip } from '../deps/ui'
+import { Box, Chip, Pagination as MuiPagination, Stack } from '../deps/ui'
 import { alpha, styled } from '@mui/material/styles';
 import Controls from './controls/Controls'
 import {
@@ -16,7 +15,9 @@ import {
   GridToolbarContainer,
   GridActionsCellItem,
   LicenseInfo,
-  GridOverlay, GridToolbarExport, GridToolbarFilterButton
+  GridOverlay,
+  GridPagination,
+
 } from '@mui/x-data-grid-pro';
 import LinearProgress from '@mui/material/LinearProgress';
 
@@ -207,29 +208,60 @@ function CustomLoadingOverlay() {
     </GridOverlay>
   );
 }
+const pageSizes = [
+  { id: 10, name: 10 },
+  { id: 30, name: 30 },
+  { id: 50, name: 50 },
+  { id: 100, name: 100 }
+];
 
+/**
+ * 
+ * @param {Pick<import('@mui/material').TablePaginationProps, 'page' | 'onPageChange' | 'className'>} param0 
+ * @returns {JSX.Element}
+ */
+function Pagination({
+  page,
+  onPageChange,
+  className,
+  count, rowsPerPage
+}) {
+
+  return (
+    <MuiPagination
+      color='primary'
+      className={className}
+      count={Math.ceil(count / rowsPerPage)}
+      page={page + 1}
+      onChange={(event, newPage) => {
+        onPageChange(newPage - 1);
+      }}
+    />
+  );
+}
+
+function CustomPagination(props) {
+  return <GridPagination ActionsComponent={Pagination} {...props} />;
+}
+/**
+ * 
+ * @param {import('@mui/x-data-grid-pro/models/dataGridProProps').DataGridProPropsWithoutDefaultValue} props 
+ * @returns {JSX.Element}
+ */
 export default function FeaturedCrudGrid(props) {
 
   const { apiRef, columns, rows, loading,
-    pageSize, onRowsScrollEnd,
+    pageSize = 10, onRowsScrollEnd,
+    page = 1,
     setSelectionModel,
+    setFilter,
     density = "compact",
     checkboxSelection = true,
     rowHeight = null,
     totalCount = 0,
     gridToolBar: GridToolBar, toolbarProps, ...others
   } = props;
-  // const handleRowEditStart = (params, event) => {
-  //   event.defaultMuiPrevented = true;
-  // };
 
-  // const handleRowEditStop = (params, event) => {
-  //   event.defaultMuiPrevented = true;
-  // };
-
-  // const handleCellFocusOut = (params, event) => {
-  //   event.defaultMuiPrevented = true;
-  // };
 
   return (
     <Box
@@ -246,7 +278,7 @@ export default function FeaturedCrudGrid(props) {
     >
       <StripedDataGrid
         density={density}
-        rows={rows}
+        rows={rows ?? []}
         loading={loading}
         {...(setSelectionModel && {
           onSelectionModelChange: (newSelectionModel) => {
@@ -262,19 +294,25 @@ export default function FeaturedCrudGrid(props) {
         getRowClassName={(params) =>
           params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd'
         }
-        editMode="row"
-        scrollEndThreshold={20}
+
+        sortingMode='server'
         rowCount={totalCount}
-        // onRowEditStart={handleRowEditStart}
-        // onRowEditStop={handleRowEditStop}
-        // onCellFocusOut={handleCellFocusOut}
+        rowsPerPageOptions={[10, 25, 50, 100]}
+        pagination
+        page={page}
+        pageSize={pageSize}
+        onPageSizeChange={(_z) => setFilter((pre) => ({ ...pre, limit: _z, page: 0 }))}
+        paginationMode='server'
         components={{
           LoadingOverlay: CustomLoadingOverlay,
           Toolbar: GridToolBar,
+          Pagination: CustomPagination
         }}
         {...others}
         componentsProps={{
           toolbar: toolbarProps,
+          pagination: { onPageChange: (n) => setFilter((pre) => ({ ...pre, page: n })), page: page }
+
         }}
       />
     </Box>
@@ -290,6 +328,7 @@ FeaturedCrudGrid.propTypes = {
   }),
   density: PropTypes.oneOf(["compact", "standard", "comfortable"]),
   pageSize: PropTypes.number,
+  page: PropTypes.number,
   checkboxSelection: PropTypes.bool,
   onRowsScrollEnd: PropTypes.func,
   loading: PropTypes.bool,
@@ -298,13 +337,14 @@ FeaturedCrudGrid.propTypes = {
   getData: PropTypes.func,
   selectionModel: PropTypes.array,
   setSelectionModel: PropTypes.func,
+  setFilter: PropTypes.func,
   gridToolBar: PropTypes.elementType,
   toolbarProps: PropTypes.object
 }
 
 FeaturedCrudGrid.defaultProps = {
   checkboxSelection: true,
-  pageSize: 30,
+  pageSize: 10,
   loading: false,
   editable: false
 }

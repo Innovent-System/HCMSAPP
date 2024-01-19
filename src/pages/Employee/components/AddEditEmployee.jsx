@@ -166,15 +166,15 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
         fkRoleTemplateId: values.companyInfo.fkRoleTemplateId,
         joiningDate: values.companyInfo.joiningDate,
         confirmationDate: values.companyInfo.confirmationDate,
-        address1: values?.contactDetial.address1,
-        address2: values?.contactDetial.address2,
-        zipCode: values?.contactDetial.zipCode,
-        country: values?.contactDetial.country,
-        state: values?.contactDetial.state,
-        city: values?.contactDetial.city,
-        mobileNo: values?.contactDetial.mobileNo,
-        workNo: values?.contactDetial.values,
-        emergencyNo: values?.contactDetial.emergencyNo
+        address1: values?.contactDetial?.address1,
+        address2: values?.contactDetial?.address2,
+        zipCode: values?.contactDetial?.zipCode,
+        country: values?.contactDetial?.country,
+        state: values?.contactDetial?.state,
+        city: values?.contactDetial?.city,
+        mobileNo: values?.contactDetial?.mobileNo,
+        workNo: values?.contactDetial?.values,
+        emergencyNo: values?.contactDetial?.emergencyNo
       });
     })
 

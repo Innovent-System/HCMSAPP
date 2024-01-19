@@ -262,8 +262,8 @@ const Employee = () => {
                 fullScreen={true} isEdit={isEdit.current}
                 footer={<></>} 
                 setOpenPopup={setOpenPopup}>
-                <AddEmployee />
-                {/* <EmpoyeeModal coldata={excelColData} isEdit={isEdit.current} editId={editId} setOpenPopup={setOpenPopup} /> */}
+                {/* <AddEmployee /> */}
+                <EmpoyeeModal coldata={excelColData} isEdit={isEdit.current} editId={editId} setOpenPopup={setOpenPopup} />
             </Popup>
 
             <Link style={{ float: "right" }} onClick={handleTemplate}> Employee Template</Link>

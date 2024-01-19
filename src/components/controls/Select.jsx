@@ -31,7 +31,7 @@ const MenuProps = {
 
 function Select(props) {
 
-  const { name, label, value, error = null, onChange, dataId = "", dataName = "", isMultiple = false, options = [], ...others } = props;
+  const { name, label, value, error = null, onChange, isNone = true, dataId = "", dataName = "", isMultiple = false, options = [], ...others } = props;
 
   const isAllSelected =
     options?.length > 0 && value?.length === options?.length;
@@ -63,10 +63,10 @@ function Select(props) {
 
   return (
 
-    <FormControl  {...others} fullWidth  {...others} size="small"
+    <FormControl fullWidth   {...others} size="small"
       {...(error && { error: true })}>
       <InputLabel id={`demo-multiple-name-${name}`}>{label}</InputLabel>
-      {isMultiple ? <MuiSelect 
+      {isMultiple ? <MuiSelect
         labelId={`demo-multiple-name-${name}`}
         multiple
         name={name}
@@ -101,9 +101,10 @@ function Select(props) {
         <MuiSelect
           label={label}
           name={name}
+          
           value={value}
           onChange={onChange}>
-          <MenuItem value="">None</MenuItem>
+          {isNone && <MenuItem value="">None</MenuItem>} 
           {
             options.map(
               item => (<MenuItem  {...(value && { selected: true })} key={item[dataId]} value={item[dataId]}>{item[dataName]}</MenuItem>)

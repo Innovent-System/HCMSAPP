@@ -35,13 +35,13 @@ import {
   setCommand,
   useLazySingleQuery,
 } from "../../store/actions/httpactions";
-import { useDispatch } from "react-redux";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import Logo from "../../assets/images/Logo.png";
 
 // Drawer
-import { useSelector } from "react-redux";
+
 import { routeCommand } from "./routecommand";
+import { useAppDispatch, useAppSelector } from "../../store/storehook";
 
 const useStyles = makeStyles((theme) => ({
   Appbar: {
@@ -111,10 +111,10 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Header() {
   const classes = useStyles();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const socket = useContext(SocketContext);
-  const sideMenuData = useSelector(
+  const sideMenuData = useAppSelector(
     (e) =>
       e.appdata.routeData?.sideMenuData
   );

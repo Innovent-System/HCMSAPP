@@ -11,7 +11,8 @@ export const getApi = createApi({
   keepUnusedDataFor: 30,
   endpoints: (builder) => ({
     entities: builder.query({
-      query: ({ url, params }) => ({ url, params, headers: headerOption() }),
+      query: ({ url, data }) => ({ url: `${url}/get`, body: data, method: "POST", headers: headerOption() }),
+      transformResponse: (response) => response?.result
     }),
     post: builder.query({
       query: ({ url, data }) => ({ url, body: data, method: "POST", headers: headerOption() })
@@ -44,7 +45,7 @@ export const useEntityAction = () => {
   const [updateEntity] = useUpdateManyMutation();
   const [updateOneEntity] = useUpdateOneMutation();
   const [removeEntity] = useRemoveMutation();
-  
+
   return {
     addEntity,
     updateEntity,

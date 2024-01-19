@@ -3,12 +3,12 @@ import React, { useEffect, useRef, useState } from "react";
 import Popup from '../../../components/Popup';
 import { AutoForm } from '../../../components/useForm';
 import { API } from '../_Service';
-import { useDispatch, useSelector } from 'react-redux';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAction } from '../../../store/actions/httpactions';
 import { Circle } from "../../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions, GridToolbar } from '../../../components/useDataGrid';
 import { useSocketIo } from '../../../components/useSocketio';
 import ConfirmDialog from '../../../components/ConfirmDialog';
+import { useAppDispatch, useAppSelector } from "../../../store/storehook";
 
 
 const fields = {
@@ -65,13 +65,13 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
 let editId = 0;
 const DEFAULT_API = API.COMPANY;
 const Company = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
     const [pageSize, setPageSize] = useState(30);
     const isEdit = React.useRef(false);
     const formApi = React.useRef(null);
     const [selectionModel, setSelectionModel] = React.useState([]);
-
+    const [sort, setSort] = useState({ sort: { createdAt: -1 } });
     const offSet = useRef({
         isLoadMore: false,
         isLoadFirstTime: true,
@@ -80,6 +80,7 @@ const Company = () => {
     const [filter, setFilter] = useState({
         lastKey: null,
         limit: 10,
+        page: 0,
         totalRecord: 0
     })
 
@@ -89,65 +90,34 @@ const Company = () => {
         subTitle: "",
     });
 
-    const [records, setRecords] = useState([]);
-
     const gridApiRef = useGridApi();
-    const query = useSelector(e => e.appdata.query.builder);
+    const query = useAppSelector(e => e.appdata.query.builder);
 
-    const { data, status, isLoading, refetch, isSuccess } = useEntitiesQuery({
+    const { data, status, isLoading, refetch, isSuccess, totalRecord } = useEntitiesQuery({
         url: DEFAULT_API,
-        params: {
+        data: {
             limit: filter.limit,
+            page: filter.page + 1,
             lastKeyId: filter.lastKey,
-            searchParams: JSON.stringify(query)
+            searchParams: { ...query, ...sort }
         }
-    });
+    }, { selectFromResult: ({ data }) => ({ data: data?.entityData, totalRecord: data?.totalRecord }) });
 
     const { addEntity, updateOneEntity, removeEntity } = useEntityAction();
 
-    useEffect(() => {
-        console.log(status, isSuccess);
-        if (status === "fulfilled") {
-            const { entityData, totalRecord } = data.result;
-            if (offSet.current.isLoadMore) {
-                setRecords([...entityData, ...records]);
-            }
-            else
-                setRecords(entityData)
-
-            setFilter({ ...filter, totalRecord: totalRecord });
-            offSet.current.isLoadMore = false;
-        }
-
-    }, [status])
-
     const { socketData } = useSocketIo("changeInCompany", refetch);
 
-    useEffect(() => {
-        if (Array.isArray(socketData)) {
-            setRecords(socketData);
-        }
-    }, [socketData])
-
-    const loadMoreData = (params) => {
-        if (records.length < filter.totalRecord && params.viewportPageSize !== 0) {
-            offSet.current.isLoadMore = true;
-            setFilter({ ...filter, lastKey: records.length ? records[records.length - 1].id : null });
-        }
-    }
 
     const handleEdit = (id) => {
         isEdit.current = true;
         editId = id;
         const { setFormValue } = formApi.current;
 
-        const companydata = records.find(a => a.id === id);
+        const companydata = data.find(a => a.id === id);
         setFormValue({
             companyName: companydata.companyName
         });
         setOpenPopup(true);
-
-
     }
 
     const handleActiveInActive = (id) => {
@@ -175,7 +145,6 @@ const Company = () => {
 
 
     useEffect(() => {
-        offSet.current.isLoadFirstTime = false;
         dispatch(enableFilterAction(false));
         dispatch(builderFieldsAction(fields));
     }, [dispatch])
@@ -216,8 +185,8 @@ const Company = () => {
 
     const showAddModal = () => {
         isEdit.current = false;
-        // const { resetForm } = formApi.current;
-        //resetForm();
+        const { resetForm } = formApi.current;
+        resetForm();
         setOpenPopup(true);
     }
 
@@ -227,15 +196,20 @@ const Company = () => {
                 title="Add Company"
                 openPopup={openPopup}
                 maxWidth="sm"
+                keepMounted={true}
                 isEdit={isEdit.current}
                 addOrEditFunc={handleSubmit}
                 setOpenPopup={setOpenPopup}>
                 <AutoForm formData={formData} ref={formApi} isValidate={true} />
             </Popup>
             <DataGrid apiRef={gridApiRef}
-                columns={columns} rows={records}
-                loading={isLoading} pageSize={pageSize}
-                totalCount={filter.totalRecord}
+                columns={columns} rows={data}
+                loading={isLoading}
+                totalCount={totalRecord}
+                pageSize={filter.limit}
+                page={filter.page}
+                setFilter={setFilter}
+                onSortModelChange={(s) => setSort({ sort: s.reduce((a, v) => ({ ...a, [v.field]: v.sort === 'asc' ? 1 : -1 }), {}) })}
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: showAddModal,
@@ -245,7 +219,7 @@ const Company = () => {
                 gridToolBar={GridToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
-                onRowsScrollEnd={loadMoreData}
+            // onRowsScrollEnd={loadMoreData}
             />
             <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
         </>

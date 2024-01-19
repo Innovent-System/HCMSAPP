@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { useSelector } from 'react-redux'
+import { useAppSelector } from '../store/storehook';
 
 export const filterTypes = Object.freeze({
     DEFAULT: 'default',
@@ -69,8 +69,8 @@ export const useDropDown = () => {
     const [employees, setEmployees] = useState([]);
 
     const callbackRef = useRef(null);
-    const DropDownData = useSelector(e => e.appdata.DropDownData);
-    const employeeData = useSelector(e => e.appdata.employeeData);
+    const DropDownData = useAppSelector(e => e.appdata.DropDownData);
+    const employeeData = useAppSelector(e => e.appdata.employeeData);
 
     const [filter, setFilter] = useState({
         type: filterTypes.DEFAULT,
@@ -244,7 +244,7 @@ export const useDropDown = () => {
 }
 
 export const useDropDownIds = () => {
-    const dropdownIds = useSelector(e => e.appdata.dropdownIds);
+    const dropdownIds = useAppSelector(e => e.appdata.dropdownIds);
 
     return dropdownIds;
 }
