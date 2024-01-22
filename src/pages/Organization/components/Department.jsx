@@ -3,7 +3,6 @@ import React, { useEffect, useRef, useState } from "react";
 import Popup from '../../../components/Popup';
 import { AutoForm } from '../../../components/useForm';
 import { API } from '../_Service';
-import { useDispatch, useSelector } from 'react-redux';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAction } from '../../../store/actions/httpactions';
 import { FormHelperText } from "../../../deps/ui";
 import { Circle } from "../../../deps/ui/icons";
@@ -12,6 +11,7 @@ import { useSocketIo } from '../../../components/useSocketio';
 import ConfirmDialog from '../../../components/ConfirmDialog';
 import BulkInsert from '../../../components/BulkInsert'
 import { groupBySum } from '../../../util/common'
+import { useAppDispatch, useAppSelector } from "../../../store/storehook";
 
 const DEFAULT_API = API.Department;
 const DEFAULT_NAME = "Department";
@@ -83,7 +83,7 @@ const AddDepartment = ({ openPopup, setOpenPopup, isEdit = false, row = null }) 
     const [error, setError] = useState(false);
 
     const { addEntity } = useEntityAction();
-    const { Designations: designations, Employees } = useSelector(e => e.appdata.employeeData);
+    const { Designations: designations, Employees } = useAppSelector(e => e.appdata.employeeData);
     useEffect(() => {
         if (!formApi.current || !openPopup) return;
         const { resetForm, setFormValue } = formApi.current;
@@ -269,23 +269,18 @@ const AddDepartment = ({ openPopup, setOpenPopup, isEdit = false, row = null }) 
 }
 
 const Department = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
-    const [pageSize, setPageSize] = useState(30);
     const isEdit = React.useRef(false);
     const row = React.useRef(null);
 
     const [selectionModel, setSelectionModel] = React.useState([]);
 
-    const offSet = useRef({
-        isLoadMore: false,
-        isLoadFirstTime: true
-    })
-
-
+    const [sort, setSort] = useState({ sort: { createdAt: -1 } });
     const [filter, setFilter] = useState({
         lastKey: null,
         limit: 10,
+        page: 0,
         totalRecord: 0
     })
 
@@ -295,57 +290,27 @@ const Department = () => {
         subTitle: "",
     });
 
-    const [records, setRecords] = useState([]);
-
     const gridApiRef = useGridApi();
-    const query = useSelector(e => e.appdata.query.builder);
-    const { data, status, isLoading, refetch } = useEntitiesQuery({
+    const query = useAppSelector(e => e.appdata.query.builder);
+    const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
         url: DEFAULT_API,
-        params: {
+        data: {
             limit: filter.limit,
+            page: filter.page + 1,
             lastKeyId: filter.lastKey,
-            searchParams: JSON.stringify(query)
+            searchParams: { ...query, ...sort }
         }
-    });
+    }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
 
+    console.log("depart", isLoading, refetch, data);
     const { updateOneEntity, removeEntity } = useEntityAction();
 
-    useEffect(() => {
-        if (status === "fulfilled") {
-            const { entityData, totalRecord } = data.result;
-            if (offSet.current.isLoadMore) {
-                setRecords([...entityData, ...records]);
-            }
-            else
-                setRecords(entityData)
-
-            setFilter({ ...filter, totalRecord: totalRecord });
-            offSet.current.isLoadMore = false;
-        }
-
-    }, [data, status])
-
     const { socketData } = useSocketIo(`changeIn${DEFAULT_NAME}`, refetch);
-
-    useEffect(() => {
-        if (Array.isArray(socketData)) {
-            setRecords(socketData);
-        }
-    }, [socketData])
-
-
-    const loadMoreData = (params) => {
-        if (records.length < filter.totalRecord && params.viewportPageSize !== 0) {
-            offSet.current.isLoadMore = true;
-            setFilter({ ...filter, lastKey: records.length ? records[records.length - 1].id : null });
-        }
-    }
 
     const handleEdit = (id) => {
         isEdit.current = true;
         editId = id;
-        const data = records.find(a => a.id === id);
-        row.current = data;
+        row.current = data.find(a => a.id === id);
         setOpenPopup(true);
     }
 
@@ -374,7 +339,7 @@ const Department = () => {
 
 
     useEffect(() => {
-        offSet.current.isLoadFirstTime = false;
+
         dispatch(enableFilterAction(false));
         dispatch(builderFieldsAction(fields));
     }, [dispatch])
@@ -393,9 +358,13 @@ const Department = () => {
         <>
             <AddDepartment setOpenPopup={setOpenPopup} openPopup={openPopup} isEdit={isEdit.current} row={row.current} />
             <DataGrid apiRef={gridApiRef}
-                columns={columns} rows={records}
-                loading={isLoading} pageSize={pageSize}
-                totalCount={offSet.current.totalRecord}
+                columns={columns} rows={data}
+                loading={isLoading}
+                totalCount={totalRecord}
+                pageSize={filter.limit}
+                page={filter.page}
+                setFilter={setFilter}
+                onSortModelChange={(s) => setSort({ sort: s.reduce((a, v) => ({ ...a, [v.field]: v.sort === 'asc' ? 1 : -1 }), {}) })}
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: showAddModal,
@@ -405,7 +374,6 @@ const Department = () => {
                 gridToolBar={GridToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
-                onRowsScrollEnd={loadMoreData}
             />
             <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
         </>

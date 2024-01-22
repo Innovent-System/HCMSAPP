@@ -1,6 +1,6 @@
 import React, { useState, createRef, useEffect, forwardRef, useImperativeHandle, useMemo, useCallback, useRef } from 'react'
 import PropTypes from 'prop-types'
-import { Grid, Box, IconButton } from '../deps/ui'
+import { Grid, IconButton ,Stack} from '../deps/ui'
 import Controls, { Element, ElementType } from '../components/controls/Controls';
 import { AutoForm } from '../components/useForm'
 import { Circle, Add as AddIcon, Delete as DeleteIcon, RemoveCircleOutline } from "../deps/ui/icons";
@@ -85,14 +85,14 @@ const BulkInsert = forwardRef(({ buttonName = "", as = "form", BulkformData = [[
             onClick={Add}
             startIcon={<AddIcon />}
         />
-        {bulkData.map((data, i) => <Box key={i} width="100%" display="flex">
-            <AutoForm as={as} style={{ flex: 1 }} formData={data?.map(d => ({ ...d }))} ref={elRefs[i]} />
+        {bulkData.map((data, i) => <Stack key={i} flexDirection="row" pb={2}>
+            <AutoForm as={as} formData={data?.map(d => ({ ...d }))} ref={elRefs[i]} />
             <IconButton onClick={() => deleteData(i)} sx={{
                 ml: 2
             }} color="warning" aria-label="delete">
                 <RemoveCircleOutline />
             </IconButton>
-        </Box>)}
+        </Stack>)}
     </>
     )
 })

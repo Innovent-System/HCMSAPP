@@ -186,7 +186,7 @@ export default function Header() {
         socket.off("leaveclient");
         socket.off("leavecompany");
 
-        localStorage.clear();
+        sessionStorage.clear();
         navigate("/");
       }
     });

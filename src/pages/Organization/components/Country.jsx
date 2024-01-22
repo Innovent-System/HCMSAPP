@@ -1,15 +1,14 @@
-// eslint-disable-next-line react-hooks/exhaustive-deps
+
 import React, { useEffect, useRef, useState } from "react";
 import Popup from '../../../components/Popup';
 import { AutoForm } from '../../../components/useForm';
 import { API } from '../_Service';
-import { useDispatch, useSelector } from 'react-redux';
 import { useEntitiesQuery, useEntityAction, enableFilterAction, builderFieldsAction, useLazySingleQuery } from '../../../store/actions/httpactions';
-
 import { Circle } from "../../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions, GridToolbar } from '../../../components/useDataGrid';
 import { useSocketIo } from '../../../components/useSocketio';
 import ConfirmDialog from '../../../components/ConfirmDialog';
+import { useAppDispatch, useAppSelector } from "../../../store/storehook";
 
 const fields = {
     name: {
@@ -36,6 +35,14 @@ const fields = {
         valueSources: ['value'],
     },
 }
+/**
+ * 
+ * @param {Function} apiRef 
+ * @param {Function} onEdit 
+ * @param {Function} onActive 
+ * @param {Function} onDelete 
+ * @returns {import("@mui/x-data-grid-pro").GridColumns}
+ */
 const getColumns = (apiRef, onEdit, onActive, onDelete) => {
     const actionKit = {
         onActive: onActive,
@@ -51,7 +58,7 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
             field: 'company', headerName: 'Company', width: 180, valueGetter: ({ row }) => row.company.companyName
         },
         { field: 'modifiedOn', headerName: 'Modified On' },
-        { field: 'createdOn', headerName: 'Created On' },
+        { field: 'createdOn', headerName: 'Created On',sortingOrder:["desc"] },
         {
             field: 'isActive', headerName: 'Status', renderCell: (param) => (
                 param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
@@ -66,8 +73,8 @@ let editId = 0;
 const DEFAULT_API = API.COUNTRY;
 export const AddCountry = ({ openPopup, setOpenPopup, isEdit = false, row = null }) => {
     const formApi = useRef(null);
-    const Companies = useSelector(e => e.appdata.DropDownData?.Companies);
-    const dispatch = useDispatch();
+    const Companies = useAppSelector(e => e.appdata.DropDownData?.Companies);
+    const dispatch = useAppDispatch();
     const [getAllCountry] = useLazySingleQuery()
     const [countryData, setCountryData] = useState([]);
     useEffect(() => {
@@ -150,23 +157,19 @@ export const AddCountry = ({ openPopup, setOpenPopup, isEdit = false, row = null
 }
 
 const Country = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
-    const [pageSize, setPageSize] = useState(30);
+   
     const isEdit = React.useRef(false);
     const row = useRef(null);
     const [selectionModel, setSelectionModel] = React.useState([]);
-    const offSet = useRef({
-        isLoadMore: false,
-        isLoadFirstTime: true,
-    })
-
+    const [sort, setSort] = useState({ sort: { createdAt: -1 } });
     const [filter, setFilter] = useState({
         lastKey: null,
         limit: 10,
+        page: 0,
         totalRecord: 0
     })
-
 
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,
@@ -174,58 +177,27 @@ const Country = () => {
         subTitle: "",
     });
 
-    const [countries, setCountry] = useState([]);
-
     const gridApiRef = useGridApi();
-    const query = useSelector(e => e.appdata.query.builder);
+    const query = useAppSelector(e => e.appdata.query.builder);
 
-    const { data, isLoading, status, refetch } = useEntitiesQuery({
+    const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
         url: DEFAULT_API,
-        params: {
-            limit: offSet.current.limit,
-            lastKeyId: offSet.current.isLoadMore ? offSet.current.lastKeyId : "",
-            searchParams: JSON.stringify(query)
+        data: {
+            limit: filter.limit,
+            page: filter.page + 1,
+            lastKeyId: filter.lastKey,
+            searchParams: { ...query, ...sort }
         }
-    });
+    }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
 
     const { updateOneEntity, removeEntity } = useEntityAction();
 
-    useEffect(() => {
-        if (status === "fulfilled") {
-            const { entityData, totalRecord } = data.result;
-            if (offSet.current.isLoadMore) {
-                setCountry([...entityData, ...countries]);
-            }
-            else
-                setCountry(entityData)
-
-            setFilter({ ...filter, totalRecord: totalRecord });
-            offSet.current.isLoadMore = false;
-        }
-
-    }, [data, status])
-
-
     const { socketData } = useSocketIo("changeInCountry", refetch);
-    useEffect(() => {
-        if (Array.isArray(socketData)) {
-            setCountry(socketData);
-        }
-    }, [socketData])
-
-
-    const loadMoreData = (params) => {
-        if (countries.length < filter.totalRecord && params.viewportPageSize !== 0) {
-            offSet.current.isLoadMore = true;
-            setFilter({ ...filter, lastKey: countries.length ? countries[countries.length - 1].id : null });
-        }
-    }
 
     const handleEdit = (id) => {
         isEdit.current = true;
         editId = id;
-        const rowData = countries.find(a => a.id === id);
-        row.current = rowData;
+        row.current = data.find(a => a.id === id);
         setOpenPopup(true);
     }
 
@@ -254,7 +226,6 @@ const Country = () => {
 
 
     useEffect(() => {
-        offSet.current.isLoadFirstTime = false;
         dispatch(enableFilterAction(false));
         dispatch(builderFieldsAction(fields));
     }, [dispatch])
@@ -271,9 +242,13 @@ const Country = () => {
         <>
             <AddCountry openPopup={openPopup} setOpenPopup={setOpenPopup} row={row.current} isEdit={isEdit.current} />
             <DataGrid apiRef={gridApiRef}
-                columns={columns} rows={countries}
+                columns={columns} rows={data}
                 loading={isLoading}
-                pageSize={pageSize}
+                totalCount={totalRecord}
+                pageSize={filter.limit}
+                page={filter.page}
+                setFilter={setFilter}
+                onSortModelChange={(s) => setSort({ sort: s.reduce((a, v) => ({ ...a, [v.field]: v.sort === 'asc' ? 1 : -1 }), {}) })}
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: showAddModal,
@@ -283,7 +258,6 @@ const Country = () => {
                 gridToolBar={GridToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
-                onRowsScrollEnd={loadMoreData}
             />
             <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
         </>

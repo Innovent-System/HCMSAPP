@@ -58,7 +58,7 @@ function StatusHanlder() {
         if (status === 401) {
           const info = Auth.getitem('userInfo') || {};
           const formId = window.location.pathname.substr(window.location.pathname.lastIndexOf("/") + 1);
-          localStorage.clear();
+          sessionStorage.clear();
           navigate("/");
           socket.off("leaveclient");
           socket.off("leavecompany");

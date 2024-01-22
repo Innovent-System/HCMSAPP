@@ -89,7 +89,7 @@ const DEFAULT_API = API.AREA;
 export const AddArea = ({ openPopup, setOpenPopup, isEdit = false, row = null }) => {
   const { addEntity } = useEntityAction();
   const formApi = useRef(null);
-  const { countries, cities, states,employees, filterType, setFilter } = useDropDown();
+  const { countries, cities, states, employees, filterType, setFilter } = useDropDown();
 
   useEffect(() => {
     if (!formApi.current || !openPopup) return;
@@ -113,7 +113,7 @@ export const AddArea = ({ openPopup, setOpenPopup, isEdit = false, row = null })
     const { getValue, validateFields } = formApi.current
     if (validateFields()) {
       let values = getValue();
-      let dataToInsert = {...values};
+      let dataToInsert = { ...values };
       dataToInsert.areaHead = dataToInsert.areaHead?._id ?? null;
       dataToInsert.country = { country_id: values.fkCountryId._id, countryName: values.fkCountryId.name, intId: values.fkCountryId.id };
       dataToInsert.state = { state_id: values.fkStateId._id, stateName: values.fkStateId.name, intId: values.fkStateId.id };
@@ -204,18 +204,17 @@ export const AddArea = ({ openPopup, setOpenPopup, isEdit = false, row = null })
 const Area = () => {
   const dispatch = useAppDispatch();
   const [openPopup, setOpenPopup] = useState(false);
-  const [pageSize, setPageSize] = useState(30);
+
   const isEdit = React.useRef(false);
   const row = useRef(null);
   const [selectionModel, setSelectionModel] = React.useState([]);
-  const offSet = useRef({
-    isLoadMore: false,
-    isLoadFirstTime: true,
-  })
 
-  const [gridFilter, setGridFilter] = useState({
+  const [sort, setSort] = useState({ sort: { createdAt: -1 } });
+
+  const [filter, setFilter] = useState({
     lastKey: null,
     limit: 10,
+    page: 0,
     totalRecord: 0
   })
 
@@ -225,64 +224,34 @@ const Area = () => {
     subTitle: "",
   });
 
-  const [records, setRecords] = useState([]);
-
   const gridApiRef = useGridApi();
   const query = useAppSelector(e => e.appdata.query.builder);
   const { countryIds, stateIds, cityIds } = useDropDownIds();
 
-
-  const { data, isLoading, status, refetch } = useEntitiesQuery({
+  const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
     url: DEFAULT_API,
-    params: {
-      limit: offSet.current.limit,
-      lastKeyId: offSet.current.isLoadMore ? offSet.current.lastKeyId : "",
-      searchParams: JSON.stringify({
-        ...query,
+    data: {
+      limit: filter.limit,
+      page: filter.page + 1,
+      lastKeyId: filter.lastKey,
+      searchParams: {
+        ...query, ...sort,
         ...(countryIds && { "country.country_id": countryIds }),
         ...(stateIds && { "state.state_id": stateIds }),
         ...(cityIds && { "city.city_id": cityIds })
-      })
+      }
     }
-  });
+  }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
 
 
   const { updateOneEntity, removeEntity } = useEntityAction();
 
-  useEffect(() => {
-    if (status === "fulfilled") {
-      const { entityData, totalRecord } = data.result;
-      if (offSet.current.isLoadMore) {
-        setRecords([...entityData, ...records]);
-      }
-      else
-        setRecords(entityData)
-
-      setGridFilter({ ...gridFilter, totalRecord: totalRecord });
-      offSet.current.isLoadMore = false;
-    }
-
-  }, [data, status])
-
   const { socketData } = useSocketIo("changeInArea", refetch);
-  useEffect(() => {
-    if (Array.isArray(socketData)) {
-      setRecords(socketData);
-    }
-  }, [socketData])
-
-  const loadMoreData = (params) => {
-    if (records.length < gridFilter.totalRecord && params.viewportPageSize !== 0) {
-      offSet.current.isLoadMore = true;
-      setGridFilter({ ...gridFilter, lastKey: records.length ? records[records.length - 1].id : null });
-    }
-  }
 
   const handleEdit = (id) => {
     isEdit.current = true;
     editId = id;
-    const area = records.find(a => a.id === id);
-    row.current = area;
+    row.current = data.find(a => a.id === id);
     setOpenPopup(true);
 
   }
@@ -311,8 +280,6 @@ const Area = () => {
   }
 
   useEffect(() => {
-    offSet.current.isLoadFirstTime = false;
-
     dispatch(showDropDownFilterAction({
       country: true,
       state: true,
@@ -325,8 +292,6 @@ const Area = () => {
 
   const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive, handelDeleteItems);
 
-
-
   const showAddModal = () => {
     isEdit.current = false;
     setOpenPopup(true);
@@ -336,9 +301,13 @@ const Area = () => {
     <>
       <AddArea openPopup={openPopup} setOpenPopup={setOpenPopup} row={row.current} isEdit={isEdit.current} />
       <DataGrid apiRef={gridApiRef}
-        columns={columns} rows={records}
-        totalCount={gridFilter.totalRecord}
-        loading={isLoading} pageSize={pageSize}
+        columns={columns} rows={data}
+        loading={isLoading}
+        totalCount={totalRecord}
+        pageSize={filter.limit}
+        page={filter.page}
+        setFilter={setFilter}
+        onSortModelChange={(s) => setSort({ sort: s.reduce((a, v) => ({ ...a, [v.field]: v.sort === 'asc' ? 1 : -1 }), {}) })}
         toolbarProps={{
           apiRef: gridApiRef,
           onAdd: showAddModal,
@@ -348,7 +317,6 @@ const Area = () => {
         gridToolBar={AreaToolbar}
         selectionModel={selectionModel}
         setSelectionModel={setSelectionModel}
-        onRowsScrollEnd={loadMoreData}
       />
       <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
     </>

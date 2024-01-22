@@ -16,9 +16,9 @@ export default function Input(props) {
             sx={sx}
             size="small"
             // onBlur={onChange}
-            InputLabelProps={{
-                shrink: true,
-              }}
+            // InputLabelProps={{
+            //     shrink: true,
+            //   }}
             onChange={onChange}
             {...other}
             {...(error && {error:true,helperText:error})}

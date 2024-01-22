@@ -3,7 +3,7 @@ import CryptoJS from 'crypto-js';
 
 const SECRET_KEY = 'mysecretkey';
 
-const secureStorage = new SecureStorage(localStorage, {
+const secureStorage = new SecureStorage(sessionStorage, {
     hash: function hash(key) {
         key = CryptoJS.SHA256(key, SECRET_KEY);
         return key.toString();

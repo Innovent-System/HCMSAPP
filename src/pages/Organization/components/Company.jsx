@@ -1,5 +1,5 @@
 // eslint-disable-next-line react-hooks/exhaustive-deps
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Popup from '../../../components/Popup';
 import { AutoForm } from '../../../components/useForm';
 import { API } from '../_Service';
@@ -37,6 +37,14 @@ const fields = {
     },
 }
 
+/**
+ * 
+ * @param {Function} apiRef 
+ * @param {Function} onEdit 
+ * @param {Function} onActive 
+ * @param {Function} onDelete 
+ * @returns {import("@mui/x-data-grid-pro").GridColumns}
+ */
 const getColumns = (apiRef, onEdit, onActive, onDelete) => {
     const actionKit = {
         onActive: onActive,
@@ -44,12 +52,13 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
         onDelete: onDelete
     }
     return [
+        
         { field: '_id', headerName: 'Id', hide: true, hideable: false },
         {
-            field: 'companyName', headerName: 'Company', width: 180, hideable: false
+            field: 'companyName', headerName: 'Name', width: 180, hideable: false
         },
         { field: 'modifiedOn', headerName: 'Modified On', hideable: false },
-        { field: 'createdOn', headerName: 'Created On', hideable: false },
+        { field: 'createdOn', headerName: 'Created On', hideable: false ,sortingOrder:["desc"]},
         {
             field: 'isActive', headerName: 'Status', renderCell: (param) => (
                 param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
@@ -67,15 +76,10 @@ const DEFAULT_API = API.COMPANY;
 const Company = () => {
     const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
-    const [pageSize, setPageSize] = useState(30);
     const isEdit = React.useRef(false);
     const formApi = React.useRef(null);
     const [selectionModel, setSelectionModel] = React.useState([]);
     const [sort, setSort] = useState({ sort: { createdAt: -1 } });
-    const offSet = useRef({
-        isLoadMore: false,
-        isLoadFirstTime: true,
-    })
 
     const [filter, setFilter] = useState({
         lastKey: null,
@@ -93,7 +97,7 @@ const Company = () => {
     const gridApiRef = useGridApi();
     const query = useAppSelector(e => e.appdata.query.builder);
 
-    const { data, status, isLoading, refetch, isSuccess, totalRecord } = useEntitiesQuery({
+    const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
         url: DEFAULT_API,
         data: {
             limit: filter.limit,
@@ -101,7 +105,7 @@ const Company = () => {
             lastKeyId: filter.lastKey,
             searchParams: { ...query, ...sort }
         }
-    }, { selectFromResult: ({ data }) => ({ data: data?.entityData, totalRecord: data?.totalRecord }) });
+    }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
 
     const { addEntity, updateOneEntity, removeEntity } = useEntityAction();
 
@@ -219,7 +223,6 @@ const Company = () => {
                 gridToolBar={GridToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
-            // onRowsScrollEnd={loadMoreData}
             />
             <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
         </>
