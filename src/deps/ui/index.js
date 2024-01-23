@@ -8,7 +8,7 @@ export {
     Card, Dialog, DialogTitle, DialogContent, ListSubheader, StepContent,
     TableContainer, TableBody, Table, TableHead, TableRow, TableCell, TablePagination, TableSortLabel, Autocomplete, createFilterOptions,
     DialogActions, Stack, Tab, Tabs, Accordion, AccordionSummary, AccordionDetails, Backdrop, CardActionArea, CardContent, CardActions, CardHeader, MenuList
-    , SpeedDial, SpeedDialAction, SpeedDialIcon, Chip, Fab, Grow,Pagination
+    , SpeedDial, SpeedDialAction, SpeedDialIcon, Chip, Fab, Grow, Pagination, CardMedia
 } from '@mui/material';
 
 export {
@@ -18,8 +18,8 @@ export {
 
 } from '@mui/x-data-grid-pro';
 
-export { createTheme,useTheme } from '@mui/material/styles';
-export { makeStyles,ThemeProvider } from '@mui/styles'
+export { createTheme, useTheme } from '@mui/material/styles';
+export { makeStyles, ThemeProvider } from '@mui/styles'
 
 
 

@@ -38,38 +38,39 @@ const useStyles = makeStyles(() => createStyles({
       textDecoration: 'none'
     },
     '#root': {
-     height: '100%',
-      width: '100%'
+      height: '100%',
+      width: '100%',
+      overflow: "hidden"
     },
     '.clearfix': {
-      '&::after':{
+      '&::after': {
         content: '""',
         clear: 'both',
         display: 'table'
       }
     },
     ".content-area": {
-      background:`url(${BodyBG})`,
+      background: `url(${BodyBG})`,
       height: "calc(100vh - 48px)",
       overflowY: "auto",
       overflowX: "hidden",
       padding: 15,
-      '& .MuiBox-root':{
-        '& .MuiTabs-root':{
-            background: 'linear-gradient(to bottom, #ffffff 0%,#e5e5e5 100%)',
+      '& .MuiBox-root': {
+        '& .MuiTabs-root': {
+          background: 'linear-gradient(to bottom, #ffffff 0%,#e5e5e5 100%)',
         },
-        '& .MuiTabPanel-root':{
-            padding: 0,
+        '& .MuiTabPanel-root': {
+          padding: 0,
         },
-        '& .MuiDataGrid-root':{
-            background: '#fff',
-            '& .MuiDataGrid-toolbarContainer':{
-              padding: '4px 8px',
-              borderBottom: '1px solid #e0e0e0',
-            }
+        '& .MuiDataGrid-root': {
+          background: '#fff',
+          '& .MuiDataGrid-toolbarContainer': {
+            padding: '4px 8px',
+            borderBottom: '1px solid #e0e0e0',
+          }
         }
       }
-     },
+    },
   }
 }));
 

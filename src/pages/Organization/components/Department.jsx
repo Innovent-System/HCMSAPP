@@ -119,10 +119,13 @@ const AddDepartment = ({ openPopup, setOpenPopup, isEdit = false, row = null }) 
                 defaultValue: d.noOfPositions
             }]))
 
+
+
             setFormValue({
                 departmentName: data.departmentName,
                 employeeLimit: data.employeeLimit,
                 code: data.code,
+                departmentHead: data?.depart_head ? Employees.find(e => e._id === data?.depart_head._id) : null
             });
         }
     }, [openPopup, formApi])
@@ -304,7 +307,6 @@ const Department = () => {
 
     console.log("depart", isLoading, refetch, data);
     const { updateOneEntity, removeEntity } = useEntityAction();
-
     const { socketData } = useSocketIo(`changeIn${DEFAULT_NAME}`, refetch);
 
     const handleEdit = (id) => {

@@ -3,7 +3,7 @@ import { makeStyles } from "../../../deps/ui";
 import Controls from '../../../components/controls/Controls';
 import { useForm, Form } from "../../../components/useForm";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
-import { InputAdornment, IconButton, Link, Box, Container, Typography, Paper, CircularProgress } from "../../../deps/ui";
+import { InputAdornment, IconButton, Link, Box, Container, Typography, Paper, CircularProgress, Card, CardContent, CardMedia, CardActions } from "../../../deps/ui";
 import { Visibility, VisibilityOff, Person } from '../../../deps/ui/icons';
 import { green } from '../../../deps/ui/colorschema';
 import { AppRoutesThunk, AuthThunk, setUserInfo } from '../../../store/actions/httpactions';
@@ -139,117 +139,86 @@ const SignIn = () => {
 
 
   return (
-    <>
-      <Box className={classes.Root}>
+    <Card>
+      <CardContent sx={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
+        <CardMedia
+          component="img"
+          image='/login.png'
+          width={300}
+          height={300}
+          sx={{ objectFit: "contain" }}
 
-        <Box
-          display="flex"
-          flexDirection="column"
-          height="100%"
-          justifyContent="center"
-        >
-          <Container className={classes.Transparent} component={Paper}
-            elevate={3} maxWidth="sm">
+        />
+        <Form  onSubmit={handleSubmit}>
 
-            <Box display='flex' alignItems='center' flexDirection='column'>
+          <Controls.Input
+            name="userName"
+            label="User Name"
+            style={{ width: '60%' }}
+            value={values.userName}
+            onChange={handleInputChange}
+            error={errors.userName}
+            autoFocus
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton color="primary">
+                    <Person />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+
+          <Controls.Input
+            name="password"
+            label="Password"
+            value={values.password}
+            type={values.isShowPassword ? 'text' : 'password'}
+            onChange={handleInputChange}
+            style={{ width: '60%' }}
+            error={errors.password}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleClickShowPassword}
+                    onMouseDown={handleMouseDownPassword}
+                    color="primary"
+                  >
+                    {values.isShowPassword ? <Visibility /> : <VisibilityOff />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+          <Controls.Button
+            text="Login"
+
+            type="submit"
+            disabled={loader}
+          />
+
+          {loader && (
+            <CircularProgress size={24} className={classes.ButtonProgress} />
+          )}
+          <Controls.Button text="Reset" color="inherit" onClick={() => { setLoader(false); resetForm() }} />
+
+          <Link
+            component={RouterLink}
+            to="/register"
+            variant="body2"
+          >
+            Forgotten Password
+          </Link>
 
 
-              <Typography
-                color="textPrimary"
-                variant="h4"
-              >
-                Sign in
-              </Typography>
-              <Typography
-                color="textSecondary"
-                gutterBottom
-                variant="body2"
-              >
-                Sign in on the internal platform
-              </Typography>
+        </Form>
+      </CardContent>
 
+    </Card>
 
-
-            </Box>
-            <Form onSubmit={handleSubmit}>
-
-              <Controls.Input
-                name="userName"
-                label="User Name"
-                style={{ width: '60%' }}
-                value={values.userName}
-                onChange={handleInputChange}
-                error={errors.userName}
-                autoFocus
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton color="primary">
-                        <Person />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-
-              <Controls.Input
-                name="password"
-                label="Password"
-                value={values.password}
-                type={values.isShowPassword ? 'text' : 'password'}
-                onChange={handleInputChange}
-                style={{ width: '60%' }}
-                error={errors.password}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label="toggle password visibility"
-                        onClick={handleClickShowPassword}
-                        onMouseDown={handleMouseDownPassword}
-                        color="primary"
-                      >
-                        {values.isShowPassword ? <Visibility /> : <VisibilityOff />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-
-              {/* <Box mb={2} display='flex' justifyContent='center' alignItems='center'>
-
-                <Box className={classes.Wrapper}> */}
-                  <Controls.Button
-                    text="Login"
-
-                    type="submit"
-                    disabled={loader}
-                  />
-
-                  {loader && (
-                    <CircularProgress size={24} className={classes.ButtonProgress} />
-                  )}
-                  <Controls.Button text="Reset" color="inherit" onClick={() => { setLoader(false); resetForm() }} />
-                {/* </Box>
-
-              </Box> */}
-
-              <Link
-                component={RouterLink}
-                to="/register"
-                variant="body2"
-              >
-                Forgotten Password
-              </Link>
-
-            </Form>
-
-          </Container>
-
-        </Box>
-
-      </Box>
-    </>
   )
 }
 
