@@ -52,7 +52,7 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
     return [
         { field: '_id', headerName: 'Id', hide: true },
         {
-            field: 'name', headerName: 'Country', width: 180
+            field: 'name', headerName: 'Name', width: 180
         },
         {
             field: 'company', headerName: 'Company', width: 180, valueGetter: ({ row }) => row.company.companyName
