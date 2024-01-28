@@ -107,13 +107,19 @@ const validateAllFields = (fieldValues, values) => {
 }
 const DEFAULT_BREAK_POINTS = { xs: 12, sm: 6, md: 6 };
 
+
+/**
+ * @type {React.FC<import('../types/fromstype').FormProps>}
+ */
 export const AutoForm = forwardRef(function (props, ref) {
+
 
     const { formData, breakpoints, children, isValidate = false, isEdit = false, flexDirection = "row", as = "form", ...other } = props;
     const formStates = useRef({
         initialValues: {},
         errorProps: [],
     });
+
     const { errorProps, initialValues } = formStates.current;
 
     const validateField = (fieldValues = errorProps) => {
@@ -154,7 +160,7 @@ export const AutoForm = forwardRef(function (props, ref) {
 
 
     useEffect(() => {
-        // if(!isEdit && Object.keys(initialValues).length === Object.keys(values).length) return 
+        // if(!isEdit && Object.keys(initialValues).length === Object.keys(values).length) return
         for (const item of formData) {
             if ("Component" in item) {
                 for (const childItem of item._children) {
@@ -374,3 +380,5 @@ AutoForm.propTypes = {
         xl: PropTypes.number  //extra-large: 1536px
     })
 }
+
+AutoForm.displayName = 'AutoForm'

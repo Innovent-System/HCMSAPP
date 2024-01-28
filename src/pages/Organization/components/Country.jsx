@@ -58,7 +58,7 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
             field: 'company', headerName: 'Company', width: 180, valueGetter: ({ row }) => row.company.companyName
         },
         { field: 'modifiedOn', headerName: 'Modified On' },
-        { field: 'createdOn', headerName: 'Created On',sortingOrder:["desc"] },
+        { field: 'createdOn', headerName: 'Created On', sortingOrder: ["desc"] },
         {
             field: 'isActive', headerName: 'Status', renderCell: (param) => (
                 param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
@@ -159,7 +159,7 @@ export const AddCountry = ({ openPopup, setOpenPopup, isEdit = false, row = null
 const Country = () => {
     const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
-   
+
     const isEdit = React.useRef(false);
     const row = useRef(null);
     const [selectionModel, setSelectionModel] = React.useState([]);
@@ -186,7 +186,8 @@ const Country = () => {
             limit: filter.limit,
             page: filter.page + 1,
             lastKeyId: filter.lastKey,
-            searchParams: { ...query, ...sort }
+            ...sort,
+            searchParams: { ...query }
         }
     }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
 

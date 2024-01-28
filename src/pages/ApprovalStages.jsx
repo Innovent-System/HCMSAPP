@@ -3,7 +3,6 @@ import React, { useEffect, useRef, useState, useId } from "react";
 import Controls from '../components/controls/Controls';
 import Popup from '../components/Popup';
 import { AutoForm } from '../components/useForm';
-import { useDispatch, useSelector } from 'react-redux';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAction } from '../store/actions/httpactions';
 import { GridToolbarContainer, GridActionsCellItem } from "../deps/ui";
 import { Circle, Add as AddIcon, Delete as DeleteIcon, Check, ToggleOn, Edit, North, South } from "../deps/ui/icons";
@@ -15,6 +14,7 @@ import { GET_STAGES, STAGES_REORDER } from "../services/UrlService";
 import Auth from '../services/AuthenticationService';
 import { useDropDown } from "../components/useDropDown";
 import { formateISODateTime } from "../services/dateTimeService";
+import { useAppDispatch, useAppSelector } from "../store/storehook";
 
 const fields = {
     name: {
@@ -110,7 +110,7 @@ export const AddApprovalStages = ({ openPopup, setOpenPopup, isEdit = false, for
     const formApi = useRef(null);
     const { addEntity } = useEntityAction();
     const { employees } = useDropDown();
-    const routes = useSelector(e => e.appdata.routeData.appRoutes);
+    const routes = useAppSelector(e => e.appdata.routeData.appRoutes);
     useEffect(() => {
         if (!formApi.current || !openPopup) return;
         const { resetForm, setFormValue } = formApi.current;
@@ -236,24 +236,22 @@ export const AddApprovalStages = ({ openPopup, setOpenPopup, isEdit = false, for
 }
 
 const ApprovalStages = ({ moduleName }) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
-    const [pageSize, setPageSize] = useState(30);
+
     const isEdit = React.useRef(false);
     const row = React.useRef(null);
     const [formId, setFormId] = useState(null);
     const [selectionModel, setSelectionModel] = React.useState([]);
 
-    const offSet = useRef({
-        isLoadMore: false,
-        isLoadFirstTime: true,
-    })
-    const formList = useSelector(e => {
-        return e.appdata.routeData?.sideMenuData || Auth.getitem("appConfigData")?.sideMenuData;
-    })
+
+    const formList = useAppSelector(e => e.appdata.routeData?.sideMenuData)
+    const [sort, setSort] = useState({ sort: { createdAt: -1 } });
+
     const [filter, setFilter] = useState({
         lastKey: null,
         limit: 10,
+        page: 0,
         totalRecord: 0
     })
 
@@ -263,59 +261,35 @@ const ApprovalStages = ({ moduleName }) => {
         subTitle: "",
     });
 
-    const [records, setRecords] = useState([]);
 
     const gridApiRef = useGridApi();
-    const query = useSelector(e => e.appdata.query.builder);
+    const query = useAppSelector(e => e.appdata.query.builder);
 
-    const { data, status, isLoading, refetch } = useEntitiesQuery({
+    const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
         url: DEFAULT_API,
-        params: {
+        data: {
             limit: filter.limit,
+            page: filter.page + 1,
             lastKeyId: filter.lastKey,
-            searchParams: JSON.stringify({
+            ...sort,
+            searchParams: {
+                ...query,
                 applicationFormId: formId ? formId : null
-            })
+            }
         }
-    });
+    }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
 
     const { updateEntity, updateOneEntity, removeEntity } = useEntityAction();
 
-    useEffect(() => {
-        if (status === "fulfilled") {
-            const { entityData, totalRecord } = data.result;
-            if (offSet.current.isLoadMore) {
-                setRecords([...entityData, ...records]);
-            }
-            else
-                setRecords(entityData)
 
-            setFilter({ ...filter, totalRecord: totalRecord });
-            offSet.current.isLoadMore = false;
-        }
-
-    }, [data, status])
 
     const { socketData } = useSocketIo("changeInStages", refetch);
 
-    useEffect(() => {
-        if (Array.isArray(socketData)) {
-            setRecords(socketData);
-        }
-    }, [socketData])
-
-    const loadMoreData = (params) => {
-        if (records.length < filter.totalRecord && params.viewportPageSize !== 0) {
-            offSet.current.isLoadMore = true;
-            setFilter({ ...filter, lastKey: records.length ? records[records.length - 1].id : null });
-        }
-    }
 
     const handleEdit = (id) => {
         isEdit.current = true;
         editId = id;
-        const data = records.find(a => a.id === id);
-        row.current = data;
+        row.current = data.find(a => a.id === id);
         setOpenPopup(true);
     }
 
@@ -372,12 +346,16 @@ const ApprovalStages = ({ moduleName }) => {
                 children.filter(c => ModuleSetting[moduleName].includes(c.formId))}
                 dataId="_id" dataName="title" />
             <DataGrid apiRef={gridApiRef}
-                columns={columns} rows={records}
+                columns={columns} rows={data}
                 rowReordering={true}
                 checkboxSelection={false}
                 onRowOrderChange={handleRowOrderChange}
-                loading={isLoading} pageSize={pageSize}
-                totalCount={offSet.current.totalRecord}
+                loading={isLoading}
+                totalCount={totalRecord}
+                pageSize={filter.limit}
+                page={filter.page}
+                setFilter={setFilter}
+                onSortModelChange={(s) => setSort({ sort: s.reduce((a, v) => ({ ...a, [v.field]: v.sort === 'asc' ? 1 : -1 }), {}) })}
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: showAddModal,
@@ -386,7 +364,7 @@ const ApprovalStages = ({ moduleName }) => {
                     selectionModel
                 }}
                 gridToolBar={ApprovalStagesToolbar}
-                onRowsScrollEnd={loadMoreData}
+
             />
             <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
         </>
@@ -400,7 +378,7 @@ function ApprovalStagesToolbar(props) {
     return (
         <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
             {/* {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null} */}
-            {formId && <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add record" />}
+            {formId && <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add Record" />}
         </GridToolbarContainer>
     );
 }

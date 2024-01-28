@@ -3,10 +3,9 @@ import React, { useEffect, useRef, useState } from "react";
 import Controls from '../../components/controls/Controls';
 import Popup from '../../components/Popup';
 import { API } from './_Service';
-import { useDispatch, useSelector } from 'react-redux';
-import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAction, useLazySingleQuery } from '../../store/actions/httpactions';
+import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAction, useLazyPostQuery } from '../../store/actions/httpactions';
 import {
-     GridActionsCellItem, Badge, Grid, Typography
+    GridActionsCellItem, Badge, Grid, Typography
 } from "../../deps/ui";
 import { Circle, People, PeopleOutline } from "../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions, GridToolbar } from '../../components/useDataGrid';
@@ -16,6 +15,7 @@ import { formateISODateTime, formateISOTime } from '../../services/dateTimeServi
 import ShiftCard from "./components/ShiftCard";
 import PageHeader from '../../components/PageHeader'
 import AssingSchedule from "./components/AssignSchedule";
+import { useAppDispatch, useAppSelector } from "../../store/storehook";
 const fields = {
     scheduleName: {
         label: 'Schedule',
@@ -70,9 +70,9 @@ const getColumns = (apiRef, onEdit, onActive, onDelete, setOpenShift) => {
             )
         },
         { field: 'modifiedOn', headerName: 'Modified On', hideable: false, flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
-        { field: 'createdOn', headerName: 'Created On', hideable: false, flex: 1,valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
+        { field: 'createdOn', headerName: 'Created On', hideable: false, flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
         {
-            field: 'isActive', headerName: 'Status',flex: 1, renderCell: (param) => (
+            field: 'isActive', headerName: 'Status', flex: 1, renderCell: (param) => (
                 param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
             ),
             flex: '0 1 5%',
@@ -102,18 +102,18 @@ const initialError = [{ startTime: "", endTime: "", missingAfter: "", late: "", 
 { startTime: "", endTime: "", missingAfter: "", late: "", early: "", shortDay: "", halfday: "" }
 ];
 
-const DEFAUL_API = API.Schedule;
+const DEFAULT_API = API.Schedule;
 let editId = 0;
 const Schedule = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
     const [openShift, setOpenShift] = useState(false);
-    const [pageSize, setPageSize] = useState(30);
     const isEdit = React.useRef(false);
     const formApi = React.useRef(null);
     const [state, setState] = useState(initialState);
+    const scheduleId = useRef(null);
 
-    const [tab, setTab] = React.useState('1');
+    const [tab, setTab] = React.useState('0');
 
     const [textField, setTextField] = useState({
         code: "",
@@ -127,19 +127,16 @@ const Schedule = () => {
 
     const [selectionModel, setSelectionModel] = React.useState([]);
     const [selectedEmployees, setSelectedEmployees] = useState([]);
-    const offSet = useRef({
-        isLoadMore: false,
-        isLoadFirstTime: true,
-        scheduleId: null
-    })
+    const [sort, setSort] = useState({ sort: { createdAt: -1 } });
 
     const [filter, setFilter] = useState({
         lastKey: null,
         limit: 10,
+        page: 0,
         totalRecord: 0
     })
 
-    const [getShiftList] = useLazySingleQuery();
+    const [getShiftList] = useLazyPostQuery();
 
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,
@@ -147,64 +144,58 @@ const Schedule = () => {
         subTitle: "",
     });
 
-    const [records, setRecords] = useState([]);
+
 
     const gridApiRef = useGridApi();
-    const query = useSelector(e => e.appdata.query.builder);
+    const query = useAppSelector(e => e.appdata.query.builder);
 
-    const { data, status, isLoading, refetch } = useEntitiesQuery({
-        url: DEFAUL_API,
-        params: {
+    const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
+        url: DEFAULT_API,
+        data: {
             limit: filter.limit,
-            lastKeyId: filter.lastKey,
-            searchParams: query ? JSON.stringify(query) : ""
+            page: filter.page + 1,
+            ...sort,
+            searchParams: { ...query }
         }
-    });
+    }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
 
     const { addEntity, updateOneEntity, updateEntity, removeEntity } = useEntityAction();
 
-    useEffect(() => {
-        if (status === "fulfilled") {
-            const { entityData, totalRecord } = data.result;
-            if (offSet.current.isLoadMore) {
-                setRecords([...entityData, ...records]);
-            }
-            else
-                setRecords(entityData)
-
-            setFilter({ ...filter, totalRecord: totalRecord });
-            offSet.current.isLoadMore = false;
-        }
-
-    }, [data, status])
-
     const { socketData } = useSocketIo("changeInSchedule", refetch);
 
-    useEffect(() => {
-        if (Array.isArray(socketData)) {
-            setRecords(socketData);
-        }
-    }, [socketData])
 
-    const loadMoreData = (params) => {
-        if (records.length < filter.totalRecord && params.viewportPageSize !== 0) {
-            offSet.current.isLoadMore = true;
-            setFilter({ ...filter, lastKey: records.length ? records[records.length - 1].id : null });
-        }
-    }
 
     const handleEdit = (id) => {
         isEdit.current = true;
         editId = id;
-        const { setFormValue } = formApi.current;
 
-        const data = records.find(a => a.id === id);
-        setFormValue(data);
+        const { code, scheduleName, weeks } = data.find(c => c.id === id);
+
+        setState(weeks.map(c => {
+            const sourceData = shiftList.current.find(c => c.id === c.fkShiftId);
+
+            return {
+                fkShiftId: c.fkShiftId,
+                name: c.name,
+                startTime: sourceData ? formateISOTime(sourceData.startTime) : "--:--:-",
+                endTime: sourceData ? formateISOTime(sourceData.endTime) : "--:--:-",
+                minTime: sourceData ? formateISOTime(sourceData.minTime) : '--:--:-',
+                maxTime: sourceData ? formateISOTime(sourceData.maxTime) : '--:--:-',
+                isNextDay: sourceData ? sourceData.isNextDay : false
+            }
+        }))
+
+        setTextField({
+            code,
+            scheduleName
+        });
+
+
         setOpenPopup(true);
     }
 
     const handleActiveInActive = (id) => {
-        updateOneEntity({ url: DEFAUL_API, data: { _id: id } });
+        updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
     }
 
     const handelDeleteItems = (ids) => {
@@ -218,7 +209,7 @@ const Schedule = () => {
             title: "Are you sure to delete this records?",
             subTitle: "You can't undo this operation",
             onConfirm: () => {
-                removeEntity({ url: DEFAUL_API, params: idTobeDelete }).then(res => {
+                removeEntity({ url: DEFAULT_API, params: idTobeDelete }).then(res => {
                     setSelectionModel([]);
                 })
             },
@@ -228,24 +219,25 @@ const Schedule = () => {
 
     useEffect(() => {
         getShiftList({
-            url: API.Shift, params: {
+            url: `${API.Shift}/get`, data: {
+                limit: filter.limit,
+                page: 1,
                 limit: 30,
-                lastKeyId: null,
-                searchParams: '{}'
+                searchParams: {}
             }
         }).then(c => {
-            if (c.data?.result)
-                shiftList.current = c.data?.result.entityData;
+            if (c.data)
+                shiftList.current = c.data?.entityData;
 
         })
 
-        offSet.current.isLoadFirstTime = false;
+
         dispatch(builderFieldsAction(fields));
 
     }, [dispatch])
 
     const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive, handelDeleteItems, (id) => {
-        offSet.current.scheduleId = id;
+        scheduleId.current = id;
         setOpenShift(true);
     });
 
@@ -262,7 +254,7 @@ const Schedule = () => {
             mapData._id = editId
 
         addEntity({
-            url: DEFAUL_API, data: [mapData]
+            url: DEFAULT_API, data: [mapData]
         });
         // }
     }
@@ -270,8 +262,8 @@ const Schedule = () => {
 
         updateEntity({
             url: API.UpdateSchedule, data: {
-                scheduleId: offSet.current.scheduleId,
-                isFromAssign: tab === "1",
+                scheduleId: scheduleId.current,
+                isFromAssign: tab === "0",
                 employeeIds: selectedEmployees
             }
         });
@@ -317,10 +309,20 @@ const Schedule = () => {
     }
     const showAddModal = () => {
         isEdit.current = false;
+        setTextField({
+            code: "",
+            scheduleName: ""  
+        })
+        setError({
+            code: "",
+            scheduleName: ""
+        });
+        setState([...initialState]);
         setOpenPopup(true);
     }
 
-    const handleTabs = (event, newValue) => {
+    const handleTabs = (newValue) => {
+
         setTab(newValue);
     };
 
@@ -336,6 +338,7 @@ const Schedule = () => {
                 title="Add Schedule"
                 openPopup={openPopup}
                 maxWidth="lg"
+
                 isEdit={isEdit.current}
                 addOrEditFunc={handleSubmit}
                 setOpenPopup={setOpenPopup}>
@@ -359,18 +362,23 @@ const Schedule = () => {
             <Popup
                 title="Assinged Schedule"
                 openPopup={openShift}
-                buttonName={tab === "1" ? "UnAssign" : "Assign"}
-                maxWidth="sm"
+                buttonName={tab === "0" ? "UnAssign" : "Assign"}
+                maxWidth="md"
+
                 isEdit={isEdit.current}
                 addOrEditFunc={updateSchedule}
                 setOpenPopup={setOpenShift}
             >
-                <AssingSchedule handleTabs={handleTabs} tab={tab} scheduleId={offSet.current.scheduleId} setSelectedEmployees={setSelectedEmployees} selectedEmployees={selectedEmployees} />
+                <AssingSchedule handleTabs={handleTabs} tab={tab} scheduleId={scheduleId.current} setSelectedEmployees={setSelectedEmployees} selectedEmployees={selectedEmployees} />
             </Popup>
             <DataGrid apiRef={gridApiRef}
-                columns={columns} rows={records}
-                loading={isLoading} pageSize={pageSize}
-                totalCount={offSet.current.totalRecord}
+                columns={columns} rows={data}
+                loading={isLoading}
+                totalCount={totalRecord}
+                pageSize={filter.limit}
+                page={filter.page}
+                setFilter={setFilter}
+                onSortModelChange={(s) => setSort({ sort: s.reduce((a, v) => ({ ...a, [v.field]: v.sort === 'asc' ? 1 : -1 }), {}) })}
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: showAddModal,
@@ -380,7 +388,7 @@ const Schedule = () => {
                 gridToolBar={GridToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
-                onRowsScrollEnd={loadMoreData}
+
             />
             <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
         </>

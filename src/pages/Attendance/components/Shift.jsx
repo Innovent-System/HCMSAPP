@@ -4,15 +4,15 @@ import Controls from '../../../components/controls/Controls';
 import Popup from '../../../components/Popup';
 import { AutoForm } from '../../../components/useForm';
 import { API } from '../_Service';
-import { useDispatch, useSelector } from 'react-redux';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAction } from '../../../store/actions/httpactions';
-import { GridToolbarContainer, InputAdornment } from "../../../deps/ui";
+import { GridToolbarContainer } from "../../../deps/ui";
 import { Circle, Add as AddIcon, Delete as DeleteIcon, } from "../../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions } from '../../../components/useDataGrid';
 import { useSocketIo } from '../../../components/useSocketio';
 import ConfirmDialog from '../../../components/ConfirmDialog';
 import PropTypes from 'prop-types'
 import { formateISODateTime, formateISOTime } from '../../../services/dateTimeService'
+import { useAppDispatch, useAppSelector } from "../../../store/storehook";
 
 
 const fields = {
@@ -94,11 +94,9 @@ let editId = 0;
 export const AddShift = ({ openPopup, setOpenPopup, isEdit = false, row = null }) => {
     const { addEntity } = useEntityAction();
 
-    const attendanceFlag = useSelector(e => e.appdata.employeeData?.AttendanceFlag
-        .filter(c => ![6, 7].includes(c.flagId))
-        .map((m, i) => ({ id: m.id, name: m.name, flagId: m._id, flagCode: m.flagId, order: i + 1, at: 0 }))
-    )
-    
+    const attendanceFlag = useAppSelector(e => e.appdata.employeeData?.AttendanceFlag)
+
+
     const [flagRows, setFlagRow] = useState(attendanceFlag);
     const formApi = useRef(null);
 
@@ -218,7 +216,7 @@ export const AddShift = ({ openPopup, setOpenPopup, isEdit = false, row = null }
         title="Add Shift"
         openPopup={openPopup}
         maxWidth="sm"
-        // keepMounted={true}
+        keepMounted={true}
         isEdit={isEdit}
         addOrEditFunc={handleSubmit}
         setOpenPopup={setOpenPopup}>
@@ -226,6 +224,7 @@ export const AddShift = ({ openPopup, setOpenPopup, isEdit = false, row = null }
         <AutoForm formData={formData} ref={formApi} isValidate={true} />
         <DataGrid
             rowHeight={35}
+            hideFooter
             onRowOrderChange={handleRowOrderChange}
             processRowUpdate={processRowUpdate}
             rowReordering={true}
@@ -237,23 +236,19 @@ export const AddShift = ({ openPopup, setOpenPopup, isEdit = false, row = null }
 }
 
 const Shift = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
-    const [pageSize, setPageSize] = useState(30);
     const isEdit = React.useRef(false);
     const row = React.useRef(null);
 
     const [selectionModel, setSelectionModel] = React.useState([]);
 
-    const offSet = useRef({
-        isLoadMore: false,
-        isLoadFirstTime: true,
-        ShiftId: null
-    })
+    const [sort, setSort] = useState({ sort: { createdAt: -1 } });
 
     const [filter, setFilter] = useState({
         lastKey: null,
         limit: 10,
+        page: 0,
         totalRecord: 0
     })
 
@@ -263,57 +258,33 @@ const Shift = () => {
         subTitle: "",
     });
 
-    const [records, setRecords] = useState([]);
 
     const gridApiRef = useGridApi();
-    const query = useSelector(e => e.appdata.query.builder);
+    const query = useAppSelector(e => e.appdata.query.builder);
 
-    const { data, status, isLoading, refetch } = useEntitiesQuery({
+    const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
         url: DEFAULT_API,
-        params: {
+        data: {
             limit: filter.limit,
+            page: filter.page + 1,
             lastKeyId: filter.lastKey,
-            searchParams: JSON.stringify(query)
+            ...sort,
+            searchParams: { ...query }
         }
-    });
+    }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
 
     const { updateOneEntity, removeEntity } = useEntityAction();
 
-    useEffect(() => {
-        if (status === "fulfilled") {
-            const { entityData, totalRecord } = data.result;
-            if (offSet.current.isLoadMore) {
-                setRecords([...entityData, ...records]);
-            }
-            else
-                setRecords(entityData)
 
-            setFilter({ ...filter, totalRecord: totalRecord });
-            offSet.current.isLoadMore = false;
-        }
-
-    }, [data, status])
 
     const { socketData } = useSocketIo("changeInShift", refetch);
 
-    useEffect(() => {
-        if (Array.isArray(socketData)) {
-            setRecords(socketData);
-        }
-    }, [socketData])
 
-    const loadMoreData = (params) => {
-        if (records.length < filter.totalRecord && params.viewportPageSize !== 0) {
-            offSet.current.isLoadMore = true;
-            setFilter({ ...filter, lastKey: records.length ? records[records.length - 1].id : null });
-        }
-    }
 
     const handleEdit = (id) => {
         isEdit.current = true;
         editId = id;
-        const data = records.find(a => a.id === id);
-        row.current = data;
+        row.current = data.find(a => a.id === id);
         setOpenPopup(true);
     }
 
@@ -341,7 +312,7 @@ const Shift = () => {
     }
 
     useEffect(() => {
-        offSet.current.isLoadFirstTime = false;
+
         dispatch(enableFilterAction(false));
         dispatch(builderFieldsAction(fields));
     }, [dispatch])
@@ -357,9 +328,13 @@ const Shift = () => {
         <>
             <AddShift openPopup={openPopup} setOpenPopup={setOpenPopup} isEdit={isEdit.current} row={row.current} />
             <DataGrid apiRef={gridApiRef}
-                columns={columns} rows={records}
-                loading={isLoading} pageSize={pageSize}
-                totalCount={offSet.current.totalRecord}
+                columns={columns} rows={data}
+                loading={isLoading}
+                totalCount={totalRecord}
+                pageSize={filter.limit}
+                page={filter.page}
+                setFilter={setFilter}
+                onSortModelChange={(s) => setSort({ sort: s.reduce((a, v) => ({ ...a, [v.field]: v.sort === 'asc' ? 1 : -1 }), {}) })}
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: showAddModal,
@@ -369,7 +344,6 @@ const Shift = () => {
                 gridToolBar={ShiftToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
-                onRowsScrollEnd={loadMoreData}
             />
             <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
         </>
@@ -383,7 +357,7 @@ function ShiftToolbar(props) {
     return (
         <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
             {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
-            <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add record" />
+            <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add Record" />
         </GridToolbarContainer>
     );
 }

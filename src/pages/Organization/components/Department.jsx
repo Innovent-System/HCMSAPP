@@ -301,7 +301,8 @@ const Department = () => {
             limit: filter.limit,
             page: filter.page + 1,
             lastKeyId: filter.lastKey,
-            searchParams: { ...query, ...sort }
+            ...sort,
+            searchParams: { ...query }
         }
     }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
 

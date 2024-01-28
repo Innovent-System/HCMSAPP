@@ -52,13 +52,13 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
         onDelete: onDelete
     }
     return [
-        
+
         { field: '_id', headerName: 'Id', hide: true, hideable: false },
         {
             field: 'companyName', headerName: 'Name', width: 180, hideable: false
         },
         { field: 'modifiedOn', headerName: 'Modified On', hideable: false },
-        { field: 'createdOn', headerName: 'Created On', hideable: false ,sortingOrder:["desc"]},
+        { field: 'createdOn', headerName: 'Created On', hideable: false, sortingOrder: ["desc"] },
         {
             field: 'isActive', headerName: 'Status', renderCell: (param) => (
                 param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
@@ -103,7 +103,8 @@ const Company = () => {
             limit: filter.limit,
             page: filter.page + 1,
             lastKeyId: filter.lastKey,
-            searchParams: { ...query, ...sort }
+            ...sort,
+            searchParams: { ...query }
         }
     }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
 
@@ -172,7 +173,9 @@ const Company = () => {
         }
         return isValid;
     }
-
+    /**
+    * @type {Array<import("../../../types/fromstype").FormType>}
+    */
     const formData = [
         {
             elementType: "inputfield",
@@ -199,6 +202,7 @@ const Company = () => {
             <Popup
                 title="Add Company"
                 openPopup={openPopup}
+
                 maxWidth="sm"
                 keepMounted={true}
                 isEdit={isEdit.current}

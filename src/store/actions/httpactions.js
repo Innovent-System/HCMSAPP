@@ -15,7 +15,8 @@ export const getApi = createApi({
       transformResponse: (response) => response?.result
     }),
     post: builder.query({
-      query: ({ url, data }) => ({ url, body: data, method: "POST", headers: headerOption() })
+      query: ({ url, data }) => ({ url, body: data, method: "POST", headers: headerOption() }),
+      transformResponse: (response) => response?.result
     }),
     entity: builder.query({
       query: ({ url, id }) => ({ url: `${url}/${id}`, headers: headerOption() }),
@@ -38,7 +39,7 @@ export const getApi = createApi({
   }),
 })
 
-export const { useEntitiesQuery, useLazyEntityQuery, useLazyPostQuery, useLazySingleQuery, useAddMutation, useUpdateManyMutation, useRemoveMutation, useUpdateOneMutation } = getApi;
+export const { useEntitiesQuery, usePostQuery, useLazyPostQuery, useLazySingleQuery, useAddMutation, useUpdateManyMutation, useRemoveMutation, useUpdateOneMutation } = getApi;
 
 export const useEntityAction = () => {
   const [addEntity] = useAddMutation();
@@ -186,6 +187,7 @@ export const appSlice = createSlice({
     },
     clearDropDownIdsAction(state) {
       state.dropdownIds = {
+        companyIds:'',
         countryIds: '',
         employeeIds: '',
         stateIds: '',

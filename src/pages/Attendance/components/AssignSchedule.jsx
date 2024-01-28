@@ -1,8 +1,8 @@
 // eslint-disable-next-line react-hooks/exhaustive-deps
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { API } from '../_Service';
 import { useSelector } from 'react-redux';
-import { useEntityAction, useEntitiesQuery } from '../../../store/actions/httpactions';
+import { useEntityAction, useEntitiesQuery, usePostQuery } from '../../../store/actions/httpactions';
 import DataGrid, { useGridApi } from '../../../components/useDataGrid';
 import { useSocketIo } from '../../../components/useSocketio';
 import ConfirmDialog from '../../../components/ConfirmDialog';
@@ -26,21 +26,18 @@ const columns = [
     { field: 'group', headerName: 'Group', hideable: false, valueGetter: ({ row }) => row.group.groupName },
 ]
 
-const DEFAUL_API = API.ScheduleDetail;
+const DEFAULT_API = API.ScheduleDetail;
 let editId = 0;
 const AssingSchedule = ({ scheduleId, tab, handleTabs, selectedEmployees, setSelectedEmployees }) => {
-    const [pageSize, setPageSize] = useState(30);
+
     const isEdit = React.useRef(false);
-    const formApi = React.useRef(null);
-    const [selectionModel, setSelectionModel] = React.useState([]);
-    const offSet = useRef({
-        isLoadMore: false,
-        isLoadFirstTime: true,
-    })
+
+    const [sort, setSort] = useState({ sort: { createdAt: -1 } });
 
     const [filter, setFilter] = useState({
         lastKey: null,
         limit: 10,
+        page: 0,
         totalRecord: 0
     })
 
@@ -50,81 +47,79 @@ const AssingSchedule = ({ scheduleId, tab, handleTabs, selectedEmployees, setSel
         subTitle: "",
     });
 
-    const [records, setRecords] = useState({
-        assigned: [],
-        unAssign: []
-    });
-
     const gridApiRef = useGridApi();
-    const ids = useDropDownIds();
 
-    const { data, status, isLoading, refetch } = useEntitiesQuery({
-        url: DEFAUL_API,
-        params: {
-            scheduleId,
-            "companyInfo.fkAreaId": ids.areaIds
+    const { countryIds, stateIds, cityIds, areaIds, departmentIds, groupIds, designationIds, companyIds } = useDropDownIds();
+
+
+    const { data, isLoading, refetch, totalRecord } = usePostQuery({
+        url: DEFAULT_API,
+        data: {
+            limit: filter.limit,
+            page: filter.page + 1,
+            ...sort,
+            searchParams: {
+                scheduleId,
+                isAssigneSchedule: tab === '0',
+                ...(countryIds && { "companyInfo.fkCountryId": { $in: countryIds.split(',') } }),
+                ...(stateIds && { "companyInfo.fkStateId": { $in: stateIds.split(',') } }),
+                ...(cityIds && { "companyInfo.fkCityId": { $in: cityIds.split(',') } }),
+                ...(areaIds && { "companyInfo.fkAreaId": { $in: areaIds.split(',') } }),
+                ...(groupIds && { "companyInfo.fkGroupId": { $in: groupIds.split(',') } }),
+                ...(departmentIds && { "companyInfo.fkDepartmentId": { $in: departmentIds.split(',') } }),
+                ...(designationIds && { "companyInfo.fkDesignationId": { $in: designationIds.split(',') } }),
+                ...(companyIds && { "fkCompanyId": { $in: companyIds.split(',') } })
+
+            }
         }
-    });
+    }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
 
+    const handleSort = (s) => {
+        if (s?.length) {
+            const { field, sort } = s[0];
+            if (field === "fullName") {
+                setSort({ sort: { firstName: sort === 'asc' ? 1 : -1, lastName: sort === 'asc' ? 1 : -1 } })
+            }
+            else
+                setSort({ sort: s.reduce((a, v) => ({ ...a, [v.field]: v.sort === 'asc' ? 1 : -1 }), {}) })
 
-
-    const { addEntity, updateOneEntity, removeEntity } = useEntityAction();
-
-    useEffect(() => {
-        if (status === "fulfilled") {
-            setRecords(data.result)
-            offSet.current.isLoadMore = false;
         }
+    }
+    const tabs = [
+        {
+            title: "Assigned",
+            panel: <DataGrid apiRef={gridApiRef}
+                columns={columns} rows={data}
+                disableSelectionOnClick
+                loading={isLoading} pageSize={filter.limit}
+                setFilter={setFilter}
+                onSortModelChange={handleSort}
+                page={filter.page}
+                s totalCount={totalRecord}
+                selectionModel={selectedEmployees}
+                setSelectionModel={setSelectedEmployees}
+            />,
 
-    }, [data, status])
+        },
+        {
+            title: "UnAssigned",
+            panel: <DataGrid apiRef={gridApiRef}
+                columns={columns} rows={data}
+                disableSelectionOnClick
+                loading={isLoading} pageSize={filter.limit}
+                setFilter={setFilter}
+                onSortModelChange={handleSort}
+                page={filter.page}
+                totalCount={totalRecord}
+                selectionModel={selectedEmployees}
+                setSelectionModel={setSelectedEmployees}
+            />,
+
+        }
+    ]
+
 
     const { socketData } = useSocketIo("changeInSchedule", refetch);
-
-    useEffect(() => {
-        if (Array.isArray(socketData)) {
-            setRecords(socketData);
-        }
-    }, [socketData])
-
-    const loadMoreData = (params) => {
-        if (records.length < filter.totalRecord && params.viewportPageSize !== 0) {
-            offSet.current.isLoadMore = true;
-            setFilter({ ...filter, lastKey: records.length ? records[records.length - 1].id : null });
-        }
-    }
-
-    const handelDeleteItems = (ids) => {
-        let idTobeDelete = ids;
-        if (Array.isArray(ids)) {
-            idTobeDelete = ids.join(',');
-        }
-
-        setConfirmDialog({
-            isOpen: true,
-            title: "Are you sure to delete this records?",
-            subTitle: "You can't undo this operation",
-            onConfirm: () => {
-                removeEntity({ url: DEFAUL_API, params: idTobeDelete }).then(res => {
-                    setSelectionModel([]);
-                })
-            },
-        });
-
-    }
-
-    const handleSubmit = (e) => {
-        const { getValue, validateFields } = formApi.current
-        if (validateFields()) {
-            let values = getValue();
-            let dataToInsert = {};
-            dataToInsert.name = values.name;
-            if (isEdit.current)
-                dataToInsert._id = editId
-
-            addEntity({ url: DEFAUL_API, data: [dataToInsert] });
-
-        }
-    }
 
     return (
         <>
@@ -133,41 +128,16 @@ const AssingSchedule = ({ scheduleId, tab, handleTabs, selectedEmployees, setSel
                 country: true,
                 state: true,
                 city: true,
+                department: true,
                 area: true
             }}
 
             />
 
-            <Box sx={{ width: '100%', typography: 'body1' }}>
-                <TabContext value={tab}>
-                    <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                        <TabList onChange={handleTabs} aria-label="lab API tabs example">
-                            <Tab label="Assigned" value="1" />
-                            <Tab label="UnAssigned" value="2" />
-                        </TabList>
-                    </Box>
-                    <TabPanel value="1">
-                        <DataGrid apiRef={gridApiRef}
-                            columns={columns} rows={records.assigned}
-                            disableSelectionOnClick
-                            loading={isLoading} pageSize={pageSize}
-                            totalCount={offSet.current.totalRecord}
-                            selectionModel={selectedEmployees}
-                            setSelectionModel={setSelectedEmployees}
-                        />
-                    </TabPanel>
-                    <TabPanel value="2">
-                        <DataGrid apiRef={gridApiRef}
-                            columns={columns} rows={records.unAssign}
-                            disableSelectionOnClick
-                            loading={isLoading} pageSize={pageSize}
-                            totalCount={offSet.current.totalRecord}
-                            selectionModel={selectedEmployees}
-                            setSelectionModel={setSelectedEmployees}
-                        />
-                    </TabPanel>
-                </TabContext>
-            </Box>
+
+            <Tabs orientation='horizontal' value={tab} setValue={handleTabs} TabsConfig={tabs} />
+
+
 
             <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
         </>

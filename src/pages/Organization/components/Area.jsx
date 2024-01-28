@@ -234,8 +234,9 @@ const Area = () => {
       limit: filter.limit,
       page: filter.page + 1,
       lastKeyId: filter.lastKey,
+      ...sort,
       searchParams: {
-        ...query, ...sort,
+        ...query,
         ...(countryIds && { "country.country_id": countryIds }),
         ...(stateIds && { "state.state_id": stateIds }),
         ...(cityIds && { "city.city_id": cityIds })
@@ -331,7 +332,7 @@ function AreaToolbar(props) {
   return (
     <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
       {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
-      <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add record" />
+      <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add Record" />
     </GridToolbarContainer>
   );
 }
