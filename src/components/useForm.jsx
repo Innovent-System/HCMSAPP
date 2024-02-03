@@ -287,7 +287,7 @@ export const AutoForm = forwardRef(function (props, ref) {
                 </Component> :
                     typeof isShow === "function" ? handleShowHide(name, isShow) && <Grid {...(modal && { style: { position: "relative" } })} {...(breakpoints && { ...breakpoints })} key={index + name} item>
                         {modal && modal.Component}
-                        <Element elementType={elementType}
+                        <Element  elementType={elementType}
                             name={name}
                             label={label}
                             value={values[name]}
@@ -300,7 +300,8 @@ export const AutoForm = forwardRef(function (props, ref) {
                         />
                     </Grid> : <Grid {...(modal && { style: { position: "relative" } })} {...(breakpoints && { ...breakpoints })} key={index + name} item>
                         {modal && modal.Component}
-                        <Element elementType={elementType}
+                        
+                        <Element key={index + name} elementType={elementType}
                             name={name}
                             label={label}
                             value={values[name]}

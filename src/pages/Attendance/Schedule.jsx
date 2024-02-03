@@ -295,6 +295,7 @@ const Schedule = () => {
         }
 
         setState([...state])
+        return state[index];
     }
     const handleCopy = (e, source) => {
         const target = e.currentTarget.firstChild.innerText;
@@ -311,7 +312,7 @@ const Schedule = () => {
         isEdit.current = false;
         setTextField({
             code: "",
-            scheduleName: ""  
+            scheduleName: ""
         })
         setError({
             code: "",
@@ -352,11 +353,14 @@ const Schedule = () => {
                     <Grid item width="100%">
                         <Typography variant="h6" >Select Working  Days</Typography>
                     </Grid>
-                    {state.map((w, index) => (
+                    <Grid item sm={12} md={12}>
+                        <ShiftCard index={0} handleCopy={handleCopy} handleChange={handleChange} shifts={shiftList.current} data={state} />
+                    </Grid>
+                    {/* {state.map((w, index) => (
                         <Grid key={w.name + "week"} item>
                             <ShiftCard index={index} handleCopy={handleCopy} handleChange={handleChange} shifts={shiftList.current} data={w} />
                         </Grid>
-                    ))}
+                    ))} */}
                 </Grid>
             </Popup>
             <Popup

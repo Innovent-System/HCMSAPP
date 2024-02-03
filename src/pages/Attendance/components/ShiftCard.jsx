@@ -1,12 +1,258 @@
 import {
     Card, CardActionArea, CardActions, CardContent
-    , MenuItem, ListItemIcon, ListItemText, MenuList, Typography
+    , MenuItem, ListItemIcon, ListItemText, MenuList, Typography, GridActionsCellItem
 } from '../../../deps/ui'
 import SpeedDial from './SpeedDial'
+import { useState } from 'react'
 import Controls from '../../../components/controls/Controls'
-import { AccessTime, Check } from '../../../deps/ui/icons'
+import { AccessTime, Check, Beenhere, Edit, Cancel, SaveTwoTone } from '../../../deps/ui/icons'
+import DataGrid, { useGridApi, getActions, getCrudActions } from '../../../components/useDataGrid';
+import { GridRowEditStopReasons, GridRowModes } from '@mui/x-data-grid-pro'
+
+const WorkingDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+/**
+ * 
+ * @param {Function} handleChange 
+ * @param {Function} handleCopy 
+ * @param {number} index 
+ * @param {Array<any>} shifts 
+ * @returns {import("@mui/x-data-grid-pro").GridColumns}
+ */
+const getColumns = (apiRef, handleChange, shifts) => {
+    return [
+        {
+            field: 'index', headerName: 'Sr#', hideable: false, valueGetter: ({ api, row }) => api.getRowIndex(row.name) + 1
+        },
+        {
+            field: 'name', headerName: 'Working Day', hideable: false,
+
+        },
+        {
+            field: 'isNextDay', headerName: 'Is Next Day', hideable: false,
+            renderCell: ({ row }) => row.isNextDay ? <GridActionsCellItem icon={<Beenhere color='info' fontSize='small' />} /> : null,
+            align: 'center'
+        },
+        {
+            field: 'fkShiftId', headerName: 'Shift', hideable: false,
+            editable: true,
+            type: "singleSelect",
+            valueGetter: ({ api, row }) => row?.fkShiftId ? shifts.find(s => s.id === row?.fkShiftId).shiftName : null,
+            valueOptions: shifts.map(c => ({ value: c.id, label: c.shiftName }))
+        },
+        {
+            field: 'startTime', headerName: 'Start Time', hideable: false
+        },
+        {
+            field: 'endTime', headerName: 'End Time', hideable: false
+        },
+        {
+            field: 'minTime', headerName: 'Grace Start Time', hideable: false
+        },
+        {
+            field: 'maxTime', headerName: 'Grace End Time', hideable: false
+        },
+        {
+            field: 'actions',
+            type: 'actions',
+            headerName: 'Actions',
+            width: 100,
+            cellClassName: 'actions',
+            getActions: ({ id }) => {
+                const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
+
+                if (isInEditMode) {
+                    return [
+                        <GridActionsCellItem
+                            icon={<SaveTwoTone />}
+                            label="Save"
+                            sx={{
+                                color: 'primary.main',
+                            }}
+                            onClick={handleSaveClick(id)}
+                        />,
+                        <GridActionsCellItem
+                            icon={<Cancel />}
+                            label="Cancel"
+                            className="textPrimary"
+                            onClick={handleCancelClick(id)}
+                            color="inherit"
+                        />,
+                    ];
+                }
+
+                return [
+                    <GridActionsCellItem
+                        icon={<Edit />}
+                        label="Edit"
+                        className="textPrimary"
+                        onClick={handleEditClick(id)}
+                        color="inherit"
+                    />
+                ];
+            },
+        },
+
+
+    ]
+}
+
+
 
 export default ({ data, handleChange, handleCopy, index, shifts }) => {
+
+    const gridApi = useGridApi();
+    const processRowUpdate = (newRow) => {
+        const updatedRow = { ...newRow, isNew: false };
+        // setFlagRow(flagRows.map((row) => (row.id === newRow.id ? updatedRow : row)));
+        // console.log({ updatedRow })
+        const update = handleChange({ target: { name: "fkShiftId", value: newRow.fkShiftId } }, gridApi.current.getRowIndex(newRow.name));
+        return { ...update, isNew: false };
+    }
+
+    const [rowModesModel, setRowModesModel] = useState({});
+
+    const handleRowEditStop = (params, event) => {
+        if (params.reason === GridRowEditStopReasons.rowFocusOut) {
+            event.defaultMuiPrevented = true;
+        }
+    };
+
+    const handleEditClick = (id) => () => {
+        setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
+    };
+
+    const handleSaveClick = (id) => () => {
+        console.log({ rowModesModel });
+        setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
+    };
+
+    const handleDeleteClick = (id) => () => {
+        setRows(rows.filter((row) => row.id !== id));
+    };
+
+    const handleCancelClick = (id) => () => {
+        setRowModesModel({
+            ...rowModesModel,
+            [id]: { mode: GridRowModes.View, ignoreModifications: true },
+        });
+
+        // const editedRow = rows.find((row) => row.id === id);
+        // if (editedRow.isNew) {
+        //     setRows(rows.filter((row) => row.id !== id));
+        // }
+    };
+
+
+    const handleRowModesModelChange = (newRowModesModel) => {
+        setRowModesModel(newRowModesModel);
+    };
+
+    /**
+     *@type {import("@mui/x-data-grid-pro").GridColumns} 
+     */
+    const columns = [
+        {
+            field: 'index', headerName: 'Sr#', hideable: false, valueGetter: ({ api, row }) => api.getRowIndex(row.name) + 1
+        },
+        {
+            field: 'name', headerName: 'Working Day', hideable: false,
+
+        },
+        {
+            field: 'isNextDay', headerName: 'Is Next Day', hideable: false,
+            renderCell: ({ row }) => row.isNextDay ? <GridActionsCellItem icon={<Beenhere color='info' fontSize='small' />} /> : null,
+            align: 'center'
+        },
+        {
+            field: 'fkShiftId', headerName: 'Shift', hideable: false,
+            editable: true,
+            type: "singleSelect",
+            // valueFormatter: ({ api, row }) => row?.fkShiftId ? shifts.find(s => s.id === row?.fkShiftId).shiftName : '',
+            valueOptions: shifts.map((c) => ({ value: c.id, label: c.shiftName }))
+        },
+        {
+            field: 'startTime', headerName: 'Start Time', hideable: false
+        },
+        {
+            field: 'endTime', headerName: 'End Time', hideable: false
+        },
+        {
+            field: 'minTime', headerName: 'Grace Start Time', hideable: false
+        },
+        {
+            field: 'maxTime', headerName: 'Grace End Time', hideable: false
+        },
+        {
+            field: 'actions',
+            type: 'actions',
+            headerName: 'Actions',
+            width: 100,
+            cellClassName: 'actions',
+            getActions: ({ id }) => {
+                const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
+
+                if (isInEditMode) {
+                    return [
+                        <GridActionsCellItem
+                            icon={<SaveTwoTone />}
+                            label="Save"
+                            sx={{
+                                color: 'primary.main',
+                            }}
+                            onClick={handleSaveClick(id)}
+                        />,
+                        <GridActionsCellItem
+                            icon={<Cancel />}
+                            label="Cancel"
+                            className="textPrimary"
+                            onClick={handleCancelClick(id)}
+                            color="inherit"
+                        />,
+                    ];
+                }
+
+                return [
+                    <GridActionsCellItem
+                        icon={<Edit />}
+                        label="Edit"
+                        className="textPrimary"
+                        onClick={handleEditClick(id)}
+                        color="inherit"
+                    />
+                ];
+            },
+        },
+
+
+    ];
+
+    return <DataGrid
+        rowHeight={35}
+        hideFooter
+        gridHeight={310}
+        apiRef={gridApi}
+        rowModesModel={rowModesModel}
+        onRowModesModelChange={handleRowModesModelChange}
+        // onRowEditStop={handleRowEditStop}
+        editMode='row'
+        sx={{
+            "& .MuiDataGrid-root": {
+                border: 'none'
+            },
+            "& .MuiDataGrid-row": {
+                marginBottom: 2,
+                backgroundColor: '#e0e0e0',
+                boxShadow: '0px 2px 4px -1px rgba(0,0,0,0.2), 0px 4px 5px 0px rgba(0,0,0,0.14), 0px 1px 10px 0px rgba(0,0,0,0.12)',
+
+                borderRadius: 1
+            }
+        }}
+        getRowId={(row) => row.name}
+        processRowUpdate={processRowUpdate}
+        experimentalFeatures={{ newEditingApi: true }}
+        checkboxSelection={false}
+        columns={columns} rows={data}
+    />
 
     return (<Card sx={{ width: 345, maxWidth: "100%" }}>
         <CardActionArea disableTouchRipple={true}>

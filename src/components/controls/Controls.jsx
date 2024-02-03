@@ -25,47 +25,24 @@ const Controls = {
 export default Controls;
 
 
-export const ElementType = Object.freeze(["inputfield", "radiogroup", "checkbox", "dropdown", "clearfix", "ad_dropdown", "datetimepicker","daterangepicker" ,"uploadavatar", "fieldarray", "custom"]);
+export const ElementType = Object.freeze(["inputfield", "radiogroup", "checkbox", "dropdown", "clearfix", "ad_dropdown", "datetimepicker", "daterangepicker", "uploadavatar", "fieldarray", "custom"]);
 
 
 export function Element(props) {
-    let nodeElement = null;
 
     const { elementType, NodeElement, ...others } = props;
     switch (elementType) {
-        case "inputfield":
-            nodeElement = <Input {...others} />
-            break;
-        case "checkbox":
-            nodeElement = <Checkbox {...others} />
-            break;
-        case "radiogroup":
-            nodeElement = <RadioGroup {...others} />
-            break;
-        case "datetimepicker":
-            nodeElement = <DatePicker {...others} />
-            break;
-        case "daterangepicker":
-            nodeElement = <DateRangePicker {...others} />
-            break;
-        case "dropdown":
-            nodeElement = <Select  {...others} />
-            break;
-        case "ad_dropdown":
-            nodeElement = <MultiSelect {...others} />
-            break;
-        case "uploadavatar":
-            nodeElement = <Avatar {...others} />
-            break;
-        case "clearfix":
-            nodeElement = <div className="clearfix"></div>
-            break;
-        default:
-            nodeElement = <NodeElement {...others} />
-            break;
+        case "inputfield": return <Input {...others} />
+        case "checkbox": return <Checkbox {...others} />
+        case "radiogroup": return <RadioGroup {...others} />
+        case "datetimepicker": return <DatePicker {...others} />
+        case "daterangepicker": return <DateRangePicker {...others} />
+        case "dropdown": return <Select  {...others} />
+        case "ad_dropdown": return <MultiSelect {...others} />
+        case "uploadavatar": return <Avatar {...others} />
+        case "clearfix": return <div className="clearfix"></div>
+        default: return <NodeElement {...others} />
     }
-
-    return nodeElement;
 }
 
 Element.propTypes = {

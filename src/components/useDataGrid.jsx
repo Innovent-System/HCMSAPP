@@ -259,6 +259,7 @@ export default function FeaturedCrudGrid(props) {
     checkboxSelection = true,
     rowHeight = null,
     totalCount = 0,
+    gridHeight = 220,
     gridToolBar: GridToolBar, toolbarProps, ...others
   } = props;
 
@@ -266,7 +267,7 @@ export default function FeaturedCrudGrid(props) {
   return (
     <Box
       sx={{
-        height: 'calc(100vh - 190px)'
+        height: `calc(100vh - ${gridHeight}px)`
         //width: '100%',
         // '& .actions': {
         //   color: 'text.secondary',
@@ -279,13 +280,14 @@ export default function FeaturedCrudGrid(props) {
       <StripedDataGrid
         density={density}
         rows={rows ?? []}
+
         loading={loading}
         {...(setSelectionModel && {
           onSelectionModelChange: (newSelectionModel) => {
             setSelectionModel(newSelectionModel);
           }
         })}
-
+        
         getRowHeight={() => rowHeight ?? 'auto'}
         columns={columns}
         checkboxSelection={checkboxSelection}

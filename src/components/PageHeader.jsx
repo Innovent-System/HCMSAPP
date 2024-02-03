@@ -162,7 +162,7 @@ export default function PageHeader(props) {
             anchor={"right"}
             open={drawer}
             onClose={() => setDrawer(!drawer)}>
-            <Box role="presentation" width={600}>
+            <Box role="presentation" width={400}>
               {setEnableFilter && (
                 <Accordion>
                   <AccordionSummary

@@ -20,11 +20,16 @@ export const defultValue = () => ({
 })
 // You can load query value from your backend storage (for saving see `Query.onChange()`)
 
-
+/**
+ * @param {Object} Props 
+ * @param {import('@react-awesome-query-builder/mui').Fields} Props.fields
+ * @param {{tree:import('@react-awesome-query-builder/mui').ImmutableTree,config:import('@react-awesome-query-builder/mui').Config}} Props.query
+ * @param {(tree:import('@react-awesome-query-builder/mui').ImmutableTree,config:import('@react-awesome-query-builder/mui').Config) => {}} Props.setQuery 
+ */
 const QueryBuilder = ({ fields, query, setQuery }) => {
 
     const dispatch = useDispatch();
-
+    
     // const [query, setQuery] = useState({
     //     tree: QbUtils.checkTree(QbUtils.loadTree(queryValue), InitialConfig),
     //     config: InitialConfig
