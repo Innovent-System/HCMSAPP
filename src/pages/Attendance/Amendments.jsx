@@ -1,10 +1,9 @@
 // eslint-disable-next-line react-hooks/exhaustive-deps
 import React, { useEffect, useRef, useState } from "react";
 import { API } from './_Service';
-import { useDispatch, useSelector } from 'react-redux';
 import { builderFieldsAction, useEntityAction, enableFilterAction, useLazyPostQuery, showDropDownFilterAction } from '../../store/actions/httpactions';
 import { Circle, Add as AddIcon, PeopleOutline } from "../../deps/ui/icons";
-import { GridToolbarContainer, Select, MenuItem, FormControl, InputLabel, TextField, LocalizationProvider, DesktopDateTimePicker, FormHelperText, Chip } from "../../deps/ui";
+import { GridToolbarContainer, Chip } from "../../deps/ui";
 import DataGrid, { useGridApi } from '../../components/useDataGrid';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { formateISODateTime } from "../../services/dateTimeService";
@@ -12,8 +11,12 @@ import Controls from "../../components/controls/Controls";
 import PageHeader from '../../components/PageHeader'
 import { weekday } from "../../util/common";
 import { useDropDownIds } from "../../components/useDropDown";
+import { addDays, startOfDay, isEqual } from '../../services/dateTimeService'
+import { useAppDispatch, useAppSelector } from "../../store/storehook";
 
-
+/**
+ * @type {import('@react-awesome-query-builder/mui').Fields}
+ */
 const fields = {
     firstName: {
         label: 'Employee Name',
@@ -23,6 +26,7 @@ const fields = {
     },
     scheduleStartDt: {
         label: 'From',
+        operators: ['greater_or_equal'],
         type: 'date',
         fieldSettings: {
             dateFormat: "D/M/YYYY",
@@ -34,9 +38,10 @@ const fields = {
     scheduleEndDt: {
         label: 'To',
         type: 'date',
+        operators: ['less_or_equal'],
         fieldSettings: {
             dateFormat: "D/M/YYYY",
-            mongoFormatValue: val => new Date(val).toISOString(),
+            mongoFormatValue: val => new Date(val).toISOString()
         },
         valueSources: ['value'],
         preferWidgets: ['date'],
@@ -53,9 +58,9 @@ const flagMap = {
 const DateTimeCell = ({ apiRef, value, id, field, row, type = 'In' }) => {
     const [error, setError] = useState(null);
 
+    const schedule = row.schedule.at(0), schDt = new Date(type === "In" ? row.scheduleStartDt : row.scheduleEndDt);
     const hanldechange = (e) => {
         let { value } = e.target;
-        const schedule = row.schedule.at(0), schDt = new Date(type === "In" ? row.scheduleStartDt : row.scheduleEndDt);
 
         const dayShift = schedule.weeks.find(c => c.name === weekday[schDt.getDay()]);
         const shift = schedule.shift.find(s => s._id === dayShift.fkShiftId);
@@ -80,9 +85,26 @@ const DateTimeCell = ({ apiRef, value, id, field, row, type = 'In' }) => {
 
 
     }
-    return <Controls.DatePicker error={error} name={id} key={id} onChange={hanldechange} category="datetime" value={value} />
+
+    return <Controls.DatePicker error={error} name={id}
+        shouldDisableDate={(date) => (type === 'In' ?
+            !isEqual(startOfDay(date), startOfDay(schDt))
+            :
+            date < startOfDay(row?.startDateTime) || date >= addDays(startOfDay(row?.startDateTime), 2)
+        )
+        }
+        key={id} onChange={hanldechange} category="datetime" value={value} />
 }
 
+
+/**
+ * 
+ * @param {Function} apiRef 
+ * @param {Function} onEdit 
+ * @param {Function} onActive 
+ * @param {Function} onDelete 
+ * @returns {import("@mui/x-data-grid-pro").GridColumns}
+ */
 const getColumns = (apiRef, onActive, onDelete) => {
     const actionKit = {
         onActive: onActive,
@@ -99,7 +121,7 @@ const getColumns = (apiRef, onActive, onDelete) => {
             field: 'startDateTime', headerName: 'Actual In', width: 200, hideable: false,
             type: 'dateTime',
             editable: true,
-            valueGetter: ({ value }) => value ? new Date(value) : "--",
+            valueGetter: ({ value }) => value ? new Date(value) : null,
             renderEditCell: (params) => <DateTimeCell apiRef={apiRef}  {...params} />,
             // /**  @param {import("@mui/x-data-grid-pro").GridPreProcessEditCellProps} params   */
             // preProcessEditCellProps: ({ props }) => {
@@ -111,7 +133,7 @@ const getColumns = (apiRef, onActive, onDelete) => {
         {
             field: 'endDateTime', headerName: 'Actual Out', width: 200, hideable: false, type: 'dateTime',
             editable: true,
-            valueGetter: ({ value }) => value ? new Date(value) : "--",
+            valueGetter: ({ value }) => value ? new Date(value) : null,
             renderEditCell: (params) => <DateTimeCell type="Out" apiRef={apiRef} {...params} />
         },
         {
@@ -123,21 +145,19 @@ const getColumns = (apiRef, onActive, onDelete) => {
 const DEFAULT_API = API.Attendance;
 
 const Amend = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
     const isEdit = React.useRef(false);
     const row = React.useRef(null);
     const [selectionModel, setSelectionModel] = React.useState([]);
-    const offSet = useRef({
-        isLoadMore: false,
-        isLoadFirstTime: true,
-    })
+
 
     const [cellModesModel, setCellModesModel] = React.useState({});
 
-    const [filter, setFilter] = useState({
+    const [gridFilter, setGridFilter] = useState({
         lastKey: null,
         limit: 10,
+        page: 0,
         totalRecord: 0
     })
 
@@ -151,18 +171,11 @@ const Amend = () => {
     const [records, setRecords] = useState([]);
 
     const gridApiRef = useGridApi();
-    const query = useSelector(e => e.appdata.query.builder);
+    const query = useAppSelector(e => e.appdata.query.builder);
 
     const [getEmployeeAttendance] = useLazyPostQuery();
     const { updateOneEntity, removeEntity, addEntity } = useEntityAction();
 
-
-    const loadMoreData = (params) => {
-        if (records.length < filter.totalRecord && params.viewportPageSize !== 0) {
-            offSet.current.isLoadMore = true;
-            setFilter({ ...filter, lastKey: records.length ? records[records.length - 1].id : null });
-        }
-    }
 
     const handleActiveInActive = (id) => {
         updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
@@ -204,33 +217,33 @@ const Amend = () => {
                 ...query
             }
         }).then(({ data }) => {
-            if (data)
-                setRecords(data.result);
+            if (data) {
+                setRecords(data);
+                setGridFilter({
+                    lastKey: null,
+                    limit: 10,
+                    page: 0,
+                    totalRecord: 0
+                })
+
+            }
         })
     }
     const handleSaveAttendance = () => {
-
+        const attData = Array.from(gridApiRef.current.getRowModels().values());
         addEntity({
             url: API.AttendanceInsert,
             data: {
-                attendances: Array.from(gridApiRef.current.getRowModels().values()).filter(c => selectionModel.includes(c._id)),
+                attendances: attData.filter(c => selectionModel.includes(c._id)),
                 ids: selectionModel
             }
         }).finally(() => {
             setSelectionModel([]);
-
-
-            Object.keys(cellModesModel).forEach(c => {
-                cellModesModel[c] = { ...cellModesModel[c], 'startDateTime': { mode: "view", ignoreModifications: true }, 'endDateTime': { mode: 'view', ignoreModifications: true } }
-            });
-
-            setCellModesModel({ ...cellModesModel });
-
+            setCellModesModel(selectionModel.reduce((a, v) => ({ ...a, [v]: { mode: 'view' } }), {}));
         })
     }
 
     useEffect(() => {
-        offSet.current.isLoadFirstTime = false;
 
         dispatch(showDropDownFilterAction({
             company: true,
@@ -240,7 +253,8 @@ const Amend = () => {
             area: true,
             department: true,
             group: true,
-            designation: true
+            designation: true,
+            employee: true
         }));
         dispatch(builderFieldsAction(fields));
     }, [dispatch])
@@ -260,12 +274,15 @@ const Amend = () => {
             const [offId] = selectionModel.filter(s => !_selectModels.includes(s));
             setCellModesModel({
                 ...cellModesModel,
-                [offId]: { ...cellModesModel[offId], 'startDateTime': { mode: "view", ignoreModifications: true }, 'endDateTime': { mode: 'view', ignoreModifications: true } },
+                [offId]: { mode: "view", ignoreModifications: true },
             });
+
+
         } else {
+
             setCellModesModel({
                 ...cellModesModel,
-                [id]: { ...cellModesModel[id], 'startDateTime': { mode: "edit" }, 'endDateTime': { mode: 'edit' } },
+                [id]: { mode: "edit" },
             });
         }
         setSelectionModel(_selectModels);
@@ -282,11 +299,16 @@ const Amend = () => {
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={records}
                 loading={false}
-                totalCount={offSet.current.totalRecord}
+                totalCount={records?.length}
                 disableSelectionOnClick
-                cellModesModel={cellModesModel}
+                rowModesModel={cellModesModel}
+                page={gridFilter.page}
+                pageSize={gridFilter.limit}
+                editMode='row'
+                paginationMode='client'
                 experimentalFeatures={{ newEditingApi: true }}
-                onCellModesModelChange={(model) => setCellModesModel(model)}
+                onRowModesModelChange={(model) => setCellModesModel(model)}
+                setFilter={setGridFilter}
                 // isCellEditable={console.log}
                 toolbarProps={{
                     apiRef: gridApiRef,
@@ -300,7 +322,7 @@ const Amend = () => {
                 gridToolBar={AmendToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={hanldeSelectionEdit}
-                onRowsScrollEnd={loadMoreData}
+
             />
             <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
         </>

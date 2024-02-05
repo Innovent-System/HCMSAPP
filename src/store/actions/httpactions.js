@@ -187,7 +187,7 @@ export const appSlice = createSlice({
     },
     clearDropDownIdsAction(state) {
       state.dropdownIds = {
-        companyIds:'',
+        companyIds: '',
         countryIds: '',
         employeeIds: '',
         stateIds: '',
@@ -199,7 +199,18 @@ export const appSlice = createSlice({
       }
     },
     showDropDownFilterAction(state, action) {
-      state.showFilterProps = { ...state.showFilterProps, ...action.payload }
+      state.showFilterProps = {
+        company: false,
+        country: false,
+        state: false,
+        city: false,
+        area: false,
+        department: false,
+        group: false,
+        designation: false,
+        employee: false,
+        ...action.payload
+      }
     },
     enableFilterAction(state, action) {
       state.enableFilter = action.payload

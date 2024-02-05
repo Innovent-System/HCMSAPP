@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { useDropDown, DROPDOWN_PROPS, Name_MAP, filterTypes } from "./useDropDown";
 import { AutoForm } from './useForm';
 import { dropDownIdsAction, resetAction, clearDropDownIdsAction } from '../store/actions/httpactions'
-import { useSelector, useDispatch } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../store/storehook';
 
 const bindDataIds = (data, matchWith) => {
     if (!data) return '';
@@ -20,10 +20,10 @@ const setDropDownIds = (data, type, matchWith) => ({ [type + "Ids"]: bindDataIds
 
 function CommonDropDown({ isMultiple, showFilters, idset, setIdSet, setProps }) {
     const { filterType, setFilter, ...dropDown } = useDropDown();
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const formApi = React.useRef(null);
 
-    const showFilter = useSelector(e => showFilters ?? e.appdata.showFilterProps);
+    const showFilter = useAppSelector(e => showFilters ?? e.appdata.showFilterProps);
 
     const handleDropDownIds = (data, type, matchWith) => {
         startTransition(() => {
@@ -36,13 +36,13 @@ function CommonDropDown({ isMultiple, showFilters, idset, setIdSet, setProps }) 
 
     }
 
-    const isReset = useSelector(e => e.appdata.isReset);
+    const isReset = useAppSelector(e => e.appdata.isReset);
 
     useEffect(() => {
         if (isReset) {
             const { resetForm } = formApi.current;
             resetForm();
-            dispatch(clearDropDownIdsAction);
+            dispatch(clearDropDownIdsAction());
             setFilter(null, filterType.DEFAULT);
             dispatch(resetAction(false));
         }

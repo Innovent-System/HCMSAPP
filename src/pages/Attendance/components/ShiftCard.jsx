@@ -9,9 +9,7 @@ import { AccessTime, Check, Beenhere, Edit, Cancel, SaveTwoTone } from '../../..
 import DataGrid, { useGridApi, getActions, getCrudActions } from '../../../components/useDataGrid';
 import { GridRowEditStopReasons, GridRowModes } from '@mui/x-data-grid-pro'
 
-const WorkingDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 /**
- * 
  * @param {Function} handleChange 
  * @param {Function} handleCopy 
  * @param {number} index 
@@ -97,14 +95,11 @@ const getColumns = (apiRef, handleChange, shifts) => {
 }
 
 
-
 export default ({ data, handleChange, handleCopy, index, shifts }) => {
 
     const gridApi = useGridApi();
     const processRowUpdate = (newRow) => {
-        const updatedRow = { ...newRow, isNew: false };
-        // setFlagRow(flagRows.map((row) => (row.id === newRow.id ? updatedRow : row)));
-        // console.log({ updatedRow })
+        if (!newRow?.fkShiftId) return { ...newRow, isNew: false }
         const update = handleChange({ target: { name: "fkShiftId", value: newRow.fkShiftId } }, gridApi.current.getRowIndex(newRow.name));
         return { ...update, isNew: false };
     }
@@ -122,7 +117,6 @@ export default ({ data, handleChange, handleCopy, index, shifts }) => {
     };
 
     const handleSaveClick = (id) => () => {
-        console.log({ rowModesModel });
         setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
     };
 
@@ -167,7 +161,7 @@ export default ({ data, handleChange, handleCopy, index, shifts }) => {
             field: 'fkShiftId', headerName: 'Shift', hideable: false,
             editable: true,
             type: "singleSelect",
-            // valueFormatter: ({ api, row }) => row?.fkShiftId ? shifts.find(s => s.id === row?.fkShiftId).shiftName : '',
+            valueGetter: ({ api, row }) => row?.fkShiftId ? shifts.find(s => s.id === row?.fkShiftId)?.shiftName : '',
             valueOptions: shifts.map((c) => ({ value: c.id, label: c.shiftName }))
         },
         {

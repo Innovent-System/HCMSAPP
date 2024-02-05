@@ -252,10 +252,12 @@ export default function FeaturedCrudGrid(props) {
 
   const { apiRef, columns, rows, loading,
     pageSize = 10, onRowsScrollEnd,
-    page = 1,
+    page = 0,
     setSelectionModel,
     setFilter,
     density = "compact",
+    sortingMode = 'server',
+    paginationMode = 'server',
     checkboxSelection = true,
     rowHeight = null,
     totalCount = 0,
@@ -287,7 +289,7 @@ export default function FeaturedCrudGrid(props) {
             setSelectionModel(newSelectionModel);
           }
         })}
-        
+
         getRowHeight={() => rowHeight ?? 'auto'}
         columns={columns}
         checkboxSelection={checkboxSelection}
@@ -297,14 +299,15 @@ export default function FeaturedCrudGrid(props) {
           params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd'
         }
 
-        sortingMode='server'
+        sortingMode={sortingMode}
         rowCount={totalCount}
         rowsPerPageOptions={[10, 25, 50, 100]}
         pagination
         page={page}
+
         pageSize={pageSize}
         onPageSizeChange={(_z) => setFilter((pre) => ({ ...pre, limit: _z, page: 0 }))}
-        paginationMode='server'
+        paginationMode={paginationMode}
         components={{
           LoadingOverlay: CustomLoadingOverlay,
           Toolbar: GridToolBar,

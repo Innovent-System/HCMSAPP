@@ -6,13 +6,14 @@ import { InfoSharp } from '../deps/ui/icons'
 
 /**
  * Assign the Data for Modify.
- * @param {import(@mui/material).BoxProps} data
- * @param {string} data.placement
- * @param {string} data.title
+ * @typedef {import(@mui/material).BoxProps} others
+ * @prop {import('@mui/material').TooltipProps} placement
+ * @prop {string} title
+ * @prop {"disabled" | "action" | "inherit" | "primary" | "secondary" | "error" | "info" | "success" | "warning"} color
  */
-const InfoToolTip = ({ title, placement = "top", ...others }) => {
+const InfoToolTip = ({ title, placement = "top", color = 'action', ...others }) => {
     return (
-        <Box {...others}><Tooltip title={title} placement={placement}><InfoSharp fontSize="small" /></Tooltip></Box>
+        <Box {...others}><Tooltip title={title} placement={placement}><InfoSharp color={color} fontSize="small" /></Tooltip></Box>
     )
 }
 

@@ -16,6 +16,7 @@ import ShiftCard from "./components/ShiftCard";
 import PageHeader from '../../components/PageHeader'
 import AssingSchedule from "./components/AssignSchedule";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
+import InfoToolTip from "../../components/InfoToolTip";
 const fields = {
     scheduleName: {
         label: 'Schedule',
@@ -171,12 +172,12 @@ const Schedule = () => {
 
         const { code, scheduleName, weeks } = data.find(c => c.id === id);
 
-        setState(weeks.map(c => {
-            const sourceData = shiftList.current.find(c => c.id === c.fkShiftId);
+        setState(weeks.map(w => {
+            const sourceData = shiftList.current.find(s => s.id === w.fkShiftId);
 
             return {
-                fkShiftId: c.fkShiftId,
-                name: c.name,
+                fkShiftId: w.fkShiftId,
+                name: w.name,
                 startTime: sourceData ? formateISOTime(sourceData.startTime) : "--:--:-",
                 endTime: sourceData ? formateISOTime(sourceData.endTime) : "--:--:-",
                 minTime: sourceData ? formateISOTime(sourceData.minTime) : '--:--:-',
@@ -278,8 +279,9 @@ const Schedule = () => {
     const handleChange = (e, index) => {
         const { name, value } = e.target;
         state[index][name] = value;
-        if (name === "fkShiftId" && value) {
-            const sourceData = shiftList.current.find(c => c.id === value);
+        const sourceData = shiftList.current.find(c => c.id === value);
+        if (name === "fkShiftId" && sourceData) {
+            state[index].fkShiftId = value;
             state[index].startTime = formateISOTime(sourceData.startTime);
             state[index].endTime = formateISOTime(sourceData.endTime);
             state[index].minTime = formateISOTime(sourceData.minTime);
@@ -287,6 +289,7 @@ const Schedule = () => {
             state[index].isNextDay = sourceData.isNextDay;
         }
         else {
+            state[index].fkShiftId = '';
             state[index].startTime = "--:--:-";
             state[index].endTime = "--:--:--";
             state[index].minTime = "--:--:--"
@@ -339,7 +342,6 @@ const Schedule = () => {
                 title="Add Schedule"
                 openPopup={openPopup}
                 maxWidth="lg"
-
                 isEdit={isEdit.current}
                 addOrEditFunc={handleSubmit}
                 setOpenPopup={setOpenPopup}>
@@ -351,16 +353,15 @@ const Schedule = () => {
                         <Controls.Input name="scheduleName" error={error.scheduleName} onChange={handleTextField} value={textField.scheduleName} required label="Name" />
                     </Grid>
                     <Grid item width="100%">
-                        <Typography variant="h6" >Select Working  Days</Typography>
+                        <Typography variant="h6" >Select Working  Days
+                            <InfoToolTip sx={{ display: 'inline-block' }} placement="bottom" color="info" title='You can edit by double click on shift cell' />
+                        </Typography>
+
                     </Grid>
-                    <Grid item sm={12} md={12}>
+                    <Grid item sm={12} xs={12} md={12}>
                         <ShiftCard index={0} handleCopy={handleCopy} handleChange={handleChange} shifts={shiftList.current} data={state} />
                     </Grid>
-                    {/* {state.map((w, index) => (
-                        <Grid key={w.name + "week"} item>
-                            <ShiftCard index={index} handleCopy={handleCopy} handleChange={handleChange} shifts={shiftList.current} data={w} />
-                        </Grid>
-                    ))} */}
+
                 </Grid>
             </Popup>
             <Popup
@@ -368,7 +369,6 @@ const Schedule = () => {
                 openPopup={openShift}
                 buttonName={tab === "0" ? "UnAssign" : "Assign"}
                 maxWidth="md"
-
                 isEdit={isEdit.current}
                 addOrEditFunc={updateSchedule}
                 setOpenPopup={setOpenShift}

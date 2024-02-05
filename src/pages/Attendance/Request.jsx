@@ -2,7 +2,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Popup from '../../components/Popup';
 import { API } from './_Service';
-import { useDispatch, useSelector } from 'react-redux';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction, useLazySingleQuery } from '../../store/actions/httpactions';
 import { Stack, Typography } from "../../deps/ui";
 import { PeopleOutline } from "../../deps/ui/icons";
@@ -15,6 +14,7 @@ import { startOfDay, addDays, isEqual } from '../../services/dateTimeService'
 import { formateISODateTime } from "../../services/dateTimeService";
 import Loader from '../../components/Circularloading'
 import { useDropDownIds } from "../../components/useDropDown";
+import { useAppDispatch, useAppSelector } from "../../store/storehook";
 
 const fields = {
     status: {
@@ -57,12 +57,14 @@ const columns = [
 const AddAttendanceRequest = ({ openPopup, setOpenPopup }) => {
     const formApi = useRef(null);
     const [loader, setLoader] = useState(false);
-    const { Employees } = useSelector(e => e.appdata.employeeData);
+    const { Employees } = useAppSelector(e => e.appdata.employeeData);
     const { addEntity } = useEntityAction();
     const [getAttendanceRequest] = useLazySingleQuery();
+    const changeTypeTrack = useRef({ start: null, end: null });
     useEffect(() => {
         if (formApi.current && openPopup) {
             const { resetForm } = formApi.current;
+            changeTypeTrack.current = { start: null, end: null };
             resetForm();
         }
     }, [openPopup, formApi])
@@ -85,9 +87,20 @@ const AddAttendanceRequest = ({ openPopup, setOpenPopup }) => {
                 const { setFormValue, getValue } = formApi.current;
                 getAttendanceRequest({ url: API.GetAttendanceDetail, params: { employeeId: data._id, requestDate: getValue()?.requestDate } }).then(c => {
                     if (c.data?.result) {
+                        changeTypeTrack.current = {
+                            start: new Date(c.data.result.startDateTime),
+                            end: new Date(c.data.result.endDateTime)
+                        }
                         setFormValue({
                             startDateTime: new Date(c.data.result.startDateTime),
                             endDateTime: new Date(c.data.result.endDateTime)
+                        });
+                    }
+                    else {
+
+                        setFormValue({
+                            startDateTime: null,
+                            endDateTime: null
                         });
                     }
                     setLoader(false);
@@ -104,6 +117,33 @@ const AddAttendanceRequest = ({ openPopup, setOpenPopup }) => {
                 errorMessage: "Select Date please",
             },
             label: "Date",
+            onChange: (data) => {
+                if (!data) return;
+                const { setFormValue, getValue } = formApi.current;
+                const { fkEmployeeId } = getValue();
+                if (!fkEmployeeId) return
+                setLoader(true);
+                getAttendanceRequest({ url: API.GetAttendanceDetail, params: { employeeId: fkEmployeeId._id, requestDate: data } }).then(c => {
+                    if (c.data?.result) {
+                        changeTypeTrack.current = {
+                            start: new Date(c.data.result.startDateTime),
+                            end: new Date(c.data.result.endDateTime)
+                        }
+                        setFormValue({
+                            startDateTime: new Date(c.data.result.startDateTime),
+                            endDateTime: new Date(c.data.result.endDateTime)
+                        });
+                    }
+                    else {
+
+                        setFormValue({
+                            startDateTime: null,
+                            endDateTime: null
+                        });
+                    }
+                    setLoader(false);
+                })
+            },
             defaultValue: new Date()
         },
         {
@@ -124,10 +164,10 @@ const AddAttendanceRequest = ({ openPopup, setOpenPopup }) => {
             category: "datetime",
             shouldDisableDate: (date) => date < startOfDay(formApi.current?.getValue()?.startDateTime) || date >= addDays(startOfDay(formApi.current?.getValue()?.startDateTime), 2),
             disableFuture: true,
-            required: true,
-            validate: {
-                errorMessage: "Select Check Out",
-            },
+            // required: true,
+            // validate: {
+            //     errorMessage: "Select Check Out",
+            // },
             name: "endDateTime",
             label: "Check Out",
             defaultValue: null
@@ -156,7 +196,13 @@ const AddAttendanceRequest = ({ openPopup, setOpenPopup }) => {
             let dataToInsert = { ...values };
             dataToInsert.fkEmployeeId = values.fkEmployeeId._id;
             dataToInsert.employeeCode = values.fkEmployeeId.punchCode;
-            // ChangeType = [],
+            dataToInsert.changeType = [];
+            if (changeTypeTrack.current.start?.getTime() !== dataToInsert.startDateTime.getTime()) {
+                dataToInsert.changeType.push("SignIn")
+            }
+            if (changeTypeTrack.current.end?.getTime() !== dataToInsert.endDateTime?.getTime()) {
+                dataToInsert.changeType.push("SignOut")
+            }
 
             addEntity({ url: DEFAULT_API, data: [dataToInsert] });
 
@@ -183,20 +229,15 @@ const AddAttendanceRequest = ({ openPopup, setOpenPopup }) => {
 }
 const DEFAULT_API = API.AttendanceRequest;
 const AttendanceRequest = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
-    const [pageSize, setPageSize] = useState(30);
 
     const [selectionModel, setSelectionModel] = React.useState([]);
-
-    const offSet = useRef({
-        isLoadMore: false,
-        isLoadFirstTime: true,
-    })
-
+    const [sort, setSort] = useState({ sort: { createdAt: -1 } });
     const [gridFilter, setGridFilter] = useState({
         lastKey: null,
         limit: 10,
+        page: 0,
         totalRecord: 0
     })
 
@@ -206,51 +247,22 @@ const AttendanceRequest = () => {
         subTitle: "",
     });
 
-    const [records, setRecords] = useState([]);
 
     const gridApiRef = useGridApi();
-    const query = useSelector(e => e.appdata.query.builder);
+    const query = useAppSelector(e => e.appdata.query.builder);
     const { countryIds, stateIds, cityIds, areaIds } = useDropDownIds();
-    const { data, isLoading, status, refetch } = useEntitiesQuery({
+    const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
         url: DEFAULT_API,
-        params: {
-            limit: offSet.current.limit,
-            lastKeyId: offSet.current.isLoadMore ? offSet.current.lastKeyId : "",
-            searchParams: JSON.stringify(query)
+        data: {
+            limit: gridFilter.limit,
+            page: gridFilter.page + 1,
+            ...sort,
+            searchParams: { ...query }
         }
-    });
-
+    }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
     const { removeEntity } = useEntityAction();
 
-    useEffect(() => {
-        if (status === "fulfilled") {
-            const { entityData, totalRecord } = data.result;
-            if (offSet.current.isLoadMore) {
-                setRecords([...entityData, ...records]);
-            }
-            else
-                setRecords(entityData)
-
-            setGridFilter({ ...gridFilter, totalRecord: totalRecord });
-            offSet.current.isLoadMore = false;
-        }
-    }, [data, status])
-
     const { socketData } = useSocketIo("changeInAttendanceRequest", refetch);
-
-    useEffect(() => {
-        if (Array.isArray(socketData)) {
-            setRecords(socketData);
-        }
-    }, [socketData])
-
-
-    const loadMoreData = (params) => {
-        if (records.length < gridFilter.totalRecord && params.viewportPageSize !== 0) {
-            offSet.current.isLoadMore = true;
-            setGridFilter({ ...gridFilter, lastKey: records.length ? records[records.length - 1].id : null });
-        }
-    }
 
     const handelDeleteItems = (ids) => {
         let idTobeDelete = ids;
@@ -271,7 +283,6 @@ const AttendanceRequest = () => {
     }
 
     useEffect(() => {
-        offSet.current.isLoadFirstTime = false;
         dispatch(showDropDownFilterAction({
             employee: true,
         }));
@@ -293,9 +304,12 @@ const AttendanceRequest = () => {
             />
             <AddAttendanceRequest openPopup={openPopup} setOpenPopup={setOpenPopup} />
             <DataGrid apiRef={gridApiRef}
-                columns={columns} rows={records}
-                loading={isLoading} pageSize={pageSize}
-                totalCount={offSet.current.totalRecord}
+                columns={columns} rows={data}
+                loading={isLoading} pageSize={gridFilter.limit}
+                page={gridFilter.page}
+                totalCount={gridFilter.totalRecord}
+                setFilter={setGridFilter}
+                onSortModelChange={(s) => setSort({ sort: s.reduce((a, v) => ({ ...a, [v.field]: v.sort === 'asc' ? 1 : -1 }), {}) })}
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: showAddModal,
@@ -305,7 +319,7 @@ const AttendanceRequest = () => {
                 gridToolBar={GridToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
-                onRowsScrollEnd={loadMoreData}
+
             />
             <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
         </>

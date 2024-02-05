@@ -35,7 +35,7 @@ const MyPopper = function (props) {
 
 function MultiSelect(props) {
 
-  const { name, label, value, error = null, onChange, options, dataId = "", dataName = "", isMultiple = false, ...other } = props;
+  const { name, label, value, error = null, onChange, options = [], dataId = "", dataName = "", isMultiple = false, ...other } = props;
   const autoCompleteRef = useRef(null);
   const convertToDefEventPara = (name, value) => ({
     target: {

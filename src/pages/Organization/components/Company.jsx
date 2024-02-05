@@ -38,7 +38,6 @@ const fields = {
 }
 
 /**
- * 
  * @param {Function} apiRef 
  * @param {Function} onEdit 
  * @param {Function} onActive 

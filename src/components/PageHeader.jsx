@@ -13,7 +13,6 @@ import {
   IconButton, AccordionDetails, Input, Tooltip
 } from "../deps/ui";
 import CommonDropDown from "./CommonDropDown";
-import { useSelector, useDispatch } from "react-redux";
 import {
   clearDropDownIdsAction,
   builderQueryAction,
@@ -26,6 +25,7 @@ import QueryBuilder, {
   loadTree,
   queryValue,
 } from "./QueryBuilder";
+import { useAppDispatch, useAppSelector } from "../store/storehook";
 
 const useStyles = makeStyles((theme) => ({
   Root: {
@@ -89,11 +89,11 @@ function trigger(eventType, data) {
 export default function PageHeader(props) {
   const classes = useStyles();
   const { title, subTitle, icon, handleUpload, handleTemplate, enableFilter } = props;
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const [drawer, setDrawer] = useState(false);
 
-  const fields = useSelector((e) => e.appdata.query.fields ?? {});
-  const setEnableFilter = useSelector(
+  const fields = useAppSelector((e) => e.appdata.query.fields ?? {});
+  const setEnableFilter = useAppSelector(
     (e) => enableFilter ?? e.appdata.enableFilter
   );
 
@@ -107,8 +107,10 @@ export default function PageHeader(props) {
 
   useEffect(() => {
     return () => {
-      dispatch(clearDropDownIdsAction);
+      dispatch(clearDropDownIdsAction());
       dispatch(enableFilterAction(false));
+      dispatch(builderQueryAction({}));
+      
       // dispatch(showDropDownFilterAction({
       //   company: true,
       //   country: false,
@@ -160,6 +162,7 @@ export default function PageHeader(props) {
           <Drawer
             className={classes.Drawer}
             anchor={"right"}
+            keepMounted
             open={drawer}
             onClose={() => setDrawer(!drawer)}>
             <Box role="presentation" width={400}>
@@ -173,7 +176,7 @@ export default function PageHeader(props) {
                     <Typography> Filter:</Typography>
                   </AccordionSummary>
                   <AccordionDetails>
-                    <CommonDropDown />
+                    <CommonDropDown  />
                   </AccordionDetails>
                 </Accordion>
               )}
