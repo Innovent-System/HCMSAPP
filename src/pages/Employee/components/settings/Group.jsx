@@ -3,12 +3,12 @@ import React, { useEffect, useRef, useState } from "react";
 import Popup from '../../../../components/Popup';
 import { AutoForm } from '../../../../components/useForm';
 import { API } from '../../_Service';
-import { useDispatch, useSelector } from 'react-redux';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAction } from '../../../../store/actions/httpactions';
 import { Circle } from "../../../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions, GridToolbar } from '../../../../components/useDataGrid';
 import { useSocketIo } from '../../../../components/useSocketio';
 import ConfirmDialog from '../../../../components/ConfirmDialog';
+import { useAppDispatch, useAppSelector } from "../../../../store/storehook";
 
 
 const fields = {
@@ -68,7 +68,7 @@ export const AddGroup = ({ openPopup, setOpenPopup, isEdit = false, row = null }
     const formApi = useRef(null);
     const { addEntity } = useEntityAction();
     useEffect(() => {
-        if (!formApi.current ||  !openPopup) return;
+        if (!formApi.current || !openPopup) return;
         const { resetForm, setFormValue } = formApi.current;
         if (openPopup && !isEdit)
             resetForm();
@@ -118,21 +118,20 @@ export const AddGroup = ({ openPopup, setOpenPopup, isEdit = false, row = null }
 }
 
 const Group = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
-    const [pageSize, setPageSize] = useState(30);
+
     const isEdit = React.useRef(false);
     const row = React.useRef(null);
     const [selectionModel, setSelectionModel] = React.useState([]);
 
-    const offSet = useRef({
-        isLoadMore: false,
-        isLoadFirstTime: true,
-    })
+    const [sort, setSort] = useState({ sort: { createdAt: -1 } });
 
-    const [filter, setFilter] = useState({
+
+    const [gridFilter, setGridFilter] = useState({
         lastKey: null,
         limit: 10,
+        page: 0,
         totalRecord: 0
     })
 
@@ -142,57 +141,30 @@ const Group = () => {
         subTitle: "",
     });
 
-    const [records, setRecords] = useState([]);
-
     const gridApiRef = useGridApi();
-    const query = useSelector(e => e.appdata.query.builder);
+    const query = useAppSelector(e => e.appdata.query.builder);
 
-    const { data, status, isLoading, refetch } = useEntitiesQuery({
+    const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
         url: DEFAULT_API,
-        params: {
-            limit: filter.limit,
-            lastKeyId: filter.lastKey,
-            searchParams: JSON.stringify(query)
+        data: {
+            limit: gridFilter.limit,
+            page: gridFilter.page + 1,
+            lastKeyId: gridFilter.lastKey,
+            ...sort,
+            searchParams: { ...query }
         }
-    });
+    }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
 
     const { updateOneEntity, removeEntity } = useEntityAction();
 
-    useEffect(() => {
-        if (status === "fulfilled") {
-            const { entityData, totalRecord } = data.result;
-            if (offSet.current.isLoadMore) {
-                setRecords([...entityData, ...records]);
-            }
-            else
-                setRecords(entityData)
-
-            setFilter({ ...filter, totalRecord: totalRecord });
-            offSet.current.isLoadMore = false;
-        }
-
-    }, [data, status])
 
     const { socketData } = useSocketIo("changeInGroup", refetch);
-
-    useEffect(() => {
-        if (Array.isArray(socketData)) {
-            setRecords(socketData);
-        }
-    }, [socketData])
-
-    const loadMoreData = (params) => {
-        if (records.length < filter.totalRecord && params.viewportPageSize !== 0) {
-            offSet.current.isLoadMore = true;
-            setFilter({ ...filter, lastKey: records.length ? records[records.length - 1].id : null });
-        }
-    }
 
     const handleEdit = (id) => {
         isEdit.current = true;
         editId = id;
-        const data = records.find(a => a.id === id);
-        row.current = data;
+
+        row.current = data.find(a => a.id === id);
         setOpenPopup(true);
     }
 
@@ -221,7 +193,6 @@ const Group = () => {
 
 
     useEffect(() => {
-        offSet.current.isLoadFirstTime = false;
         dispatch(enableFilterAction(false));
         dispatch(builderFieldsAction(fields));
     }, [dispatch])
@@ -238,9 +209,12 @@ const Group = () => {
         <>
             <AddGroup openPopup={openPopup} setOpenPopup={setOpenPopup} isEdit={isEdit.current} row={row.current} />
             <DataGrid apiRef={gridApiRef}
-                columns={columns} rows={records}
-                loading={isLoading} pageSize={pageSize}
-                totalCount={offSet.current.totalRecord}
+                columns={columns} rows={data}
+                loading={isLoading} pageSize={gridFilter.limit}
+                totalCount={totalRecord}
+                page={gridFilter.page}
+                setFilter={setGridFilter}
+                onSortModelChange={(s) => setSort({ sort: s.reduce((a, v) => ({ ...a, [v.field]: v.sort === 'asc' ? 1 : -1 }), {}) })}
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: showAddModal,
@@ -250,7 +224,7 @@ const Group = () => {
                 gridToolBar={GridToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
-                onRowsScrollEnd={loadMoreData}
+                
             />
             <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
         </>

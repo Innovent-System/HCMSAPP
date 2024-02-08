@@ -1,9 +1,7 @@
 // eslint-disable-next-line react-hooks/exhaustive-deps
 import React, { useEffect, useRef, useState } from "react";
-import Popup from '../../../components/Popup';
-import { AutoForm } from '../../../components/useForm';
+
 import { API } from '../_Service';
-import { useDispatch, useSelector } from 'react-redux';
 import { builderFieldsAction, useEntityAction, enableFilterAction, useLazyPostQuery } from '../../../store/actions/httpactions';
 import { Circle, Add as AddIcon } from "../../../deps/ui/icons";
 import { GridToolbarContainer, Select, MenuItem, FormControl, InputLabel } from "../../../deps/ui";
@@ -14,6 +12,7 @@ import { formateISODate } from "../../../services/dateTimeService";
 import Controls from "../../../components/controls/Controls";
 import useTable from "../../../components/useTable";
 import { getYears } from "../../../util/common";
+import { useAppDispatch, useAppSelector } from "../../../store/storehook";
 
 
 const fields = {
@@ -71,31 +70,57 @@ const TableHead = [
 ];
 const Years = getYears();
 const currentYear = new Date().getFullYear();
+// const DetailPanelContent = ({ row }) => {
+//     const { TblContainer, TblHead, TblBody } = useTable(row, TableHead)
+//     return (
+//         <TblContainer>
+//             <TblHead />
+//             <TblBody />
+//         </TblContainer>
+//     )
+// }
+/**
+ *@type {import("@mui/x-data-grid-pro").GridColumns} 
+ */
+const leaveTypeCol = [{ field: '_id', headerName: 'Id', hide: true, hideable: false },
+{ field: 'title', headerName: 'Leave Type', width: 180, hideable: false },
+{ field: 'entitled', headerName: 'Allowed', hideable: false },
+{ field: 'pending', headerName: 'Pending', hideable: false },
+{ field: 'taken', headerName: 'Taken', hideable: false },
+{ field: 'remaining', headerName: 'Remaining', hideable: false },
+
+]
+
 const DetailPanelContent = ({ row }) => {
-    const { TblContainer, TblHead, TblBody } = useTable(row, TableHead)
+
     return (
-        <TblContainer>
-            <TblHead />
-            <TblBody />
-        </TblContainer>
+        <DataGrid
+            columns={leaveTypeCol}
+            sx={{
+                p: 1
+            }}
+            checkboxSelection={false}
+            hideFooter={true}
+            gridHeight={540}
+            rows={row}
+            pagination={false}
+        />
     )
 }
 
+
 const LeaveQuota = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
     const isEdit = React.useRef(false);
     const row = React.useRef(null);
     const [selectionModel, setSelectionModel] = React.useState([]);
     const [year, setYear] = useState(currentYear)
-    const offSet = useRef({
-        isLoadMore: false,
-        isLoadFirstTime: true,
-    })
-
-    const [filter, setFilter] = useState({
+    const [loader, setLoader] = useState(false)
+    const [gridFilter, setGridFilter] = useState({
         lastKey: null,
         limit: 10,
+        page: 0,
         totalRecord: 0
     })
 
@@ -124,19 +149,13 @@ const LeaveQuota = () => {
     const [records, setRecords] = useState([]);
 
     const gridApiRef = useGridApi();
-    const query = useSelector(e => e.appdata.query.builder);
+    const query = useAppSelector(e => e.appdata.query.builder);
 
     const [getLeaveQuota] = useLazyPostQuery();
 
     const { updateOneEntity, removeEntity, addEntity } = useEntityAction();
 
 
-    const loadMoreData = (params) => {
-        if (records.length < filter.totalRecord && params.viewportPageSize !== 0) {
-            offSet.current.isLoadMore = true;
-            setFilter({ ...filter, lastKey: records.length ? records[records.length - 1].id : null });
-        }
-    }
 
     const handleEdit = (id) => {
         isEdit.current = true;
@@ -170,6 +189,7 @@ const LeaveQuota = () => {
     }
 
     const handleLeaveQuota = () => {
+        setLoader(true);
         getLeaveQuota({
             url: DEFAUL_API, data: {
                 year,
@@ -177,7 +197,10 @@ const LeaveQuota = () => {
             }
         }).then(({ data }) => {
             if (data)
-                setRecords(data.result);
+                setRecords(data);
+
+        }).finally(() => {
+            setLoader(false);
         })
     }
     const handleCreateQuota = () => {
@@ -185,7 +208,7 @@ const LeaveQuota = () => {
     }
 
     useEffect(() => {
-        offSet.current.isLoadFirstTime = false;
+
         dispatch(enableFilterAction(false));
         dispatch(builderFieldsAction(fields));
     }, [dispatch])
@@ -202,7 +225,10 @@ const LeaveQuota = () => {
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={records}
                 loading={false}
-                totalCount={offSet.current.totalRecord}
+                page={gridFilter.page}
+                pageSize={gridFilter.limit}
+                setFilter={setGridFilter}
+                totalCount={records.length}
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: handleCreateQuota,
@@ -215,13 +241,14 @@ const LeaveQuota = () => {
 
                 checkboxSelection={false}
                 detailPanelExpandedRowIds={detailPanelExpandedRowIds}
+                
                 onDetailPanelExpandedRowIdsChange={handleDetailPanelExpandedRowIdsChange}
                 getDetailPanelContent={getDetailPanelContent}
                 getDetailPanelHeight={getDetailPanelHeight} // Height based on the content.
                 gridToolBar={QuotaToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
-                onRowsScrollEnd={loadMoreData}
+
             />
             <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
         </>
@@ -229,7 +256,7 @@ const LeaveQuota = () => {
 }
 
 export function QuotaToolbar(props) {
-    const {  onAdd, getQuota, year, setYear, records } = props;
+    const { onAdd, getQuota, year, setYear, records } = props;
 
     return (
         <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>

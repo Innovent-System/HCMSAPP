@@ -9,6 +9,7 @@ import { Circle } from "../../../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions, GridToolbar } from '../../../../components/useDataGrid';
 import { useSocketIo } from '../../../../components/useSocketio';
 import ConfirmDialog from '../../../../components/ConfirmDialog';
+import { useAppDispatch, useAppSelector } from "../../../../store/storehook";
 
 
 const fields = {
@@ -61,7 +62,7 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
         getActions(apiRef, actionKit)
     ]
 }
-const DEFAUL_API = API.Designation;
+const DEFAULT_API = API.Designation;
 let editId = 0;
 export const AddDesignation = ({ openPopup, setOpenPopup, isEdit = false, row = null }) => {
     const formApi = useRef(null);
@@ -86,7 +87,7 @@ export const AddDesignation = ({ openPopup, setOpenPopup, isEdit = false, row = 
             if (isEdit)
                 dataToInsert._id = editId
 
-            addEntity({ url: DEFAUL_API, data: [dataToInsert] });
+            addEntity({ url: DEFAULT_API, data: [dataToInsert] });
 
         }
     }
@@ -115,20 +116,18 @@ export const AddDesignation = ({ openPopup, setOpenPopup, isEdit = false, row = 
     </Popup>
 }
 const Designation = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
     const isEdit = React.useRef(false);
     const row = React.useRef(null);
     const [selectionModel, setSelectionModel] = React.useState([]);
+    const [sort, setSort] = useState({ sort: { createdAt: -1 } });
 
-    const offSet = useRef({
-        isLoadMore: false,
-        isLoadFirstTime: true,
-    })
 
-    const [filter, setFilter] = useState({
+    const [gridFilter, setGridFilter] = useState({
         lastKey: null,
         limit: 10,
+        page:0,
         totalRecord: 0
     })
 
@@ -138,62 +137,34 @@ const Designation = () => {
         subTitle: "",
     });
 
-    const [records, setRecords] = useState([]);
-
     const gridApiRef = useGridApi();
-    const query = useSelector(e => e.appdata.query.builder);
+    const query = useAppSelector(e => e.appdata.query.builder);
 
-    const { data, status, isLoading, refetch } = useEntitiesQuery({
-        url: DEFAUL_API,
-        params: {
-            limit: filter.limit,
-            lastKeyId: filter.lastKey,
-            searchParams: JSON.stringify(query)
+    const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
+        url: DEFAULT_API,
+        data: {
+            limit: gridFilter.limit,
+            page: gridFilter.page + 1,
+            lastKeyId: gridFilter.lastKey,
+            ...sort,
+            searchParams: { ...query }
         }
-    });
+    }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
 
     const { updateOneEntity, removeEntity } = useEntityAction();
 
-    useEffect(() => {
-        if (status === "fulfilled") {
-            const { entityData, totalRecord } = data.result;
-            if (offSet.current.isLoadMore) {
-                setRecords([...entityData, ...records]);
-            }
-            else
-                setRecords(entityData)
-
-            setFilter({ ...filter, totalRecord: totalRecord });
-            offSet.current.isLoadMore = false;
-        }
-
-    }, [data, status])
-
     const { socketData } = useSocketIo("changeInDesignation", refetch);
-
-    useEffect(() => {
-        if (Array.isArray(socketData)) {
-            setRecords(socketData);
-        }
-    }, [socketData])
-
-    const loadMoreData = (params) => {
-        if (records.length < filter.totalRecord && params.viewportPageSize !== 0) {
-            offSet.current.isLoadMore = true;
-            setFilter({ ...filter, lastKey: records.length ? records[records.length - 1].id : null });
-        }
-    }
 
     const handleEdit = (id) => {
         isEdit.current = true;
         editId = id;
-        const data = records.find(a => a.id === id);
-        row.current = data;
+        
+        row.current = data.find(a => a.id === id);
         setOpenPopup(true);
     }
 
     const handleActiveInActive = (id) => {
-        updateOneEntity({ url: DEFAUL_API, data: { _id: id } });
+        updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
     }
 
     const handelDeleteItems = (ids) => {
@@ -207,7 +178,7 @@ const Designation = () => {
             title: "Are you sure to delete this records?",
             subTitle: "You can't undo this operation",
             onConfirm: () => {
-                removeEntity({ url: DEFAUL_API, params: idTobeDelete }).then(res => {
+                removeEntity({ url: DEFAULT_API, params: idTobeDelete }).then(res => {
                     setSelectionModel([]);
                 })
             },
@@ -217,7 +188,7 @@ const Designation = () => {
 
 
     useEffect(() => {
-        offSet.current.isLoadFirstTime = false;
+        
         dispatch(enableFilterAction(false));
         dispatch(builderFieldsAction(fields));
     }, [dispatch])
@@ -233,9 +204,14 @@ const Designation = () => {
         <>
             <AddDesignation openPopup={openPopup} setOpenPopup={setOpenPopup} isEdit={isEdit.current} row={row.current} />
             <DataGrid apiRef={gridApiRef}
-                columns={columns} rows={records}
+                columns={columns} rows={data}
                 loading={isLoading}
-                totalCount={offSet.current.totalRecord}
+                pageSize={gridFilter.limit}
+                page={gridFilter.page}
+                totalCount={totalRecord}
+                setFilter={setGridFilter}
+                onSortModelChange={(s) => setSort({ sort: s.reduce((a, v) => ({ ...a, [v.field]: v.sort === 'asc' ? 1 : -1 }), {}) })}
+
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: showAddModal,
@@ -245,7 +221,7 @@ const Designation = () => {
                 gridToolBar={GridToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
-                onRowsScrollEnd={loadMoreData}
+                
             />
             <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
         </>

@@ -53,7 +53,11 @@ export default function useTable(records, headCells, filterFn) {
         }
 
         return (<TableHead>
-            <TableRow>
+            <TableRow sx={{
+                '& .MuiTableCell-root': {
+                    padding: 0
+                }
+            }}>
                 {
                     headCells.map(headCell => (
                         <TableCell key={headCell.id}

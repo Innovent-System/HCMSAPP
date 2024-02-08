@@ -1,12 +1,13 @@
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
-import { LicenseInfo, LocalizationProvider } from '@mui/x-date-pickers-pro';
+import {  LocalizationProvider } from '@mui/x-date-pickers-pro';
 import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
-import DateAdapter from '@mui/lab/AdapterDateFns';
-import { useRef, useEffect } from 'react';
+import { AdapterDateFns } from '@mui/x-date-pickers-pro/AdapterDateFns';
 
-// const Key = '0f94d8b65161817ca5d7f7af8ac2f042T1JERVI6TVVJLVN0b3J5Ym9vayxFWFBJUlk9MTY1NDg1ODc1MzU1MCxLRVlWRVJTSU9OPTE=';
-// LicenseInfo.setLicenseKey(Key);
+
+// LicenseInfo.setLicenseKey(
+//     'x0jTPl0USVkVZV0SsMjM1kDNyADM5cjM2ETPZJVSQhVRsIDN0YTM6IVREJ1T0b9586ef25c9853decfa7709eee27a1e'
+//   );
 
 export default function BasicDateRangePicker({ name, fromlabel = "From", toLable = "To", value, onChange, size = "small", error = null,
     variant = "outlined", category = "date", ...others }) {
@@ -25,7 +26,7 @@ export default function BasicDateRangePicker({ name, fromlabel = "From", toLable
 
     return (
         <LocalizationProvider
-            dateAdapter={DateAdapter}
+            dateAdapter={AdapterDateFns}
             localeText={{ start: fromlabel, end: toLable }}
         >
             <DateRangePicker

@@ -6,7 +6,7 @@ import { API } from './_Service';
 import { useDispatch, useSelector } from 'react-redux';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction } from '../../store/actions/httpactions';
 import { Chip, GridToolbarContainer, GridActionsCellItem } from "../../deps/ui";
-import {  Delete as DeleteIcon, PeopleOutline, CheckCircle, Cancel, Description, AdminPanelSettings } from "../../deps/ui/icons";
+import { Delete as DeleteIcon, PeopleOutline, CheckCircle, Cancel, Description, AdminPanelSettings } from "../../deps/ui/icons";
 import DataGrid, { renderStatusCell, useGridApi } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
@@ -16,6 +16,7 @@ import PageHeader from '../../components/PageHeader'
 import { formateISODateTime } from "../../services/dateTimeService";
 import Loader from '../../components/Circularloading'
 import Auth from '../../services/AuthenticationService'
+import { useAppDispatch, useAppSelector } from "../../store/storehook";
 
 const fields = {
     status: {
@@ -169,22 +170,20 @@ const AddEmployeeApproval = ({ openPopup, setOpenPopup, selectionModel, row, isA
 }
 
 const EmployeeApproval = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
-    const [pageSize, setPageSize] = useState(30);
+
+    const [sort, setSort] = useState({ sort: { createdAt: -1 } });
 
     const [selectionModel, setSelectionModel] = React.useState([]);
 
     const isApproved = useRef(false);
     const row = useRef(null);
-    const offSet = useRef({
-        isLoadMore: false,
-        isLoadFirstTime: true,
-    })
 
     const [gridFilter, setGridFilter] = useState({
         lastKey: null,
         limit: 10,
+        page: 0,
         totalRecord: 0
     })
 
@@ -194,57 +193,30 @@ const EmployeeApproval = () => {
         subTitle: "",
     });
 
-    const [records, setRecords] = useState([]);
-
     const gridApiRef = useGridApi();
-    const query = useSelector(e => e.appdata.query.builder);
-    
-    const { data, isLoading, status, refetch } = useEntitiesQuery({
+    const query = useAppSelector(e => e.appdata.query.builder);
+
+    const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
         url: DEFAULT_API,
-        params: {
-            limit: offSet.current.limit,
-            lastKeyId: offSet.current.isLoadMore ? offSet.current.lastKeyId : "",
-            searchParams: JSON.stringify({
+        data: {
+            limit: gridFilter.limit,
+            page: gridFilter.page + 1,
+            ...sort,
+            searchParams: {
                 ...query,
                 $and: [
                     { routeBy: Auth.getitem("userInfo").fkEmployeeId },
                     { $or: [{ isCurrentApproval: true }, { actionTaken: true }] }
                 ],
-            })
+            }
         }
-    });
+    }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
 
     const { removeEntity } = useEntityAction();
 
-    useEffect(() => {
-        if (status === "fulfilled") {
-            const { entityData, totalRecord } = data.result;
-            if (offSet.current.isLoadMore) {
-                setRecords([...entityData, ...records]);
-            }
-            else
-                setRecords(entityData)
-
-            setGridFilter({ ...gridFilter, totalRecord: totalRecord });
-            offSet.current.isLoadMore = false;
-        }
-    }, [data, status])
 
     const { socketData } = useSocketIo("changeInEmployeeApproval", refetch);
 
-    useEffect(() => {
-        if (Array.isArray(socketData)) {
-            setRecords(socketData);
-        }
-    }, [socketData])
-
-
-    const loadMoreData = (params) => {
-        if (records.length < gridFilter.totalRecord && params.viewportPageSize !== 0) {
-            offSet.current.isLoadMore = true;
-            setGridFilter({ ...gridFilter, lastKey: records.length ? records[records.length - 1].id : null });
-        }
-    }
     const showAddModal = (isApprove, _row) => {
         row.current = _row;
         isApproved.current = isApprove === 1
@@ -272,7 +244,7 @@ const EmployeeApproval = () => {
     }
 
     useEffect(() => {
-        offSet.current.isLoadFirstTime = false;
+        
         dispatch(showDropDownFilterAction({
             employee: true,
         }));
@@ -290,11 +262,14 @@ const EmployeeApproval = () => {
                 subTitle="Manage Employee Approval"
                 icon={<PeopleOutline fontSize="large" />}
             />
-            <AddEmployeeApproval openPopup={openPopup} setOpenPopup={setOpenPopup} isApproved={isApproved.current} selectionModel={selectionModel} records={records} row={row.current} />
+            <AddEmployeeApproval openPopup={openPopup} setOpenPopup={setOpenPopup} isApproved={isApproved.current} selectionModel={selectionModel} records={data} row={row.current} />
             <DataGrid apiRef={gridApiRef}
-                columns={columns} rows={records}
-                loading={isLoading} pageSize={pageSize}
-                totalCount={offSet.current.totalRecord}
+                columns={columns} rows={data}
+                loading={isLoading} pageSize={gridFilter.limit}
+                totalCount={totalRecord}
+                page={gridFilter.page}
+                setFilter={setGridFilter}
+                onSortModelChange={(s) => setSort({ sort: s.reduce((a, v) => ({ ...a, [v.field]: v.sort === 'asc' ? 1 : -1 }), {}) })}
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: showAddModal,
@@ -304,7 +279,7 @@ const EmployeeApproval = () => {
                 gridToolBar={ApprovalToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
-                onRowsScrollEnd={loadMoreData}
+                
             />
             <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
         </>

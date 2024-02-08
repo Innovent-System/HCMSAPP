@@ -2,9 +2,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import Popup from '../../components/Popup';
 import { API } from './_Service';
-import { useDispatch, useSelector } from 'react-redux';
+
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction, useLazySingleQuery } from '../../store/actions/httpactions';
-import { Stack, Typography } from "../../deps/ui";
 import { PeopleOutline } from "../../deps/ui/icons";
 import DataGrid, { GridToolbar, renderStatusCell, useGridApi } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
@@ -15,6 +14,7 @@ import { startOfDay, addDays, isEqual, formateISODate } from '../../services/dat
 import { formateISODateTime } from "../../services/dateTimeService";
 import Loader from '../../components/Circularloading'
 import { useDropDownIds } from "../../components/useDropDown";
+import { useAppDispatch, useAppSelector } from "../../store/storehook";
 
 const fields = {
     status: {
@@ -66,7 +66,7 @@ const AddLeaveRequest = ({ openPopup, setOpenPopup }) => {
     const formApi = useRef(null);
     const [loader, setLoader] = useState(false);
     const [leaveTypes, setLeaveTypes] = useState([]);
-    const { Employees } = useSelector(e => e.appdata.employeeData);
+    const { Employees } = useAppSelector(e => e.appdata.employeeData);
     const { addEntity } = useEntityAction();
     const [getLeaveDetail] = useLazySingleQuery();
     useEffect(() => {
@@ -185,22 +185,19 @@ const AddLeaveRequest = ({ openPopup, setOpenPopup }) => {
 }
 const DEFAULT_API = API.LeaveRequest;
 const LeaveRequest = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
-    const [pageSize, setPageSize] = useState(30);
 
     const [selectionModel, setSelectionModel] = React.useState([]);
-
-    const offSet = useRef({
-        isLoadMore: false,
-        isLoadFirstTime: true,
-    })
 
     const [gridFilter, setGridFilter] = useState({
         lastKey: null,
         limit: 10,
+        page: 0,
         totalRecord: 0
     })
+
+    const [sort, setSort] = useState({ sort: { createdAt: -1 } });
 
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,
@@ -208,51 +205,27 @@ const LeaveRequest = () => {
         subTitle: "",
     });
 
-    const [records, setRecords] = useState([]);
+   
 
     const gridApiRef = useGridApi();
-    const query = useSelector(e => e.appdata.query.builder);
+    const query = useAppSelector(e => e.appdata.query.builder);
     const { countryIds, stateIds, cityIds, areaIds } = useDropDownIds();
-    const { data, isLoading, status, refetch } = useEntitiesQuery({
+    const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
         url: DEFAULT_API,
-        params: {
-            limit: offSet.current.limit,
-            lastKeyId: offSet.current.isLoadMore ? offSet.current.lastKeyId : "",
-            searchParams: JSON.stringify(query)
+        data: {
+            limit: gridFilter.limit,
+            page: gridFilter.page + 1,
+            lastKeyId: gridFilter.lastKey,
+            ...sort,
+            searchParams: { ...query }
         }
-    });
+    }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
 
     const { removeEntity } = useEntityAction();
 
-    useEffect(() => {
-        if (status === "fulfilled") {
-            const { entityData, totalRecord } = data.result;
-            if (offSet.current.isLoadMore) {
-                setRecords([...entityData, ...records]);
-            }
-            else
-                setRecords(entityData)
-
-            setGridFilter({ ...gridFilter, totalRecord: totalRecord });
-            offSet.current.isLoadMore = false;
-        }
-    }, [data, status])
 
     const { socketData } = useSocketIo("changeInLeaveRequest", refetch);
 
-    useEffect(() => {
-        if (Array.isArray(socketData)) {
-            setRecords(socketData);
-        }
-    }, [socketData])
-
-
-    const loadMoreData = (params) => {
-        if (records.length < gridFilter.totalRecord && params.viewportPageSize !== 0) {
-            offSet.current.isLoadMore = true;
-            setGridFilter({ ...gridFilter, lastKey: records.length ? records[records.length - 1].id : null });
-        }
-    }
 
     const handelDeleteItems = (ids) => {
         let idTobeDelete = ids;
@@ -273,7 +246,7 @@ const LeaveRequest = () => {
     }
 
     useEffect(() => {
-        offSet.current.isLoadFirstTime = false;
+        
         dispatch(showDropDownFilterAction({
             employee: true,
         }));
@@ -295,9 +268,13 @@ const LeaveRequest = () => {
             />
             <AddLeaveRequest openPopup={openPopup} setOpenPopup={setOpenPopup} />
             <DataGrid apiRef={gridApiRef}
-                columns={columns} rows={records}
-                loading={isLoading} pageSize={pageSize}
-                totalCount={offSet.current.totalRecord}
+                columns={columns} rows={data}
+                page={gridFilter.page}
+                
+                loading={isLoading} pageSize={gridFilter.limit}
+                setFilter={setGridFilter}
+                onSortModelChange={(s) => setSort({ sort: s.reduce((a, v) => ({ ...a, [v.field]: v.sort === 'asc' ? 1 : -1 }), {}) })}
+                totalCount={totalRecord}
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: showAddModal,
@@ -307,7 +284,7 @@ const LeaveRequest = () => {
                 gridToolBar={GridToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
-                onRowsScrollEnd={loadMoreData}
+                
             />
             <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
         </>

@@ -3,7 +3,6 @@ import React, { useEffect, useRef, useState } from "react";
 import Popup from '../../../components/Popup';
 import { AutoForm } from '../../../components/useForm';
 import { API } from '../_Service';
-import { useDispatch, useSelector } from 'react-redux';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAction } from '../../../store/actions/httpactions';
 import { Circle } from "../../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions, GridToolbar } from '../../../components/useDataGrid';
@@ -12,6 +11,7 @@ import ConfirmDialog from '../../../components/ConfirmDialog';
 import { useDropDown } from "../../../components/useDropDown";
 import { formateISODateTime } from "../../../services/dateTimeService";
 import InfoToolTip from "../../../components/InfoToolTip";
+import { useAppDispatch, useAppSelector } from "../../../store/storehook";
 
 
 const fields = {
@@ -70,7 +70,7 @@ const genderItems = [
     { id: "Female", title: "Female" },
 ]
 
-const DEFAUL_API = API.LeaveType;
+const DEFAULT_API = API.LeaveType;
 let editId = 0;
 export const AddLeaveType = ({ openPopup, setOpenPopup, isEdit = false, row = null }) => {
     const formApi = useRef(null);
@@ -97,7 +97,7 @@ export const AddLeaveType = ({ openPopup, setOpenPopup, isEdit = false, row = nu
             if (isEdit)
                 dataToInsert._id = editId
 
-            addEntity({ url: DEFAUL_API, data: [dataToInsert] });
+            addEntity({ url: DEFAULT_API, data: [dataToInsert] });
 
         }
     }
@@ -195,20 +195,17 @@ export const AddLeaveType = ({ openPopup, setOpenPopup, isEdit = false, row = nu
     </Popup>
 }
 const LeaveType = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
     const isEdit = React.useRef(false);
     const row = React.useRef(null);
     const [selectionModel, setSelectionModel] = React.useState([]);
 
-    const offSet = useRef({
-        isLoadMore: false,
-        isLoadFirstTime: true,
-    })
-
+    const [sort, setSort] = useState({ sort: { createdAt: -1 } });
     const [filter, setFilter] = useState({
         lastKey: null,
         limit: 10,
+        page: 0,
         totalRecord: 0
     })
 
@@ -218,62 +215,35 @@ const LeaveType = () => {
         subTitle: "",
     });
 
-    const [records, setRecords] = useState([]);
-
     const gridApiRef = useGridApi();
-    const query = useSelector(e => e.appdata.query.builder);
+    const query = useAppSelector(e => e.appdata.query.builder);
 
-    const { data, status, isLoading, refetch } = useEntitiesQuery({
-        url: DEFAUL_API,
-        params: {
+    const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
+        url: DEFAULT_API,
+        data: {
             limit: filter.limit,
+            page: filter.page + 1,
             lastKeyId: filter.lastKey,
-            searchParams: JSON.stringify(query)
+            ...sort,
+            searchParams: { ...query }
         }
-    });
+    }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
 
     const { updateOneEntity, removeEntity } = useEntityAction();
 
-    useEffect(() => {
-        if (status === "fulfilled") {
-            const { entityData, totalRecord } = data.result;
-            if (offSet.current.isLoadMore) {
-                setRecords([...entityData, ...records]);
-            }
-            else
-                setRecords(entityData)
-
-            setFilter({ ...filter, totalRecord: totalRecord });
-            offSet.current.isLoadMore = false;
-        }
-
-    }, [data, status])
 
     const { socketData } = useSocketIo("changeInLeaveType", refetch);
 
-    useEffect(() => {
-        if (Array.isArray(socketData)) {
-            setRecords(socketData);
-        }
-    }, [socketData])
-
-    const loadMoreData = (params) => {
-        if (records.length < filter.totalRecord && params.viewportPageSize !== 0) {
-            offSet.current.isLoadMore = true;
-            setFilter({ ...filter, lastKey: records.length ? records[records.length - 1].id : null });
-        }
-    }
 
     const handleEdit = (id) => {
         isEdit.current = true;
         editId = id;
-        const data = records.find(a => a.id === id);
-        row.current = data;
+        row.current = data.find(a => a.id === id);;
         setOpenPopup(true);
     }
 
     const handleActiveInActive = (id) => {
-        updateOneEntity({ url: DEFAUL_API, data: { _id: id } });
+        updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
     }
 
     const handelDeleteItems = (ids) => {
@@ -287,7 +257,7 @@ const LeaveType = () => {
             title: "Are you sure to delete this records?",
             subTitle: "You can't undo this operation",
             onConfirm: () => {
-                removeEntity({ url: DEFAUL_API, params: idTobeDelete }).then(res => {
+                removeEntity({ url: DEFAULT_API, params: idTobeDelete }).then(res => {
                     setSelectionModel([]);
                 })
             },
@@ -297,7 +267,7 @@ const LeaveType = () => {
 
 
     useEffect(() => {
-        offSet.current.isLoadFirstTime = false;
+        
         dispatch(enableFilterAction(false));
         dispatch(builderFieldsAction(fields));
     }, [dispatch])
@@ -313,9 +283,13 @@ const LeaveType = () => {
         <>
             <AddLeaveType openPopup={openPopup} setOpenPopup={setOpenPopup} isEdit={isEdit.current} row={row.current} />
             <DataGrid apiRef={gridApiRef}
-                columns={columns} rows={records}
+                columns={columns} rows={data}
                 loading={isLoading}
-                totalCount={offSet.current.totalRecord}
+                page={filter.page}
+                pageSize={filter.limit}
+                setFilter={setFilter}
+                onSortModelChange={(s) => setSort({ sort: s.reduce((a, v) => ({ ...a, [v.field]: v.sort === 'asc' ? 1 : -1 }), {}) })}
+                totalCount={totalRecord}
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: showAddModal,
@@ -325,7 +299,7 @@ const LeaveType = () => {
                 gridToolBar={GridToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
-                onRowsScrollEnd={loadMoreData}
+                
             />
             <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
         </>

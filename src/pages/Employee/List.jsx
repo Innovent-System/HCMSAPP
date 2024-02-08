@@ -3,7 +3,6 @@ import React, { useEffect, useRef, useState } from "react";
 import Controls from '../../components/controls/Controls';
 import Popup from '../../components/Popup';
 import { API, alphabets } from './_Service';
-import { useDispatch, useSelector } from 'react-redux';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction } from '../../store/actions/httpactions';
 import { Typography, Stack, Link, ButtonGroup } from "../../deps/ui";
 import { Circle, PeopleOutline } from "../../deps/ui/icons";
@@ -16,6 +15,7 @@ import { useExcelReader } from "../../hooks/useExcelReader";
 import Loader from '../../components/Circularloading'
 import { useDropDownIds } from '../../components/useDropDown';
 import AddEmployee from "./components/AddEmployee";
+import { useAppDispatch, useAppSelector } from "../../store/storehook";
 
 
 const fields = {
@@ -85,16 +85,12 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
 let editId = 0;
 const DEFAULT_API = API.Employee;
 const Employee = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
     const isEdit = React.useRef(false);
     const [selectionModel, setSelectionModel] = React.useState([]);
     const [word, setWord] = useState("");
-
-    const offSet = useRef({
-        isLoadMore: false,
-        isLoadFirstTime: true,
-    })
+    const [sort, setSort] = useState({ sort: { createdAt: -1 } });
 
     const excelColData = useRef([]);
 
@@ -103,6 +99,7 @@ const Employee = () => {
     const [gridFilter, setGridFilter] = useState({
         lastKey: null,
         limit: 10,
+        page: 0,
         totalRecord: 0
     })
 
@@ -111,18 +108,20 @@ const Employee = () => {
         title: "",
         subTitle: "",
     });
-    const [records, setRecords] = useState([]);
+    
     const gridApiRef = useGridApi();
-    const query = useSelector(e => e.appdata.query.builder);
+    const query = useAppSelector(e => e.appdata.query.builder);
 
     const { countryIds, stateIds, cityIds, areaIds, departmentIds, groupIds, designationIds } = useDropDownIds();
 
-    const { data, isLoading, status, refetch } = useEntitiesQuery({
+    const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
         url: DEFAULT_API,
-        params: {
-            limit: offSet.current.limit,
-            lastKeyId: offSet.current.isLoadMore ? offSet.current.lastKeyId : "",
-            searchParams: JSON.stringify({
+        data: {
+            limit: gridFilter.limit,
+            page: gridFilter.page + 1,
+            lastKeyId: gridFilter.lastKey,
+            ...sort,
+            searchParams: {
                 ...query,
                 ...(word && { firstName: { "$regex": `^${word}`, "$options": "i" } }),
                 ...(countryIds && { "companyInfo.fkCountryId": { $in: countryIds.split(',') } }),
@@ -132,41 +131,13 @@ const Employee = () => {
                 ...(groupIds && { "companyInfo.fkGroupId": { $in: groupIds.split(',') } }),
                 ...(departmentIds && { "companyInfo.fkDepartmentId": { $in: departmentIds.split(',') } }),
                 ...(designationIds && { "companyInfo.fkDesignationId": { $in: designationIds.split(',') } })
-            })
+            }
         }
-    });
+    }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
 
     const { updateOneEntity, addEntity, removeEntity } = useEntityAction();
 
-    useEffect(() => {
-        if (status === "fulfilled") {
-            const { entityData, totalRecord } = data.result;
-            if (offSet.current.isLoadMore) {
-                setRecords([...entityData, ...records]);
-            }
-            else
-                setRecords(entityData)
-
-            setGridFilter({ ...gridFilter, totalRecord: totalRecord });
-            offSet.current.isLoadMore = false;
-        }
-    }, [data, status])
-
     const { socketData } = useSocketIo("changeInEmployee", refetch);
-
-    useEffect(() => {
-        if (Array.isArray(socketData)) {
-            setRecords(socketData);
-        }
-    }, [socketData])
-
-
-    const loadMoreData = (params) => {
-        if (records.length < gridFilter.totalRecord && params.viewportPageSize !== 0) {
-            offSet.current.isLoadMore = true;
-            setGridFilter({ ...gridFilter, lastKey: records.length ? records[records.length - 1].id : null });
-        }
-    }
 
     const handleEdit = (id) => {
         isEdit.current = true;
@@ -260,7 +231,7 @@ const Employee = () => {
                 title="Add Employee Information"
                 openPopup={openPopup} maxWidth="xl"
                 fullScreen={true} isEdit={isEdit.current}
-                footer={<></>} 
+                footer={<></>}
                 setOpenPopup={setOpenPopup}>
                 {/* <AddEmployee /> */}
                 <EmpoyeeModal coldata={excelColData} isEdit={isEdit.current} editId={editId} setOpenPopup={setOpenPopup} />
@@ -273,10 +244,14 @@ const Employee = () => {
                 ))}
             </ButtonGroup>
             <DataGrid apiRef={gridApiRef}
-                columns={columns} rows={records}
-                totalCount={offSet.current.totalRecord}
+                columns={columns} rows={data}
+                totalCount={totalRecord}
+                pageSize={gridFilter.limit}
+                page={gridFilter.page}
+                setFilter={setGridFilter}
                 rowHeight={100}
                 loading={isLoading}
+                onSortModelChange={(s) => setSort({ sort: s.reduce((a, v) => ({ ...a, [v.field]: v.sort === 'asc' ? 1 : -1 }), {}) })}
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: showAddModal,
@@ -286,7 +261,7 @@ const Employee = () => {
                 gridToolBar={GridToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
-                onRowsScrollEnd={loadMoreData}
+                
             />
             <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
         </>
