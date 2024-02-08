@@ -221,7 +221,6 @@ const Schedule = () => {
     useEffect(() => {
         getShiftList({
             url: `${API.Shift}/get`, data: {
-                limit: filter.limit,
                 page: 1,
                 limit: 30,
                 searchParams: {}

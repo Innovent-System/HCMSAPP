@@ -224,7 +224,7 @@ const AddDepartment = ({ openPopup, setOpenPopup, isEdit = false, row = null }) 
             const { departmentName, employeeLimit, code, departmentHead } = getValue();
             let dataToInsert = {};
 
-            const total = dataSet.reduce((total, obj) => (+obj.noOfPositions ?? 0) + total, 0);
+            const total = dataSet.reduce((total, obj) => (+(obj?.noOfPositions ?? 0)) + total, 0);
             if (total > employeeLimit) return setError(true);
             else {
                 setError(false);
