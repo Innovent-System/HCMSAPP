@@ -11,7 +11,8 @@ import { useDispatch } from "react-redux";
 import { API_USER_LOGIN } from '../../../services/UrlService';
 import Auth from '../../../services/AuthenticationService';
 import { SocketContext } from '../../../services/socketService';
-
+import bg from '../../../assets/images/bg-1.jpg'
+import logo from '../../../assets/images/Innovent-logo.png'
 
 const initialFValues = {
   userName: "",
@@ -139,79 +140,107 @@ const SignIn = () => {
 
 
   return (
-    <Card>
-      <CardContent sx={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
+    <Card sx={{
+      height: "100vh",
+      borderTopRightRadius: '50%',
+      borderBottomRightRadius: '50%',
+      zIndex: 5,
+      width: '80%',
+      "&::after": {
+        content: '""',
+        height: 'inherit',
+        backgroundColor: 'primary.main',
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        width: '100%',
+        zIndex: -1
+      }
+    }}>
+
+      <CardContent sx={{
+        display: "flex", height: 'inherit',
+        alignItems: 'center', justifyContent: "flex-start"
+      }}>
         <CardMedia
           component="img"
-          image='/login.png'
+          // image='/login.png'
+
           width={300}
-          height={300}
-          sx={{ objectFit: "contain" }}
+          height={200}
+          src={logo}
+          sx={{ objectFit: "contain", flex: 1 }}
 
         />
-        <Form  onSubmit={handleSubmit}>
 
-          <Controls.Input
-            name="userName"
-            label="User Name"
-            style={{ width: '60%' }}
-            value={values.userName}
-            onChange={handleInputChange}
-            error={errors.userName}
-            autoFocus
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton color="primary">
-                    <Person />
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
+        <Form onSubmit={handleSubmit}>
+          <Box>
+            <Controls.Input
+              name="userName"
+              label="User Name"
+              style={{ width: '60%' }}
+              value={values.userName}
+              onChange={handleInputChange}
+              error={errors.userName}
+              autoFocus
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton color="primary">
+                      <Person />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
 
-          <Controls.Input
-            name="password"
-            label="Password"
-            value={values.password}
-            type={values.isShowPassword ? 'text' : 'password'}
-            onChange={handleInputChange}
-            style={{ width: '60%' }}
-            error={errors.password}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="toggle password visibility"
-                    onClick={handleClickShowPassword}
-                    onMouseDown={handleMouseDownPassword}
-                    color="primary"
-                  >
-                    {values.isShowPassword ? <Visibility /> : <VisibilityOff />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
-          <Controls.Button
-            text="Login"
+            <Controls.Input
+              name="password"
+              label="Password"
+              value={values.password}
+              type={values.isShowPassword ? 'text' : 'password'}
+              onChange={handleInputChange}
+              style={{ width: '60%' }}
+              error={errors.password}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleClickShowPassword}
+                      onMouseDown={handleMouseDownPassword}
+                      color="primary"
+                    >
+                      {values.isShowPassword ? <Visibility /> : <VisibilityOff />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Box>
 
-            type="submit"
-            disabled={loader}
-          />
+          <Box p={0.5}>
+            <Controls.Button
+              text="Login"
 
-          {loader && (
-            <CircularProgress size={24} className={classes.ButtonProgress} />
-          )}
-          <Controls.Button text="Reset" color="inherit" onClick={() => { setLoader(false); resetForm() }} />
+              type="submit"
+              disabled={loader}
+            />
 
-          <Link
-            component={RouterLink}
-            to="/register"
-            variant="body2"
-          >
-            Forgotten Password
-          </Link>
+            {loader && (
+              <CircularProgress size={24} className={classes.ButtonProgress} />
+            )}
+            <Controls.Button text="Reset" color="inherit" onClick={() => { setLoader(false); resetForm() }} />
+
+            <Link
+              component={RouterLink}
+              to="/register"
+              variant="body2"
+            >
+              Forgotten Password
+            </Link>
+
+          </Box>
 
 
         </Form>

@@ -1,5 +1,8 @@
 import { format, parseISO } from 'date-fns'
-export { addDays, isEqual, format, startOfDay, parseISO } from 'date-fns';
+export {
+    addDays, isEqual, format, startOfDay, parseISO, differenceInSeconds,
+    differenceInMilliseconds, differenceInMinutes, intervalToDuration
+} from 'date-fns';
 
 
 

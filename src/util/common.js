@@ -190,6 +190,15 @@ export function ValidateSize(file) {
     }
 }
 
+export const downloadTextFIle = (text) => {
+    const hiddenElement = document.createElement('a');
+    hiddenElement.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(text);
+    hiddenElement.target = '_blank';
+    hiddenElement.download = 'errors.txt';
+    document.body.appendChild(hiddenElement);
+    hiddenElement.click();
+    document.body.removeChild(hiddenElement);
+}
 
 export const downloadAndViewFile = (base64, fileName = 'test1', ext = 'pdf', isDownload = true, isNameWithNumber = false) => {
     if (!validateBase64String(base64)) return console.log("base64 string in not valid");
@@ -284,7 +293,7 @@ function commonBars(chartObject, dataSetArray, type = "bar") {
     return objectbar;
 }
 
-export const weekday = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+export const weekday = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 export const createChart = (chartId, type, parentLabel, data, options) => {
     if (typeof (chartId) !== 'string' &&
         typeof (type) !== 'string' &&

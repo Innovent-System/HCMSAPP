@@ -1,6 +1,6 @@
 import { createStyles, makeStyles } from '@mui/styles';
 import BodyBG from '../../assets/images/bg-0.jpg';
-
+import calcTTF from '../../fonts/calculator.ttf'
 const useStyles = makeStyles(() => createStyles({
   '@global': {
     '*': {
@@ -8,7 +8,10 @@ const useStyles = makeStyles(() => createStyles({
       margin: 0,
       padding: 0,
     },
-
+    '@font-face': {
+      fontFamily: "Calculator",  /*Can be any text*/
+      src: `url(${calcTTF}) format("truetype")`
+    },
     html: {
       '-webkit-font-smoothing': 'antialiased',
       '-moz-osx-font-smoothing': 'grayscale',

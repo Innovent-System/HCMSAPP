@@ -37,11 +37,10 @@ import {
 } from "../../store/actions/httpactions";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import Logo from "../../assets/images/Logo.png";
-
 // Drawer
-
 import { routeCommand } from "./routecommand";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
+import DigitalTimer from "../../components/DigitalTimer";
 
 const useStyles = makeStyles((theme) => ({
   Appbar: {
@@ -228,6 +227,10 @@ export default function Header() {
                 color="inherit"
                 variant="outlined"
               />
+
+            </Grid>
+            <Grid item xs>
+              <DigitalTimer />
             </Grid>
             <Grid item xs className="right">
               <div className="btn-grid">

@@ -10,6 +10,7 @@ export const API = {
     Schedule: "attendance/schedule",
     UpdateSchedule: "attendance/schedule/updateSchedule",
     Approval: "attendance/approval",
+    MarkAttendance: "attendance/mark",
     ApprovalAction: "attendance/approval/action",
     // Designation: "employee/designation",
 }

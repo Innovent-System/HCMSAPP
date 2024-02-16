@@ -110,7 +110,7 @@ export default function PageHeader(props) {
       dispatch(clearDropDownIdsAction());
       dispatch(enableFilterAction(false));
       dispatch(builderQueryAction({}));
-      
+
       // dispatch(showDropDownFilterAction({
       //   company: true,
       //   country: false,
@@ -142,7 +142,7 @@ export default function PageHeader(props) {
           {typeof handleUpload === "function" && (
             <Tooltip title="Upload Template" placement="top" arrow>
               <label htmlFor="icon-button-excel-file">
-                <Input style={{ display: 'none' }} onChange={handleUpload} accept="image/*" id="icon-button-excel-file" type="file" />
+                <Input style={{ display: 'none' }} onClick={function (e) { e.target.value = null }} onChange={handleUpload} accept="image/*" id="icon-button-excel-file" type="file" />
                 <IconButton size='small' aria-label="upload picture" component="span">
                   <CloudUpload />
                 </IconButton>
@@ -176,7 +176,7 @@ export default function PageHeader(props) {
                     <Typography> Filter:</Typography>
                   </AccordionSummary>
                   <AccordionDetails>
-                    <CommonDropDown  />
+                    <CommonDropDown />
                   </AccordionDetails>
                 </Accordion>
               )}

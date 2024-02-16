@@ -13,8 +13,6 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { AddCountry } from '../../Organization/components/Country';
 import { AddArea } from '../../Organization/components/Area';
 
-
-
 const Styles = {
   root: {
     width: '100%',
@@ -125,12 +123,13 @@ export const mapEmployee = (values) => {
   return employee;
 }
 
+const emptyString = "";
 const breakpoints = { md: 4, sm: 6, xs: 6 }
 export default function EmployaaModal({ isEdit = false, editId, coldata, add_edit_API = API.Employee }) {
 
   const formApi = useRef(null);
   const [activeStep, setActiveStep] = React.useState(0);
-  const [loader, setLoader] = useState(isEdit);
+  const [loader, setLoader] = useState(false);
   const steps = getSteps();
   const [GetEmpolyee] = useLazyEntityQuery();
   const theme = useTheme();
@@ -139,7 +138,7 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
   const { companies, countries, states, cities, areas, designations, groups, schedules, departments, employees, roleTemplates, religion, employeeStatus, filterType, setFilter } = useDropDown();
 
   const handleEdit = () => {
-
+    setLoader(true);
     GetEmpolyee({ url: add_edit_API, id: editId }).then(({ data: { result: values } }) => {
       const { setFormValue } = formApi.current;
       setFormValue({
@@ -163,7 +162,7 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
         fkStateId: states.find(s => s._id === values.companyInfo.fkStateId),
         scheduleId: schedules.find(s => s._id === values.schedule?._id) ?? null,
         fkManagerId: employees.find(e => e._id === values.companyInfo?.fkManagerId) ?? null,
-        fkRoleTemplateId: values.companyInfo.fkRoleTemplateId,
+        fkRoleTemplateId: values.companyInfo?.fkRoleTemplateId ?? '',
         joiningDate: values.companyInfo.joiningDate,
         confirmationDate: values.companyInfo.confirmationDate,
         address1: values?.contactDetial?.address1,
@@ -176,21 +175,32 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
         workNo: values?.contactDetial?.values,
         emergencyNo: values?.contactDetial?.emergencyNo
       });
+    }).finally(() => {
+      setLoader(false);
+
     })
 
-    setLoader(false);
   }
 
   useEffect(() => {
     if (isEdit && companies?.length) {
+      setActiveStep(0);
       handleEdit();
     }
+    else {
+      const { resetForm } = formApi.current;
+      setActiveStep(0);
+      resetForm();
+    }
 
-  }, [isEdit, companies])
+  }, [isEdit, companies, editId])
 
 
   const { addEntity } = useEntityAction();
 
+  /**
+   * @type {import('../../../types/fromstype').FormType}
+   */
   const formData = [
     {
       Component: Collapse,
@@ -207,7 +217,10 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
           name: "prefix",
           label: "Prefix",
           breakpoints,
-          defaultValue: ""
+          defaultValue: emptyString,
+          excel: {
+            sampleData: emptyString
+          }
         },
         {
           elementType: "inputfield",
@@ -220,7 +233,10 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
             when: 0,
             errorMessage: "Employee Ref is required",
           },
-          defaultValue: ""
+          defaultValue: emptyString,
+          excel: {
+            sampleData: 222
+          }
         },
         {
           elementType: "inputfield",
@@ -233,7 +249,10 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
             when: 0,
             errorMessage: "Punch Code is required"
           },
-          defaultValue: ""
+          defaultValue: emptyString,
+          excel: {
+            sampleData: 222
+          }
         },
         {
           elementType: "inputfield",
@@ -245,7 +264,10 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
             when: 0,
             errorMessage: "First Name is required",
           },
-          defaultValue: ""
+          defaultValue: emptyString,
+          excel: {
+            sampleData: "Faizan"
+          }
         },
         {
           elementType: "inputfield",
@@ -257,14 +279,20 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
             errorMessage: "Last Name is required",
             type: "string"
           },
-          defaultValue: ""
+          defaultValue: emptyString,
+          excel: {
+            sampleData: "Siddiqui"
+          }
         },
         {
           elementType: "inputfield",
           name: "fName",
           label: "Father/Husband Name",
           breakpoints,
-          defaultValue: ""
+          defaultValue: emptyString,
+          excel: {
+            sampleData: emptyString
+          }
         },
         {
           elementType: "ad_dropdown",
@@ -274,7 +302,10 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
           dataName: 'fullName',
           dataId: '_id',
           options: employees,
-          defaultValue: null
+          defaultValue: null,
+          excel: {
+            sampleData: emptyString
+          }
         },
         // {
         //   elementType: "clearfix",
@@ -288,7 +319,10 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
           dataId: "id",
           dataName: "title",
           defaultValue: "Single",
-          options: Maritalstatus
+          options: Maritalstatus,
+          excel: {
+            sampleData: "Single"
+          }
         },
         {
           elementType: "dropdown",
@@ -298,7 +332,10 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
           dataId: "id",
           dataName: "title",
           defaultValue: "Male",
-          options: genderItems
+          options: genderItems,
+          excel: {
+            sampleData: "Male"
+          }
         },
         {
           elementType: "dropdown",
@@ -307,15 +344,21 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
           breakpoints,
           dataId: "_id",
           dataName: "name",
-          defaultValue: "",
-          options: religion
+          defaultValue: emptyString,
+          options: religion,
+          excel: {
+            sampleData: emptyString
+          }
         },
         {
           elementType: "datetimepicker",
           name: "dateofBirth",
           breakpoints,
           label: "D.O.B",
-          defaultValue: null
+          defaultValue: null,
+          excel: {
+            sampleData: new Date().toDateString()
+          }
         },
         {
           elementType: "checkbox",
@@ -323,6 +366,9 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
           breakpoints: { md: 12, sm: 12, xs: 12 },
           label: "Allow Login",
           defaultValue: false,
+          excel: {
+            sampleData: false
+          }
         },
         {
           elementType: "inputfield",
@@ -336,7 +382,10 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
             errorMessage: "Email is required",
             validate: (val) => /$^|.+@.+..+/.test(val.email)
           },
-          defaultValue: ""
+          defaultValue: emptyString,
+          excel: {
+            sampleData: emptyString
+          }
         },
         {
           elementType: "dropdown",
@@ -347,7 +396,10 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
           dataName: "templateName",
           disabled: (value) => value["isAllowLogin"] === false,
           defaultValue: "",
-          options: roleTemplates?.length ? roleTemplates : []
+          options: roleTemplates?.length ? roleTemplates : [],
+          excel: {
+            sampleData: emptyString
+          }
         },
       ]
     },
@@ -369,7 +421,10 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
           dataId: '_id',
           options: companies,
           onChange: (data) => setFilter(data, filterType.COMPANY, "_id"),
-          defaultValue: companies?.length ? companies[0] : null
+          defaultValue: companies?.length ? companies[0] : null,
+          excel: {
+            sampleData: "Company"
+          }
         },
         {
           elementType: "ad_dropdown",
@@ -388,7 +443,10 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
           dataId: '_id',
           options: countries,
           onChange: (data) => setFilter(data, filterType.COUNTRY, "id"),
-          defaultValue: countries?.length ? countries[0] : null
+          defaultValue: countries?.length ? countries[0] : null,
+          excel: {
+            sampleData: "Country"
+          }
         },
         {
           elementType: "ad_dropdown",
@@ -404,7 +462,10 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
           },
           options: states,
           onChange: (data) => setFilter(data, filterType.STATE, "id"),
-          defaultValue: null
+          defaultValue: null,
+          excel: {
+            sampleData: "State"
+          }
         },
         {
           elementType: "ad_dropdown",
@@ -420,7 +481,10 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
             errorMessage: "City is required",
           },
           options: cities,
-          defaultValue: null
+          defaultValue: null,
+          excel: {
+            sampleData: "City"
+          }
         },
         {
           elementType: "ad_dropdown",
@@ -438,7 +502,10 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
             errorMessage: "Area is required",
           },
           options: areas,
-          defaultValue: null
+          defaultValue: null,
+          excel: {
+            sampleData: "Area"
+          }
         },
         {
           elementType: "ad_dropdown",
@@ -453,7 +520,10 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
             errorMessage: "Group is required",
           },
           options: groups,
-          defaultValue: null
+          defaultValue: null,
+          excel: {
+            sampleData: "Group"
+          }
         },
         {
           elementType: "ad_dropdown",
@@ -471,7 +541,10 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
             errorMessage: "Department is required",
           },
           options: departments,
-          defaultValue: null
+          defaultValue: null,
+          excel: {
+            sampleData: "Department"
+          }
         },
         {
           elementType: "ad_dropdown",
@@ -481,7 +554,10 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
           dataId: '_id',
           dataName: "name",
           options: designations,
-          defaultValue: null
+          defaultValue: null,
+          excel: {
+            sampleData: "Designation"
+          }
         },
         {
           elementType: "ad_dropdown",
@@ -497,7 +573,10 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
           dataId: '_id',
           dataName: "scheduleName",
           options: schedules,
-          defaultValue: null
+          defaultValue: null,
+          excel: {
+            sampleData: emptyString
+          }
         },
         {
           elementType: "custom",
@@ -509,21 +588,30 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
           name: "joiningDate",
           breakpoints,
           label: "Joining Date",
-          defaultValue: new Date()
+          defaultValue: new Date(),
+          excel: {
+            sampleData: emptyString
+          }
         },
         {
           elementType: "datetimepicker",
           name: "confirmationDate",
           breakpoints,
           label: "Confrimation Date",
-          defaultValue: null
+          defaultValue: null,
+          excel: {
+            sampleData: emptyString
+          }
         },
         {
           elementType: "datetimepicker",
           name: "resignationDate",
           label: "Resign Date",
           breakpoints,
-          defaultValue: null
+          defaultValue: null,
+          excel: {
+            sampleData: emptyString
+          }
         },
         {
           elementType: "custom",
@@ -540,42 +628,60 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
             when: 1,
             errorMessage: "Street 1 is required",
           },
-          defaultValue: ""
+          defaultValue: emptyString,
+          excel: {
+            sampleData: emptyString
+          }
         },
         {
           elementType: "inputfield",
           name: "address2",
           label: "Street 2",
           breakpoints,
-          defaultValue: ""
+          defaultValue: emptyString,
+          excel: {
+            sampleData: emptyString
+          }
         },
         {
           elementType: "inputfield",
           name: "city",
           label: "City",
           breakpoints,
-          defaultValue: ""
+          defaultValue: emptyString,
+          excel: {
+            sampleData: emptyString
+          }
         },
         {
           elementType: "inputfield",
           name: "state",
           label: "State",
           breakpoints,
-          defaultValue: ""
+          defaultValue: emptyString,
+          excel: {
+            sampleData: emptyString
+          }
         },
         {
           elementType: "inputfield",
           name: "zipCode",
           label: "Zip/Postal Code",
           breakpoints,
-          defaultValue: ""
+          defaultValue: emptyString,
+          excel: {
+            sampleData: emptyString
+          }
         },
         {
           elementType: "inputfield",
           name: "country",
           label: "Country",
           breakpoints,
-          defaultValue: ""
+          defaultValue: emptyString,
+          excel: {
+            sampleData: emptyString
+          }
         },
         {
           elementType: "custom",
@@ -592,21 +698,30 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
             errorMessage: "Mobile No is required",
           },
           breakpoints,
-          defaultValue: ""
+          defaultValue: emptyString,
+          excel: {
+            sampleData: emptyString
+          }
         },
         {
           elementType: "inputfield",
           name: "workNo",
           label: "Work",
           breakpoints,
-          defaultValue: ""
+          defaultValue: emptyString,
+          excel: {
+            sampleData: emptyString
+          }
         },
         {
           elementType: "inputfield",
           name: "emergencyNo",
           label: "Emergency",
           breakpoints,
-          defaultValue: ""
+          defaultValue: emptyString,
+          excel: {
+            sampleData: emptyString
+          }
         },
       ]
     },
@@ -668,23 +783,14 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
         })}
       </Stepper>
       <Box>
-        {activeStep === steps.length ? (
+        <Box display='flex' flexDirection='column' justifyContent='space-between'>
+          <AutoForm formData={formData} ref={formApi} isValidate={true} />
           <Box>
-            <Typography sx={Styles.instructions}>
-              All steps completed - you&apos;re finished
-            </Typography>
-            <Controls.Button onClick={handleReset} sx={Styles.button} text="Reset" />
+            <Controls.Button onClick={handleBack} disabled={activeStep === 0} sx={Styles.button} text="Back" />
+            {activeStep !== steps.length - 1 && <Controls.Button onClick={handleNext} sx={Styles.button} text={'Next'} />} 
+            {activeStep === steps.length - 1 && <Controls.Button onClick={handleSubmit} sx={Styles.button} text="Submit" />}
           </Box>
-        ) : (
-          <Box display='flex' flexDirection='column' justifyContent='space-between'>
-            <AutoForm formData={formData} ref={formApi} isValidate={true} />
-            <Box>
-              <Controls.Button onClick={handleBack} disabled={activeStep === 0} sx={Styles.button} text="Back" />
-              <Controls.Button onClick={handleNext} sx={Styles.button} text={activeStep === steps.length - 1 ? 'Finish' : 'Next'} />
-              {activeStep === steps.length - 1 && <Controls.Button onClick={handleSubmit} sx={Styles.button} text="Submit" />}
-            </Box>
-          </Box>
-        )}
+        </Box>
       </Box>
     </Box>
   );

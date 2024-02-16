@@ -19,8 +19,9 @@ const Amchart = ({ chartId, type, data, options }) => {
     const [amchart,setAmChart] = useState(null);
     useEffect(() => {
         const chart = am4core.create(chartId, am4charts.XYChart3D);
-
+        
         // Add data
+        
         chart.data = [
         {
           "country": "USA",
@@ -56,7 +57,7 @@ const Amchart = ({ chartId, type, data, options }) => {
         }, 
         {
           "country": "Netherlands",
-          "visits": 665
+          "visits": 6665
         }, 
         {
           "country": "Russia",
@@ -95,7 +96,7 @@ const Amchart = ({ chartId, type, data, options }) => {
         // Create axes
         let categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
         categoryAxis.dataFields.category = "country";
-        categoryAxis.renderer.labels.template.rotation = 270;
+        categoryAxis.renderer.labels.template.rotation = 300;
         categoryAxis.renderer.labels.template.hideOversized = false;
         categoryAxis.renderer.minGridDistance = 20;
         categoryAxis.renderer.labels.template.horizontalCenter = "right";

@@ -10,6 +10,7 @@ export default Object.freeze({
     7: lazy(() => import(`../pages/Employee/Approval`)),
     4: lazy(() => import(`../pages/Employee/ProfileRequest`)),
     8: lazy(() => import(`../pages/Employee/Settings`)),
+    22: lazy(() => import(`../pages/Employee/Reports`)),
     //Attendance
     12: lazy(() => import(`../pages/Attendance/Request`)),
     13: lazy(() => import(`../pages/Attendance/Exemption`)),
@@ -17,6 +18,7 @@ export default Object.freeze({
     14: lazy(() => import(`../pages/Attendance/Approval`)),
     15: lazy(() => import(`../pages/Attendance/Schedule`)),
     16: lazy(() => import(`../pages/Attendance/Settings`)),
+    23: lazy(() => import(`../pages/Attendance/Reports`)),
     //Leave
     17: lazy(() => import(`../pages/Leave/Request`)),
     // 18: lazy(() => import(`../pages/Leave/Request`)),

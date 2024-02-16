@@ -16,6 +16,7 @@ import Loader from '../../components/Circularloading'
 import { useDropDownIds } from '../../components/useDropDown';
 import AddEmployee from "./components/AddEmployee";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
+import { downloadTextFIle } from "../../util/common";
 
 
 const fields = {
@@ -108,7 +109,7 @@ const Employee = () => {
         title: "",
         subTitle: "",
     });
-    
+
     const gridApiRef = useGridApi();
     const query = useAppSelector(e => e.appdata.query.builder);
 
@@ -199,7 +200,7 @@ const Employee = () => {
             if (!error.length) {
                 addEntity({ url: DEFAULT_API, data: resultData });
             }
-
+            downloadTextFIle(error.join(" "))
             console.log({ error });
         }
     }, [excelData])
@@ -212,7 +213,8 @@ const Employee = () => {
     const handleTemplate = () => {
         if (Array.isArray(excelColData.current)) {
             const excelCol = excelColData.current.flatMap(c => c._children).filter(c => c?.label).map(c => c.label);
-            const dummyData = ["Any", 2222, 2222, "Faizan", "Siddiqui", "Aqeel Ahmed", "-", "Single", "Male", "Islam", "10/02/1990", false, "faizan@gmail.com", "-", "Innovent Systems", "Pakistan", "Sindh", "Karachi", "R.M.R", "Head Group", "Accounts", "Developer", "Casual", "27/10/2022", "-", "-", "ABC", "", "Karachi", "Sindh", 75080, "Pakistan", "03418", "-", "-"];
+            const dummyData = excelColData.current.flatMap(c => c._children).filter(c => c?.excel).map(c => c.excel.sampleData);
+            // const dummyData = ["Any", 2222, 2222, "Faizan", "Siddiqui", "Aqeel Ahmed", "-", "Single", "Male", "Islam", "10/02/1990", false, "faizan@gmail.com", "-", "Innovent Systems", "Pakistan", "Sindh", "Karachi", "R.M.R", "Head Group", "Accounts", "Developer", "Casual", "27/10/2022", "-", "-", "ABC", "", "Karachi", "Sindh", 75080, "Pakistan", "03418", "-", "-"];
             setWbData([excelCol, dummyData]);
         }
     }
@@ -230,6 +232,8 @@ const Employee = () => {
             <Popup
                 title="Add Employee Information"
                 openPopup={openPopup} maxWidth="xl"
+                keepMounted={true}
+
                 fullScreen={true} isEdit={isEdit.current}
                 footer={<></>}
                 setOpenPopup={setOpenPopup}>
@@ -261,7 +265,7 @@ const Employee = () => {
                 gridToolBar={GridToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
-                
+
             />
             <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
         </>

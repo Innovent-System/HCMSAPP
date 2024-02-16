@@ -8,7 +8,12 @@ import { ElementType } from '../components/controls/Controls';
 
 /** 
  * @typedef {"inputfield"|"radiogroup"|"checkbox"| "dropdown"|"clearfix"|"ad_dropdown"|"datetimepicker"|"daterangepicker"|"uploadavatar"| "fieldarray"| "custom"} EeleType
- * 
+ */
+
+/** 
+ * @typedef {Object} ExcelType
+ * @prop {string} colName
+ * @prop {any} sampleData
  */
 
 /** 
@@ -30,7 +35,7 @@ import { ElementType } from '../components/controls/Controls';
  * @prop {BreakPointsType} breakpoints
  * @prop {Array<FormType>} _children
  * @prop {JSX.Element} Component
- * 
+ * @prop {ExcelType} excel
  */
 
 /**

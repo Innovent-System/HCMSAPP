@@ -19,7 +19,7 @@ function App() {
 
     return () => {
       appsocket.disconnect();
-      excelWorker.terminate();
+      // excelWorker.terminate();
     }
   }, [])
   return (
