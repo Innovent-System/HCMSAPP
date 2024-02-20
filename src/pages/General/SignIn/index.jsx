@@ -3,7 +3,7 @@ import { makeStyles } from "../../../deps/ui";
 import Controls from '../../../components/controls/Controls';
 import { useForm, Form } from "../../../components/useForm";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
-import { InputAdornment, IconButton, Link, Box, Container, Typography, Paper, CircularProgress, Card, CardContent, CardMedia, CardActions } from "../../../deps/ui";
+import { InputAdornment, IconButton, Link, Box, Grid, CircularProgress, Card, CardContent, CardMedia, CardActions } from "../../../deps/ui";
 import { Visibility, VisibilityOff, Person } from '../../../deps/ui/icons';
 import { green } from '../../../deps/ui/colorschema';
 import { AppRoutesThunk, AuthThunk, setUserInfo } from '../../../store/actions/httpactions';
@@ -160,64 +160,68 @@ const SignIn = () => {
 
       <CardContent sx={{
         display: "flex", height: 'inherit',
-        alignItems: 'center', justifyContent: "flex-start"
+        alignItems: 'center',
+        flexDirection: { xs: "column", md: "row" },
+        justifyContent: "center"
       }}>
         <CardMedia
           component="img"
           // image='/login.png'
-
           width={300}
           height={200}
           src={logo}
-          sx={{ objectFit: "contain", flex: 1 }}
+          sx={{ objectFit: "contain", flex: { md: 0, xs: 0 } }}
 
         />
 
         <Form onSubmit={handleSubmit}>
-          <Box>
-            <Controls.Input
-              name="userName"
-              label="User Name"
-              style={{ width: '60%' }}
-              value={values.userName}
-              onChange={handleInputChange}
-              error={errors.userName}
-              autoFocus
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton color="primary">
-                      <Person />
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-
-            <Controls.Input
-              name="password"
-              label="Password"
-              value={values.password}
-              type={values.isShowPassword ? 'text' : 'password'}
-              onChange={handleInputChange}
-              style={{ width: '60%' }}
-              error={errors.password}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={handleClickShowPassword}
-                      onMouseDown={handleMouseDownPassword}
-                      color="primary"
-                    >
-                      {values.isShowPassword ? <Visibility /> : <VisibilityOff />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </Box>
+          <Grid flexDirection="column" container>
+            <Grid item>
+              <Controls.Input
+                name="userName"
+                label="User Name"
+                // style={{ width: '60%' }}
+                value={values.userName}
+                onChange={handleInputChange}
+                error={errors.userName}
+                autoFocus
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton color="primary">
+                        <Person />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Grid>
+            <Grid item>
+              <Controls.Input
+                name="password"
+                label="Password"
+                value={values.password}
+                type={values.isShowPassword ? 'text' : 'password'}
+                onChange={handleInputChange}
+                // style={{ width: '60%' }}
+                error={errors.password}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={handleClickShowPassword}
+                        onMouseDown={handleMouseDownPassword}
+                        color="primary"
+                      >
+                        {values.isShowPassword ? <Visibility /> : <VisibilityOff />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Grid>
+          </Grid>
 
           <Box p={0.5}>
             <Controls.Button

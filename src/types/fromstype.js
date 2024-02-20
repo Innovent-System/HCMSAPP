@@ -2,12 +2,14 @@ import { ElementType } from '../components/controls/Controls';
 /**
  * @typedef {Object} RefType
  * @property {Object} current
- * @property {() => void} current.methodOne
- * @property {() => void} current.methodTwo
+ * @property {() => void} current.setFormValue
+ * @property {() => void} current.getValue
+ * @property {() => void} current.resetForm
  */
 
+
 /** 
- * @typedef {"inputfield"|"radiogroup"|"checkbox"| "dropdown"|"clearfix"|"ad_dropdown"|"datetimepicker"|"daterangepicker"|"uploadavatar"| "fieldarray"| "custom"} EeleType
+ * @typedef {("inputfield"|"radiogroup"|"checkbox"| "dropdown"|"clearfix"|"ad_dropdown"|"datetimepicker"|"daterangepicker"|"uploadavatar"| "fieldarray"| "custom")} EeleType
  */
 
 /** 
@@ -27,7 +29,7 @@ import { ElementType } from '../components/controls/Controls';
 
 /** 
  * @typedef {Object} FormType
- * @prop {EeleType} elementType 
+ * @prop {EeleType} elementType
  * @prop {string} name
  * @prop {string} label
  * @prop {any} defaultValue

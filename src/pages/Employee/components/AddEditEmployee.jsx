@@ -6,7 +6,7 @@ import Controls from '../../../components/controls/Controls';
 import { API } from '../_Service';
 import { useDropDown } from '../../../components/useDropDown';
 import PropTypes from 'prop-types'
-import { useEntityAction, useLazyEntityQuery } from '../../../store/actions/httpactions';
+import { useEntityAction, useLazyEntityByIdQuery } from '../../../store/actions/httpactions';
 import Loader from '../../../components/Circularloading'
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -131,7 +131,7 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
   const [activeStep, setActiveStep] = React.useState(0);
   const [loader, setLoader] = useState(false);
   const steps = getSteps();
-  const [GetEmpolyee] = useLazyEntityQuery();
+  const [GetEmpolyee] = useLazyEntityByIdQuery();
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
 

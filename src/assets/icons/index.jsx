@@ -5,7 +5,7 @@ export {
     AccountTree, Tune,SupervisedUserCircle, TransferWithinAStation, 
     SupervisorAccount,BusinessTwoTone,LocalAtm,EqualizerTwoTone,
     AllInbox,RotateLeft,AccountBalanceWallet,LocationCityOutlined,Settings,BookOutlined,
-    AccessTime,Addchart,DoneAll,Groups,Edit,Description
+    AccessTime,Addchart,DoneAll,Groups,Edit,Description,DisplaySettings,Update,RequestPage
 } from '../../deps/ui/icons';
 
 

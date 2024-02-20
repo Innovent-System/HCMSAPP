@@ -19,7 +19,7 @@ export const getApi = createApi({
       query: ({ url, data }) => ({ url, body: data, method: "POST", headers: headerOption() }),
       transformResponse: (response) => response?.result
     }),
-    entity: builder.query({
+    entityById: builder.query({
       query: ({ url, id }) => ({ url: `${url}/${id}`, headers: headerOption() }),
     }),
     add: builder.mutation({
@@ -40,7 +40,7 @@ export const getApi = createApi({
   }),
 })
 
-export const { useEntitiesQuery, useLazyEntityQuery, usePostQuery, useLazyPostQuery, useLazySingleQuery, useAddMutation, useUpdateManyMutation, useRemoveMutation, useUpdateOneMutation } = getApi;
+export const { useEntitiesQuery, useLazyEntityByIdQuery, usePostQuery, useLazyPostQuery, useSingleQuery, useLazySingleQuery, useAddMutation, useUpdateManyMutation, useRemoveMutation, useUpdateOneMutation } = getApi;
 
 export const useEntityAction = () => {
   const [addEntity] = useAddMutation();

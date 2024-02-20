@@ -4,14 +4,15 @@ import Popup from '../../../components/Popup';
 import { AutoForm } from '../../../components/useForm';
 import { API } from '../_Service';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAction } from '../../../store/actions/httpactions';
-import { FormHelperText } from "../../../deps/ui";
-import { Circle } from "../../../deps/ui/icons";
+import { FormHelperText, IconButton, Divider, Chip } from "../../../deps/ui";
+import { Circle, RemoveCircleOutline, DisplaySettings } from "../../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions, GridToolbar } from '../../../components/useDataGrid';
 import { useSocketIo } from '../../../components/useSocketio';
 import ConfirmDialog from '../../../components/ConfirmDialog';
 import BulkInsert from '../../../components/BulkInsert'
 import { groupBySum } from '../../../util/common'
 import { useAppDispatch, useAppSelector } from "../../../store/storehook";
+
 
 const DEFAULT_API = API.Department;
 const DEFAULT_NAME = "Department";
@@ -78,46 +79,46 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
 let editId = 0;
 const AddDepartment = ({ openPopup, setOpenPopup, isEdit = false, row = null }) => {
     const formApi = useRef(null);
-    const designationData = React.useRef(null);
-    const [mapDesignation, setMapDesignation] = useState([]);
+    // const designationData = React.useRef(null);
     const [error, setError] = useState(false);
 
     const { addEntity } = useEntityAction();
     const { Designations: designations, Employees } = useAppSelector(e => e.appdata.employeeData);
+    const [mapDesignation, setMapDesignation] = useState([{ noOfPositions: 0, id: designations?.length ? designations[0] : [] }]);
     useEffect(() => {
         if (!formApi.current || !openPopup) return;
         const { resetForm, setFormValue } = formApi.current;
-        const { resetForms } = designationData.current;
+        // const { resetForms } = designationData.current;
         if (openPopup && !isEdit) {
-            resetForms();
+            // resetForms();
             resetForm();
         }
         else {
             const data = row;
-            setMapDesignation(data.designations.map(d => [{
-                elementType: "ad_dropdown",
-                name: "id",
-                label: "Designation",
-                dataId: "_id",
-                dataName: "name",
-                defaultValue: designations.find(c => c._id === d.id),
-                options: designations
-            },
-            {
-                elementType: "inputfield",
-                name: "noOfPositions",
-                label: "No Of Positions",
-                required: true,
-                type: 'number',
-                validate: {
-                    errorMessage: "You have exceeded the employees limit",
-                    validate: (val) => {
-                        const { getValue } = formApi.current;
-                        return val.noOfPositions < getValue().employeeLimit && val.noOfPositions > 0
-                    }
-                },
-                defaultValue: d.noOfPositions
-            }]))
+            // setMapDesignation(data.designations.map(d => [{
+            //     elementType: "ad_dropdown",
+            //     name: "id",
+            //     label: "Designation",
+            //     dataId: "_id",
+            //     dataName: "name",
+            //     defaultValue: designations.find(c => c._id === d.id),
+            //     options: designations
+            // },
+            // {
+            //     elementType: "inputfield",
+            //     name: "noOfPositions",
+            //     label: "No Of Positions",
+            //     required: true,
+            //     type: 'number',
+            //     validate: {
+            //         errorMessage: "You have exceeded the employees limit",
+            //         validate: (val) => {
+            //             const { getValue } = formApi.current;
+            //             return val.noOfPositions < getValue().employeeLimit && val.noOfPositions > 0
+            //         }
+            //     },
+            //     defaultValue: d.noOfPositions
+            // }]))
 
 
 
@@ -130,39 +131,13 @@ const AddDepartment = ({ openPopup, setOpenPopup, isEdit = false, row = null }) 
         }
     }, [openPopup, formApi])
 
-    useEffect(() => {
-        if (Array.isArray(designations)) {
-            setMapDesignation([
-                [
-                    {
-                        elementType: "ad_dropdown",
-                        name: "id",
-                        label: "Designation",
-                        dataId: "_id",
-                        dataName: "name",
-                        defaultValue: null,
-                        options: designations
-                    },
-                    {
-                        elementType: "inputfield",
-                        name: "noOfPositions",
-                        label: "No Of Positions",
-                        required: true,
-                        type: 'number',
-                        validate: {
-                            errorMessage: "You have exceeded the employees limit",
-                            validate: (val) => {
-                                const { getValue } = formApi.current;
-                                return val.noOfPositions < getValue().employeeLimit && val.noOfPositions > 0
-                            }
-                        },
-                        defaultValue: 0
-                    },
-                ]
-            ])
-        }
-
-    }, [designations])
+    const handleDelete = (_index) => {
+        mapDesignation.splice(_index, 1);
+        setMapDesignation([...mapDesignation])
+    }
+    const handleAdd = () => {
+        setMapDesignation([...mapDesignation, { noOfPositions: 0, id: designations?.length ? designations[0] : [] }])
+    }
 
     const formData = [
         {
@@ -207,21 +182,63 @@ const AddDepartment = ({ openPopup, setOpenPopup, isEdit = false, row = null }) 
             options: Employees
         },
         {
-            elementType: "fieldarray",
-            breakpoints: { md: 12 },
-            NodeElement: () => <BulkInsert as="div" buttonName="Map Designation"
-                ref={designationData}
-                BulkformData={mapDesignation} />
-        }
+            elementType: "custom",
+            breakpoints: { xs: 12, md: 12, lg: 12 },
+            NodeElement: () => <Divider><Chip label="Map Designtaion" onClick={handleAdd} icon={<DisplaySettings />} /></Divider>
+        },
+        {
+            elementType: "arrayForm",
+            name: "designations",
+            breakpoints: { md: 12, lg: 12, sx: 12 },
+            formData: [
+                {
+                    elementType: "ad_dropdown",
+                    name: "id",
+                    label: "Designation",
+                    breakpoints: { xs: 6, lg: 5, md: 5 },
+                    dataId: "_id",
+                    dataName: "name",
+                    defaultValue: null,
+                    options: designations
+                },
+                {
+                    elementType: "inputfield",
+                    name: "noOfPositions",
+                    label: "No Of Positions",
+                    required: true,
+                    breakpoints: { xs: 6, lg: 5, md: 5 },
+                    type: 'number',
+                    validate: {
+                        errorMessage: "You have exceeded the employees limit",
+                        validate: (val) => {
+                            const { getValue } = formApi.current;
+                            return val.noOfPositions < getValue().employeeLimit && val.noOfPositions > 0
+                        }
+                    },
+                    defaultValue: 0
+                },
+                {
+                    elementType: "custom",
+                    breakpoints: { xs: 1, lg: 2, md: 2 },
+                    NodeElement: ({ dataindex }) => <IconButton onClick={() => handleDelete(dataindex)} sx={{
+                        ml: 2
+                    }} color="warning" aria-label="delete">
+                        <RemoveCircleOutline />
+                    </IconButton>
+                },
+            ],
+            initialState: mapDesignation,
+            isValidate: true,
+        },
     ];
 
     const handleSubmit = (e) => {
         const { getValue, validateFields } = formApi.current;
-        const { getFieldArray } = designationData.current;
-        let { isValid, dataSet } = getFieldArray();
+        // const { getFieldArray } = designationData.current;
+        // let { isValid, dataSet } = getFieldArray();
 
-        if (validateFields() && isValid) {
-            const { departmentName, employeeLimit, code, departmentHead } = getValue();
+        if (validateFields()) {
+            let { departmentName, employeeLimit, code, departmentHead, designations: dataSet } = getValue();
             let dataToInsert = {};
 
             const total = dataSet.reduce((total, obj) => (+(obj?.noOfPositions ?? 0)) + total, 0);
@@ -258,6 +275,7 @@ const AddDepartment = ({ openPopup, setOpenPopup, isEdit = false, row = null }) 
         setOpenPopup={setOpenPopup}>
 
         <AutoForm formData={formData} ref={formApi} isValidate={true} />
+
         <FormHelperText
             error={error}
             sx={{
@@ -306,7 +324,7 @@ const Department = () => {
         }
     }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
 
-    console.log("depart", isLoading, refetch, data);
+
     const { updateOneEntity, removeEntity } = useEntityAction();
     const { socketData } = useSocketIo(`changeIn${DEFAULT_NAME}`, refetch);
 
@@ -360,6 +378,7 @@ const Department = () => {
     return (
         <>
             <AddDepartment setOpenPopup={setOpenPopup} openPopup={openPopup} isEdit={isEdit.current} row={row.current} />
+
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={data}
                 loading={isLoading}

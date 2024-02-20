@@ -104,7 +104,8 @@ const stages = [{ id: 1, title: "Line Manager" },
 const ModuleSetting = {
     "ATTENDANCE": [12, 13],
     "EMPLOYEE": [4],
-    "LEAVE": [17]
+    "LEAVE": [17],
+    "PAYROLL": [26,28,29,30,31]
 }
 export const AddApprovalStages = ({ openPopup, setOpenPopup, isEdit = false, formId, row = null }) => {
     const formApi = useRef(null);
@@ -232,6 +233,7 @@ export const AddApprovalStages = ({ openPopup, setOpenPopup, isEdit = false, for
         addOrEditFunc={handleSubmit}
         setOpenPopup={setOpenPopup}>
         <AutoForm formData={formData} ref={formApi} isValidate={true} />
+        
     </Popup>
 }
 

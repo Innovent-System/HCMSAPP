@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { intervalToDuration } from '../services/dateTimeService';
-import { useEntityAction } from '../store/actions/httpactions';
+import { useEntityAction, useSingleQuery } from '../store/actions/httpactions';
 import { Box, Switch, InputAdornment, IconButton, FormControlLabel } from '../deps/ui'
 import Controls from './controls/Controls';
 import { API } from '../pages/Attendance/_Service'
@@ -18,7 +18,9 @@ const DigitalTimer = () => {
     const { addEntity } = useEntityAction();
     const [timer, setTimer] = useState({ start: null, end: null });
     const spanRef = useRef(null);
+    const isCheck = useRef(false);
     const interval = useRef(null);
+    const { data } = useSingleQuery({ url: DEFAULT_API, params: {} }, { selectFromResult: ({ data }) => ({ data: data?.result }) });
     useEffect(() => {
         if (!timer.start) return
         interval.current = setInterval(() => {
@@ -32,12 +34,20 @@ const DigitalTimer = () => {
         };
 
     }, [timer])
+    useEffect(() => {
+        if (data?.start) {
+            isCheck.current = !data.end;
+            setTimer({ start: new Date(data.start), end: data.end ? new Date(data.end) : null });
+        }
+    }, [data])
 
     const handleMarkAttendance = ({ target }) => {
 
         addEntity({ url: DEFAULT_API, data: { Mode: target.checked ? "IN" : "OUT" } }).then(({ data }) => {
-            if (data)
+            if (data){
+                isCheck.current = !data.result.end;
                 setTimer({ start: new Date(data.result.start), end: data.result.end ? new Date(data.result.end) : null });
+            }
         });
     }
 
@@ -47,7 +57,7 @@ const DigitalTimer = () => {
             ref={spanRef}
             sx={labelSx}
             control={
-                <Switch onClick={handleMarkAttendance} name="mark" color='warning' />
+                <Switch checked={isCheck.current} onClick={handleMarkAttendance} name="mark" color='warning' />
             }
             title='Mark Attendance'
             // inputRef={spanRef}

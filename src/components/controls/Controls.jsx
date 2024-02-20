@@ -9,6 +9,7 @@ import ActionButton from "./ActionButton";
 import Avatar from "./AvatarUpload";
 import MultiSelect from "./MultiSelect";
 import PropTypes from 'prop-types'
+import { ArrayForm } from '../useArrayForm'
 
 const Controls = {
     Input,
@@ -25,8 +26,7 @@ const Controls = {
 export default Controls;
 
 
-export const ElementType = Object.freeze(["inputfield", "radiogroup", "checkbox", "dropdown", "clearfix", "ad_dropdown", "datetimepicker", "daterangepicker", "uploadavatar", "fieldarray", "custom"]);
-
+export const ElementType = Object.freeze(["inputfield", "radiogroup", "checkbox", "dropdown", "clearfix", "ad_dropdown", "datetimepicker", "daterangepicker", "uploadavatar", "arrayForm", "custom"]);
 
 export function Element(props) {
 
@@ -41,6 +41,7 @@ export function Element(props) {
         case "ad_dropdown": return <MultiSelect {...others} />
         case "uploadavatar": return <Avatar {...others} />
         case "clearfix": return <div className="clearfix"></div>
+        case "arrayForm": return <ArrayForm {...others} />
         default: return <NodeElement {...others} />
     }
 }
