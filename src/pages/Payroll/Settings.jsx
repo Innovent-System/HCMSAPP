@@ -3,10 +3,20 @@ import PageHeader from '../../components/PageHeader'
 import { PeopleOutline } from '../../deps/ui/icons'
 import Tabs from '../../components/Tabs'
 import ApprovalStages from '../ApprovalStages';
+import Allowance from './components/Allowance';
+import Deduction from './components/Deduction';
 
 
 
 const tabs = [
+    {
+        title: "Allowances",
+        panel: <Allowance />
+    },
+    {
+        title: "Deductions",
+        panel: <Deduction />
+    },
     {
         title: "Approval Stages",
         panel: <ApprovalStages moduleName="PAYROLL" />

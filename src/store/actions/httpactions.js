@@ -141,12 +141,37 @@ export const EmployeeDataThunk = createAsyncThunk('employeedata/requestStatus', 
   }
 })
 
+export const PayrollDataThunk = createAsyncThunk('payrolldata/requestStatus', async ({ url, params }, { fulfillWithValue, rejectWithValue }) => {
+  try {
+
+    const response = await axios.get(domain.concat(url), {
+      params: params,
+      headers: headerOption(), withCredentials: true
+    });
+    const { result, message } = response.data;
+    return fulfillWithValue({
+      data: result,
+      isSuccess: true,
+      message
+    })
+  } catch (err) {
+    return rejectWithValue({
+      msg: (err.response?.data ? err.response.data.message : err.message),
+      code: err.response.status
+    })
+  }
+})
+
 const emptyString = "";
 
 const INITIAL_STATE = {
   status: false,
   DropDownData: {},
   employeeData: {},
+  payrollData: {
+    AllowancesTitle: [],
+    DeductionsTitle: []
+  },
   routeData: {
     sideMenuData: []
   },
@@ -265,6 +290,17 @@ export const appSlice = createSlice({
       state.employeeData = action.payload.data
     })
     builder.addCase(EmployeeDataThunk.rejected, (state, action) => {
+      state.status = false;
+    })
+    //
+    builder.addCase(PayrollDataThunk.pending, (state, action) => {
+      state.status = true;
+    })
+    builder.addCase(PayrollDataThunk.fulfilled, (state, action) => {
+      state.status = false;
+      state.payrollData = action.payload.data
+    })
+    builder.addCase(PayrollDataThunk.rejected, (state, action) => {
       state.status = false;
     })
     builder.addCase(AuthThunk.pending, (state, action) => {

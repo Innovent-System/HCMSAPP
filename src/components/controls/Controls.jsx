@@ -30,7 +30,7 @@ export const ElementType = Object.freeze(["inputfield", "radiogroup", "checkbox"
 
 export function Element(props) {
 
-    const { elementType, NodeElement, ...others } = props;
+    const { elementType, NodeElement, arrayFormRef, ...others } = props;
     switch (elementType) {
         case "inputfield": return <Input {...others} />
         case "checkbox": return <Checkbox {...others} />
@@ -41,7 +41,7 @@ export function Element(props) {
         case "ad_dropdown": return <MultiSelect {...others} />
         case "uploadavatar": return <Avatar {...others} />
         case "clearfix": return <div className="clearfix"></div>
-        case "arrayForm": return <ArrayForm {...others} />
+        case "arrayForm": return <ArrayForm ref={arrayFormRef} {...others} />
         default: return <NodeElement {...others} />
     }
 }

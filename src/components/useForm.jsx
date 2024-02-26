@@ -286,7 +286,7 @@ export const AutoForm = forwardRef(function (props, ref) {
                         )) : null}
                     </Grid>
                 </Component> :
-                    typeof isShow === "function" ? handleShowHide(name, isShow) && <Grid {...(modal && { style: { position: "relative" } })} {...(breakpoints && { ...breakpoints })} key={index + (name ?? 'customFix')} item>
+                    typeof isShow === "function" ? handleShowHide(name, isShow) && <Grid {...(modal && { style: { position: "relative" } })} {...(breakpoints && { ...breakpoints })}  key={index + (name ?? 'customFix')} item>
                         {modal && modal.Component}
                         <Element key={"isShow" + index + name} elementType={elementType}
                             name={name}
@@ -299,7 +299,7 @@ export const AutoForm = forwardRef(function (props, ref) {
                             {...(classes && { className: clsx(classes) })}
                             {...others}
                         />
-                    </Grid> : <Grid {...(modal && { style: { position: "relative" } })} {...(breakpoints && { ...breakpoints })} key={index + (name ?? 'customFix')} item>
+                    </Grid> : <Grid {...(modal && { style: { position: "relative" } })} {...(breakpoints && { ...breakpoints })}  key={index + (name ?? 'customFix')} item>
                         {modal && modal.Component}
 
                         <Element key={index + name} elementType={elementType}
@@ -341,7 +341,7 @@ AutoForm.propTypes = {
                     lg: PropTypes.number,
                     xl: PropTypes.number
                 }),
-                sx: PropTypes.arrayOf(PropTypes.object),
+                sx: PropTypes.object,
                 [PropTypes.string]: PropTypes.any
             })
         ),
@@ -361,7 +361,7 @@ AutoForm.propTypes = {
                             lg: PropTypes.number,
                             xl: PropTypes.number
                         }),
-                        sx: PropTypes.arrayOf(PropTypes.object),
+                        sx: PropTypes.object,
                         [PropTypes.string]: PropTypes.any
                     })
                 ),
@@ -372,7 +372,7 @@ AutoForm.propTypes = {
     ]).isRequired,
     isValidate: PropTypes.bool,
     isEdit: PropTypes.bool.isRequired,
-    sx: PropTypes.arrayOf(PropTypes.object),
+    sx: PropTypes.object,
     flexDirection: PropTypes.oneOf(["row", "row-reverse", "column", "column-reverse", "revert", "inherit", "initial", "-moz-initial"]),
     breakpoints: PropTypes.shape({
         xs: PropTypes.number, //extra-small: 0px

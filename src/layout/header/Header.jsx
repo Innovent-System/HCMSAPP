@@ -27,11 +27,13 @@ import {
   GET_REGULAR_DROPDOWN,
   GET_ROUTES,
   GET_EMPLOYEE_DATA,
+  GET_PAYROLL_DATA,
 } from "../../services/UrlService";
 import {
   AppRoutesThunk,
   CommonDropDownThunk,
   EmployeeDataThunk,
+  PayrollDataThunk,
   setCommand,
   useLazySingleQuery,
 } from "../../store/actions/httpactions";
@@ -135,6 +137,7 @@ export default function Header() {
 
         dispatch(setCommand(command));
         dispatch(EmployeeDataThunk({ url: GET_EMPLOYEE_DATA }));
+        dispatch(PayrollDataThunk({ url: GET_PAYROLL_DATA }));
         dispatch(CommonDropDownThunk({ url: GET_REGULAR_DROPDOWN }));
       });
     return () => {
@@ -149,6 +152,12 @@ export default function Header() {
     const employeeHanlder = () => {
       dispatch(EmployeeDataThunk({ url: GET_EMPLOYEE_DATA }));
     };
+    const payrollHandle = () => {
+      dispatch(PayrollDataThunk({ url: GET_PAYROLL_DATA }));
+    }
+
+    socket.on("changeInAllowance", payrollHandle)
+    socket.on("changeInDeduction", payrollHandle)
 
     socket.on("changeInArea", handler);
     socket.on("changeInCompany", handler);
@@ -165,6 +174,9 @@ export default function Header() {
       socket.off("changeInCompany", handler);
       socket.off("changeInCountry", handler);
       socket.off("changeInDepartment", handler);
+
+      socket.off("changeInAllowance")
+      socket.off("changeInDeduction")
     };
   }, [socket]);
 

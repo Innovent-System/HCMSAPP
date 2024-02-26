@@ -1,33 +1,49 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { AutoForm } from '../../components/useForm'
-import { DisplaySettings, Percent, AttachMoney } from '../../deps/ui/icons'
-import { Divider, Chip, InputAdornment } from '../../deps/ui'
+import { DisplaySettings, Percent, AttachMoney, RemoveCircleOutline, AddCircleOutline } from '../../deps/ui/icons'
+import { Divider, Chip, InputAdornment, IconButton } from '../../deps/ui'
+import { API, basicSalaryTypeList, PercentageBased, dayRange, defaultCaluation, payScheduleType, perDayCalulationsList } from './_Service'
+import { useAppSelector } from '../../store/storehook'
 
-const payScheduleType = [{ id: "Monthly", title: "Monthly" },
-{ id: "Weekly", title: "Weekly" }
-]
-const dayRange = Array.from(Array(31)).map((e, i) => ({ id: i, title: `${i === 0 ? 'First Day of Month' : i}` }));
-const perDayCalulations = [
-    { id: "MonthlyGross_DivideBy_NumberOfDays_InMonth", title: "Monthly Gross Salary / No. of Days In Month" },
-    { id: "MonthlyGross_DivideBy_FixedDays", title: "Monthly Gross Salary / Fixed Days" }
-], defaultCaluation = "MonthlyGross_DivideBy_NumberOfDays_InMonth";
-
-const basicSalaryType = [
-    { id: "PercentageBased", title: "Percentage Based" },
-    { id: "FixedAmount", title: "Fix Amount" }
-], defaultBasicSalary = "PercentageBased";
-
-const breakpoints = { md: 3, sm: 6, xs: 6 }, fullWidthPoints = { md: 12, sm: 12, xs: 12 }
-
+const breakpoints = { md: 2, sm: 6, xs: 6 }, fullWidthPoints = { md: 12, sm: 12, xs: 12 };
+/**
+ * @type {import('@mui/material').SxProps}
+ */
+const listStyle = {
+    padding: 0,
+    color: 'ActiveBorder'
+}
 const Setup = () => {
     const formApi = useRef(null);
+    const { AllowancesTitle, DeductionsTitle } = useAppSelector(c => c.appdata.payrollData)
+    const [allowances, setAllowances] = useState([{ fkAllowanceId: AllowancesTitle.length ? AllowancesTitle[0]._id : "", type: PercentageBased, amount: 0, percentage: 0 }])
+    const [deductions, setDeductions] = useState([{ fkDeductionId: DeductionsTitle.length ? DeductionsTitle[0]._id : "", type: PercentageBased, amount: 0, percentage: 0 }])
+    const handleAddItems = (isAllowance = true) => {
+        const { getValue, setFormValue } = formApi.current;
+        if (isAllowance)
+            setFormValue({ allowances: [...getValue().allowances, { fkAllowanceId: AllowancesTitle.length ? AllowancesTitle[0]._id : "", type: PercentageBased, amount: 0, percentage: 0 }] })
+        else
+            setFormValue({ deductions: [...getValue().deductions, { fkDeductionId: DeductionsTitle.length ? DeductionsTitle[0]._id : "", type: PercentageBased, amount: 0, percentage: 0 }] })
 
+    }
+
+    const handleRemoveItems = (_index, isAllowance = true) => {
+        const { getValue, setFormValue } = formApi.current;
+        const { allowances, deductions } = getValue();
+        
+        if (isAllowance && allowances.length !== 1)
+            setFormValue({ allowances: allowances.toSpliced(_index, 1) })
+        else if(!isAllowance && deductions.length !== 1)
+            setFormValue({ deductions: deductions.toSpliced(_index, 1) })
+
+
+    }
     const formData = [
-        {
-            elementType: "custom",
-            breakpoints: fullWidthPoints,
-            NodeElement: () => <Divider><Chip label="Payroll Option" icon={<DisplaySettings />} /></Divider>
-        },
+        // {
+        //     elementType: "custom",
+        //     breakpoints: fullWidthPoints,
+        //     NodeElement: () => <Divider><Chip label="Payroll Option" icon={<DisplaySettings />} /></Divider>
+        // },
         {
             elementType: "radiogroup",
             name: "paySchedule",
@@ -63,9 +79,9 @@ const Setup = () => {
             },
             defaultValue: "Last Day of Month",
         },
-        {
-            elementType: "clearfix"
-        },
+        // {
+        //     elementType: "clearfix"
+        // },
         {
             elementType: "dropdown",
             name: "calculationMethod",
@@ -75,7 +91,7 @@ const Setup = () => {
             dataName: "title",
             isNone: false,
             defaultValue: defaultCaluation,
-            options: perDayCalulations,
+            options: perDayCalulationsList,
         },
         {
             elementType: "inputfield",
@@ -103,13 +119,13 @@ const Setup = () => {
             dataId: "id",
             dataName: "title",
             isNone: false,
-            defaultValue: defaultBasicSalary,
-            options: basicSalaryType,
+            defaultValue: PercentageBased,
+            options: basicSalaryTypeList,
         },
         {
             elementType: "inputfield",
             name: "percentage",
-            isShow: (values) => values.basicSalaryType === defaultBasicSalary,
+            isShow: (values) => values.basicSalaryType === PercentageBased,
             label: "Percentage",
             inputMode: 'numeric',
             type: "number",
@@ -130,7 +146,7 @@ const Setup = () => {
         {
             elementType: "inputfield",
             name: "amount",
-            isShow: (values) => values.basicSalaryType !== defaultBasicSalary,
+            isShow: (values) => values.basicSalaryType !== PercentageBased,
             label: "Amount",
             inputMode: 'numeric',
             type: "number",
@@ -147,7 +163,196 @@ const Setup = () => {
             },
             defaultValue: "",
         },
+        {
+            elementType: "custom",
+            breakpoints: fullWidthPoints,
+            NodeElement: () => <Divider><Chip label="Allowances" icon={<DisplaySettings />} /></Divider>
+        },
+        {
+            elementType: "arrayForm",
+            name: "allowances",
+            // sx: listStyle,
+            // arrayFormRef: desgFormApi,
+            breakpoints: fullWidthPoints,
+            defaultValue: allowances,
+            formData: [
+                {
+                    elementType: "dropdown",
+                    name: "fkAllowanceId",
+                    label: "Title",
+                    breakpoints,
+                    dataId: "_id",
+                    dataName: "name",
+                    isNone: false,
+                    // defaultValue: AllowancesTitle.length ? AllowancesTitle[0]._id : "",
+                    options: AllowancesTitle,
+                },
+                {
+                    elementType: "dropdown",
+                    name: "type",
+                    label: "Type",
+                    breakpoints,
+                    dataId: "id",
+                    dataName: "title",
+                    isNone: false,
+                    defaultValue: PercentageBased,
+                    options: basicSalaryTypeList,
+                },
+                {
+                    elementType: "inputfield",
+                    name: "percentage",
+                    isShow: (values) => values.type === PercentageBased,
+                    label: "Percentage",
+                    inputMode: 'numeric',
+                    type: "number",
+                    inputProps: {
+                        min: 0,
+                        max: 100
+                    },
+                    breakpoints,
+                    InputProps: {
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                <Percent />
+                            </InputAdornment>
+                        )
+                    },
+                    defaultValue: "",
+                },
+                {
+                    elementType: "inputfield",
+                    name: "amount",
+                    isShow: (values) => values.type !== PercentageBased,
+                    label: "Amount",
+                    inputMode: 'numeric',
+                    type: "number",
+                    inputProps: {
+                        min: 0,
+                    },
+                    breakpoints,
+                    InputProps: {
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                <AttachMoney />
+                            </InputAdornment>
+                        )
+                    },
+                    defaultValue: "",
+                },
+                {
+                    elementType: "custom",
+                    breakpoints: { xs: 6, lg: 6, md: 6 },
+                    NodeElement: ({ dataindex }) => <>
+                        <IconButton onClick={() => handleRemoveItems(dataindex)}>
+                            <RemoveCircleOutline color='warning' />
+                        </IconButton>
+                    </>
+                },
+            ],
+            isValidate: true,
+        },
+        {
+            elementType: "custom",
+            breakpoints: fullWidthPoints,
+            NodeElement: () => <IconButton title='Add Allowance' size='small' aria-label="delete" onClick={handleAddItems}>
+                <AddCircleOutline color='primary' />
+            </IconButton>
+        },
+        {
+            elementType: "custom",
+            breakpoints: fullWidthPoints,
+            NodeElement: () => <Divider><Chip label="Deductions" icon={<DisplaySettings />} /></Divider>
+        },
+        {
+            elementType: "arrayForm",
+            name: "deductions",
+            // sx: listStyle,
+            // arrayFormRef: desgFormApi,
+            breakpoints: fullWidthPoints,
+            defaultValue: deductions,
+            formData: [
+                {
+                    elementType: "dropdown",
+                    name: "fkDeductionId",
+                    label: "Title",
+                    breakpoints,
+                    dataId: "_id",
+                    dataName: "name",
+                    isNone: false,
+                    // defaultValue: DeductionsTitle.length ? DeductionsTitle[0]._id : "",
+                    options: DeductionsTitle,
+                },
+                {
+                    elementType: "dropdown",
+                    name: "type",
+                    label: "Type",
+                    breakpoints,
+                    dataId: "id",
+                    dataName: "title",
+                    isNone: false,
+                    defaultValue: PercentageBased,
+                    options: basicSalaryTypeList,
+                },
+                {
+                    elementType: "inputfield",
+                    name: "percentage",
+                    isShow: (values) => values.type === PercentageBased,
+                    label: "Percentage",
+                    inputMode: 'numeric',
+                    type: "number",
+                    inputProps: {
+                        min: 0,
+                        max: 100
+                    },
+                    breakpoints,
+                    InputProps: {
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                <Percent />
+                            </InputAdornment>
+                        )
+                    },
+                    defaultValue: "",
+                },
+                {
+                    elementType: "inputfield",
+                    name: "amount",
+                    isShow: (values) => values.type !== PercentageBased,
+                    label: "Amount",
+                    inputMode: 'numeric',
+                    type: "number",
+                    inputProps: {
+                        min: 0,
+                    },
+                    breakpoints,
+                    InputProps: {
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                <AttachMoney />
+                            </InputAdornment>
+                        )
+                    },
+                    defaultValue: "",
+                },
+                {
+                    elementType: "custom",
+                    breakpoints: { xs: 6, lg: 6, md: 6 },
+                    NodeElement: ({ dataindex }) =>
+                        <IconButton onClick={() => handleRemoveItems(dataindex, false)}>
+                            <RemoveCircleOutline color='warning' />
+                        </IconButton>
 
+                },
+            ],
+            isValidate: true,
+        },
+        {
+            elementType: "custom",
+            breakpoints: fullWidthPoints,
+            NodeElement: () => <IconButton title='Add Deduction' aria-label="delete" onClick={() => handleAddItems(false)}>
+                <AddCircleOutline color='primary' />
+            </IconButton>
+        },
     ]
 
     return (

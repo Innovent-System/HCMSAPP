@@ -79,6 +79,7 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
 let editId = 0;
 const AddDepartment = ({ openPopup, setOpenPopup, isEdit = false, row = null }) => {
     const formApi = useRef(null);
+    const desgFormApi = useRef(null);
     // const designationData = React.useRef(null);
     const [error, setError] = useState(false);
 
@@ -88,55 +89,33 @@ const AddDepartment = ({ openPopup, setOpenPopup, isEdit = false, row = null }) 
     useEffect(() => {
         if (!formApi.current || !openPopup) return;
         const { resetForm, setFormValue } = formApi.current;
-        // const { resetForms } = designationData.current;
+        const { resetForm: desResetFrom } = desgFormApi.current;
         if (openPopup && !isEdit) {
-            // resetForms();
+            desResetFrom();
             resetForm();
+            setFormValue({ designations: [{ noOfPositions: 0, id: designations?.length ? designations[0] : [] }] })
         }
         else {
             const data = row;
-            // setMapDesignation(data.designations.map(d => [{
-            //     elementType: "ad_dropdown",
-            //     name: "id",
-            //     label: "Designation",
-            //     dataId: "_id",
-            //     dataName: "name",
-            //     defaultValue: designations.find(c => c._id === d.id),
-            //     options: designations
-            // },
-            // {
-            //     elementType: "inputfield",
-            //     name: "noOfPositions",
-            //     label: "No Of Positions",
-            //     required: true,
-            //     type: 'number',
-            //     validate: {
-            //         errorMessage: "You have exceeded the employees limit",
-            //         validate: (val) => {
-            //             const { getValue } = formApi.current;
-            //             return val.noOfPositions < getValue().employeeLimit && val.noOfPositions > 0
-            //         }
-            //     },
-            //     defaultValue: d.noOfPositions
-            // }]))
-
-
-
+            const mapDesig = data.designations.map(d => ({ id: designations.find(c => c._id === d.id), noOfPositions: d.noOfPositions }));
             setFormValue({
                 departmentName: data.departmentName,
                 employeeLimit: data.employeeLimit,
                 code: data.code,
+                designations: mapDesig,
                 departmentHead: data?.depart_head ? Employees.find(e => e._id === data?.depart_head._id) : null
             });
         }
     }, [openPopup, formApi])
 
     const handleDelete = (_index) => {
-        mapDesignation.splice(_index, 1);
-        setMapDesignation([...mapDesignation])
+        const { getValue, setFormValue } = formApi.current;
+        getValue().designations.splice(_index, 1);
+        setFormValue({ designations: [...getValue().designations] })
     }
     const handleAdd = () => {
-        setMapDesignation([...mapDesignation, { noOfPositions: 0, id: designations?.length ? designations[0] : [] }])
+        const { getValue, setFormValue } = formApi.current;
+        setFormValue({ designations: [...getValue().designations, { noOfPositions: 0, id: designations?.length ? designations[0] : [] }] })
     }
 
     const formData = [
@@ -189,7 +168,9 @@ const AddDepartment = ({ openPopup, setOpenPopup, isEdit = false, row = null }) 
         {
             elementType: "arrayForm",
             name: "designations",
+            arrayFormRef: desgFormApi,
             breakpoints: { md: 12, lg: 12, sx: 12 },
+            defaultValue: mapDesignation,
             formData: [
                 {
                     elementType: "ad_dropdown",
@@ -212,7 +193,7 @@ const AddDepartment = ({ openPopup, setOpenPopup, isEdit = false, row = null }) 
                         errorMessage: "You have exceeded the employees limit",
                         validate: (val) => {
                             const { getValue } = formApi.current;
-                            return val.noOfPositions < getValue().employeeLimit && val.noOfPositions > 0
+                            return +val.noOfPositions < +getValue().employeeLimit && +val.noOfPositions > 0
                         }
                     },
                     defaultValue: 0
@@ -227,17 +208,16 @@ const AddDepartment = ({ openPopup, setOpenPopup, isEdit = false, row = null }) 
                     </IconButton>
                 },
             ],
-            initialState: mapDesignation,
             isValidate: true,
         },
     ];
 
     const handleSubmit = (e) => {
         const { getValue, validateFields } = formApi.current;
-        // const { getFieldArray } = designationData.current;
-        // let { isValid, dataSet } = getFieldArray();
+        const { validateFields: desgFieldValidate } = desgFormApi.current;
 
-        if (validateFields()) {
+
+        if (validateFields() && desgFieldValidate()) {
             let { departmentName, employeeLimit, code, departmentHead, designations: dataSet } = getValue();
             let dataToInsert = {};
 
