@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { AutoForm } from '../../components/useForm'
-import { DisplaySettings, Percent, AttachMoney, RemoveCircleOutline, AddCircleOutline } from '../../deps/ui/icons'
+import { DisplaySettings, Percent, AttachMoney, RemoveCircleOutline, AddCircleOutline, SaveTwoTone } from '../../deps/ui/icons'
 import { Divider, Chip, InputAdornment, IconButton } from '../../deps/ui'
 import { API, basicSalaryTypeList, PercentageBased, dayRange, defaultCaluation, payScheduleType, perDayCalulationsList } from './_Service'
 import { useAppSelector } from '../../store/storehook'
@@ -30,10 +30,10 @@ const Setup = () => {
     const handleRemoveItems = (_index, isAllowance = true) => {
         const { getValue, setFormValue } = formApi.current;
         const { allowances, deductions } = getValue();
-        
+
         if (isAllowance && allowances.length !== 1)
             setFormValue({ allowances: allowances.toSpliced(_index, 1) })
-        else if(!isAllowance && deductions.length !== 1)
+        else if (!isAllowance && deductions.length !== 1)
             setFormValue({ deductions: deductions.toSpliced(_index, 1) })
 
 
@@ -356,7 +356,10 @@ const Setup = () => {
     ]
 
     return (
-        <AutoForm formData={formData} ref={formApi} isValidate={true} />
+        <>
+            <AutoForm formData={formData} ref={formApi} isValidate={true} />
+            <IconButton size='large'><SaveTwoTone color='primary' /></IconButton>
+        </>
     )
 }
 

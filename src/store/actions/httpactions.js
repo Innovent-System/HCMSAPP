@@ -173,7 +173,8 @@ const INITIAL_STATE = {
     DeductionsTitle: []
   },
   routeData: {
-    sideMenuData: []
+    sideMenuData: [],
+    appRoutes: []
   },
   commands: [],
   authData: {},

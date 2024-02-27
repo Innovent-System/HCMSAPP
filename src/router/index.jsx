@@ -1,12 +1,12 @@
-import React, { lazy, Suspense, useState, useEffect } from 'react';
+import React, { lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import PrivateRoute from './wrapper';
 import Layout from '../layout';
 import CircularLoading from '../components/Circularloading'
 import Auth from '../services/AuthenticationService';
 import StatusSnack from './StatusHandler';
-import { useSelector } from 'react-redux';
 import componentsToMap from './MapComponent';
+import { useAppSelector } from '../store/storehook';
 
 const LazySignIn = lazy(() => import(`../pages/General/SignIn`));
 const LazyDashboard = lazy(() => import(`../pages/General/Dashboard`));
@@ -20,7 +20,7 @@ const MapToRoute = ({ formId }) => {
 
 const Routers = () => {
 
-  const routes = useSelector(e => e.appdata.routeData.appRoutes || Auth.getitem("appConfigData")?.appRoutes);
+  const routes = useAppSelector(e => e.appdata.routeData.appRoutes || Auth.getitem("appConfigData")?.appRoutes);
 
   return (
     <>

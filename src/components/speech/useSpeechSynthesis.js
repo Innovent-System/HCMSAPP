@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
-import { useSelector } from 'react-redux';
+import { useAppSelector } from "../../store/storehook";
 
 let appcommands = [];
 export const useSpeechSynthesis = () => {
@@ -10,12 +10,13 @@ export const useSpeechSynthesis = () => {
     setVoices(synth.current.getVoices());
   };
 
-  const appstate = useSelector(a => a.appdata.commands);
+  const appstate = useAppSelector(a => a.appdata.commands);
   appcommands = appstate;
   
   const speak = (text, voice, pitch = 1, rate = 1) => {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.voice = voices.filter(v => v.default)[0] || voices[0];
+    
     utterance.pitch = pitch;
     utterance.volume = 1;
     utterance.rate = rate;
@@ -23,6 +24,9 @@ export const useSpeechSynthesis = () => {
     const instrcution = appcommands.find(c => c.matchText.some(c => c.exec(text)));
     if (instrcution) {
       instrcution.onMatch();
+    }
+    else{
+      utterance.text = "Sorry! I apologize, i am a predefine AI Model with restricted rules and regulation"
     }
 
     synth.current.speak(utterance);

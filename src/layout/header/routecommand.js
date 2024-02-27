@@ -46,13 +46,28 @@ export const routeCommand = (routes = [], navigate) => {
         else if (element.formId === 13) {
             element.matchText.push(commandToRegExp(`go to exemption.`));
         }
-        else if(element.formId === 16){
+        else if (element.formId === 16) {
             element.matchText.push(commandToRegExp(`go to attendance setting.`));
-        }
+        } else
+            element.matchText.push(...trainPayroll(element.formId));
 
-        
 
     }
 
     return command;
+}
+
+const trainPayroll = (formId) => {
+    const model = [];
+    switch (formId) {
+        case 24: //payrollsetup
+            model.push(commandToRegExp('go to payroll setup.'));
+            break;
+        case 32: //payrollsetting
+            model.push(commandToRegExp('go to payroll setting.'));
+            break;
+    }
+
+    return model;
+
 }
