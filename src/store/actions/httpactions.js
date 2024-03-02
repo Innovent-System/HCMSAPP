@@ -40,7 +40,7 @@ export const getApi = createApi({
   }),
 })
 
-export const { useEntitiesQuery, useLazyEntityByIdQuery, usePostQuery, useLazyPostQuery, useSingleQuery, useLazySingleQuery, useAddMutation, useUpdateManyMutation, useRemoveMutation, useUpdateOneMutation } = getApi;
+export const { useEntitiesQuery, useEntityByIdQuery, useLazyEntityByIdQuery, usePostQuery, useLazyPostQuery, useSingleQuery, useLazySingleQuery, useAddMutation, useUpdateManyMutation, useRemoveMutation, useUpdateOneMutation } = getApi;
 
 export const useEntityAction = () => {
   const [addEntity] = useAddMutation();
@@ -170,7 +170,8 @@ const INITIAL_STATE = {
   employeeData: {},
   payrollData: {
     AllowancesTitle: [],
-    DeductionsTitle: []
+    DeductionsTitle: [],
+    PayrollSetups: []
   },
   routeData: {
     sideMenuData: [],

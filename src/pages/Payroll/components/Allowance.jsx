@@ -113,7 +113,6 @@ const Allowance = ({ DEFAULT_API = API.Allowance, DEFAULT_NAME = "Allowance" }) 
 
     const { socketData } = useSocketIo(`changeIn${DEFAULT_NAME}`, refetch);
 
-
     const handleEdit = (id) => {
         isEdit.current = true;
         editId = id;
@@ -203,7 +202,6 @@ const Allowance = ({ DEFAULT_API = API.Allowance, DEFAULT_NAME = "Allowance" }) 
             <Popup
                 title="Add Allowance"
                 openPopup={openPopup}
-
                 maxWidth="sm"
                 keepMounted={true}
                 isEdit={isEdit.current}

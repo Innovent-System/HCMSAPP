@@ -1,6 +1,7 @@
 export const API = {
     Allowance: "payroll/allowance",
     Deduction: "payroll/deduction",
+    PayrollSetup: "payroll/setup"
 }
 
 export const payScheduleType = [{ id: "Monthly", title: "Monthly" },
@@ -16,3 +17,9 @@ export const basicSalaryTypeList = [
     { id: "PercentageBased", title: "Percentage Based" },
     { id: "FixedAmount", title: "Fix Amount" }
 ], PercentageBased = "PercentageBased";
+
+export const PayslipType = [
+    { id: "PercentageOfBasicSalary", title: "Percentage of Basic Salary" },
+    { id: "FixedAmount", title: "Fix Amount" }
+], PercentageOfBasicSalary = "PercentageOfBasicSalary";
+

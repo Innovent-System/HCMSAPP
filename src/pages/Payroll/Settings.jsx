@@ -7,7 +7,6 @@ import Allowance from './components/Allowance';
 import Deduction from './components/Deduction';
 
 
-
 const tabs = [
     {
         title: "Allowances",

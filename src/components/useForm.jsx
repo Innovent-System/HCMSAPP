@@ -275,7 +275,7 @@ export const AutoForm = forwardRef(function (props, ref) {
                                     label={label}
                                     {...(required && { required: handleConditionalField(name, required) })}
                                     value={values[name]}
-                                    {...(disabled && { disabled: (typeof disabled === "function" ? disabled(values) : required) })}
+                                    {...(disabled && { disabled: (typeof disabled === "function" ? disabled(values) : disabled) })}
                                     onChange={(e) => handleInputChange(e, onChange)}
                                     {...((changeErrors[name] || errors[name]) && { error: (changeErrors[name] || errors[name]) })}
                                     {...(classes && { className: clsx(classes) })}
@@ -293,7 +293,7 @@ export const AutoForm = forwardRef(function (props, ref) {
                             label={label}
                             value={values[name]}
                             {...(required && { required: handleConditionalField(name, required) })}
-                            {...(disabled && { disabled: (typeof disabled === "function" ? disabled(values) : required) })}
+                            {...(disabled && { disabled: (typeof disabled === "function" ? disabled(values) : disabled) })}
                             onChange={(e) => handleInputChange(e, onChange)}
                             {...((changeErrors[name] || errors[name]) && { error: (changeErrors[name] || errors[name]) })}
                             {...(classes && { className: clsx(classes) })}
@@ -307,7 +307,7 @@ export const AutoForm = forwardRef(function (props, ref) {
                             label={label}
                             value={values[name]}
                             {...(required && { required: handleConditionalField(name, required) })}
-                            {...(disabled && { disabled: (typeof disabled === "function" ? disabled(values) : required) })}
+                            {...(disabled && { disabled: (typeof disabled === "function" ? disabled(values) : disabled) })}
                             onChange={(e) => handleInputChange(e, onChange)}
                             {...((changeErrors[name] || errors[name]) && { error: (changeErrors[name] || errors[name]) })}
                             {...(classes && { className: clsx(classes) })}

@@ -23,7 +23,7 @@ function useArrayForm(initialFValues, validateOnChange = false, validate, onChan
         //     ...values,
         // ])
         onChange({ target: { name: fieldName, value: fieldValues } });
-        typeof exec === "function" && exec(_value);
+        typeof exec === "function" && exec(_value, _index);
         if (validateOnChange) {
             changeErrors.current[_index] = { ...changeErrors.current[_index], ...validate({ [name]: _value }, _index) }
 
@@ -209,16 +209,16 @@ export const ArrayForm = forwardRef(function (props, ref) {
     }
 
     const validateFields = () => {
-        const isValidate = validateAllFields(errorProps, values);
+        const isValidate = validateAllFields(errorProps, value);
         setErrors(isValidate);
-        return isValidate.every(c => c[Object.keys(c)[0]] === "") || isValidate.length === 0;
+        return isValidate.every(c => Object.keys(c).every(k => c[k] === "")) || isValidate.length === 0;
     }
     const resetFormProps = () => {
         resetForm();
     }
     const validateWhen = (when) => {
         if (!when && when !== 0) return;
-        const validateData = validateAllFields(errorProps.filter(e => e.when === when), values);
+        const validateData = validateAllFields(errorProps.filter(e => e.when === when), value);
         setErrors({ ...errors, ...validateData })
         return Object.values(validateData).every((x) => x == "") || Object.keys(validateData).length === 0;
     }
@@ -230,7 +230,7 @@ export const ArrayForm = forwardRef(function (props, ref) {
         setFormValue,
         initialValues,
         getValue() {
-            return values
+            return value
         }
     }));
     const handleShowHide = (name, func, _chilIndex) => {
@@ -292,7 +292,7 @@ export const ArrayForm = forwardRef(function (props, ref) {
                             />
                         </Grid> : <Grid {...(modal && { style: { position: "relative" } })} {...(breakpoints && { ...breakpoints })} key={index + (name ?? 'customFix') + keyId} item>
                             {modal && modal.Component}
-                            
+
                             <Element key={index + name + _stateIndex + keyId} elementType={elementType}
                                 name={name}
                                 label={label}
