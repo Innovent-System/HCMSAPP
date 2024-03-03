@@ -2,13 +2,13 @@ import React, { useRef, useState } from 'react'
 import { AutoForm } from '../../components/useForm'
 import { useDropDown } from '../../components/useDropDown'
 import { useAppSelector } from '../../store/storehook';
-import { Divider, Chip, InputAdornment, Grid, Typography, Paper } from '../../deps/ui'
+import { Divider, Chip, InputAdornment, Grid, Typography, FormHelperText } from '../../deps/ui'
 import { DisplaySettings, AttachMoney } from '../../deps/ui/icons'
-import { useEntityByIdQuery, useLazyEntityByIdQuery } from '../../store/actions/httpactions';
+import { useEntityAction, useEntityByIdQuery, useLazyEntityByIdQuery } from '../../store/actions/httpactions';
 import { API, PercentageBased, PercentageOfBasicSalary } from './_Service';
 import CircularLoading from '../../components/Circularloading';
-import { debounce } from '../../util/common'
-const salaryType = [{ id: "Monthly", title: "Monthly" },
+import Controls from '../../components/controls/Controls'
+const _salaryType = [{ id: "Monthly", title: "Monthly" },
 { id: "Hourly", title: "Hourly" },
 { id: "Daily", title: "Daily" }
 ]
@@ -40,14 +40,14 @@ const SalarySetup = () => {
     const formApi = useRef(null);
     const { employees } = useDropDown();
     const payrollSetups = useAppSelector(e => e.appdata.payrollData.PayrollSetups);
-    
-    const estimateSalary = useRef(0);
-    
+    const [salaryError, setSalaryError] = useState(false)
+    const estimateSalary = useRef("");
+    const { updateEntity, addEntity } = useEntityAction();
     const [salaryItems, setSalaryItems] = useState([]);
-    const [getPayrollSetup] = useLazyEntityByIdQuery();
+    const [getPayroll] = useLazyEntityByIdQuery();
 
     const handleSalarySetup = (payrollId) => {
-        getPayrollSetup({ url: DEFAULT_API, id: payrollId }).then(d => {
+        getPayroll({ url: DEFAULT_API, id: payrollId }).then(d => {
             const { basicSalaryType,
                 percentage_or_amount,
                 allowances, deductions
@@ -69,11 +69,11 @@ const SalarySetup = () => {
             }));
             currentItems.push(...deductions.map(d => ({ item: `${d.titles.name} ${d.type === PercentageOfBasicSalary ? `(${d.percentage_or_amount}%)` : ''}`, amount: intFormat.format(calculateOn(monthlySalary, d.type === PercentageOfBasicSalary, false, d.percentage_or_amount)), isPercent: d.type === PercentageOfBasicSalary, isAllowance: false, percentage_or_amount: d.percentage_or_amount })));
             estimateSalary.current = intFormat.format(estimateSalary.current);
+            setSalaryError(false);
             setSalaryItems(currentItems);
 
         })
     }
-
     const handleSalaryChange = (monthlySalary) => {
         estimateSalary.current = 0;
         const { setFormValue } = formApi.current;
@@ -85,10 +85,43 @@ const SalarySetup = () => {
         })
         estimateSalary.current = intFormat.format(estimateSalary.current);
         setSalaryItems(curItems);
+        setSalaryError(false);
         setFormValue({ annualSalary: intFormat.format(+monthlySalary * 12) });
-        
-    }
 
+    }
+    const getSalarInfo = (employee) => {
+        if (!employee) return;
+        getPayroll({ url: API.Salary, id: employee?._id }).then(info => {
+            if (info?.data?.result) {
+                const { setFormValue } = formApi.current;
+                const { monthlySalary = 0, annualSalary = 0, salaryType = _salaryType[0].id, fkPayrollSetupId = payrollSetups[0]._id } = info.data.result?.salaryInfo;
+                setFormValue({ monthlySalary, annualSalary, salaryType, fkPayrollSetupId });
+                handleSalarySetup(fkPayrollSetupId)
+            }
+        })
+    }
+    const updateSalary = () => {
+        const { getValue, validateFields } = formApi.current
+        const { monthlySalary, fkEmployeeId, annualSalary, salaryType, fkPayrollSetupId } = getValue();
+        if (!validateFields()) return;
+        if (+monthlySalary !== +(estimateSalary.current.replaceAll(",", ""))) return setSalaryError(true);
+
+        updateEntity({
+            url: `${API.Salary}/${fkEmployeeId._id}`, data: {
+                monthlySalary,
+                annualSalary: monthlySalary * 12,
+                salaryType, fkPayrollSetupId
+            }
+        }).then(console.log);
+    }
+    const processPayroll = () => {
+        const { getValue } = formApi.current;
+        addEntity({
+            url: API.Process, data: {
+                employeeIds: getValue().fkEmployeeId._id
+            }
+        }).then(console.log);
+    }
     /**
      * @type {import('../../types/fromstype').FormType}
      */
@@ -96,6 +129,11 @@ const SalarySetup = () => {
         elementType: "ad_dropdown",
         name: "fkEmployeeId",
         label: "Employee",
+        onChange: getSalarInfo,
+        required: true,
+        validate: {
+            errorMessage: "Employee is required",
+        },
         breakpoints,
         dataName: 'fullName',
         dataId: '_id',
@@ -106,6 +144,10 @@ const SalarySetup = () => {
         elementType: "dropdown",
         label: "Payroll Setup",
         name: "fkPayrollSetupId",
+        required: true,
+        validate: {
+            errorMessage: "Payroll Setup is required",
+        },
         breakpoints,
         onChange: handleSalarySetup,
         options: payrollSetups,
@@ -119,11 +161,11 @@ const SalarySetup = () => {
         name: "salaryType",
         label: "Salary Type",
         breakpoints,
-        options: salaryType,
+        options: _salaryType,
         isNone: false,
         dataId: "id",
         dataName: "title",
-        defaultValue: salaryType[0].id
+        defaultValue: _salaryType[0].id
     },
     {
         elementType: "custom",
@@ -134,6 +176,10 @@ const SalarySetup = () => {
     {
         elementType: "inputfield",
         name: "monthlySalary",
+        required: true,
+        validate: {
+            errorMessage: "Monthly Salary is required",
+        },
         onChange: handleSalaryChange,
         label: "Monthly Salary",
         inputMode: 'numeric',
@@ -182,12 +228,26 @@ const SalarySetup = () => {
                 ))}
             </Grid>
             <Grid item>
+                <FormHelperText
+                    error={salaryError}
+                    sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        padding: "0 10px"
+                    }}
+                >
+                    {salaryError && <Typography>Estimated salary should be equal to Monthly salary</Typography>}
+                </FormHelperText>
                 <Typography variant='h4'>
                     Estimated Salary : {estimateSalary.current}
                 </Typography>
-
             </Grid>
-
+            <Grid item sx={3} md={3}>
+                <Controls.Button size='medium' onClick={updateSalary} fullWidth text='Save' />
+            </Grid>
+            <Grid item sx={3} md={3}>
+                <Controls.Button size='medium' onClick={processPayroll} fullWidth text='Process' />
+            </Grid>
         </Grid>
     </>)
 }

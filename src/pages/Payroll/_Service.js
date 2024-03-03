@@ -1,7 +1,9 @@
 export const API = {
     Allowance: "payroll/allowance",
     Deduction: "payroll/deduction",
-    PayrollSetup: "payroll/setup"
+    PayrollSetup: "payroll/setup",
+    Salary: 'payroll/salary',
+    Process: 'payroll/process'
 }
 
 export const payScheduleType = [{ id: "Monthly", title: "Monthly" },
