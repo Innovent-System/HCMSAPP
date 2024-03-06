@@ -313,7 +313,7 @@ const Amend = () => {
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: handleSaveAttendance,
-                    getQuota: handleAmendAttendance,
+                    getAttendance: handleAmendAttendance,
 
                     records,
                     selectionModel
@@ -322,7 +322,6 @@ const Amend = () => {
                 gridToolBar={AmendToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={hanldeSelectionEdit}
-
             />
             <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
         </>
@@ -330,13 +329,13 @@ const Amend = () => {
 }
 
 export function AmendToolbar(props) {
-    const { onAdd, getQuota, selectionModel, records } = props;
+    const { onAdd, getAttendance, selectionModel, records } = props;
 
     return (
         <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
 
             {selectionModel?.length ? <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Save" /> : null}
-            <Controls.Button onClick={getQuota} startIcon={<AddIcon />} text="Apply" />
+            <Controls.Button onClick={getAttendance} startIcon={<AddIcon />} text="Apply" />
         </GridToolbarContainer>
     );
 }

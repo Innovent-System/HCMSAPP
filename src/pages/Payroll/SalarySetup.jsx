@@ -114,14 +114,7 @@ const SalarySetup = () => {
             }
         }).then(console.log);
     }
-    const processPayroll = () => {
-        const { getValue } = formApi.current;
-        addEntity({
-            url: API.Process, data: {
-                employeeIds: getValue().fkEmployeeId._id
-            }
-        }).then(console.log);
-    }
+    
     /**
      * @type {import('../../types/fromstype').FormType}
      */
@@ -245,9 +238,7 @@ const SalarySetup = () => {
             <Grid item sx={3} md={3}>
                 <Controls.Button size='medium' onClick={updateSalary} fullWidth text='Save' />
             </Grid>
-            <Grid item sx={3} md={3}>
-                <Controls.Button size='medium' onClick={processPayroll} fullWidth text='Process' />
-            </Grid>
+            
         </Grid>
     </>)
 }
