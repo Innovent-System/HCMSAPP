@@ -326,7 +326,7 @@ export default function FeaturedCrudGrid(props) {
 
 FeaturedCrudGrid.propTypes = {
   columns: PropTypes.array.isRequired,
-  rows: PropTypes.array.isRequired,
+  rows: PropTypes.array,
   totalCount: PropTypes.number,
   apiRef: PropTypes.shape({
     current: PropTypes.object.isRequired,

@@ -52,6 +52,8 @@ const flagMap = {
     0: { tag: "H", color: "info" },
     1: { tag: "L", color: "warning" },
     7: { tag: "A", color: "error" },
+    8: { tag: "FL", color: "secondary" },
+    9: { tag: "HL", color: "secondary" },
     null: { tag: "P", color: "success" }
 }
 

@@ -3,7 +3,10 @@ export const API = {
     Deduction: "payroll/deduction",
     PayrollSetup: "payroll/setup",
     Salary: 'payroll/salary',
-    Process: 'payroll/process'
+    Process: 'payroll/process',
+    AdvanceSalary: 'payroll/advancesalary',
+    Approval: "payroll/approval",
+    ApprovalAction: "payroll/approval/action",
 }
 
 export const payScheduleType = [{ id: "Monthly", title: "Monthly" },
