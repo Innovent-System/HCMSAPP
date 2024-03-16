@@ -38,7 +38,7 @@ import {
   useLazySingleQuery,
 } from "../../store/actions/httpactions";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
-import Logo from "../../assets/images/Logo.png";
+import Logo from "../../assets/images/Innovent-logo.png";
 // Drawer
 import { routeCommand } from "./routecommand";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
@@ -52,9 +52,9 @@ const useStyles = makeStyles((theme) => ({
       borderColor: theme.palette.primary.contrastText,
     },
     '& img[alt="Logo"]': {
-      width: 120,
-      height: 40,
-      filter: "brightness(0) invert(1)",
+      width: 165,
+      height: 64,
+      // filter: "brightness(0) invert(1)",
     },
     "& .left": {
       display: "inline-flex",

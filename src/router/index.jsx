@@ -7,13 +7,21 @@ import Auth from '../services/AuthenticationService';
 import StatusSnack from './StatusHandler';
 import componentsToMap from './MapComponent';
 import { useAppSelector } from '../store/storehook';
+import ComingSoon from '../components/Comingsoon'
 
 const LazySignIn = lazy(() => import(`../pages/General/SignIn`));
 const LazyDashboard = lazy(() => import(`../pages/General/Dashboard`));
 
+// const LazyCus = lazy(() => new Promise((resolve) => {    
+//   setTimeout(() => {      
+//     resolve(import('../components/Comingsoon'));    
+//   }, 80000);  
+// }));
+
+
 const MapToRoute = ({ formId }) => {
   const Map = componentsToMap[formId];
-  return <Suspense fallback={<CircularLoading />}>{Map ? <Map /> : <div>Not Found</div>}</Suspense>
+  return <Suspense fallback={<CircularLoading open={true} />}>{Map ? <Map /> : <ComingSoon />}</Suspense>
 
 }
 
@@ -24,7 +32,7 @@ const Routers = () => {
 
   return (
     <>
-      <Suspense fallback={<CircularLoading />}>
+      <Suspense fallback={<CircularLoading open={true} />}>
         <Routes>
           <Route path="/" index element={<LazySignIn />} />
           <Route element={<PrivateRoute />}>

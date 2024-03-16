@@ -1,5 +1,6 @@
 import React from 'react';
-import { CircularProgress, Backdrop } from '../deps/ui';
+import { CircularProgress, Backdrop, Avatar } from '../deps/ui';
+import loaderImg from '../assets/images/logo-loader.png'
 
 
 export default function CircularLoading({ open = false }) {
@@ -11,7 +12,8 @@ export default function CircularLoading({ open = false }) {
         open={open}
       // onClick={handleClose}
       >
-        <CircularProgress color="inherit" />
+        <Avatar src={loaderImg} sx={{ height: 128, width: 128 }} />
+        <CircularProgress thickness={1} sx={{ position: 'absolute' }} size={140} color="primary" />
       </Backdrop>
     </div>
   );

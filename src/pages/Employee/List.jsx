@@ -244,7 +244,7 @@ const Employee = () => {
             <Link style={{ float: "right" }} onClick={handleTemplate}> Employee Template</Link>
             <ButtonGroup fullWidth >
                 {alphabets.map(alpha => (
-                    <Controls.Button onClick={handleAlphabetSearch} color="inherit" key={alpha} text={alpha} />
+                    <Controls.Button onClick={handleAlphabetSearch} color={word === alpha ? 'info' : 'inherit'} key={alpha} text={alpha} />
                 ))}
             </ButtonGroup>
             <DataGrid apiRef={gridApiRef}

@@ -4,7 +4,7 @@ import Popup from '../../components/Popup';
 import { API } from './_Service';
 
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction, useLazySingleQuery } from '../../store/actions/httpactions';
-import { PeopleOutline, ToggleOn } from "../../deps/ui/icons";
+import { PeopleOutline, Delete, AdminPanelSettings, CancelScheduleSend } from "../../deps/ui/icons";
 import { GridActionsCellItem } from "../../deps/ui";
 import DataGrid, { GridToolbar, renderStatusCell, useGridApi } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
@@ -43,7 +43,7 @@ const fields = {
 }
 
 
-const columns = [
+const getColumns = (onCancel) => [
     { field: '_id', headerName: 'Id', hide: true },
     {
         field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.employees.fullName
@@ -63,17 +63,26 @@ const columns = [
         align: 'center',
         hideable: false,
         cellClassName: 'actions',
-        getActions: ({ id }) => {
+        getActions: ({ id, row }) => {
 
-            return [
-                <GridActionsCellItem
-                    icon={<ToggleOn fontSize='small' />}
-                    label="Cancel"
-                    // onClick={() => onActive(id)}
-                    color={"primary"}
+            return !["Pending"].includes(row.status) ?
+                [
+                    <GridActionsCellItem
+                        label="Action Taken"
+                        icon={<AdminPanelSettings fontSize="small" />}
+                    />
 
-                />
-            ]
+                ] :
+                [
+                    <GridActionsCellItem
+                        icon={<CancelScheduleSend color="warning" fontSize='small' />}
+                        label="Cancel"
+                        onClick={() => onCancel(id)}
+                        color={"primary"}
+
+                    />
+
+                ]
         }
     }
 ];
@@ -201,8 +210,6 @@ const AdvanceSalaryRequest = () => {
         subTitle: "",
     });
 
-
-
     const gridApiRef = useGridApi();
     const query = useAppSelector(e => e.appdata.query.builder);
     const { countryIds, stateIds, cityIds, areaIds } = useDropDownIds();
@@ -217,11 +224,23 @@ const AdvanceSalaryRequest = () => {
         }
     }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
 
-    const { removeEntity } = useEntityAction();
+    const { removeEntity, updateOneEntity } = useEntityAction();
 
+    const handleCancel = (id) => {
+        setConfirmDialog({
+            isOpen: true,
+            title: "Are you sure to cancel this request?",
+            subTitle: "You can't undo this operation",
+            onConfirm: () => {
+                updateOneEntity({ url: `${DEFAULT_API}/cancel/${id}`, data: {} });
+            },
+        });
+        
+    }
 
     const { socketData } = useSocketIo("changeInAdvSalary", refetch);
 
+    const columns = getColumns(handleCancel);
 
     const handelDeleteItems = (ids) => {
         let idTobeDelete = ids;
@@ -266,7 +285,9 @@ const AdvanceSalaryRequest = () => {
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={data}
                 page={gridFilter.page}
-
+                checkboxSelection={false}
+                disableSelectionOnClick={true}
+                getRowHeight={() => 40}
                 loading={isLoading} pageSize={gridFilter.limit}
                 setFilter={setGridFilter}
                 onSortModelChange={(s) => setSort({ sort: s.reduce((a, v) => ({ ...a, [v.field]: v.sort === 'asc' ? 1 : -1 }), {}) })}

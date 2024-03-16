@@ -59,9 +59,17 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
         },
         { field: 'totalSalary', headerName: 'Total Salary', hideable: false, valueGetter: ({ value }) => currFormat.format(value) },
         { field: 'annualSalary', headerName: 'Annual Salary', hideable: false, valueGetter: ({ value }) => currFormat.format(value) },
+        {
+            field: 'remarks', headerName: 'Remarks', width: 220, hideable: false, cellClassName: 'error'
+        },
     ]
 }
 
+const gridCellStyle = {
+    '& .error': {
+        color: 'error.main'
+    }
+}
 
 const DetailPanelContent = ({ row }) => {
 
@@ -202,6 +210,7 @@ const RunPayroll = () => {
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={records}
                 loading={false}
+                sx={gridCellStyle}
                 totalCount={records?.length}
                 disableSelectionOnClick
                 // rowModesModel={cellModesModel}
