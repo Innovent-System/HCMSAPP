@@ -43,11 +43,10 @@ const fields = {
     },
 }
 
-const getColumns = (apiRef, onEdit, onActive, onDelete, setOpenShift) => {
+const getColumns = (apiRef, onEdit, onActive, setOpenShift) => {
     const actionKit = {
         onActive: onActive,
-        onEdit: onEdit,
-        onDelete: onDelete
+        onEdit: onEdit
     }
     return [
         { field: '_id', headerName: 'Id', hide: true, hideable: false },
@@ -236,7 +235,7 @@ const Schedule = () => {
 
     }, [dispatch])
 
-    const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive, handelDeleteItems, (id) => {
+    const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive, (id) => {
         scheduleId.current = id;
         setOpenShift(true);
     });
@@ -385,7 +384,6 @@ const Schedule = () => {
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: showAddModal,
-                    onDelete: handelDeleteItems,
                     selectionModel
                 }}
                 gridToolBar={GridToolbar}

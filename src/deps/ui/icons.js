@@ -9,5 +9,5 @@ export {
     , ExpandMore, NotListedLocation, Launch, PeopleOutline, LocationCityOutlined, Settings, BookOutlined, ToggleOff, ToggleOn, Edit,
     Circle, GridView, Add, RemoveCircleOutline, AccessTime, Addchart, DoneAll, Info, InfoRounded, InfoOutlined, InfoSharp, FileCopy, WatchLater, Call, Business,
     North, South, KeyboardVoice, MicOff, CheckCircle, Cancel, Description, AdminPanelSettings, Groups, Article, Person2Rounded, PersonOffRounded,
-    Beenhere, DisplaySettings, Update, RequestPage, Percent, AddCircleOutline, CancelScheduleSend
+    Beenhere, DisplaySettings, Update, RequestPage, Percent, AddCircleOutline, CancelScheduleSend, RestartAlt
 } from '@mui/icons-material';

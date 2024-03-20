@@ -2,7 +2,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Controls from '../components/controls/Controls';
 import Popup from '../components/Popup';
-
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction } from '../store/actions/httpactions';
 import { Chip, GridToolbarContainer, GridActionsCellItem } from "../deps/ui";
 import { Delete as DeleteIcon, PeopleOutline, CheckCircle, Cancel, Description, AdminPanelSettings } from "../deps/ui/icons";
@@ -91,7 +90,7 @@ const getColumns = (handleApprove) => [
 ];
 
 
-const AddApprovalRoute = ({ openPopup, setOpenPopup, selectionModel, row, isApproved, records }) => {
+const AddApprovalRoute = ({ openPopup, setOpenPopup, DEFAULT_API, selectionModel, row, isApproved, records }) => {
     const formApi = useRef(null);
     const [loader, setLoader] = useState(false);
 
@@ -148,7 +147,7 @@ const AddApprovalRoute = ({ openPopup, setOpenPopup, selectionModel, row, isAppr
                 datalist.push(dataObj)
             }
 
-            addEntity({ url: API.ApprovalAction, data: datalist });
+            addEntity({ url: `${DEFAULT_API}/action`, data: datalist });
 
         }
     }
@@ -192,7 +191,6 @@ const ApprovalRoute = ({ DEFAULT_API, DEFAULT_NAME, DISPLAY_TITLE }) => {
     });
 
 
-
     const gridApiRef = useGridApi();
     const query = useAppSelector(e => e.appdata.query.builder);
 
@@ -213,8 +211,6 @@ const ApprovalRoute = ({ DEFAULT_API, DEFAULT_NAME, DISPLAY_TITLE }) => {
     }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
 
     const { removeEntity } = useEntityAction();
-
-
 
     const { socketData } = useSocketIo(`changeIn${DEFAULT_NAME}`, refetch);
 
@@ -263,19 +259,18 @@ const ApprovalRoute = ({ DEFAULT_API, DEFAULT_NAME, DISPLAY_TITLE }) => {
                 subTitle={`Manage ${DISPLAY_TITLE}`}
                 icon={<PeopleOutline fontSize="large" />}
             />
-            <AddApprovalRoute openPopup={openPopup} setOpenPopup={setOpenPopup} isApproved={isApproved.current} selectionModel={selectionModel} records={data} row={row.current} />
+            <AddApprovalRoute openPopup={openPopup} DEFAULT_API={DEFAULT_API} setOpenPopup={setOpenPopup} isApproved={isApproved.current} selectionModel={selectionModel} records={data} row={row.current} />
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={data}
                 loading={isLoading} pageSize={gridFilter.limit}
                 page={gridFilter.page}
                 totalCount={gridFilter.totalRecord}
-                toolbarProps={{
-                    apiRef: gridApiRef,
-                    onAdd: showAddModal,
-                    onDelete: handelDeleteItems,
-                    selectionModel
-                }}
-                gridToolBar={ApprovalToolbar}
+                // toolbarProps={{
+                //     apiRef: gridApiRef,
+                //     onAdd: showAddModal,
+                //     selectionModel
+                // }}
+                // gridToolBar={ApprovalToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
 
@@ -288,11 +283,11 @@ const ApprovalRoute = ({ DEFAULT_API, DEFAULT_NAME, DISPLAY_TITLE }) => {
 export default ApprovalRoute;
 
 function ApprovalToolbar(props) {
-    const { apiRef, onAdd, onDelete, selectionModel } = props;
+    const { apiRef, onAdd, selectionModel } = props;
 
     return (
         <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
-            {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
+
         </GridToolbarContainer>
     );
 }
@@ -302,6 +297,5 @@ ApprovalToolbar.propTypes = {
         current: PropTypes.object,
     }),
     onAdd: PropTypes.func,
-    onDelete: PropTypes.func,
     selectionModel: PropTypes.array
 };

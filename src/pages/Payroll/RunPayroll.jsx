@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import PageHeader from '../../components/PageHeader'
-import { Circle, Add as AddIcon, PeopleOutline, DisplaySettings } from "../../deps/ui/icons";
+import { Circle, Add as AddIcon, PeopleOutline, DisplaySettings, RestartAlt } from "../../deps/ui/icons";
 import { GridToolbarContainer, Grid, Typography, Divider, Chip, Box } from "../../deps/ui";
 import { useAppDispatch, useAppSelector } from '../../store/storehook';
-import { builderFieldsAction, showDropDownFilterAction, useLazyPostQuery } from '../../store/actions/httpactions';
+import { builderFieldsAction, showDropDownFilterAction, useEntityAction, useLazyPostQuery } from '../../store/actions/httpactions';
 import { useDropDownIds } from '../../components/useDropDown';
 import DataGrid, { useGridApi } from '../../components/useDataGrid';
 import Controls from "../../components/controls/Controls";
@@ -39,14 +39,12 @@ const currFormat = new Intl.NumberFormat();
  * @param {Function} apiRef 
  * @param {Function} onEdit 
  * @param {Function} onActive 
- * @param {Function} onDelete 
  * @returns {import("@mui/x-data-grid-pro").GridColumns}
  */
-const getColumns = (apiRef, onEdit, onActive, onDelete) => {
+const getColumns = (apiRef, onEdit, onActive) => {
     const actionKit = {
         onActive: onActive,
-        onEdit: onEdit,
-        onDelete: onDelete
+        onEdit: onEdit
     }
     return [
 
@@ -144,7 +142,7 @@ const RunPayroll = () => {
     })
 
     const [records, setRecords] = useState([]);
-
+    const { addEntity } = useEntityAction();
     const gridApiRef = useGridApi();
     const { countryIds, stateIds, cityIds, areaIds, departmentIds, groupIds, designationIds, employeeIds } = useDropDownIds();
     const [getEmployeePayroll] = useLazyPostQuery();
@@ -194,8 +192,19 @@ const RunPayroll = () => {
                 ...query
             }
         }).then(({ data }) => {
-            setRecords(data)
+            setRecords(data?.payrollDetails)
             // console.log(data);
+        })
+    }
+    const handleSavePayroll = () => {
+
+        addEntity({
+            url: `${DEFAULT_API}/save`, data: {
+                payrollData: records.filter(c => c.isProcess),
+                year: records[0].year,
+                month: records[0].month,
+                employeeIds: records.map(c => c.fkEmployeeId)
+            }
         })
     }
 
@@ -212,6 +221,8 @@ const RunPayroll = () => {
                 loading={false}
                 sx={gridCellStyle}
                 totalCount={records?.length}
+
+                getRowHeight={() => 40}
                 disableSelectionOnClick
                 // rowModesModel={cellModesModel}
                 page={gridFilter.page}
@@ -223,7 +234,7 @@ const RunPayroll = () => {
                 // isCellEditable={console.log}
                 toolbarProps={{
                     apiRef: gridApiRef,
-                    // onAdd: handleSaveAttendance,
+                    onAdd: handleSavePayroll,
                     getPayroll: handleProcessPayroll,
 
                     records,
@@ -252,8 +263,8 @@ export function RunPayrollToolbar(props) {
     return (
         <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
 
-            {selectionModel?.length ? <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Save" /> : null}
-            <Controls.Button onClick={getPayroll} startIcon={<AddIcon />} text="Process" />
+            {records?.length ? <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Save" /> : null}
+            <Controls.Button onClick={getPayroll} startIcon={<RestartAlt />} text="Process" />
         </GridToolbarContainer>
     );
 }

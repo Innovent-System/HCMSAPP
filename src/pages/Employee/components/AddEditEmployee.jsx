@@ -357,7 +357,7 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
           label: "D.O.B",
           defaultValue: null,
           excel: {
-            sampleData: new Date().toDateString()
+            sampleData: new Date().toLocaleDateString('en-US')
           }
         },
         {

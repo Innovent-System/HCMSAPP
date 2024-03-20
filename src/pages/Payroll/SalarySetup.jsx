@@ -28,7 +28,7 @@ const itemStyle = {
         p: 1
     }
 }
-const breakpoints = { sm: 3, md: 3, lg: 3 }, fullWidthPoints = { sm: 12, md: 12, lg: 12 }
+const breakpoints = { xs: 12, sm: 3, md: 3, lg: 3 }, fullWidthPoints = { sm: 12, md: 12, lg: 12 }
 const DEFAULT_API = API.PayrollSetup;
 const selectFromResult = ({ data, isLoading }) => {
     if (!data?.result) return { basicSalaryType: "", percentage_or_amount: 0, allowances: [], deductions: [] };
@@ -114,7 +114,7 @@ const SalarySetup = () => {
             }
         }).then(console.log);
     }
-    
+
     /**
      * @type {import('../../types/fromstype').FormType}
      */
@@ -215,8 +215,8 @@ const SalarySetup = () => {
                 {salaryItems.map((c, i) => (
                     <Grid container key={c.item + i} sx={itemStyle} gap={2}  >
                         <Grid item sm={0.5} md={0.5} lg={0.5} textAlign='center' >{i + 1}</Grid>
-                        <Grid item sm={4} md={4} lg={4}> <Typography>{c.item}</Typography> </Grid>
-                        <Grid item sm={2} md={2} lg={2}><Typography>{c.amount}</Typography> </Grid>
+                        <Grid item xs={6} sm={4} md={4} lg={4}> <Typography>{c.item}</Typography> </Grid>
+                        <Grid item xs={3} sm={2} md={2} lg={2}><Typography>{c.amount}</Typography> </Grid>
                     </Grid>
                 ))}
             </Grid>
@@ -238,7 +238,7 @@ const SalarySetup = () => {
             <Grid item sx={3} md={3}>
                 <Controls.Button size='medium' onClick={updateSalary} fullWidth text='Save' />
             </Grid>
-            
+
         </Grid>
     </>)
 }

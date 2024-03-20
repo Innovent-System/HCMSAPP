@@ -39,15 +39,13 @@ const fields = {
  * 
  * @param {Function} apiRef 
  * @param {Function} onEdit 
- * @param {Function} onActive 
- * @param {Function} onDelete 
+ * @param {Function} onActive  
  * @returns {import("@mui/x-data-grid-pro").GridColumns}
  */
-const getColumns = (apiRef, onEdit, onActive, onDelete) => {
+const getColumns = (apiRef, onEdit, onActive) => {
     const actionKit = {
         onActive: onActive,
-        onEdit: onEdit,
-        onDelete: onDelete
+        onEdit: onEdit
     }
     return [
         { field: '_id', headerName: 'Id', hide: true },
@@ -231,7 +229,7 @@ const Country = () => {
         dispatch(builderFieldsAction(fields));
     }, [dispatch])
 
-    const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive, handelDeleteItems);
+    const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive);
 
 
     const showAddModal = () => {
@@ -253,7 +251,6 @@ const Country = () => {
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: showAddModal,
-                    onDelete: handelDeleteItems,
                     selectionModel
                 }}
                 gridToolBar={GridToolbar}

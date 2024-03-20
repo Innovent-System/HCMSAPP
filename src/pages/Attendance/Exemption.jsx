@@ -269,7 +269,6 @@ const ExemptionRequest = () => {
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: showAddModal,
-                    onDelete: handelDeleteItems,
                     selectionModel
                 }}
                 gridToolBar={GridToolbar}

@@ -7,7 +7,7 @@ import { API } from '../_Service';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAction } from '../../../store/actions/httpactions';
 import { GridToolbarContainer } from "../../../deps/ui";
 import { Circle, Add as AddIcon, Delete as DeleteIcon, } from "../../../deps/ui/icons";
-import DataGrid, { useGridApi, getActions } from '../../../components/useDataGrid';
+import DataGrid, { useGridApi, getActions,GridToolbar } from '../../../components/useDataGrid';
 import { useSocketIo } from '../../../components/useSocketio';
 import ConfirmDialog from '../../../components/ConfirmDialog';
 import PropTypes from 'prop-types'
@@ -41,11 +41,10 @@ const fields = {
     },
 }
 
-const getColumns = (apiRef, onEdit, onActive, onDelete) => {
+const getColumns = (apiRef, onEdit, onActive) => {
     const actionKit = {
         onActive: onActive,
-        onEdit: onEdit,
-        onDelete: onDelete
+        onEdit: onEdit
     }
     return [
         { field: '_id', headerName: 'Id', hide: true, hideable: false },
@@ -317,7 +316,7 @@ const Shift = () => {
         dispatch(builderFieldsAction(fields));
     }, [dispatch])
 
-    const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive, handelDeleteItems);
+    const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive);
 
     const showAddModal = () => {
         isEdit.current = false;
@@ -338,10 +337,9 @@ const Shift = () => {
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: showAddModal,
-                    onDelete: handelDeleteItems,
                     selectionModel
                 }}
-                gridToolBar={ShiftToolbar}
+                gridToolBar={GridToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
             />
@@ -350,23 +348,3 @@ const Shift = () => {
     );
 }
 export default Shift;
-
-function ShiftToolbar(props) {
-    const { apiRef, onAdd, onDelete, selectionModel } = props;
-
-    return (
-        <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
-            {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
-            <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add Record" />
-        </GridToolbarContainer>
-    );
-}
-
-ShiftToolbar.propTypes = {
-    apiRef: PropTypes.shape({
-        current: PropTypes.object,
-    }).isRequired,
-    onAdd: PropTypes.func,
-    onDelete: PropTypes.func,
-    selectionModel: PropTypes.array
-};

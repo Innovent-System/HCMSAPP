@@ -103,14 +103,12 @@ const DateTimeCell = ({ apiRef, value, id, field, row, type = 'In' }) => {
  * 
  * @param {Function} apiRef 
  * @param {Function} onEdit 
- * @param {Function} onActive 
- * @param {Function} onDelete 
+ * @param {Function} onActive  
  * @returns {import("@mui/x-data-grid-pro").GridColumns}
  */
-const getColumns = (apiRef, onActive, onDelete) => {
+const getColumns = (apiRef, onActive) => {
     const actionKit = {
-        onActive: onActive,
-        onDelete: onDelete
+        onActive: onActive
     }
     return [
         { field: '_id', headerName: 'Id', hide: true, hideable: false },
@@ -261,7 +259,7 @@ const Amend = () => {
         dispatch(builderFieldsAction(fields));
     }, [dispatch])
 
-    const columns = getColumns(gridApiRef, handleActiveInActive, handelDeleteItems);
+    const columns = getColumns(gridApiRef, handleActiveInActive);
 
     const showAddModal = () => {
         isEdit.current = false;

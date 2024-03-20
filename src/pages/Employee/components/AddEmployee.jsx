@@ -3,12 +3,13 @@ import General from './General'
 import Tabs from '../../../components/Tabs'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import CompanyDetail from './CompanyDetail'
-import { Fade, Grow, useTheme } from '../../../deps/ui'
+import { Fade, Grow, useTheme, Box } from '../../../deps/ui'
+import SalarySetup from '../../Payroll/SalarySetup'
 
 
 const AddEmployee = () => {
     const theme = useTheme();
-    
+
     const matches = useMediaQuery(theme.breakpoints.up('sm'));
     const [tab, setTab] = useState('0');
     const tabs = useMemo(() => [
@@ -31,17 +32,18 @@ const AddEmployee = () => {
         },
         {
             title: "Salary",
-            panel: <CompanyDetail setTab={setTab} />
+            panel: <SalarySetup/>
         }
     ], [])
 
     return (
-        <>
-
-
-            <Tabs sx={{ display: matches ? 'flex' : 'block' }} value={tab} setValue={setTab} TabsConfig={tabs} />
-
-        </>
+        <Box display={{ xs: "block", sm: "flex" }} sx={{
+            '& .MuiTabs-vertical': {
+                flex: 'none'
+            }
+        }}>
+            <Tabs orientation={!matches ? 'horizontal' : 'vertical'} value={tab} setValue={setTab} TabsConfig={tabs} />
+        </Box>
     )
 }
 

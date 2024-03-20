@@ -359,7 +359,7 @@ export function GridToolbar(props) {
 
   return (
     <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
-      {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
+      {/* {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null} */}
       <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add Record" />
     </GridToolbarContainer>
   );

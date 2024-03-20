@@ -41,11 +41,10 @@ const fields = {
     },
 }
 
-const getColumns = (apiRef, onEdit, onActive, onDelete) => {
+const getColumns = (apiRef, onEdit, onActive) => {
     const actionKit = {
         onActive: onActive,
-        onEdit: onEdit,
-        onDelete: onDelete
+        onEdit: onEdit
     }
     return [
         { field: '_id', headerName: 'Id', hide: true, hideable: false },
@@ -213,7 +212,7 @@ const LeaveQuota = () => {
         dispatch(builderFieldsAction(fields));
     }, [dispatch])
 
-    const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive, handelDeleteItems);
+    const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive);
 
     const showAddModal = () => {
         isEdit.current = false;

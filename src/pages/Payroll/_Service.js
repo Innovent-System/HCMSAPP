@@ -5,6 +5,7 @@ export const API = {
     Salary: 'payroll/salary',
     Process: 'payroll/process',
     AdvanceSalary: 'payroll/advancesalary',
+    LoanRequest: 'payroll/loan',
     CancelAdvanceSalary: 'payroll/advancesalary/cancel',
     Approval: "payroll/approval",
     ApprovalAction: "payroll/approval/action",

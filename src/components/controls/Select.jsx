@@ -67,6 +67,7 @@ function Select(props) {
       {...(error && { error: true })}>
       <InputLabel id={`demo-multiple-name-${name}`}>{label}</InputLabel>
       {isMultiple ? <MuiSelect
+        size='small'
         labelId={`demo-multiple-name-${name}`}
         multiple
         name={name}
@@ -101,7 +102,7 @@ function Select(props) {
         <MuiSelect
           label={label}
           name={name}
-
+          size='small'
           value={value}
           onChange={onChange}>
           {isNone && <MenuItem value="">None</MenuItem>}

@@ -44,11 +44,10 @@ const fields = {
         valueSources: ['value'],
     },
 }
-const getColumns = (apiRef, onEdit, onActive, onDelete) => {
+const getColumns = (apiRef, onEdit, onActive) => {
     const actionKit = {
         onActive: onActive,
-        onEdit: onEdit,
-        onDelete: onDelete
+        onEdit: onEdit
     }
     return [
         { field: '_id', headerName: 'Id', hide: true },
@@ -95,7 +94,7 @@ const Employee = () => {
 
     const excelColData = useRef([]);
 
-    const { inProcess, isDone, setFile, file, processAndVerifyData, excelData, setWbData } = useExcelReader();
+    const { inProcess, setFile, excelData, getTemplate } = useExcelReader(excelColData.current,mapEmployee);
 
     const [gridFilter, setGridFilter] = useState({
         lastKey: null,
@@ -189,34 +188,16 @@ const Employee = () => {
         }))
     }, [dispatch])
 
-    const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive, handelDeleteItems);
+    const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive);
     useEffect(() => {
         if (excelData) {
-            const [error, resultData] = processAndVerifyData({
-                colInfo: excelColData.current,
-                excelData: excelData,
-                transformData: mapEmployee
-            })
-            if (!error.length) {
-                addEntity({ url: DEFAULT_API, data: resultData });
-            }
-            downloadTextFIle(error.join(" "))
-            console.log({ error });
+            addEntity({ url: DEFAULT_API, data: resultData });
         }
     }, [excelData])
 
     const showAddModal = () => {
         isEdit.current = false;
         setOpenPopup(true);
-    }
-
-    const handleTemplate = () => {
-        if (Array.isArray(excelColData.current)) {
-            const excelCol = excelColData.current.flatMap(c => c._children).filter(c => c?.label).map(c => c.label);
-            const dummyData = excelColData.current.flatMap(c => c._children).filter(c => c?.excel).map(c => c.excel.sampleData);
-            // const dummyData = ["Any", 2222, 2222, "Faizan", "Siddiqui", "Aqeel Ahmed", "-", "Single", "Male", "Islam", "10/02/1990", false, "faizan@gmail.com", "-", "Innovent Systems", "Pakistan", "Sindh", "Karachi", "R.M.R", "Head Group", "Accounts", "Developer", "Casual", "27/10/2022", "-", "-", "ABC", "", "Karachi", "Sindh", 75080, "Pakistan", "03418", "-", "-"];
-            setWbData([excelCol, dummyData]);
-        }
     }
 
     return (
@@ -226,6 +207,7 @@ const Employee = () => {
                 title="Employee"
                 enableFilter={true}
                 handleUpload={(e) => setFile(e.target.files[0])}
+                handleTemplate={getTemplate}
                 subTitle="Manage Employees"
                 icon={<PeopleOutline fontSize="large" />}
             />
@@ -241,7 +223,7 @@ const Employee = () => {
                 <EmpoyeeModal coldata={excelColData} isEdit={isEdit.current} editId={editId} setOpenPopup={setOpenPopup} />
             </Popup>
 
-            <Link style={{ float: "right" }} onClick={handleTemplate}> Employee Template</Link>
+            {/* <Link style={{ float: "right" }} onClick={getTemplate}> Employee Template</Link> */}
             <ButtonGroup fullWidth >
                 {alphabets.map(alpha => (
                     <Controls.Button onClick={handleAlphabetSearch} color={word === alpha ? 'info' : 'inherit'} key={alpha} text={alpha} />
@@ -259,7 +241,6 @@ const Employee = () => {
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: showAddModal,
-                    onDelete: handelDeleteItems,
                     selectionModel
                 }}
                 gridToolBar={GridToolbar}

@@ -42,11 +42,10 @@ const fields = {
         valueSources: ['value'],
     },
 }
-const getColumns = (apiRef, onEdit, onActive, onDelete) => {
+const getColumns = (apiRef, onEdit, onActive) => {
     const actionKit = {
         onActive: onActive,
-        onEdit: onEdit,
-        onDelete: onDelete
+        onEdit: onEdit
     }
     return [
         { field: '_id', headerName: 'Id', hide: true },
@@ -193,7 +192,7 @@ const ProfileRequest = () => {
         }))
     }, [dispatch])
 
-    const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive, handelDeleteItems);
+    const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive);
     useEffect(() => {
         if (excelData) {
             const [error, resultData] = processAndVerifyData({
@@ -259,7 +258,6 @@ const ProfileRequest = () => {
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: showAddModal,
-                    onDelete: handelDeleteItems,
                     selectionModel
                 }}
                 gridToolBar={GridToolbar}

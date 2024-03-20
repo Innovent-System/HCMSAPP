@@ -8,7 +8,7 @@ import { enableFilterAction, builderFieldsAction, showDropDownFilterAction, useE
 import { useDropDown, useDropDownIds } from "../../../components/useDropDown";
 import { Typography, Stack, GridToolbarContainer } from "../../../deps/ui";
 import { Circle, Add as AddIcon, Delete as DeleteIcon } from "../../../deps/ui/icons";
-import DataGrid, { useGridApi, getActions } from '../../../components/useDataGrid';
+import DataGrid, { useGridApi, getActions, GridToolbar } from '../../../components/useDataGrid';
 import { useSocketIo } from '../../../components/useSocketio';
 import ConfirmDialog from '../../../components/ConfirmDialog';
 import PropTypes from 'prop-types'
@@ -50,11 +50,10 @@ const fields = {
     valueSources: ['value'],
   },
 }
-const getColumns = (apiRef, onEdit, onActive, onDelete) => {
+const getColumns = (apiRef, onEdit, onActive) => {
   const actionKit = {
     onActive: onActive,
-    onEdit: onEdit,
-    onDelete: onDelete
+    onEdit: onEdit
   }
   return [
     { field: '_id', headerName: 'Id', hide: true },
@@ -312,10 +311,9 @@ const Area = () => {
         toolbarProps={{
           apiRef: gridApiRef,
           onAdd: showAddModal,
-          onDelete: handelDeleteItems,
           selectionModel
         }}
-        gridToolBar={AreaToolbar}
+        gridToolBar={GridToolbar}
         selectionModel={selectionModel}
         setSelectionModel={setSelectionModel}
       />
@@ -324,24 +322,3 @@ const Area = () => {
   );
 }
 export default Area;
-
-function AreaToolbar(props) {
-  const { apiRef, onAdd, onDelete, selectionModel } = props;
-
-
-  return (
-    <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
-      {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null}
-      <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add Record" />
-    </GridToolbarContainer>
-  );
-}
-
-AreaToolbar.propTypes = {
-  apiRef: PropTypes.shape({
-    current: PropTypes.object.isRequired,
-  }).isRequired,
-  onAdd: PropTypes.func,
-  onDelete: PropTypes.func,
-  selectionModel: PropTypes.array,
-};

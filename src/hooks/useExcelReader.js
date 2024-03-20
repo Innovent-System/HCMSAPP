@@ -1,6 +1,7 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useRef } from "react";
 import { WorkerContext } from '../services/workerService';
 import { parse } from 'date-fns'
+import { downloadTextFIle } from "../util/common";
 
 const notValid = [null, undefined, "", "N/A", "-"];
 function isValidDate(date) {
@@ -27,17 +28,16 @@ const commaSeprateValue = (options, dataName, max = 3) => {
 /**
  * Assign the Excel Data for Modify.
  * @param {Object} data - The data who is responsible for the process.
- * @param {Array} data.colInfo - The colInfo of the data.
+ * @param {Array<string>} data.colInfo - The colInfo of the data.
  * @param {Array} data.excelData - The excelData's from xlsx.
  * @param {Function} data.transformData - if you want to tranform data on each row.
  * @returns {Array<T>}
  */
 const processAndVerifyData = ({ colInfo, excelData, transformData }) => {
-    const excelCol = colInfo.flatMap(c => c._children).filter(c => c?.label),
-        modifyData = [], errors = [], errorPrefix = "#On Row --> ";
+    const modifyData = [], errors = [], errorPrefix = "#On Row --> ";
     let objectData = {}, errorMsg = "";
 
-    if (excelData[0].length !== excelCol.length) {
+    if (excelData[0].length !== colInfo.length) {
         errors.push("Template Format not correct");
         return [errors, modifyData];
     }
@@ -47,7 +47,7 @@ const processAndVerifyData = ({ colInfo, excelData, transformData }) => {
         objectData = {};
         for (let j = 0; j < values.length; j++) {
             let value = values[j];
-            const prop = excelCol[j];
+            const prop = colInfo[j];
             errorMsg = "";
             if (prop?.required && notValid.includes(value)) { errorMsg = `${errorPrefix}${i + 1}${prop.label} is required`; continue };
             if (prop?.options) {
@@ -92,17 +92,36 @@ const processAndVerifyData = ({ colInfo, excelData, transformData }) => {
 
     return [errors, modifyData];
 }
-
-export const useExcelReader = (fileName = "Template.xlsx") => {
+let colInfo = [];
+/**
+ * @param {import("../types/fromstype").FormType} formTemplate 
+ * @param {string} fileName 
+ * @param {Function} transformData 
+ * @returns 
+ */
+export const useExcelReader = (formTemplate, transformData = null, fileName = "Template.xlsx") => {
     const { excelWorker } = useContext(WorkerContext);
 
     const [file, setFile] = useState();
     const [excelData, setExcelData] = useState();
-    const [wbData, setWbData] = useState([]);
+    // const [colInfo] = useState(() => );
+    // const [wbData, setWbData] = useState([]);
     const [status, setStatus] = useState({
         inProcess: false,
         isDone: false
     });
+    colInfo = formTemplate.flatMap(c => c?._children ?? c).filter(c => c?.label);
+   
+    
+    const getTemplate = () => {
+        if (Array.isArray(formTemplate)) {
+            const excelCol = formTemplate.flatMap(c => c?._children ?? c).filter(c => c?.label).map(c => c.label);
+            const dummyData = formTemplate.flatMap(c => c?._children ?? c).filter(c => c?.excel).map(c => c.excel.sampleData);
+
+            setStatus({ inProcess: true, isDone: false });
+            excelWorker.postMessage({ action: "write", a_o_a: [excelCol, dummyData], fileName });
+        }
+    }
 
     const write = (result) => {
         const blob = new Blob([result], { type: "application/octet-stream" }),
@@ -120,7 +139,16 @@ export const useExcelReader = (fileName = "Template.xlsx") => {
             const { action, result } = data;
             if (action === "read") {
                 setFile(null);
-                setExcelData(result);
+
+                const [error, resultData] = processAndVerifyData({
+                    colInfo: colInfo,
+                    excelData: result,
+                    transformData
+                })
+                if (error.length)
+                    downloadTextFIle(error.join(" "))
+                else
+                    setExcelData(resultData);
             }
             else if (action === "write") write(result);
 
@@ -129,13 +157,13 @@ export const useExcelReader = (fileName = "Template.xlsx") => {
 
     }, [excelWorker])
 
-    useEffect(() => {
-        if (wbData.length) {
-            setStatus({ inProcess: true, isDone: false });
-            setWbData([]);
-            excelWorker.postMessage({ action: "write", a_o_a: wbData, fileName })
-        }
-    }, [wbData])
+    // useEffect(() => {
+    //     if (wbData.length) {
+    //         setStatus({ inProcess: true, isDone: false });
+    //         setWbData([]);
+    //         excelWorker.postMessage({ action: "write", a_o_a: wbData, fileName })
+    //     }
+    // }, [wbData])
 
     useEffect(() => {
         if (file) {
@@ -150,8 +178,8 @@ export const useExcelReader = (fileName = "Template.xlsx") => {
         isDone: status.isDone,
         file,
         setFile,
-        setWbData,
+        getTemplate,
         excelData,
-        processAndVerifyData
+        // processAndVerifyData
     };
 };

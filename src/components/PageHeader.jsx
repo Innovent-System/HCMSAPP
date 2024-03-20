@@ -4,7 +4,7 @@ import {
   GridView as GridViewIcon,
   ExpandMore as ExpandMoreIcon,
   FilterList as FilterListIcon,
-  CloudUpload
+  CloudUpload, FileCopy
 } from "../deps/ui/icons";
 import PropTypes from "prop-types";
 import Controls from "./controls/Controls";
@@ -46,6 +46,10 @@ const useStyles = makeStyles((theme) => ({
         color: theme.palette.secondary.contrastText,
       }
     },
+    '& .MuiIconButton-root:hover': {
+      boxShadow: '0px 2px 4px -1px rgba(0,0,0,0.2), 0px 4px 5px 0px rgba(0,0,0,0.14), 0px 1px 10px 0px rgba(0,0,0,0.12)',
+      borderRadius: 5
+    }
   },
   Drawer: {
     "& .MuiAccordion-root": {
@@ -143,10 +147,18 @@ export default function PageHeader(props) {
             <Tooltip title="Upload Template" placement="top" arrow>
               <label htmlFor="icon-button-excel-file">
                 <Input style={{ display: 'none' }} onClick={function (e) { e.target.value = null }} onChange={handleUpload} accept="image/*" id="icon-button-excel-file" type="file" />
-                <IconButton size='small' aria-label="upload picture" component="span">
+                <IconButton sx={{ color: "#fff" }} size='small' aria-label="upload picture" component="span">
                   <CloudUpload />
                 </IconButton>
               </label>
+            </Tooltip>
+          )}
+
+          {typeof handleTemplate === "function" && (
+            <Tooltip title="Download Template" placement="top" arrow>
+              <IconButton sx={{ color: "#fff" }} onClick={handleTemplate} size='small' aria-label="Download Template" component="span">
+                <FileCopy fontSize="small" />
+              </IconButton>
             </Tooltip>
           )}
           <Tooltip title="Filter" placement="top" arrow>

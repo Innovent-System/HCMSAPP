@@ -4,7 +4,7 @@ import Popup from '../../components/Popup';
 import { API } from './_Service';
 
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction, useLazySingleQuery } from '../../store/actions/httpactions';
-import { PeopleOutline, Delete, AdminPanelSettings, CancelScheduleSend } from "../../deps/ui/icons";
+import { PeopleOutline, Delete, AdminPanelSettings,Cancel } from "../../deps/ui/icons";
 import { GridActionsCellItem } from "../../deps/ui";
 import DataGrid, { GridToolbar, renderStatusCell, useGridApi } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
@@ -16,6 +16,7 @@ import { formateISODateTime } from "../../services/dateTimeService";
 import Loader from '../../components/Circularloading'
 import { useDropDownIds } from "../../components/useDropDown";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
+import { useExcelReader } from "../../hooks/useExcelReader";
 
 const fields = {
     status: {
@@ -42,6 +43,11 @@ const fields = {
     }
 }
 
+const mapAdvSalary = (values) => {
+    const map = { ...values };
+    map.fkEmployeeId = values.fkEmployeeId._id;
+    return map
+}
 
 const getColumns = (onCancel) => [
     { field: '_id', headerName: 'Id', hide: true },
@@ -75,7 +81,7 @@ const getColumns = (onCancel) => [
                 ] :
                 [
                     <GridActionsCellItem
-                        icon={<CancelScheduleSend color="warning" fontSize='small' />}
+                        icon={<Cancel color="warning" fontSize='small' />}
                         label="Cancel"
                         onClick={() => onCancel(id)}
                         color={"primary"}
@@ -87,7 +93,7 @@ const getColumns = (onCancel) => [
     }
 ];
 
-const AddAdvanceSalary = ({ openPopup, setOpenPopup }) => {
+const AddAdvanceSalary = ({ openPopup, setOpenPopup, colData = [] }) => {
     const formApi = useRef(null);
     const [loader, setLoader] = useState(false);
 
@@ -113,7 +119,10 @@ const AddAdvanceSalary = ({ openPopup, setOpenPopup }) => {
             dataName: 'fullName',
             dataId: "_id",
             options: Employees,
-            defaultValue: null
+            defaultValue: null,
+            excel: {
+                sampleData: "Faizan Siddiqui"
+            }
         },
         {
             elementType: "datetimepicker",
@@ -124,7 +133,10 @@ const AddAdvanceSalary = ({ openPopup, setOpenPopup }) => {
             validate: {
                 errorMessage: "Select Date please",
             },
-            defaultValue: new Date()
+            defaultValue: new Date(),
+            excel: {
+                sampleData: new Date().toLocaleDateString('en-US')
+            }
         },
         {
             elementType: "inputfield",
@@ -134,7 +146,10 @@ const AddAdvanceSalary = ({ openPopup, setOpenPopup }) => {
             validate: {
                 errorMessage: "Title required",
             },
-            defaultValue: ""
+            defaultValue: "",
+            excel: {
+                sampleData: "Advance"
+            }
         },
         {
             elementType: "inputfield",
@@ -145,7 +160,10 @@ const AddAdvanceSalary = ({ openPopup, setOpenPopup }) => {
             validate: {
                 errorMessage: "Amount required",
             },
-            defaultValue: 0
+            defaultValue: 0,
+            excel: {
+                sampleData: 10000
+            }
         },
         {
             elementType: "inputfield",
@@ -159,9 +177,13 @@ const AddAdvanceSalary = ({ openPopup, setOpenPopup }) => {
             minRows: 5,
             variant: "outlined",
             breakpoints: { md: 12, sx: 12, xs: 12 },
-            defaultValue: ""
+            defaultValue: "",
+            excel: {
+                sampleData: "Personl reson"
+            }
         }
     ];
+    colData.current = formData;
 
     const handleSubmit = (e) => {
         const { getValue, validateFields } = formApi.current
@@ -202,13 +224,17 @@ const AdvanceSalaryRequest = () => {
         totalRecord: 0
     })
 
+    const excelColData = useRef([]);
+
     const [sort, setSort] = useState({ sort: { createdAt: -1 } });
+    const { inProcess, setFile, excelData, getTemplate } = useExcelReader(excelColData.current, mapAdvSalary, "AdvSalary.xlsx");
 
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,
         title: "",
         subTitle: "",
     });
+
 
     const gridApiRef = useGridApi();
     const query = useAppSelector(e => e.appdata.query.builder);
@@ -224,7 +250,7 @@ const AdvanceSalaryRequest = () => {
         }
     }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
 
-    const { removeEntity, updateOneEntity } = useEntityAction();
+    const { removeEntity, updateOneEntity, addEntity } = useEntityAction();
 
     const handleCancel = (id) => {
         setConfirmDialog({
@@ -235,8 +261,14 @@ const AdvanceSalaryRequest = () => {
                 updateOneEntity({ url: `${DEFAULT_API}/cancel/${id}`, data: {} });
             },
         });
-        
+
     }
+
+    useEffect(() => {
+        if (excelData)
+            addEntity({ url: DEFAULT_API, data: excelData });
+
+    }, [excelData])
 
     const { socketData } = useSocketIo("changeInAdvSalary", refetch);
 
@@ -278,10 +310,13 @@ const AdvanceSalaryRequest = () => {
             <PageHeader
                 title="Advance Salary Request"
                 enableFilter={true}
+                handleUpload={(e) => setFile(e.target.files[0])}
+                handleTemplate={getTemplate}
                 subTitle="Manage Advance Salary Request"
                 icon={<PeopleOutline fontSize="large" />}
             />
-            <AddAdvanceSalary openPopup={openPopup} setOpenPopup={setOpenPopup} />
+            <AddAdvanceSalary colData={excelColData} openPopup={openPopup} setOpenPopup={setOpenPopup} />
+
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={data}
                 page={gridFilter.page}
@@ -295,7 +330,6 @@ const AdvanceSalaryRequest = () => {
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: showAddModal,
-                    onDelete: handelDeleteItems,
                     selectionModel
                 }}
                 gridToolBar={GridToolbar}

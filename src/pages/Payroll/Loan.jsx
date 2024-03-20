@@ -2,19 +2,21 @@
 import React, { useEffect, useRef, useState } from "react";
 import Popup from '../../components/Popup';
 import { API } from './_Service';
+
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction, useLazySingleQuery } from '../../store/actions/httpactions';
-import { Stack, Typography } from "../../deps/ui";
-import { PeopleOutline } from "../../deps/ui/icons";
+import { PeopleOutline, Delete, AdminPanelSettings, CancelScheduleSend } from "../../deps/ui/icons";
+import { GridActionsCellItem } from "../../deps/ui";
 import DataGrid, { GridToolbar, renderStatusCell, useGridApi } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { AutoForm } from '../../components/useForm'
 import PageHeader from '../../components/PageHeader'
-import { startOfDay, addDays, isEqual } from '../../services/dateTimeService'
+import { startOfDay, addDays, isEqual, formateISODate } from '../../services/dateTimeService'
 import { formateISODateTime } from "../../services/dateTimeService";
 import Loader from '../../components/Circularloading'
 import { useDropDownIds } from "../../components/useDropDown";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
+import { useExcelReader } from "../../hooks/useExcelReader";
 
 const fields = {
     status: {
@@ -40,31 +42,67 @@ const fields = {
         preferWidgets: ['date'],
     }
 }
-const columns = [
+
+const mapAdvSalary = (values) => {
+    const map = { ...values };
+    map.fkEmployeeId = values.fkEmployeeId._id;
+    return map
+}
+
+const getColumns = (onCancel) => [
     { field: '_id', headerName: 'Id', hide: true },
     {
         field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.employees.fullName
     },
-    { field: 'requestDate', headerName: 'Request Date', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.requestDate) },
-    { field: 'changeType', headerName: 'Change Type', flex: 1, valueGetter: ({ row }) => row.changeType.join(',') },
+    { field: 'salaryRequest', headerName: 'Date', flex: 1, valueGetter: ({ row }) => formateISODate(row.salaryRequest) },
+    { field: 'amount', headerName: 'Amount' },
     {
         field: 'status', headerName: 'Status', flex: 1, renderCell: renderStatusCell
     },
     { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
-    { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) }
+    { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
+    {
+        field: 'actions',
+        type: 'actions',
+        headerName: 'Actions',
+        flex: 1,
+        align: 'center',
+        hideable: false,
+        cellClassName: 'actions',
+        getActions: ({ id, row }) => {
+
+            return !["Pending"].includes(row.status) ?
+                [
+                    <GridActionsCellItem
+                        label="Action Taken"
+                        icon={<AdminPanelSettings fontSize="small" />}
+                    />
+
+                ] :
+                [
+                    <GridActionsCellItem
+                        icon={<CancelScheduleSend color="warning" fontSize='small' />}
+                        label="Cancel"
+                        onClick={() => onCancel(id)}
+                        color={"primary"}
+
+                    />
+
+                ]
+        }
+    }
 ];
 
-const AddAttendanceRequest = ({ openPopup, setOpenPopup }) => {
+const AddLaonRequest = ({ openPopup, setOpenPopup, colData = [] }) => {
     const formApi = useRef(null);
     const [loader, setLoader] = useState(false);
+
     const { Employees } = useAppSelector(e => e.appdata.employeeData);
     const { addEntity } = useEntityAction();
-    const [getAttendanceRequest] = useLazySingleQuery();
-    const changeTypeTrack = useRef({ start: null, end: null });
+
     useEffect(() => {
         if (formApi.current && openPopup) {
             const { resetForm } = formApi.current;
-            changeTypeTrack.current = { start: null, end: null };
             resetForm();
         }
     }, [openPopup, formApi])
@@ -81,113 +119,108 @@ const AddAttendanceRequest = ({ openPopup, setOpenPopup }) => {
             dataName: 'fullName',
             dataId: "_id",
             options: Employees,
-            onChange: (data) => {
-                if (!data) return;
-                setLoader(true);
-                const { setFormValue, getValue } = formApi.current;
-                getAttendanceRequest({ url: API.GetAttendanceDetail, params: { employeeId: data._id, requestDate: getValue()?.requestDate } }).then(c => {
-                    if (c.data?.result) {
-                        changeTypeTrack.current = {
-                            start: new Date(c.data.result.startDateTime),
-                            end: new Date(c.data.result.endDateTime)
-                        }
-                        setFormValue({
-                            startDateTime: new Date(c.data.result.startDateTime),
-                            endDateTime: new Date(c.data.result.endDateTime)
-                        });
-                    }
-                    else {
-
-                        setFormValue({
-                            startDateTime: null,
-                            endDateTime: null
-                        });
-                    }
-                    setLoader(false);
-                })
-            },
-            defaultValue: null
+            defaultValue: null,
+            excel: {
+                sampleData: "Faizan Siddiqui"
+            }
         },
         {
             elementType: "datetimepicker",
-            name: "requestDate",
+            label: "Date",
+            name: "loanRequest",
             required: true,
-            disableFuture: true,
+            disablePast: true,
             validate: {
                 errorMessage: "Select Date please",
             },
-            label: "Date",
-            onChange: (data) => {
-                if (!data) return;
-                const { setFormValue, getValue } = formApi.current;
-                const { fkEmployeeId } = getValue();
-                if (!fkEmployeeId) return
-                setLoader(true);
-                getAttendanceRequest({ url: API.GetAttendanceDetail, params: { employeeId: fkEmployeeId._id, requestDate: data } }).then(c => {
-                    if (c.data?.result) {
-                        changeTypeTrack.current = {
-                            start: new Date(c.data.result.startDateTime),
-                            end: new Date(c.data.result.endDateTime)
-                        }
-                        setFormValue({
-                            startDateTime: new Date(c.data.result.startDateTime),
-                            endDateTime: new Date(c.data.result.endDateTime)
-                        });
-                    }
-                    else {
-
-                        setFormValue({
-                            startDateTime: null,
-                            endDateTime: null
-                        });
-                    }
-                    setLoader(false);
-                })
-            },
-            defaultValue: new Date()
-        },
-        {
-            elementType: "datetimepicker",
-            required: true,
-            validate: {
-                errorMessage: "Select Check In",
-            },
-            name: "startDateTime",
-            shouldDisableDate: (date) => !isEqual(startOfDay(date), startOfDay(formApi.current?.getValue()?.requestDate)),
-            disableFuture: true,
-            category: "datetime",
-            label: "Check In",
-            defaultValue: null
-        },
-        {
-            elementType: "datetimepicker",
-            category: "datetime",
-            shouldDisableDate: (date) => date < startOfDay(formApi.current?.getValue()?.startDateTime) || date >= addDays(startOfDay(formApi.current?.getValue()?.startDateTime), 2),
-            disableFuture: true,
-            // required: true,
-            // validate: {
-            //     errorMessage: "Select Check Out",
-            // },
-            name: "endDateTime",
-            label: "Check Out",
-            defaultValue: null
+            defaultValue: new Date(),
+            excel: {
+                sampleData: new Date().toLocaleDateString('en-US')
+            }
         },
         {
             elementType: "inputfield",
-            name: "reason",
+            name: "title",
             required: true,
-            label: "Reason",
+            label: "Title",
+            validate: {
+                errorMessage: "Title required",
+            },
+            defaultValue: "",
+            excel: {
+                sampleData: "Advance"
+            }
+        },
+        {
+            elementType: "inputfield",
+            name: "principleAmount",
+            required: true,
+            onChange: (val) => {
+                const { setFormValue, getValue } = formApi.current;
+                const { repayAmount } = getValue();
+                setFormValue({ distributedMonth: (+val / +repayAmount) })
+            },
+            type: "number",
+            label: "Loan Amount",
+            validate: {
+                errorMessage: "Loan Amount required",
+            },
+            defaultValue: 0,
+            excel: {
+                sampleData: 10000
+            }
+        },
+        {
+            elementType: "inputfield",
+            name: "repayAmount",
+            required: true,
+            type: "number",
+            onChange: (val) => {
+                const { setFormValue, getValue } = formApi.current;
+                const { principleAmount } = getValue();
+
+                setFormValue({ distributedMonth: (+principleAmount / +val) })
+            },
+            label: "Repay Amount",
+            validate: {
+                validate: (val) => {
+                    const { getValue } = formApi.current;
+                    return +val.repayAmount < +getValue().principleAmount
+                },
+                errorMessage: "Amount should be less than of loan amount",
+            },
+            defaultValue: 0,
+            excel: {
+                sampleData: 2000
+            }
+        },
+        {
+            elementType: "inputfield",
+            name: "distributedMonth",
+            disabled: true,
+            type: "number",
+            label: "Distribute in Month",
+            defaultValue: 0
+        },
+        {
+            elementType: "inputfield",
+            name: "description",
+            required: true,
+            label: "Description",
             multiline: true,
             validate: {
-                errorMessage: "Reson required",
+                errorMessage: "Description required",
             },
             minRows: 5,
             variant: "outlined",
             breakpoints: { md: 12, sx: 12, xs: 12 },
-            defaultValue: ""
+            defaultValue: "",
+            excel: {
+                sampleData: "Personl reson"
+            }
         }
-
     ];
+    colData.current = formData;
 
     const handleSubmit = (e) => {
         const { getValue, validateFields } = formApi.current
@@ -195,14 +228,6 @@ const AddAttendanceRequest = ({ openPopup, setOpenPopup }) => {
             let values = getValue();
             let dataToInsert = { ...values };
             dataToInsert.fkEmployeeId = values.fkEmployeeId._id;
-            dataToInsert.employeeCode = values.fkEmployeeId.punchCode;
-            dataToInsert.changeType = [];
-            if (changeTypeTrack.current.start?.getTime() !== dataToInsert.startDateTime.getTime()) {
-                dataToInsert.changeType.push("SignIn")
-            }
-            if (changeTypeTrack.current.end?.getTime() !== dataToInsert.endDateTime?.getTime()) {
-                dataToInsert.changeType.push("SignOut")
-            }
 
             addEntity({ url: DEFAULT_API, data: [dataToInsert] });
 
@@ -211,35 +236,35 @@ const AddAttendanceRequest = ({ openPopup, setOpenPopup }) => {
     return <>
         <Loader open={loader} />
         <Popup
-            title="Attendance Request"
+            title="Loan Request"
             openPopup={openPopup}
             maxWidth="sm"
             isEdit={false}
             keepMounted={true}
             addOrEditFunc={handleSubmit}
             setOpenPopup={setOpenPopup}>
-            <Stack >
-                <Typography variant="body2"><strong>Schedule Name :</strong>Morning</Typography>
-                <Typography variant="body2"><strong>Schdule In :</strong>09:00 AM</Typography>
-                <Typography variant="body2"><strong>Schedule Out :</strong>08:00 PM</Typography>
-                <AutoForm formData={formData} ref={formApi} isValidate={true} />
-            </Stack>
+            <AutoForm formData={formData} ref={formApi} isValidate={true} />
         </Popup>
     </>
 }
-const DEFAULT_API = API.AttendanceRequest;
-const AttendanceRequest = () => {
+const DEFAULT_API = API.LoanRequest;
+const LoanRequest = () => {
     const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
 
     const [selectionModel, setSelectionModel] = React.useState([]);
-    const [sort, setSort] = useState({ sort: { createdAt: -1 } });
+
     const [gridFilter, setGridFilter] = useState({
         lastKey: null,
         limit: 10,
         page: 0,
         totalRecord: 0
     })
+
+    const excelColData = useRef([]);
+
+    const [sort, setSort] = useState({ sort: { createdAt: -1 } });
+    const { inProcess, setFile, excelData, getTemplate } = useExcelReader(excelColData.current, mapAdvSalary, "AdvSalary.xlsx");
 
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,
@@ -256,13 +281,35 @@ const AttendanceRequest = () => {
         data: {
             limit: gridFilter.limit,
             page: gridFilter.page + 1,
+            lastKeyId: gridFilter.lastKey,
             ...sort,
             searchParams: { ...query }
         }
     }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
-    const { removeEntity } = useEntityAction();
 
-    const { socketData } = useSocketIo("changeInAttendanceRequest", refetch);
+    const { removeEntity, updateOneEntity, addEntity } = useEntityAction();
+
+    const handleCancel = (id) => {
+        setConfirmDialog({
+            isOpen: true,
+            title: "Are you sure to cancel this request?",
+            subTitle: "You can't undo this operation",
+            onConfirm: () => {
+                updateOneEntity({ url: `${DEFAULT_API}/cancel/${id}`, data: {} });
+            },
+        });
+
+    }
+
+    useEffect(() => {
+        if (excelData)
+            addEntity({ url: DEFAULT_API, data: excelData });
+
+    }, [excelData])
+
+    const { socketData } = useSocketIo("changeInLaon", refetch);
+
+    const columns = getColumns(handleCancel);
 
     const handelDeleteItems = (ids) => {
         let idTobeDelete = ids;
@@ -283,6 +330,7 @@ const AttendanceRequest = () => {
     }
 
     useEffect(() => {
+
         dispatch(showDropDownFilterAction({
             employee: true,
         }));
@@ -297,19 +345,25 @@ const AttendanceRequest = () => {
     return (
         <>
             <PageHeader
-                title="Attendance Request"
+                title="Loan Request"
                 enableFilter={true}
-                subTitle="Manage Attendance Request"
+                handleUpload={(e) => setFile(e.target.files[0])}
+                handleTemplate={getTemplate}
+                subTitle="Manage Loan Request"
                 icon={<PeopleOutline fontSize="large" />}
             />
-            <AddAttendanceRequest openPopup={openPopup} setOpenPopup={setOpenPopup} />
+            <AddLaonRequest colData={excelColData} openPopup={openPopup} setOpenPopup={setOpenPopup} />
+
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={data}
-                loading={isLoading} pageSize={gridFilter.limit}
                 page={gridFilter.page}
-                totalCount={gridFilter.totalRecord}
+                checkboxSelection={false}
+                disableSelectionOnClick={true}
+                getRowHeight={() => 40}
+                loading={isLoading} pageSize={gridFilter.limit}
                 setFilter={setGridFilter}
                 onSortModelChange={(s) => setSort({ sort: s.reduce((a, v) => ({ ...a, [v.field]: v.sort === 'asc' ? 1 : -1 }), {}) })}
+                totalCount={totalRecord}
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: showAddModal,
@@ -318,11 +372,10 @@ const AttendanceRequest = () => {
                 gridToolBar={GridToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
-
             />
             <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
         </>
     );
 }
 
-export default AttendanceRequest;
+export default LoanRequest;

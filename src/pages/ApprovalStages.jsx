@@ -4,7 +4,7 @@ import Controls from '../components/controls/Controls';
 import Popup from '../components/Popup';
 import { AutoForm } from '../components/useForm';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAction } from '../store/actions/httpactions';
-import { GridToolbarContainer, GridActionsCellItem } from "../deps/ui";
+import { GridToolbarContainer, GridActionsCellItem, Box } from "../deps/ui";
 import { Circle, Add as AddIcon, Delete as DeleteIcon, Check, ToggleOn, Edit, North, South } from "../deps/ui/icons";
 import DataGrid, { useGridApi, getActions } from '../components/useDataGrid';
 import { useSocketIo } from '../components/useSocketio';
@@ -42,11 +42,10 @@ const fields = {
     },
 }
 
-const getColumns = (apiRef, onEdit, onActive, onDelete) => {
+const getColumns = (apiRef, onEdit, onActive) => {
     const actionKit = {
         onActive: onActive,
-        onEdit: onEdit,
-        onDelete: onDelete
+        onEdit: onEdit
     }
     return [
         { field: '_id', headerName: 'Id', hide: true, hideable: false },
@@ -67,29 +66,7 @@ const getColumns = (apiRef, onEdit, onActive, onDelete) => {
             hideable: false,
             align: 'center',
         },
-        {
-            field: 'actions',
-            type: 'actions',
-            headerName: 'Actions',
-            flex: 1,
-            align: 'center',
-            hideable: false,
-            cellClassName: 'actions',
-            getActions: ({ id }) => {
-                return [
-                    <GridActionsCellItem
-                        icon={<ToggleOn fontSize="small" />}
-                        label="Active"
-                        onClick={() => onActive(id)}
-                    />,
-                    <GridActionsCellItem
-                        icon={<Edit fontSize="small" />}
-                        label="Edit"
-                        onClick={() => onEdit(id)}
-                    />
-                ]
-            }
-        }
+        getActions(apiRef,actionKit)
     ]
 
 }
@@ -105,7 +82,7 @@ const ModuleSetting = {
     "ATTENDANCE": [12, 13],
     "EMPLOYEE": [4],
     "LEAVE": [17],
-    "PAYROLL": [26,28,29,30,31]
+    "PAYROLL": [26, 28, 29, 30, 31]
 }
 export const AddApprovalStages = ({ openPopup, setOpenPopup, isEdit = false, formId, row = null }) => {
     const formApi = useRef(null);
@@ -233,7 +210,7 @@ export const AddApprovalStages = ({ openPopup, setOpenPopup, isEdit = false, for
         addOrEditFunc={handleSubmit}
         setOpenPopup={setOpenPopup}>
         <AutoForm formData={formData} ref={formApi} isValidate={true} />
-        
+
     </Popup>
 }
 
@@ -318,14 +295,7 @@ const ApprovalStages = ({ moduleName }) => {
 
     }
 
-
-    // useEffect(() => {
-    //     offSet.current.isLoadFirstTime = false;
-    //     dispatch(enableFilterAction(false));
-    //     dispatch(builderFieldsAction(fields));
-    // }, [dispatch])
-
-    const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive, handelDeleteItems);
+    const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive);
     const handleRowOrderChange = (params) => {
         const { oldIndex, targetIndex } = params;
         const rowsClone = [...records];
@@ -344,9 +314,7 @@ const ApprovalStages = ({ moduleName }) => {
     return (
         <>
             <AddApprovalStages formId={formId} openPopup={openPopup} setOpenPopup={setOpenPopup} isEdit={isEdit.current} row={row.current} />
-            <Controls.Select onChange={(e) => setFormId(e.target.value)} name="formId" label="Form Name" options={formList.find(c => c.title == moduleName).
-                children.filter(c => ModuleSetting[moduleName].includes(c.formId))}
-                dataId="_id" dataName="title" />
+
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={data}
                 rowReordering={true}
@@ -361,8 +329,10 @@ const ApprovalStages = ({ moduleName }) => {
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: showAddModal,
-                    onDelete: handelDeleteItems,
                     formId: formId,
+                    moduleName,
+                    setFormId,
+                    formList,
                     selectionModel
                 }}
                 gridToolBar={ApprovalStagesToolbar}
@@ -375,11 +345,18 @@ const ApprovalStages = ({ moduleName }) => {
 export default ApprovalStages;
 
 function ApprovalStagesToolbar(props) {
-    const { apiRef, onAdd, onDelete, formId } = props;
+    const { apiRef, onAdd, formList, setFormId, formId, moduleName } = props;
 
     return (
-        <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
-            {/* {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null} */}
+        <GridToolbarContainer sx={{ justifyContent: "space-between" }}>
+            <Box width={300}>
+                <Controls.Select onChange={(e) => setFormId(e.target.value)} name="formId" label="Form Name"
+                    value={formId}
+                    size='small'
+                    options={formList.find(c => c.title == moduleName).
+                        children.filter(c => ModuleSetting[moduleName].includes(c.formId))}
+                    dataId="_id" dataName="title" />
+            </Box>
             {formId && <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add Record" />}
         </GridToolbarContainer>
     );
@@ -390,6 +367,5 @@ ApprovalStagesToolbar.propTypes = {
         current: PropTypes.object,
     }).isRequired,
     onAdd: PropTypes.func,
-    onDelete: PropTypes.func,
     selectionModel: PropTypes.array
 };
