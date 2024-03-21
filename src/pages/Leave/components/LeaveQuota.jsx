@@ -226,6 +226,7 @@ const LeaveQuota = () => {
                 loading={false}
                 page={gridFilter.page}
                 pageSize={gridFilter.limit}
+                getRowHeight={() => 40}
                 setFilter={setGridFilter}
                 totalCount={records.length}
                 toolbarProps={{
@@ -240,7 +241,7 @@ const LeaveQuota = () => {
 
                 checkboxSelection={false}
                 detailPanelExpandedRowIds={detailPanelExpandedRowIds}
-                
+
                 onDetailPanelExpandedRowIdsChange={handleDetailPanelExpandedRowIdsChange}
                 getDetailPanelContent={getDetailPanelContent}
                 getDetailPanelHeight={getDetailPanelHeight} // Height based on the content.

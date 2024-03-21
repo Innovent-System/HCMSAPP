@@ -4,7 +4,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Close';
-import { ToggleOn } from '../deps/ui/icons'
+import { ToggleOn, AdminPanelSettings, Cancel } from '../deps/ui/icons'
 import { Box, Chip, Pagination as MuiPagination, Stack } from '../deps/ui'
 import { alpha, styled } from '@mui/material/styles';
 import Controls from './controls/Controls'
@@ -140,9 +140,9 @@ const StripedDataGrid = styled(DataGridPro)(({ theme }) => ({
   },
 }));
 
-export const renderStatusCell = ({ row }) => <Chip size="small" color={row.status === "Rejected" ? "error" : row.status === "Approved" ? "info" : "default"} label={row.status} />
+export const renderStatusCell = ({ row }) => <Chip size="small" color={row.status === "Rejected" ? "error" : row.status === "Approved" ? "info" : row.status === "Cancel" ? 'warning' : "default"} label={row.status} />
 
-export const getActions = (apiRef, actionKit = { onActive: null, onApproval: null, onEdit: null, onDelete: null }) => {
+export const getActions = (apiRef, actionKit = { onActive: null, onApproval: null, onEdit: null, onDelete: null, onCancel: null }) => {
 
   return {
     field: 'actions',
@@ -152,9 +152,9 @@ export const getActions = (apiRef, actionKit = { onActive: null, onApproval: nul
     align: 'center',
     hideable: false,
     cellClassName: 'actions',
-    getActions: ({ id }) => {
+    getActions: ({ id, row }) => {
       const toolKit = [];
-      const { onActive, onApproval, onEdit, onDelete } = actionKit;
+      const { onActive, onApproval, onEdit, onDelete, onCancel } = actionKit;
       if (typeof onActive === "function") {
         toolKit.push(<GridActionsCellItem
           icon={<ToggleOn fontSize='small' />}
@@ -190,6 +190,22 @@ export const getActions = (apiRef, actionKit = { onActive: null, onApproval: nul
           color={"primary"}
           showInMenu
         />)
+      }
+
+      if (typeof onCancel === "function") {
+        toolKit.push(!["Pending"].includes(row.status) ? <GridActionsCellItem
+          label="Action Taken"
+          icon={<AdminPanelSettings fontSize="small" />}
+        /> :
+          <GridActionsCellItem
+            icon={<Cancel color="warning" fontSize='small' />}
+            label="Cancel"
+            onClick={() => onCancel(id)}
+            color={"primary"}
+
+          />
+        )
+
       }
 
       return toolKit;

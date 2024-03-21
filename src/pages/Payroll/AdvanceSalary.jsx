@@ -4,9 +4,9 @@ import Popup from '../../components/Popup';
 import { API } from './_Service';
 
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction, useLazySingleQuery } from '../../store/actions/httpactions';
-import { PeopleOutline, Delete, AdminPanelSettings,Cancel } from "../../deps/ui/icons";
+import { PeopleOutline, Delete, AdminPanelSettings, Cancel } from "../../deps/ui/icons";
 import { GridActionsCellItem } from "../../deps/ui";
-import DataGrid, { GridToolbar, renderStatusCell, useGridApi } from '../../components/useDataGrid';
+import DataGrid, { getActions, GridToolbar, renderStatusCell, useGridApi } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { AutoForm } from '../../components/useForm'
@@ -61,36 +61,7 @@ const getColumns = (onCancel) => [
     },
     { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
     { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
-    {
-        field: 'actions',
-        type: 'actions',
-        headerName: 'Actions',
-        flex: 1,
-        align: 'center',
-        hideable: false,
-        cellClassName: 'actions',
-        getActions: ({ id, row }) => {
-
-            return !["Pending"].includes(row.status) ?
-                [
-                    <GridActionsCellItem
-                        label="Action Taken"
-                        icon={<AdminPanelSettings fontSize="small" />}
-                    />
-
-                ] :
-                [
-                    <GridActionsCellItem
-                        icon={<Cancel color="warning" fontSize='small' />}
-                        label="Cancel"
-                        onClick={() => onCancel(id)}
-                        color={"primary"}
-
-                    />
-
-                ]
-        }
-    }
+    getActions(null, { onCancel })
 ];
 
 const AddAdvanceSalary = ({ openPopup, setOpenPopup, colData = [] }) => {

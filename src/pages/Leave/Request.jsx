@@ -5,7 +5,7 @@ import { API } from './_Service';
 
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction, useLazySingleQuery } from '../../store/actions/httpactions';
 import { PeopleOutline } from "../../deps/ui/icons";
-import DataGrid, { GridToolbar, renderStatusCell, useGridApi } from '../../components/useDataGrid';
+import DataGrid, { getActions, GridToolbar, renderStatusCell, useGridApi } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { AutoForm } from '../../components/useForm'
@@ -47,7 +47,7 @@ const Duration = [
 ];
 
 
-const columns = [
+const getColumns = (apiRef, onCancel) => [
     { field: '_id', headerName: 'Id', hide: true },
     {
         field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.employees.fullName
@@ -59,7 +59,8 @@ const columns = [
         field: 'status', headerName: 'Status', flex: 1, renderCell: renderStatusCell
     },
     { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
-    { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) }
+    { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
+    getActions(apiRef, { onCancel })
 ];
 
 const AddLeaveRequest = ({ openPopup, setOpenPopup }) => {
@@ -94,7 +95,7 @@ const AddLeaveRequest = ({ openPopup, setOpenPopup }) => {
                 const { setFormValue, getValue } = formApi.current;
                 getLeaveDetail({ url: API.GetLeaveDetail, params: { employeeId: data._id } }).then(c => {
                     if (c.data?.result) {
-                       setLeaveTypes(c.data.result);
+                        setLeaveTypes(c.data.result);
                     }
                     setLoader(false);
                 })
@@ -205,7 +206,7 @@ const LeaveRequest = () => {
         subTitle: "",
     });
 
-   
+
 
     const gridApiRef = useGridApi();
     const query = useAppSelector(e => e.appdata.query.builder);
@@ -221,32 +222,26 @@ const LeaveRequest = () => {
         }
     }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
 
-    const { removeEntity } = useEntityAction();
+    const { updateOneEntity } = useEntityAction();
 
 
     const { socketData } = useSocketIo("changeInLeaveRequest", refetch);
 
 
-    const handelDeleteItems = (ids) => {
-        let idTobeDelete = ids;
-        if (Array.isArray(ids)) {
-            idTobeDelete = ids.join(',');
-        }
-
+    const handleCancel = (id) => {
         setConfirmDialog({
             isOpen: true,
-            title: "Are you sure to delete this records?",
+            title: "Are you sure to cancel this request?",
             subTitle: "You can't undo this operation",
             onConfirm: () => {
-                removeEntity({ url: DEFAULT_API, params: idTobeDelete }).then(res => {
-                    setSelectionModel([]);
-                })
+                updateOneEntity({ url: `${DEFAULT_API}/cancel/${id}`, data: {} });
             },
         });
-    }
 
+    }
+    const columns = getColumns(gridApiRef, handleCancel);
     useEffect(() => {
-        
+
         dispatch(showDropDownFilterAction({
             employee: true,
         }));
@@ -270,7 +265,7 @@ const LeaveRequest = () => {
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={data}
                 page={gridFilter.page}
-                
+
                 loading={isLoading} pageSize={gridFilter.limit}
                 setFilter={setGridFilter}
                 onSortModelChange={(s) => setSort({ sort: s.reduce((a, v) => ({ ...a, [v.field]: v.sort === 'asc' ? 1 : -1 }), {}) })}
@@ -283,7 +278,7 @@ const LeaveRequest = () => {
                 gridToolBar={GridToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
-                
+
             />
             <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
         </>
