@@ -1,16 +1,18 @@
 import { useState, useEffect, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Notification from "../components/Notification";
-import { useSelector } from "react-redux";
 import { SocketContext } from '../services/socketService';
 import Auth from '../services/AuthenticationService';
 import { useSnackbar } from 'notistack';
 import { IconButton, List, ListItem, ListItemText, Divider } from '../deps/ui';
 import { Close as CloseIcon } from '../deps/ui/icons';
 import ErrorModal from '../components/ErrorModal';
+import { useAppSelector } from '../store/storehook';
 
 function StatusHanlder() {
-  const routeNotify = useSelector(state => state.resource.mutations);
+  const routeNotify = useAppSelector(state => state.resource.mutations);
+  const queryNotify = useAppSelector(state => state.resource.queries);
+
   const socket = useContext(SocketContext);
   const navigate = useNavigate();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
@@ -79,6 +81,34 @@ function StatusHanlder() {
 
   }, [routeNotify]);
 
+  useEffect(() => {
+    const length = Object.keys(queryNotify).length;
+    if (length) {
+      const keyName = Object.keys(queryNotify)[length - 1];
+
+      if (queryNotify[keyName].status === 'rejected') {
+        const { status } = queryNotify[keyName].error;
+
+        if (status === 401) {
+          const info = Auth.getitem('userInfo') || {};
+          const formId = window.location.pathname.substr(window.location.pathname.lastIndexOf("/") + 1);
+          sessionStorage.clear();
+          navigate("/");
+          socket.off("leaveclient");
+          socket.off("leavecompany");
+          socket.off("leaveSession");
+
+          socket.emit("leaveclient", info.clientId);
+          socket.emit("leavecompany", info.companyId);
+          socket.emit("leaveSession", formId);
+        }
+
+      }
+
+    }
+
+
+  }, [queryNotify]);
 
   return <>
     <ErrorModal title="Employee Error" openPopup={openPopup} setOpenPopup={setOpenPopup} >

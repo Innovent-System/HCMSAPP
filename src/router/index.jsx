@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import PrivateRoute from './wrapper';
 import Layout from '../layout';
 import CircularLoading from '../components/Circularloading'
@@ -47,7 +47,7 @@ const Routers = () => {
               <Route path="*" element={<LazyDashboard />} />
             </Route>
           </Route>
-          {/* <Route path="*" element={<Navigate to="/dashboard"/>} /> */}
+          <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </Suspense>
       <StatusSnack />
