@@ -61,7 +61,7 @@ const useStyles = makeStyles(() => createStyles({
 
     ".content-area": {
       background: `url(${BodyBG})`,
-      height: "calc(100vh - 48px)",
+      minHeight: "calc(100vh - 48px)",
       overflowY: "auto",
       overflowX: "hidden",
       padding: 15,
