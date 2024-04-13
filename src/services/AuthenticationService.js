@@ -25,7 +25,6 @@ const secureStorage = new SecureStorage(sessionStorage, {
         static getitem (key){
            return  secureStorage.getItem(key);
         }
-    
 
         static setItem(key,item){
           secureStorage.setItem(key, item);

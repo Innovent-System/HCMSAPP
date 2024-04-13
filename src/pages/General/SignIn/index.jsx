@@ -10,7 +10,6 @@ import { AppRoutesThunk, AuthThunk, setUserInfo } from '../../../store/actions/h
 import { useDispatch } from "react-redux";
 import { API_USER_LOGIN } from '../../../services/UrlService';
 import Auth from '../../../services/AuthenticationService';
-import { SocketContext } from '../../../services/socketService';
 import bg from '../../../assets/images/bg-1.jpg'
 import logo from '../../../assets/images/Innovent-logo.png'
 
@@ -56,7 +55,6 @@ const SignIn = () => {
     companyId: null
   });
 
-  const socket = useContext(SocketContext);
 
   const validate = (fieldValues = values) => {
     let temp = { ...errors };
@@ -72,13 +70,6 @@ const SignIn = () => {
     if (fieldValues == values) return Object.values(temp).every((x) => x == "");
   }
 
-  useEffect(() => {
-
-    return () => {
-      socket.off("joinclient");
-      socket.off("joincompany");
-    }
-  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -108,8 +99,7 @@ const SignIn = () => {
             fkEmployeeId: data.fkEmployeeId,
             userId: data.userId
           });
-          socket.emit("joinclient", data.clientId);
-          socket.emit("joincompany", data.companyId);
+         
           navigate("/dashboard");
 
         }

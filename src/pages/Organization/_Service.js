@@ -4,5 +4,5 @@ export const API = {
     AREA: "organization/area",
     COMPANY: "organization/company",
     Department: "organization/department",
-
+    Gazetted: "organization/gazetted",
 }

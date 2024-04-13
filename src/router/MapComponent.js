@@ -27,6 +27,7 @@ export default Object.freeze({
     //organization
     9: lazy(() => import(`../pages/Organization/SystemLog`)),
     10: lazy(() => import(`../pages/Organization/ManageCompany`)),
+    33: lazy(() => import(`../pages/Organization/GazettedHoliday`)),
     11: lazy(() => import(`../pages/Organization/Settings`)),
     //Payroll
     24: lazy(() => import("../pages/Payroll/Setup")),

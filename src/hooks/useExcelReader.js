@@ -111,8 +111,8 @@ export const useExcelReader = (formTemplate, transformData = null, fileName = "T
         isDone: false
     });
     colInfo = formTemplate.flatMap(c => c?._children ?? c).filter(c => c?.label);
-   
-    
+
+
     const getTemplate = () => {
         if (Array.isArray(formTemplate)) {
             const excelCol = formTemplate.flatMap(c => c?._children ?? c).filter(c => c?.label).map(c => c.label);

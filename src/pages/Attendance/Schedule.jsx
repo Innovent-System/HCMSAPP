@@ -110,7 +110,7 @@ const Schedule = () => {
     const [openShift, setOpenShift] = useState(false);
     const isEdit = React.useRef(false);
     const formApi = React.useRef(null);
-    const [state, setState] = useState(initialState);
+    const [state, setState] = useState([...initialState]);
     const scheduleId = useRef(null);
 
     const [tab, setTab] = React.useState('0');

@@ -61,14 +61,16 @@ function StatusHanlder() {
           const info = Auth.getitem('userInfo') || {};
           const formId = window.location.pathname.substr(window.location.pathname.lastIndexOf("/") + 1);
           sessionStorage.clear();
-          navigate("/");
-          socket.off("leaveclient");
-          socket.off("leavecompany");
-          socket.off("leaveSession");
 
           socket.emit("leaveclient", info.clientId);
           socket.emit("leavecompany", info.companyId);
           socket.emit("leaveSession", formId);
+
+          socket.off("leaveclient");
+          socket.off("leavecompany");
+          socket.off("leaveSession");
+
+          navigate("/");
         }
 
       }
@@ -93,14 +95,16 @@ function StatusHanlder() {
           const info = Auth.getitem('userInfo') || {};
           const formId = window.location.pathname.substr(window.location.pathname.lastIndexOf("/") + 1);
           sessionStorage.clear();
-          navigate("/");
+          socket.emit("leaveclient", info.clientId);
+          socket.emit("leavecompany", info.companyId);
+          socket.emit("leaveSession", formId);
+
           socket.off("leaveclient");
           socket.off("leavecompany");
           socket.off("leaveSession");
 
-          socket.emit("leaveclient", info.clientId);
-          socket.emit("leavecompany", info.companyId);
-          socket.emit("leaveSession", formId);
+          navigate("/");
+
         }
 
       }

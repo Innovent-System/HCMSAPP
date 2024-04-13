@@ -10,6 +10,9 @@ import DataGrid, { useGridApi, getActions, GridToolbar } from '../../../../compo
 import { useSocketIo } from '../../../../components/useSocketio';
 import ConfirmDialog from '../../../../components/ConfirmDialog';
 import { useAppDispatch, useAppSelector } from "../../../../store/storehook";
+import { useExcelReader } from "../../../../hooks/useExcelReader";
+import { useFileConfig } from "../../../../hooks/useFileConfig";
+import Loader from '../../../../components/Circularloading'
 
 
 const fields = {
@@ -46,7 +49,7 @@ const getColumns = (apiRef, onEdit, onActive) => {
     return [
         { field: '_id', headerName: 'Id', hide: true, hideable: false },
         {
-            field: 'name', headerName: 'Designation', width: 180, hideable: false
+            field: 'name', headerName: 'Designation', width: 220, hideable: false
         },
         { field: 'modifiedOn', headerName: 'Modified On', hideable: false },
         { field: 'createdOn', headerName: 'Created On', hideable: false },
@@ -63,6 +66,22 @@ const getColumns = (apiRef, onEdit, onActive) => {
 }
 const DEFAULT_API = API.Designation;
 let editId = 0;
+const formData = [
+    {
+        elementType: "inputfield",
+        name: "name",
+        label: "Designation",
+        // onKeyDown: (e) => e.keyCode == 13 && handleSubmit(),
+        required: true,
+        validate: {
+            errorMessage: "Designation is required"
+        },
+        defaultValue: "",
+        excel: {
+            sampleData: ""
+        }
+    },
+];
 export const AddDesignation = ({ openPopup, setOpenPopup, isEdit = false, row = null }) => {
     const formApi = useRef(null);
     const { addEntity } = useEntityAction();
@@ -91,18 +110,7 @@ export const AddDesignation = ({ openPopup, setOpenPopup, isEdit = false, row = 
         }
     }
 
-    const formData = [
-        {
-            elementType: "inputfield",
-            name: "name",
-            label: "Designation",
-            required: true,
-            validate: {
-                errorMessage: "Designation is required"
-            },
-            defaultValue: ""
-        }
-    ];
+
     return <Popup
         title="Add Designation"
         openPopup={openPopup}
@@ -121,21 +129,27 @@ const Designation = () => {
     const row = React.useRef(null);
     const [selectionModel, setSelectionModel] = React.useState([]);
     const [sort, setSort] = useState({ sort: { createdAt: -1 } });
-
+    const { addEntity } = useEntityAction();
 
     const [gridFilter, setGridFilter] = useState({
         lastKey: null,
         limit: 10,
-        page:0,
+        page: 0,
         totalRecord: 0
     })
-
+    const { inProcess, setFile, excelData, getTemplate } = useExcelReader(formData, null, "Designation.xlsx");
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,
         title: "",
         subTitle: "",
     });
+    useEffect(() => {
+        if (excelData) {
+            addEntity({ url: DEFAULT_API, data: excelData });
+        }
+    }, [excelData])
 
+    useFileConfig(setFile, getTemplate);
     const gridApiRef = useGridApi();
     const query = useAppSelector(e => e.appdata.query.builder);
 
@@ -157,7 +171,7 @@ const Designation = () => {
     const handleEdit = (id) => {
         isEdit.current = true;
         editId = id;
-        
+
         row.current = data.find(a => a.id === id);
         setOpenPopup(true);
     }
@@ -187,7 +201,7 @@ const Designation = () => {
 
 
     useEffect(() => {
-        
+
         dispatch(enableFilterAction(false));
         dispatch(builderFieldsAction(fields));
     }, [dispatch])
@@ -201,6 +215,7 @@ const Designation = () => {
 
     return (
         <>
+            <Loader open={inProcess} />
             <AddDesignation openPopup={openPopup} setOpenPopup={setOpenPopup} isEdit={isEdit.current} row={row.current} />
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={data}
@@ -219,7 +234,7 @@ const Designation = () => {
                 gridToolBar={GridToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
-                
+
             />
             <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
         </>

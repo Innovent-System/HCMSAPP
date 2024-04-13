@@ -1,42 +1,14 @@
 // eslint-disable-next-line react-hooks/exhaustive-deps
 import React, { useEffect, useState } from "react";
-import Popup from '../../../components/Popup';
-import { AutoForm } from '../../../components/useForm';
-import { API } from '../_Service';
-import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAction } from '../../../store/actions/httpactions';
-import { Circle } from "../../../deps/ui/icons";
-import DataGrid, { useGridApi, getActions, GridToolbar } from '../../../components/useDataGrid';
-import { useSocketIo } from '../../../components/useSocketio';
-import ConfirmDialog from '../../../components/ConfirmDialog';
-import { useAppDispatch, useAppSelector } from "../../../store/storehook";
-import { formateISODateTime } from "../../../services/dateTimeService";
-
-
-const fields = {
-    name: {
-        label: 'Allowance Title',
-        type: 'text',
-        valueSources: ['value'],
-        preferWidgets: ['text'],
-    },
-    createdAt: {
-        label: 'Created Date',
-        type: 'date',
-        fieldSettings: {
-            dateFormat: "D/M/YYYY",
-            mongoFormatValue: val => ({ $date: new Date(val).toISOString() }),
-        },
-        valueSources: ['value'],
-        preferWidgets: ['date'],
-    },
-
-    isActive: {
-        label: 'Status',
-        type: 'boolean',
-        operators: ['equal'],
-        valueSources: ['value'],
-    },
-}
+import Popup from '../components/Popup';
+import { AutoForm } from '../components/useForm';
+import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAction } from '../store/actions/httpactions';
+import { Circle } from "../deps/ui/icons";
+import DataGrid, { useGridApi, getActions, GridToolbar } from '../components/useDataGrid';
+import { useSocketIo } from '../components/useSocketio';
+import ConfirmDialog from '../components/ConfirmDialog';
+import { useAppDispatch, useAppSelector } from "../store/storehook";
+import { formateISODateTime } from "../services/dateTimeService";
 
 /**
  * @param {Function} apiRef 
@@ -70,9 +42,8 @@ const getColumns = (apiRef, onEdit, onActive) => {
 }
 
 let editId = 0;
-// const DEFAULT_API = API.Allowance;
 
-const Allowance = ({ DEFAULT_API = API.Allowance, DEFAULT_NAME = "Allowance" }) => {
+const CrudUI = ({ DEFAULT_API, DEFAULT_NAME, fields, socketName }) => {
     const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
     const isEdit = React.useRef(false);
@@ -109,7 +80,7 @@ const Allowance = ({ DEFAULT_API = API.Allowance, DEFAULT_NAME = "Allowance" }) 
 
     const { addEntity, updateOneEntity, removeEntity } = useEntityAction();
 
-    const { socketData } = useSocketIo(`changeIn${DEFAULT_NAME}`, refetch);
+    const { socketData } = useSocketIo(socketName, refetch);
 
     const handleEdit = (id) => {
         isEdit.current = true;
@@ -228,4 +199,4 @@ const Allowance = ({ DEFAULT_API = API.Allowance, DEFAULT_NAME = "Allowance" }) 
         </>
     );
 }
-export default Allowance;
+export default CrudUI;

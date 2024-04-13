@@ -12,6 +12,9 @@ import ConfirmDialog from '../../../components/ConfirmDialog';
 import BulkInsert from '../../../components/BulkInsert'
 import { groupBySum } from '../../../util/common'
 import { useAppDispatch, useAppSelector } from "../../../store/storehook";
+import { useExcelReader } from "../../../hooks/useExcelReader";
+import { useFileConfig } from "../../../hooks/useFileConfig";
+import Loader from '../../../components/Circularloading'
 
 
 const DEFAULT_API = API.Department;
@@ -76,7 +79,7 @@ const getColumns = (apiRef, onEdit, onActive) => {
 
 
 let editId = 0;
-const AddDepartment = ({ openPopup, setOpenPopup, isEdit = false, row = null }) => {
+const AddDepartment = ({ openPopup, excelConfig, setOpenPopup, isEdit = false, row = null }) => {
     const formApi = useRef(null);
     const desgFormApi = useRef(null);
     // const designationData = React.useRef(null);
@@ -126,7 +129,10 @@ const AddDepartment = ({ openPopup, setOpenPopup, isEdit = false, row = null }) 
             validate: {
                 errorMessage: `Code is required`
             },
-            defaultValue: ""
+            defaultValue: "",
+            excel: {
+                sampleData: "001"
+            }
         },
         {
             elementType: "inputfield",
@@ -136,7 +142,10 @@ const AddDepartment = ({ openPopup, setOpenPopup, isEdit = false, row = null }) 
             validate: {
                 errorMessage: `${DEFAULT_NAME} is required`
             },
-            defaultValue: ""
+            defaultValue: "",
+            excel: {
+                sampleData: "Accounts"
+            }
         },
         {
             elementType: "inputfield",
@@ -148,7 +157,10 @@ const AddDepartment = ({ openPopup, setOpenPopup, isEdit = false, row = null }) 
                 errorMessage: "You have exceeded the limit",
                 validate: (val) => val.employeeLimit < 300 && val.employeeLimit > 0
             },
-            defaultValue: ""
+            defaultValue: "",
+            excel: {
+                sampleData: "10"
+            }
         },
         {
             elementType: "ad_dropdown",
@@ -210,7 +222,7 @@ const AddDepartment = ({ openPopup, setOpenPopup, isEdit = false, row = null }) 
             isValidate: true,
         },
     ];
-
+    excelConfig.current = formData;
     const handleSubmit = (e) => {
         const { getValue, validateFields } = formApi.current;
         const { validateFields: desgFieldValidate } = desgFormApi.current;
@@ -276,6 +288,9 @@ const Department = () => {
 
     const [selectionModel, setSelectionModel] = React.useState([]);
 
+    const excelConfig = React.useRef([]);
+    const { addEntity } = useEntityAction();
+    const { inProcess, setFile, excelData, getTemplate } = useExcelReader(excelConfig.current, null, "Departments.xlsx");
     const [sort, setSort] = useState({ sort: { createdAt: -1 } });
     const [filter, setFilter] = useState({
         lastKey: null,
@@ -283,7 +298,13 @@ const Department = () => {
         page: 0,
         totalRecord: 0
     })
+    useFileConfig(setFile, getTemplate);
 
+    useEffect(() => {
+        if (excelData) {
+            addEntity({ url: DEFAULT_API, data: excelData });
+        }
+    }, [excelData])
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,
         title: "",
@@ -356,7 +377,8 @@ const Department = () => {
 
     return (
         <>
-            <AddDepartment setOpenPopup={setOpenPopup} openPopup={openPopup} isEdit={isEdit.current} row={row.current} />
+            <Loader open={inProcess} />
+            <AddDepartment excelConfig={excelConfig} setOpenPopup={setOpenPopup} openPopup={openPopup} isEdit={isEdit.current} row={row.current} />
 
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={data}

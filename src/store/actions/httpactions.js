@@ -198,6 +198,10 @@ const INITIAL_STATE = {
     designationIds: ''
   },
   isReset: false,
+  fileConfig: {
+    upload: null,
+    template: null
+  },
   showFilterProps,
   enableFilter: false,
   query: {
@@ -245,6 +249,16 @@ export const appSlice = createSlice({
     },
     resetAction(state, action) {
       state.isReset = action.payload
+    },
+    /**
+     * 
+     * @param {typeof INITIAL_STATE} state 
+     * @param {Object} action 
+     * @param {{upload:Function,template:Function}} action.payload 
+     */
+    setFileConfig(state, action) {
+      state.fileConfig = action.payload
+
     },
     builderQueryAction(state, action) {
       state.query.builder = action.payload
@@ -397,6 +411,6 @@ export const { builderQueryAction,
   enableFilterAction,
   showDropDownFilterAction,
   setUserInfo,
-  clearDropDownIdsAction, setCommand } = appSlice.actions;
+  clearDropDownIdsAction, setCommand, setFileConfig } = appSlice.actions;
 
 export const { setGeneralAction, setCompanyAction, resetEmployee } = empSlice.actions

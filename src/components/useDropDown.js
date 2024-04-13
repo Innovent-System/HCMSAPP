@@ -82,7 +82,6 @@ export const useDropDown = () => {
 
         if (!Array.isArray(data)) data = [data];
 
-
         if (typeof callback === "function") {
             callbackRef.current = callback;
             setFilter({ type, data, matchWith });
@@ -201,21 +200,27 @@ export const useDropDown = () => {
                 }
                 setAreas(_areas);
                 break;
+            case filterTypes.AREA:
+                if (ids.length) {
+                    _areaIds = ids.reduce((acc, item) => { acc[item] = item; return acc }, {});
+                }
+                break;
             default:
                 break;
         }
 
-        if (_areaIds.length) {
-            count = DropDownData.Employees.length;
+        if (Object.keys(_areaIds).length) {
+            count = employeeData.Employees.length;
             while (count--) {
-                const element = DropDownData.Employees[count];
-                if (_areaIds[element.fkAreaId]) {
+                const element = employeeData.Employees[count];
+                if (_areaIds[element.companyInfo.fkAreaId]) {
                     _employees.push(element);
                 }
 
             }
-            setEmployees(_employees);
         }
+
+        setEmployees(_employees);
 
         if (callbackRef.current) {
             callbackRef.current({ countries, states, cities, areas })
@@ -237,7 +242,7 @@ export const useDropDown = () => {
         schedules: employeeData.Schedules,
         religion: employeeData.Religion,
         employeeStatus: employeeData.EmployeeStatus,
-        leaveAccural:employeeData.LeaveAccural,
+        leaveAccural: employeeData.LeaveAccural,
         setFilter: handleFilter,
         filterType: filterTypes
     }

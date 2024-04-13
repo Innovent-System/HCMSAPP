@@ -96,10 +96,13 @@ export default function PageHeader(props) {
   const dispatch = useAppDispatch();
   const [drawer, setDrawer] = useState(false);
 
-  const fields = useAppSelector((e) => e.appdata.query.fields ?? {});
+  const fields = useAppSelector((e) => e.appdata.query?.fields ?? {});
   const setEnableFilter = useAppSelector(
     (e) => enableFilter ?? e.appdata.enableFilter
   );
+
+  const upload = useAppSelector(e => handleUpload ?? e.appdata.fileConfig.upload)
+  const template = useAppSelector(e => handleTemplate ?? e.appdata.fileConfig.template)
 
   const [query, setQuery] = useState(() => defultValue());
 
@@ -143,10 +146,10 @@ export default function PageHeader(props) {
         </Grid>
         <Grid item className="right">
 
-          {typeof handleUpload === "function" && (
+          {typeof upload === "function" && (
             <Tooltip title="Upload Template" placement="top" arrow>
               <label htmlFor="icon-button-excel-file">
-                <Input style={{ display: 'none' }} onClick={function (e) { e.target.value = null }} onChange={handleUpload} accept="image/*" id="icon-button-excel-file" type="file" />
+                <Input style={{ display: 'none' }} onClick={function (e) { e.target.value = null }} onChange={upload} accept="image/*" id="icon-button-excel-file" type="file" />
                 <IconButton sx={{ color: "#fff" }} size='small' aria-label="upload picture" component="span">
                   <CloudUpload />
                 </IconButton>
@@ -154,9 +157,9 @@ export default function PageHeader(props) {
             </Tooltip>
           )}
 
-          {typeof handleTemplate === "function" && (
+          {typeof template === "function" && (
             <Tooltip title="Download Template" placement="top" arrow>
-              <IconButton sx={{ color: "#fff" }} onClick={handleTemplate} size='small' aria-label="Download Template" component="span">
+              <IconButton sx={{ color: "#fff" }} onClick={template} size='small' aria-label="Download Template" component="span">
                 <FileCopy fontSize="small" />
               </IconButton>
             </Tooltip>

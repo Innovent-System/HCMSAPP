@@ -31,7 +31,7 @@ function CommonDropDown({ isMultiple, showFilters, idset, setIdSet, setProps }) 
             dispatch(dropDownIdsAction(setOfIds));
             if (typeof setIdSet === "function") setIdSet(setOfIds);
             if (["company", "area"].includes(type)) matchWith = "_id";
-            setFilter(data, type, matchWith);
+            setFilter(data, type, matchWith); 
         })
 
     }
@@ -40,8 +40,8 @@ function CommonDropDown({ isMultiple, showFilters, idset, setIdSet, setProps }) 
 
     useEffect(() => {
         if (isReset) {
-            const { resetForm } = formApi.current;
             resetForm();
+            const { resetForm } = formApi.current;
             dispatch(clearDropDownIdsAction());
             setFilter(null, filterType.DEFAULT);
             dispatch(resetAction(false));

@@ -142,6 +142,7 @@ const RunPayroll = () => {
     })
 
     const [records, setRecords] = useState([]);
+    const [extraData, setExtraData] = useState([]);
     const { addEntity } = useEntityAction();
     const gridApiRef = useGridApi();
     const { countryIds, stateIds, cityIds, areaIds, departmentIds, groupIds, designationIds, employeeIds } = useDropDownIds();
@@ -193,6 +194,7 @@ const RunPayroll = () => {
             }
         }).then(({ data }) => {
             setRecords(data?.payrollDetails)
+            setExtraData(data?.loanDetail)
             // console.log(data);
         })
     }
@@ -201,6 +203,7 @@ const RunPayroll = () => {
         addEntity({
             url: `${DEFAULT_API}/save`, data: {
                 payrollData: records.filter(c => c.isProcess),
+                loanData: extraData,
                 year: records[0].year,
                 month: records[0].month,
                 employeeIds: records.map(c => c.fkEmployeeId)

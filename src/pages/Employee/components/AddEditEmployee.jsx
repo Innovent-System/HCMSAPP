@@ -88,15 +88,15 @@ export const mapEmployee = (values) => {
       maritalstatus: values.maritalstatus,
       email: values.email,
       gender: values.gender,
-      dateofBirth: values.dateofBirth,
-      fkReligionId: values.fkReligionId,
+      dateofBirth: values?.dateofBirth,
+      fkReligionId: values?.fkReligionId,
     },
     companyInfo: {
       fkAreaId: values.fkAreaId._id,
       fkCityId: values.fkCityId._id,
       fkCountryId: values.fkCountryId._id,
       fkDepartmentId: values.fkDepartmentId._id,
-      fkDesignationId: values.fkDesignationId._id,
+      fkDesignationId: values?.fkDesignationId?._id,
       fkEmployeeGroupId: values.fkEmployeeGroupId._id,
       fkStateId: values.fkStateId._id,
       joiningDate: new Date().toISOString(),
@@ -105,14 +105,14 @@ export const mapEmployee = (values) => {
     },
     contactDetial: {
       address1: values.address1,
-      address2: values.address2,
+      address2: values?.address2,
       zipCode: values.zipCode,
-      country: values.country,
-      state: values.state,
-      city: values.city,
+      country: values?.country,
+      state: values?.state,
+      city: values?.city,
       mobileNo: values.mobileNo,
-      workNo: values.workNo,
-      emergencyNo: values.emergencyNo
+      workNo: values?.workNo,
+      emergencyNo: values?.emergencyNo
     },
     scheduleId: values?.scheduleId._id
   }
