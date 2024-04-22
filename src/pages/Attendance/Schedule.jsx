@@ -237,6 +237,7 @@ const Schedule = () => {
 
     const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive, (id) => {
         scheduleId.current = id;
+        setTab('0');
         setOpenShift(true);
     });
 
@@ -319,7 +320,7 @@ const Schedule = () => {
             code: "",
             scheduleName: ""
         });
-        setState([...initialState]);
+        setState(initialState.map(e => ({ ...e })));
         setOpenPopup(true);
     }
 

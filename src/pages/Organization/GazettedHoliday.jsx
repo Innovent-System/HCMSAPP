@@ -98,7 +98,7 @@ export const AddGazettedHoliday = ({ openPopup, setOpenPopup, isEdit = false, ro
             });
             // setFilter(countries.filter(c => row.fkCountryId.includes(c._id)), filterType.COUNTRY, "id", (data) => {
             //     const { states, cities, areas } = data;
-                
+
             // });
         }
     }, [openPopup, formApi])
@@ -110,10 +110,10 @@ export const AddGazettedHoliday = ({ openPopup, setOpenPopup, isEdit = false, ro
             let dataToInsert = { ...values };
 
             dataToInsert.fkCountryId = dataToInsert.fkCountryId.map(c => c._id);
-            dataToInsert.fkStateId = dataToInsert.fkStateId.map(c => c._id);;
-            dataToInsert.fkCityId = dataToInsert.fkCityId.map(c => c._id);;
-            dataToInsert.fkAreaId = dataToInsert.fkAreaId.map(c => c._id);;
-            dataToInsert.fkGroupId = dataToInsert.fkGroupId.map(c => c._id);;
+            dataToInsert.fkStateId = dataToInsert.fkStateId.map(c => c._id);
+            dataToInsert.fkCityId = dataToInsert.fkCityId.map(c => c._id);
+            dataToInsert.fkAreaId = dataToInsert.fkAreaId.map(c => c._id);
+            dataToInsert.fkGroupId = dataToInsert.fkGroupId.map(c => c._id);
             if (isEdit)
                 dataToInsert._id = editId
 
@@ -151,10 +151,6 @@ export const AddGazettedHoliday = ({ openPopup, setOpenPopup, isEdit = false, ro
             name: "fkCountryId",
             isMultiple: true,
             label: "Country",
-            required: true,
-            validate: {
-                errorMessage: "Company is required",
-            },
             dataName: 'name',
             options: countries,
             onChange: (data) => setFilter(data, filterType.COUNTRY, "id"),
@@ -165,11 +161,7 @@ export const AddGazettedHoliday = ({ openPopup, setOpenPopup, isEdit = false, ro
             name: "fkStateId",
             label: "State",
             isMultiple: true,
-            required: true,
             dataName: "name",
-            validate: {
-                errorMessage: "State is required",
-            },
             options: states,
             onChange: (data) => setFilter(data, filterType.STATE, "id"),
             defaultValue: []
@@ -179,12 +171,8 @@ export const AddGazettedHoliday = ({ openPopup, setOpenPopup, isEdit = false, ro
             name: "fkCityId",
             label: "City",
             isMultiple: true,
-            required: true,
             dataName: "name",
             onChange: (data) => setFilter(data, filterType.CITY, "_id"),
-            validate: {
-                errorMessage: "City is required",
-            },
             options: cities,
             defaultValue: []
         },
@@ -192,6 +180,10 @@ export const AddGazettedHoliday = ({ openPopup, setOpenPopup, isEdit = false, ro
             elementType: "ad_dropdown",
             name: "fkAreaId",
             label: "Area",
+            required: true,
+            validate: {
+                errorMessage: "Area is required",
+            },
             dataId: '_id',
             dataName: "areaName",
             onChange: (data) => setFilter(data, filterType.AREA, "_id"),
@@ -203,6 +195,10 @@ export const AddGazettedHoliday = ({ openPopup, setOpenPopup, isEdit = false, ro
             elementType: "ad_dropdown",
             name: "fkGroupId",
             label: "Group",
+            required: true,
+            validate: {
+                errorMessage: "Group is required",
+            },
             isMultiple: true,
             // onChange: (data) => setFilter(data, filterType.GROUP, "_id"),
             dataId: '_id',

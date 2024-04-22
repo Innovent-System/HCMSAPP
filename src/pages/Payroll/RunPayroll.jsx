@@ -224,7 +224,7 @@ const RunPayroll = () => {
                 loading={false}
                 sx={gridCellStyle}
                 totalCount={records?.length}
-
+                autoHeight={true}
                 getRowHeight={() => 40}
                 disableSelectionOnClick
                 // rowModesModel={cellModesModel}

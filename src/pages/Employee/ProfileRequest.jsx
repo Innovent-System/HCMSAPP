@@ -93,10 +93,10 @@ const ProfileRequest = () => {
     const [word, setWord] = useState("");
     const [sort, setSort] = useState({ sort: { createdAt: -1 } });
 
-
     const excelColData = useRef([]);
 
-    const { inProcess, isDone, setFile, file, processAndVerifyData, excelData, setWbData } = useExcelReader();
+    const { inProcess, setFile, excelData, getTemplate } = useExcelReader(excelColData.current, mapEmployee);
+
 
     const [gridFilter, setGridFilter] = useState({
         lastKey: null,
@@ -195,16 +195,7 @@ const ProfileRequest = () => {
     const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive);
     useEffect(() => {
         if (excelData) {
-            const [error, resultData] = processAndVerifyData({
-                colInfo: excelColData.current,
-                excelData: excelData,
-                transformData: mapEmployee
-            })
-            if (!error.length) {
-                addEntity({ url: DEFAULT_API, data: resultData });
-            }
-
-            console.log({ error });
+            addEntity({ url: DEFAULT_API, data: resultData });
         }
     }, [excelData])
 
@@ -213,13 +204,6 @@ const ProfileRequest = () => {
         setOpenPopup(true);
     }
 
-    const handleTemplate = () => {
-        if (Array.isArray(excelColData.current)) {
-            const excelCol = excelColData.current.flatMap(c => c._children).filter(c => c?.label).map(c => c.label);
-            const dummyData = ["Any", 2222, 2222, "Faizan", "Siddiqui", "Aqeel Ahmed", "-", "Single", "Male", "Islam", "10/02/1990", false, "faizan@gmail.com", "-", "Innovent Systems", "Pakistan", "Sindh", "Karachi", "R.M.R", "Head Group", "Accounts", "Developer", "Casual", "27/10/2022", "-", "-", "ABC", "", "Karachi", "Sindh", 75080, "Pakistan", "03418", "-", "-"];
-            setWbData([excelCol, dummyData]);
-        }
-    }
 
     return (
         <>
@@ -228,6 +212,7 @@ const ProfileRequest = () => {
                 title="Profile Request"
                 enableFilter={true}
                 handleUpload={(e) => setFile(e.target.files[0])}
+                handleTemplate={getTemplate}
                 subTitle="Manage Profile Request"
                 icon={<PeopleOutline fontSize="large" />}
             />
@@ -240,7 +225,6 @@ const ProfileRequest = () => {
                 <EmpoyeeModal coldata={excelColData} isEdit={isEdit.current} add_edit_API={DEFAULT_API} editId={editId} setOpenPopup={setOpenPopup} />
             </Popup>
 
-            <Link style={{ float: "right" }} onClick={handleTemplate}> Employee Template</Link>
             <ButtonGroup fullWidth >
                 {alphabets.map(alpha => (
                     <Controls.Button onClick={handleAlphabetSearch} color="inherit" key={alpha} text={alpha} />
@@ -263,7 +247,7 @@ const ProfileRequest = () => {
                 gridToolBar={GridToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
-                
+
             />
             <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
         </>

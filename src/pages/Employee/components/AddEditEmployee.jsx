@@ -98,6 +98,7 @@ export const mapEmployee = (values) => {
       fkDepartmentId: values.fkDepartmentId._id,
       fkDesignationId: values?.fkDesignationId?._id,
       fkEmployeeGroupId: values.fkEmployeeGroupId._id,
+      fkEmployeeStatusId: values.fkEmployeeStatusId._id,
       fkStateId: values.fkStateId._id,
       joiningDate: new Date().toISOString(),
       confirmationDate: values.confirmationDate,
@@ -135,7 +136,8 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
 
-  const { companies, countries, states, cities, areas, designations, groups, schedules, departments, employees, roleTemplates, religion, employeeStatus, filterType, setFilter } = useDropDown();
+  const { companies, countries, states, cities, areas, designations, groups, schedules, departments,
+    employees, roleTemplates, religion, employeeStatus, filterType, setFilter } = useDropDown();
 
   const handleEdit = () => {
     setLoader(true);
@@ -159,6 +161,7 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
         fkDepartmentId: departments.find(d => d._id === values.companyInfo.fkDepartmentId),
         fkDesignationId: designations.find(d => d._id === values.companyInfo.fkDesignationId),
         fkEmployeeGroupId: groups.find(g => g._id === values.companyInfo.fkEmployeeGroupId),
+        fkEmployeeStatusId: employeeStatus.find(e => e._id === values.companyInfo.fkEmployeeStatusId) ?? null,
         fkStateId: states.find(s => s._id === values.companyInfo.fkStateId),
         scheduleId: schedules.find(s => s._id === values.schedule?._id) ?? null,
         fkManagerId: employees.find(e => e._id === values.companyInfo?.fkManagerId) ?? null,
@@ -565,7 +568,7 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
           label: "Assigne Schedule",
           required: true,
           breakpoints,
-          disabled: (value) => isEdit,
+          // disabled: (value) => isEdit,
           validate: {
             when: 1,
             errorMessage: "Schedule is required",
@@ -611,6 +614,24 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
           defaultValue: null,
           excel: {
             sampleData: emptyString
+          }
+        },
+        {
+          elementType: "ad_dropdown",
+          name: "fkEmployeeStatusId",
+          label: "Employee Status",
+          required: true,
+          validate: {
+            when: 1,
+            errorMessage: "Employee Status is required",
+          },
+          breakpoints,
+          dataId: '_id',
+          dataName: "name",
+          options: employeeStatus,
+          defaultValue: employeeStatus?.length ? employeeStatus[0] : null,
+          excel: {
+            sampleData: "Probation"
           }
         },
         {
@@ -787,7 +808,7 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
           <AutoForm formData={formData} ref={formApi} isValidate={true} />
           <Box>
             <Controls.Button onClick={handleBack} disabled={activeStep === 0} sx={Styles.button} text="Back" />
-            {activeStep !== steps.length - 1 && <Controls.Button onClick={handleNext} sx={Styles.button} text={'Next'} />} 
+            {activeStep !== steps.length - 1 && <Controls.Button onClick={handleNext} sx={Styles.button} text={'Next'} />}
             {activeStep === steps.length - 1 && <Controls.Button onClick={handleSubmit} sx={Styles.button} text="Submit" />}
           </Box>
         </Box>

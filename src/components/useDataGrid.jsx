@@ -285,7 +285,7 @@ export default function FeaturedCrudGrid(props) {
   return (
     <Box
       sx={{
-        height: `calc(100vh - ${gridHeight}px)`
+         height: `calc(100vh - ${gridHeight}px)`
         //width: '100%',
         // '& .actions': {
         //   color: 'text.secondary',
@@ -298,7 +298,7 @@ export default function FeaturedCrudGrid(props) {
       <StripedDataGrid
         density={density}
         rows={rows ?? []}
-
+        
         loading={loading}
         {...(setSelectionModel && {
           onSelectionModelChange: (newSelectionModel) => {

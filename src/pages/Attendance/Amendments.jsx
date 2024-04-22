@@ -54,6 +54,7 @@ const flagMap = {
     7: { tag: "A", color: "error" },
     8: { tag: "FL", color: "secondary" },
     9: { tag: "HL", color: "secondary" },
+    10: { tag: "GH", color: "info" },
     null: { tag: "P", color: "success" }
 }
 
@@ -299,6 +300,7 @@ const Amend = () => {
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={records}
                 loading={false}
+                autoHeight={true}
                 totalCount={records?.length}
                 disableSelectionOnClick
                 rowModesModel={cellModesModel}

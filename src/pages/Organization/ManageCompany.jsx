@@ -9,10 +9,10 @@ import Department from './components/Department';
 
 
 const tabs = [
-  {
-    title: "Company",
-    panel: <Company />
-  },
+  // {
+  //   title: "Company",
+  //   panel: <Company />
+  // },
   {
     title: "Country",
     panel: <Country />

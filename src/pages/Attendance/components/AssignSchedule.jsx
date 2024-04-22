@@ -1,7 +1,7 @@
 // eslint-disable-next-line react-hooks/exhaustive-deps
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { API } from '../_Service';
-import {  usePostQuery } from '../../../store/actions/httpactions';
+import { usePostQuery } from '../../../store/actions/httpactions';
 import DataGrid, { useGridApi } from '../../../components/useDataGrid';
 import { useSocketIo } from '../../../components/useSocketio';
 import ConfirmDialog from '../../../components/ConfirmDialog';
@@ -73,6 +73,11 @@ const AssingSchedule = ({ scheduleId, tab, handleTabs, selectedEmployees, setSel
         }
     }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
 
+    useEffect(() => {
+        if (tab)
+            refetch();
+    }, [tab])
+
     const handleSort = (s) => {
         if (s?.length) {
             const { field, sort } = s[0];
@@ -94,7 +99,7 @@ const AssingSchedule = ({ scheduleId, tab, handleTabs, selectedEmployees, setSel
                 setFilter={setFilter}
                 onSortModelChange={handleSort}
                 page={filter.page}
-                s totalCount={totalRecord}
+                totalCount={totalRecord}
                 selectionModel={selectedEmployees}
                 setSelectionModel={setSelectedEmployees}
             />,

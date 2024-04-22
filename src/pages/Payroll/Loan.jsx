@@ -6,7 +6,7 @@ import { API } from './_Service';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction, useLazySingleQuery } from '../../store/actions/httpactions';
 import { PeopleOutline, Delete, AdminPanelSettings, CancelScheduleSend } from "../../deps/ui/icons";
 import { GridActionsCellItem } from "../../deps/ui";
-import DataGrid, { GridToolbar, renderStatusCell, useGridApi } from '../../components/useDataGrid';
+import DataGrid, { GridToolbar, renderStatusCell, useGridApi, getActions } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { AutoForm } from '../../components/useForm'
@@ -54,43 +54,15 @@ const getColumns = (onCancel) => [
     {
         field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.employees.fullName
     },
-    { field: 'salaryRequest', headerName: 'Date', flex: 1, valueGetter: ({ row }) => formateISODate(row.salaryRequest) },
-    { field: 'amount', headerName: 'Amount' },
+    { field: 'loanRequest', headerName: 'Date', flex: 1, valueGetter: ({ row }) => formateISODate(row.loanRequest) },
+    { field: 'principleAmount', headerName: 'Principle' },
+    { field: 'repayAmount', headerName: 'Repay' },
     {
         field: 'status', headerName: 'Status', flex: 1, renderCell: renderStatusCell
     },
     { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
     { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
-    {
-        field: 'actions',
-        type: 'actions',
-        headerName: 'Actions',
-        flex: 1,
-        align: 'center',
-        hideable: false,
-        cellClassName: 'actions',
-        getActions: ({ id, row }) => {
-
-            return !["Pending"].includes(row.status) ?
-                [
-                    <GridActionsCellItem
-                        label="Action Taken"
-                        icon={<AdminPanelSettings fontSize="small" />}
-                    />
-
-                ] :
-                [
-                    <GridActionsCellItem
-                        icon={<CancelScheduleSend color="warning" fontSize='small' />}
-                        label="Cancel"
-                        onClick={() => onCancel(id)}
-                        color={"primary"}
-
-                    />
-
-                ]
-        }
-    }
+    getActions(null, { onCancel })
 ];
 
 const AddLaonRequest = ({ openPopup, setOpenPopup, colData = [] }) => {
@@ -148,7 +120,7 @@ const AddLaonRequest = ({ openPopup, setOpenPopup, colData = [] }) => {
             },
             defaultValue: "",
             excel: {
-                sampleData: "Advance"
+                sampleData: "Peronal Loan"
             }
         },
         {
@@ -264,7 +236,7 @@ const LoanRequest = () => {
     const excelColData = useRef([]);
 
     const [sort, setSort] = useState({ sort: { createdAt: -1 } });
-    const { inProcess, setFile, excelData, getTemplate } = useExcelReader(excelColData.current, mapAdvSalary, "AdvSalary.xlsx");
+    const { inProcess, setFile, excelData, getTemplate } = useExcelReader(excelColData.current, mapAdvSalary, "LoanRequest.xlsx");
 
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,
