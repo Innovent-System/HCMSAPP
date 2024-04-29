@@ -1,19 +1,16 @@
 // eslint-disable-next-line react-hooks/exhaustive-deps
 import React, { useEffect, useRef, useState } from "react";
-import Controls from '../../components/controls/Controls';
 import Popup from '../../components/Popup';
 import { AutoForm } from '../../components/useForm';
 import { API } from './_Service';
 import { enableFilterAction, builderFieldsAction, showDropDownFilterAction, useEntitiesQuery, useEntityAction } from '../../store/actions/httpactions';
 import { useDropDown, useDropDownIds } from "../../components/useDropDown";
-import { Typography, Stack, GridToolbarContainer } from "../../deps/ui";
 import { Circle, Add as AddIcon, Delete as DeleteIcon, PeopleOutline } from "../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions, GridToolbar } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
 import PageHeader from '../../components/PageHeader'
 import ConfirmDialog from '../../components/ConfirmDialog';
-import CommonDropDown from "../../components/CommonDropDown";
 import { formateISODate, formateISODateTime } from "../../services/dateTimeService";
 
 

@@ -25,6 +25,14 @@ const commaSeprateValue = (options, dataName, max = 3) => {
     }
     return values.substring(0, values.length - 1) + spread;
 }
+
+function isMatchEmployee(employeeName = "", searchTerm = "") {
+    const [code, ...name] = employeeName.split(" ");
+    const regex = new RegExp(`\\(?${code}\\)?|\\b${name.join(' ')}\\b`, 'i');
+    const matches = searchTerm.match(regex)
+    return matches?.length > 0;
+}
+
 /**
  * Assign the Excel Data for Modify.
  * @param {Object} data - The data who is responsible for the process.
@@ -55,7 +63,11 @@ const processAndVerifyData = ({ colInfo, excelData, transformData }) => {
                 if (notValid.includes(value)) {
                     objectData[prop.name] = null;
                 } else {
-                    const isExist = prop?.options.find(c => c[prop.dataName].toLowerCase() === value);
+                    let isExist = {};
+                    if (prop.dataName === "fullName")
+                        isExist = prop?.options.find(c => isMatchEmployee(c[prop.dataName].toLowerCase(), value))
+                    else
+                        isExist = prop?.options.find(c => c[prop.dataName].toLowerCase() === value);
                     if (isExist) {
                         objectData[prop.name] = prop.elementType === "dropdown" ? isExist[prop?.dataId] : { ...isExist };
                     }
@@ -82,8 +94,13 @@ const processAndVerifyData = ({ colInfo, excelData, transformData }) => {
                 errors.push(errorMsg);
         }
         if (errors.length) continue;
-        if (typeof transformData === "function")
-            modifyData.push(transformData(objectData));
+        if (typeof transformData === "function") {
+            const trans = transformData(objectData);
+            if (Array.isArray(trans))
+                modifyData.push(...trans);
+            else modifyData.push(trans);
+
+        }
         else
             modifyData.push(objectData);
     }

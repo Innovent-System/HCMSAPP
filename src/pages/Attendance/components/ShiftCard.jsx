@@ -31,6 +31,11 @@ const getColumns = (apiRef, handleChange, shifts) => {
             align: 'center'
         },
         {
+            field: 'isHoliday', headerName: 'Is HoliDay', hideable: false,
+            renderCell: ({ row }) => row.isHoliday ? <GridActionsCellItem icon={<Check color='info' fontSize='small' />} /> : null,
+            align: 'center'
+        },
+        {
             field: 'fkShiftId', headerName: 'Shift', hideable: false,
             editable: true,
             type: "singleSelect",
@@ -155,6 +160,11 @@ export default ({ data, handleChange, handleCopy, index, shifts }) => {
         {
             field: 'isNextDay', headerName: 'Is Next Day', hideable: false,
             renderCell: ({ row }) => row.isNextDay ? <GridActionsCellItem icon={<Beenhere color='info' fontSize='small' />} /> : null,
+            align: 'center'
+        },
+        {
+            field: 'isHoliday', headerName: 'Is Holiday', hideable: false,
+            renderCell: ({ row }) => row.isHoliday ? <GridActionsCellItem icon={<Check color='info' fontSize='small' />} /> : null,
             align: 'center'
         },
         {

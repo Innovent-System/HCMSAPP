@@ -11,6 +11,7 @@ export const API = {
     UpdateSchedule: "attendance/schedule/updateSchedule",
     Approval: "attendance/approval",
     MarkAttendance: "attendance/mark",
+    AmendRoster: "attendance/amendroster",
     ApprovalAction: "attendance/approval/action",
     // Designation: "employee/designation",
 }

@@ -10,6 +10,7 @@ import Avatar from "./AvatarUpload";
 import MultiSelect from "./MultiSelect";
 import PropTypes from 'prop-types'
 import { ArrayForm } from '../useArrayForm'
+import FileInput from "./FileInput";
 
 const Controls = {
     Input,
@@ -17,10 +18,12 @@ const Controls = {
     Select,
     Checkbox,
     DatePicker,
+    DateRangePicker,
     Button,
     ActionButton,
     MultiSelect,
     Avatar,
+    FileInput
 };
 
 export default Controls;

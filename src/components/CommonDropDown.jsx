@@ -18,7 +18,7 @@ const bindDataIds = (data, matchWith) => {
 const setDropDownIds = (data, type, matchWith) => ({ [type + "Ids"]: bindDataIds(data, matchWith) })
 
 
-function CommonDropDown({ isMultiple, showFilters, idset, setIdSet, setProps }) {
+function CommonDropDown({ isMultiple, flexDirection = "row", showFilters, idset, setIdSet, setProps }) {
     const { filterType, setFilter, ...dropDown } = useDropDown();
     const dispatch = useAppDispatch();
     const formApi = React.useRef(null);
@@ -31,7 +31,7 @@ function CommonDropDown({ isMultiple, showFilters, idset, setIdSet, setProps }) 
             dispatch(dropDownIdsAction(setOfIds));
             if (typeof setIdSet === "function") setIdSet(setOfIds);
             if (["company", "area"].includes(type)) matchWith = "_id";
-            setFilter(data, type, matchWith); 
+            setFilter(data, type, matchWith);
         })
 
     }
@@ -62,7 +62,7 @@ function CommonDropDown({ isMultiple, showFilters, idset, setIdSet, setProps }) 
         [showFilter, dropDown],
     )
 
-    return <AutoForm formData={formData()} ref={formApi} />
+    return <AutoForm flexDirection={flexDirection} formData={formData()} ref={formApi} />
 }
 
 CommonDropDown.defaultProps = {

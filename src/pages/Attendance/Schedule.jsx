@@ -84,13 +84,13 @@ const getColumns = (apiRef, onEdit, onActive, setOpenShift) => {
 }
 
 
-const initialState = [{ name: "Sunday", isNextDay: false, fkShiftId: "", startTime: "-:-:-", endTime: "-:-:-", minTime: "-:-:-", maxTime: "-:-:-" },
-{ name: "Monday", isNextDay: false, fkShiftId: "", startTime: "-:-:-", endTime: "-:-:-", minTime: "-:-:-", maxTime: "-:-:-" },
-{ name: "Tuesday", isNextDay: false, fkShiftId: "", startTime: "-:-:-", endTime: "-:-:-", minTime: "-:-:-", maxTime: "-:-:-" },
-{ name: "Wednesday", isNextDay: false, fkShiftId: "", startTime: "-:-:-", endTime: "-:-:-", minTime: "-:-:-", maxTime: "-:-:-" },
-{ name: "Thursday", isNextDay: false, fkShiftId: "", startTime: "-:-:-", endTime: "-:-:-", minTime: "-:-:-", maxTime: "-:-:-" },
-{ name: "Friday", isNextDay: false, fkShiftId: "", startTime: "-:-:-", endTime: "-:-:-", minTime: "-:-:-", maxTime: "-:-:-" },
-{ name: "Saturday", isNextDay: false, fkShiftId: "", startTime: "-:-:-", endTime: "-:-:-", minTime: "-:-:-", maxTime: "-:-:-" }
+const initialState = [{ name: "Sunday", isNextDay: false, isHoliday: false, fkShiftId: "", startTime: "-:-:-", endTime: "-:-:-", minTime: "-:-:-", maxTime: "-:-:-" },
+{ name: "Monday", isNextDay: false, isHoliday: false, fkShiftId: "", startTime: "-:-:-", endTime: "-:-:-", minTime: "-:-:-", maxTime: "-:-:-" },
+{ name: "Tuesday", isNextDay: false, isHoliday: false, fkShiftId: "", startTime: "-:-:-", endTime: "-:-:-", minTime: "-:-:-", maxTime: "-:-:-" },
+{ name: "Wednesday", isNextDay: false, isHoliday: false, fkShiftId: "", startTime: "-:-:-", endTime: "-:-:-", minTime: "-:-:-", maxTime: "-:-:-" },
+{ name: "Thursday", isNextDay: false, isHoliday: false, fkShiftId: "", startTime: "-:-:-", endTime: "-:-:-", minTime: "-:-:-", maxTime: "-:-:-" },
+{ name: "Friday", isNextDay: false, isHoliday: false, fkShiftId: "", startTime: "-:-:-", endTime: "-:-:-", minTime: "-:-:-", maxTime: "-:-:-" },
+{ name: "Saturday", isNextDay: false, isHoliday: false, fkShiftId: "", startTime: "-:-:-", endTime: "-:-:-", minTime: "-:-:-", maxTime: "-:-:-" }
 ];
 
 const initialError = [{ startTime: "", endTime: "", missingAfter: "", late: "", early: "", shortDay: "", halfday: "" },
@@ -181,6 +181,7 @@ const Schedule = () => {
                 endTime: sourceData ? formateISOTime(sourceData.endTime) : "--:--:-",
                 minTime: sourceData ? formateISOTime(sourceData.minTime) : '--:--:-',
                 maxTime: sourceData ? formateISOTime(sourceData.maxTime) : '--:--:-',
+                isHoliday: sourceData?.isHoliday ? sourceData.isHoliday : false,
                 isNextDay: sourceData ? sourceData.isNextDay : false
             }
         }))
@@ -247,7 +248,7 @@ const Schedule = () => {
         const mapData = {
             code: textField.code,
             scheduleName: textField.scheduleName,
-            weeks: state.map(s => ({ name: s.name, isHoliday: !Boolean(s.fkShiftId), fkShiftId: s.fkShiftId ? s.fkShiftId : null }))
+            weeks: state.map(s => ({ name: s.name, isHoliday: s?.isHoliday, fkShiftId: s.fkShiftId }))
         }
 
         if (isEdit.current)
@@ -255,6 +256,8 @@ const Schedule = () => {
 
         addEntity({
             url: DEFAULT_API, data: [mapData]
+        }).then(c => {
+            setOpenPopup(false);
         });
         // }
     }
@@ -285,6 +288,7 @@ const Schedule = () => {
             state[index].endTime = formateISOTime(sourceData.endTime);
             state[index].minTime = formateISOTime(sourceData.minTime);
             state[index].maxTime = formateISOTime(sourceData.maxTime);
+            state[index].isHoliday = sourceData?.isHoliday ?? false;
             state[index].isNextDay = sourceData.isNextDay;
         }
         else {
@@ -292,7 +296,8 @@ const Schedule = () => {
             state[index].startTime = "--:--:-";
             state[index].endTime = "--:--:--";
             state[index].minTime = "--:--:--"
-            state[index].maxTime = "--:--:--"
+            state[index].maxTime = "--:--:--";
+            state[index].isHoliday = false;
             state[index].isNextDay = false;
         }
 

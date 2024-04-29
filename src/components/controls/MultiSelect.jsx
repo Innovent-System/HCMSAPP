@@ -69,7 +69,7 @@ function MultiSelect(props) {
       multiple={isMultiple}
       ref={autoCompleteRef}
       // {...(isMultiple && { PopperComponent: MyPopper })}
-      limitTags={2}
+      limitTags={1}
       // isOptionEqualToValue={(option, value) => option[dataId] === value[dataId]}
       {...other}
       value={value}
@@ -81,6 +81,7 @@ function MultiSelect(props) {
       onInputChange={handleInputeChange}
       disableCloseOnSelect={isMultiple}
       disableListWrap
+      
       ListboxComponent={ListboxComponent}
       {...(isMultiple && {
         renderOption: (props, option, { selected }) =>
@@ -112,7 +113,8 @@ function MultiSelect(props) {
       })}
 
       renderInput={(params) => (
-        <TextField {...params} {...(error && { error: true, helperText: error })} variant="outlined" size='small' label={label} />
+        <TextField {...params} {...(error && { error: true, helperText: error })}
+          variant="outlined" size='small' label={label} />
       )}
     />
   );
