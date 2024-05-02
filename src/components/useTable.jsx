@@ -88,8 +88,8 @@ export default function useTable(records, headCells, filterFn) {
                     {cols.map((_key, index) =>
                         <>
                             {index === 0 ? <TableCell component="th" scope="row">
-                                {row[_key.id]}
-                            </TableCell> : <TableCell sx={{ paddingLeft: 4 }} >{row[_key.id]}</TableCell>}
+                                {typeof _key?.valueGetter === "function" ? _key?.valueGetter({ row }) : row[_key.id]}
+                            </TableCell> : <TableCell sx={{ paddingLeft: 4 }} >{typeof _key?.valueGetter === "function" ? _key?.valueGetter({ row }) : row[_key.id]}</TableCell>}
                         </>
                     )
                     }

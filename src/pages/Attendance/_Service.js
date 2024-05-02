@@ -1,5 +1,6 @@
 export const API = {
     Attendance: "attendance/amend",
+    AttendanceReport: "attendance/report",
     AttendanceInsert: "attendance/amend/insert",
     AttendanceRequest: "attendance/request",
     GetAttendanceDetail: "attendance/request/detail",

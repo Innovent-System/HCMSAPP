@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { API } from './_Service';
 import { useEntitiesQuery, useEntityAction, enableFilterAction, builderFieldsAction, useLazySingleQuery, useLazyPostQuery } from '../../store/actions/httpactions';
 import { Circle, PeopleOutline, Add as AddIcon, FileCopy } from "../../deps/ui/icons";
-import { ButtonGroup, GridToolbarContainer, Tooltip, IconButton, Divider, Grid, Button, Input } from '../../deps/ui'
+import { ButtonGroup, GridToolbarContainer, Tooltip, IconButton, Divider, Grid, Button, Input, Alert } from '../../deps/ui'
 import DataGrid, { useGridApi, getActions } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
 import Controls from "../../components/controls/Controls";
@@ -11,7 +11,7 @@ import ConfirmDialog from '../../components/ConfirmDialog';
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
 import PageHeader from '../../components/PageHeader'
 import Popup from "../../components/Popup";
-import { dateRange, formateDate, getWeekStartEnd } from "../../services/dateTimeService";
+import { dateRange, formateDate, getWeekStartEnd, formateISODateTime, formateISODate } from "../../services/dateTimeService";
 import { useExcelReader } from "../../hooks/useExcelReader";
 
 const fields = {
@@ -54,13 +54,12 @@ const getColumns = (apiRef, onEdit, onActive) => {
     return [
         { field: '_id', headerName: 'Id', hide: true },
         {
-            field: 'name', headerName: 'Name', width: 180
+            field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.employees.fullName
         },
+        { field: 'rosterDate', headerName: 'Roster Date', flex: 1, valueGetter: ({ row }) => formateISODate(row.rosterDate) },
         {
-            field: 'company', headerName: 'Company', width: 180, valueGetter: ({ row }) => row.company.companyName
+            field: 'shift', headerName: 'Shift', width: 180, valueGetter: ({ row }) => row.shift.shiftName
         },
-        { field: 'modifiedOn', headerName: 'Modified On' },
-        { field: 'createdOn', headerName: 'Created On', sortingOrder: ["desc"] },
         {
             field: 'isActive', headerName: 'Status', renderCell: (param) => (
                 param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
@@ -68,7 +67,8 @@ const getColumns = (apiRef, onEdit, onActive) => {
             flex: '0 1 5%',
             align: 'center',
         },
-        getActions(apiRef, actionKit)
+        { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
+        { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) }
     ]
 }
 let editId = 0;
@@ -79,29 +79,23 @@ export const AddRoster = ({ getTemplate, setFile, roster, setRoster, openPopup, 
     const { addEntity } = useEntityAction();
 
     const handleSubmit = (e) => {
-        const { getValue, validateFields } = formApi.current
-        if (validateFields()) {
-            let values = getValue();
-            const { _id, ...country } = values.country;
-            let dataToInsert = country;
-            dataToInsert.fkCompanyId = values.company._id;
-            if (isEdit)
-                dataToInsert._id = editId
 
-            addEntity({ url: DEFAULT_API, data: [dataToInsert] }).then(r => {
-                if (r?.data) setOpenPopup(false);
-            });
-        }
     }
 
     return <Popup
         title="Roster"
         openPopup={openPopup}
         maxWidth="sm"
+        footer={<></>}
         isEdit={isEdit}
         addOrEditFunc={handleSubmit}
         setOpenPopup={setOpenPopup}>
         <Grid container spacing={2}>
+            <Grid md={12} lg={12} item textAlign="center">
+
+                <Alert severity="info">Prior to uploading the Excel file, kindly adjust the date range as needed.</Alert>
+
+            </Grid>
             <Grid md={12} lg={12} textAlign="center" item>
                 <ButtonGroup variant="contained" color="inherit">
                     <Button
@@ -154,7 +148,7 @@ const AmendRoster = () => {
     const [getShiftList] = useLazyPostQuery();
     const [shifts, setShift] = useState([]);
 
-    const [sort, setSort] = useState({ sort: { createdAt: -1 } });
+    const [sort, setSort] = useState({ sort: { rosterDate: -1, "employees.fullName": 1 } });
     const { Employees } = useAppSelector(e => e.appdata.employeeData);
     const [roster, setRoster] = useState([weekStart, weekEnd])
     const [filter, setFilter] = useState({
@@ -195,7 +189,7 @@ const AmendRoster = () => {
             const date = rosterDates[index];
             form.push({
                 elementType: "dropdown",
-                name: `date_${date.getDay()}_${date.getMonth()}_${date.getFullYear()}`,
+                name: `date_${date.getDate()}_${date.getMonth()}_${date.getFullYear()}`,
                 label: formateDate(date),
                 // variant: "outlined",
                 required: true,
@@ -232,7 +226,16 @@ const AmendRoster = () => {
     useEffect(() => {
         if (excelData) {
             // console.log(excelData);
-            addEntity({ url: `${DEFAULT_API}/insert`, data: { roster: excelData } });
+            const distinctMap = new Map();
+
+            for (const obj of excelData) {
+                const key = `${obj.fkEmployeeId}-${obj.rosterDate}`;
+                distinctMap.set(key, obj);
+            }
+
+            const distinctData = Array.from(distinctMap.values());
+
+            addEntity({ url: `${DEFAULT_API}/insert`, data: { roster: distinctData } });
         }
     }, [excelData])
     const handleEdit = (id) => {

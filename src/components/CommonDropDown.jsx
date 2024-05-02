@@ -17,8 +17,9 @@ const bindDataIds = (data, matchWith) => {
 
 const setDropDownIds = (data, type, matchWith) => ({ [type + "Ids"]: bindDataIds(data, matchWith) })
 
+const DEFAULT_BREAK_POINTS = { xs: 12, sm: 6, md: 6 };
 
-function CommonDropDown({ isMultiple, flexDirection = "row", showFilters, idset, setIdSet, setProps }) {
+function CommonDropDown({ isMultiple, flexDirection = "row", breakpoints = DEFAULT_BREAK_POINTS, showFilters, idset, setIdSet, setProps }) {
     const { filterType, setFilter, ...dropDown } = useDropDown();
     const dispatch = useAppDispatch();
     const formApi = React.useRef(null);
@@ -54,6 +55,7 @@ function CommonDropDown({ isMultiple, flexDirection = "row", showFilters, idset,
                 {
                     ...DROPDOWN_PROPS[filter],
                     ...(setProps && setProps[filter]),
+                    breakpoints,
                     options: dropDown[Name_MAP[filter]],
                     onChange: (data) => handleDropDownIds(data, filter, "id")
                 }

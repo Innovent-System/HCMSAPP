@@ -7,17 +7,21 @@ export {
 
 
 export const formateISODateTime = (date) => {
+    if(!date) return "";
     return format(parseISO(date), "dd-MMM-yyyy 'at' h:mm:ss a");
 }
 
 export const formateISOTime = (date) => {
+    if(!date) return "";
     return format(parseISO(date), "h:mm:ss a");
 }
 export const formateDate = (date) => {
+    if(!date) return "";
     return format(date, "dd-MMM-yyyy");
 }
 
 export const formateISODate = (date) => {
+    if(!date) return "";
     return format(parseISO(date), "dd-MMM-yyyy");
 }
 export const getWeekStartEnd = (date = new Date()) => {
