@@ -57,12 +57,16 @@ const TableHead = [
 
 const DetailPanelContent = ({ row }) => {
 
-  const { TblContainer, TblHead, TblBody } = useTable(row, TableHead)
+  const { TblContainer, TblHead, TblBody, TblPagination } = useTable(row, TableHead)
   return (
-    <TblContainer>
-      <TblHead />
-      <TblBody />
-    </TblContainer>
+    <>
+      <TblContainer>
+        <TblHead />
+        <TblBody />
+      </TblContainer>
+      <TblPagination />
+    </>
+
   )
 }
 
@@ -123,7 +127,7 @@ const Reports = () => {
           </Grid>
         </Toolbar>
         </AppBar>
-        <DetailPanelContent row={records}/>
+        <DetailPanelContent row={records} />
         {/* <DataGrid
           columns={columns} rows={records}
           loading={false}

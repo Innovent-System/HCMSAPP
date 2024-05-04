@@ -1,20 +1,32 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Table, TableHead, TableRow, TableBody, TableCell, TablePagination, TableSortLabel, TableContainer, Paper } from '../deps/ui'
 
+/**
+ * @type {import('@mui/material').SxProps}
+ */
 const Styles = {
     table: {
-        mt: 3,
-        '& thead th': {
-            fontWeight: '600',
-            color: 'primary.main',
-            bgcolor: 'primary.light',
+        '& .MuiTableCell-root': {
+            padding: 0.5,
+            fontSize: 12
         },
-        '& tbody td': {
-            fontWeight: '300',
+        '& .MuiTableCell-head': {
+            fontWeight: 600
         },
-        '& tbody tr:hover': {
-            bgcolor: '#fffbf2',
-            cursor: 'pointer',
+        '& .MuiTableRow-head': {
+            bgcolor: 'primary.main',
+            position: 'sticky',
+            top: 0
+        },
+        '& tbody tr': {
+            '&:hover': {
+                bgcolor: '#fffbf2',
+                cursor: 'pointer',
+            },
+            '&:nth-child(even)': {
+                bgcolor: '#f2f2f2'
+            }
+
         },
     }
 }
@@ -26,19 +38,29 @@ const Styles = {
  * @param {Function} filterFn 
  * @returns 
  */
-export default function useTable(records, headCells, filterFn) {
+const pages = [30, 50, 100]
+export default function useTable(data, headCells, filterFn, pagination = true) {
 
 
 
-    const pages = [5, 10, 25]
+    const [records, setRecords] = useState([]);
     const [page, setPage] = useState(0)
     const [rowsPerPage, setRowsPerPage] = useState(pages[page])
     const [order, setOrder] = useState()
     const [orderBy, setOrderBy] = useState()
 
+    useEffect(() => {
+        if (data) {
+            if (pagination)
+                setRecords(data.slice(page * rowsPerPage, (page + 1) * rowsPerPage));
+            else setRecords(data)
+        }
+
+    }, [data])
+
     const TblContainer = useCallback(props => (
-        <TableContainer sx={{ px: 5 }} >
-            <Table>
+        <TableContainer sx={{ px: 1, overflow: 'auto', maxHeight: 500 }} >
+            <Table sx={Styles.table}>
                 {props.children}
             </Table>
         </TableContainer>
@@ -53,11 +75,7 @@ export default function useTable(records, headCells, filterFn) {
         }
 
         return (<TableHead>
-            <TableRow sx={{
-                '& .MuiTableCell-root': {
-                    padding: 0
-                }
-            }}>
+            <TableRow>
                 {
                     headCells.map(headCell => (
                         <TableCell key={headCell.id}
@@ -79,7 +97,7 @@ export default function useTable(records, headCells, filterFn) {
     const TblBody = useCallback((props) => {
 
         const cols = records.length ? headCells.filter(f => Object.keys(records[0]).includes(f.id)) : [];
-        return (<TableBody>
+        return (<TableBody >
             {records.map((row) => (
                 <TableRow
                     key={row.id}
@@ -101,11 +119,14 @@ export default function useTable(records, headCells, filterFn) {
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
+        setRecords(data.slice(newPage * rowsPerPage, (newPage + 1) * rowsPerPage));
     }
 
     const handleChangeRowsPerPage = event => {
-        setRowsPerPage(parseInt(event.target.value, 10))
+        const per = parseInt(event.target.value, 10);
+        setRowsPerPage(per)
         setPage(0);
+        setRecords(data.slice(0 * per, (0 + 1) * per));
     }
 
     const TblPagination = () => (<TablePagination
@@ -113,9 +134,10 @@ export default function useTable(records, headCells, filterFn) {
         page={page}
         rowsPerPageOptions={pages}
         rowsPerPage={rowsPerPage}
-        count={records.length}
-        onChangePage={handleChangePage}
-        onChangeRowsPerPage={handleChangeRowsPerPage}
+        count={data?.length}
+        onPageChange={handleChangePage}
+        // onChangePage={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
     />)
 
     function stableSort(array, comparator) {
