@@ -19,6 +19,24 @@ export const getApi = createApi({
       query: ({ url, data }) => ({ url, body: data, method: "POST", headers: headerOption() }),
       transformResponse: (response) => response?.result
     }),
+    file: builder.query({
+      query: ({ url, data, fileName = "report.pdf" }) => ({
+        url, body: data, method: "POST", headers: headerOption(),
+        responseHandler: async (response) => {
+
+          if (response.url.endsWith("download") && response.ok) {
+            const blob = await response.blob()
+            const url = window.URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = fileName // replace with desired file name
+            a.click()
+          } else
+            return await response.json();
+        },
+
+      }),
+    }),
     entityById: builder.query({
       query: ({ url, id }) => ({ url: `${url}/${id}`, headers: headerOption() }),
     }),
@@ -40,7 +58,7 @@ export const getApi = createApi({
   }),
 })
 
-export const { useEntitiesQuery, useEntityByIdQuery, useLazyEntityByIdQuery, usePostQuery, useLazyPostQuery, useSingleQuery, useLazySingleQuery, useAddMutation, useUpdateManyMutation, useRemoveMutation, useUpdateOneMutation } = getApi;
+export const { useEntitiesQuery, useEntityByIdQuery, useLazyFileQuery, useLazyEntityByIdQuery, usePostQuery, useLazyPostQuery, useSingleQuery, useLazySingleQuery, useAddMutation, useUpdateManyMutation, useRemoveMutation, useUpdateOneMutation } = getApi;
 
 export const useEntityAction = () => {
   const [addEntity] = useAddMutation();
@@ -62,7 +80,7 @@ export const AuthThunk = createAsyncThunk('auth/requestStatus', async ({ url, pa
 
     const response = await axios.get(domain.concat(url), {
       params: params,
-      headers: headerOption(), withCredentials: true
+      headers: headerOption()
     });
     const { result, message } = response.data;
     return fulfillWithValue({
@@ -83,7 +101,7 @@ export const AppRoutesThunk = createAsyncThunk('approute/requestStatus', async (
 
     const response = await axios.get(domain.concat(url), {
       params: params,
-      headers: headerOption(), withCredentials: true
+      headers: headerOption()
     });
     const { result, message } = response.data;
     return fulfillWithValue({
@@ -104,7 +122,7 @@ export const CommonDropDownThunk = createAsyncThunk('dropdown/requestStatus', as
 
     const response = await axios.get(domain.concat(url), {
       params: params,
-      headers: headerOption(), withCredentials: true
+      headers: headerOption()
     });
     const { result, message } = response.data;
     return fulfillWithValue({
@@ -125,7 +143,7 @@ export const EmployeeDataThunk = createAsyncThunk('employeedata/requestStatus', 
 
     const response = await axios.get(domain.concat(url), {
       params: params,
-      headers: headerOption(), withCredentials: true
+      headers: headerOption()
     });
     const { result, message } = response.data;
     return fulfillWithValue({
@@ -146,7 +164,7 @@ export const PayrollDataThunk = createAsyncThunk('payrolldata/requestStatus', as
 
     const response = await axios.get(domain.concat(url), {
       params: params,
-      headers: headerOption(), withCredentials: true
+      headers: headerOption()
     });
     const { result, message } = response.data;
     return fulfillWithValue({
@@ -188,6 +206,7 @@ const INITIAL_STATE = {
     userId: null
   },
   dropdownIds: {
+    companyIds: '',
     countryIds: '',
     employeeIds: '',
     stateIds: '',
@@ -195,7 +214,9 @@ const INITIAL_STATE = {
     areaIds: '',
     groupIds: '',
     departmentIds: '',
-    designationIds: ''
+    designationIds: '',
+    yearIds: '',
+    monthIds: ''
   },
   isReset: false,
   fileConfig: {

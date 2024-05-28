@@ -130,7 +130,7 @@ const ProfileRequest = () => {
                 ...(stateIds && { "companyInfo.fkStateId": { $in: stateIds.split(',') } }),
                 ...(cityIds && { "companyInfo.fkCityId": { $in: cityIds.split(',') } }),
                 ...(areaIds && { "companyInfo.fkAreaId": { $in: areaIds.split(',') } }),
-                ...(groupIds && { "companyInfo.fkGroupId": { $in: groupIds.split(',') } }),
+                ...(groupIds && { "companyInfo.fkEmployeeGroupId": { $in: groupIds.split(',') } }),
                 ...(departmentIds && { "companyInfo.fkDepartmentId": { $in: departmentIds.split(',') } }),
                 ...(designationIds && { "companyInfo.fkDesignationId": { $in: designationIds.split(',') } })
             }

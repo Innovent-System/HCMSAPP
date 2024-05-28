@@ -92,7 +92,7 @@ function trigger(eventType, data) {
 
 export default function PageHeader(props) {
   const classes = useStyles();
-  const { title, subTitle, icon, handleUpload, handleTemplate, enableFilter } = props;
+  const { title, subTitle, icon, handleUpload, handleTemplate, enableFilter, showQueryFilter = true } = props;
   const dispatch = useAppDispatch();
   const [drawer, setDrawer] = useState(false);
 
@@ -164,11 +164,14 @@ export default function PageHeader(props) {
               </IconButton>
             </Tooltip>
           )}
-          <Tooltip title="Filter" placement="top" arrow>
-            <IconButton size="small" onClick={() => setDrawer(true)}>
-              <FilterListIcon />
-            </IconButton>
-          </Tooltip>
+          {showQueryFilter && (
+            <Tooltip title="Filter" placement="top" arrow>
+              <IconButton size="small" onClick={() => setDrawer(true)}>
+                <FilterListIcon />
+              </IconButton>
+            </Tooltip>
+          )}
+
 
         </Grid>
       </Grid>
@@ -219,4 +222,5 @@ PageHeader.propTypes = {
   handleUpload: PropTypes.func,
   handleTemplate: PropTypes.func,
   enableFilter: PropTypes.bool,
+  showQueryFilter: PropTypes.bool,
 };

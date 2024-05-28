@@ -12,6 +12,7 @@ import { API_USER_LOGIN } from '../../../services/UrlService';
 import Auth from '../../../services/AuthenticationService';
 import bg from '../../../assets/images/bg-1.jpg'
 import logo from '../../../assets/images/Innovent-logo.png'
+import { jwtDecode } from 'jwt-decode';
 
 const initialFValues = {
   userName: "",
@@ -82,14 +83,16 @@ const SignIn = () => {
       setLoader(true);
       dispatch(AuthThunk({ url: API_USER_LOGIN, params: signInData })).unwrap().then(res => {
         if (res) {
-          const { data } = res;
+          const { token } = res.data;
+          const data = jwtDecode(token);
           dispatch(setUserInfo({
             email: data.email,
             clientId: data.clientId,
             companyId: data.companyId,
             userName: data.userName,
             fkEmployeeId: data.fkEmployeeId,
-            userId: data.userId
+            userId: data.userId,
+            token
           }))
           Auth.setItem("userInfo", {
             email: data.email,
@@ -97,9 +100,10 @@ const SignIn = () => {
             companyId: data.companyId,
             userName: data.userName,
             fkEmployeeId: data.fkEmployeeId,
-            userId: data.userId
+            userId: data.userId,
+            token
           });
-         
+
           navigate("/dashboard");
 
         }

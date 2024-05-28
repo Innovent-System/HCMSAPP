@@ -13,6 +13,31 @@ export const MimeTypesMap = {
     xls: 'application/vnd.ms-excel',
     xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 };
+const monthNames = ["January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+];
+export const getYears = (startYear = 2010) => {
+    const currentYear = new Date().getFullYear(), years = [];
+    while (startYear <= currentYear) {
+        const ints = startYear++
+        years.push({ id: ints, title: ints });
+    }
+    return years;
+}
+export const getMonths = () => monthNames.map((e, i) => ({ id: i, title: e }));
+
+
+
+export const AttendanceflagMap = {
+    0: { tag: "Holiday", color: "green" },
+    1: { tag: "Late", color: "yellow" },
+    2: { tag: "Half Day", color: "yellow" },
+    7: { tag: "Absent", color: "black" },
+    8: { tag: "Full Leave", color: "#ddd" },
+    9: { tag: "Half Leave", color: "#ddd" },
+    10: { tag: "Gazetted Holiday", color: "ddd" },
+    null: { tag: "Present", color: "blue" }
+}
 
 export function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -149,16 +174,16 @@ export function pluralize( /* n, [ n2, n3, ... ] str */) {
     );
 }
 
-export const getYears = (earliestYear = 2010) => {
-    let currentYear = new Date().getFullYear();
-    const years = [];
-    while (currentYear >= earliestYear) {
-        years.push(currentYear);
-        currentYear -= 1;
-    }
+// export const getYears = (earliestYear = 2010) => {
+//     let currentYear = new Date().getFullYear();
+//     const years = [];
+//     while (currentYear >= earliestYear) {
+//         years.push(currentYear);
+//         currentYear -= 1;
+//     }
 
-    return years;
-}
+//     return years;
+// }
 
 /**
  * console.log( pluralize( 1, 'the cat(+) live(-) outside' ) ) ;

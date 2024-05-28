@@ -28,6 +28,7 @@ export default function DatePicker(props) {
                         label={label}
                         {...others}
                         name={name}
+
                         value={value}
                         onChange={date => onChange(convertToDefEventPara(name, date))}
                         renderInput={(params) => <TextField fullWidth={true} {...(error && { error: true, helperText: error })} size={size} variant={variant}  {...params} />}
@@ -54,7 +55,13 @@ export default function DatePicker(props) {
                         {...others}
                         name={name}
                         value={value}
-                        onChange={date => onChange(convertToDefEventPara(name, date))}
+                        onChange={date => {
+                            const currentDate = new Date();
+                            date.setFullYear(currentDate.getFullYear());
+                            date.setMonth(currentDate.getMonth());
+                            date.setDate(currentDate.getDate());
+                            onChange(convertToDefEventPara(name, date))
+                        }}
                         renderInput={(params) => <TextField size={size} {...(error && { error: true, helperText: error })} fullWidth={true} variant={variant}  {...params} />}
                     />
                     :
@@ -63,7 +70,13 @@ export default function DatePicker(props) {
                         {...others}
                         name={name}
                         value={value}
-                        onChange={date => onChange(convertToDefEventPara(name, date))}
+                        onChange={date => {
+                            const currentDate = new Date();
+                            date.setFullYear(currentDate.getFullYear());
+                            date.setMonth(currentDate.getMonth());
+                            date.setDate(currentDate.getDate());
+                            onChange(convertToDefEventPara(name, date))
+                        }}
                         renderInput={(params) => <TextField size={size} {...(error && { error: true, helperText: error })} fullWidth={true} variant={variant}  {...params} />}
 
                     />
@@ -75,7 +88,7 @@ export default function DatePicker(props) {
                     <DesktopDatePicker
                         label={label}
                         {...others}
-                        
+
                         name={name}
                         value={value}
                         onChange={date => onChange(convertToDefEventPara(name, date))}

@@ -30,7 +30,13 @@ const Styles = {
         },
     }
 }
-
+const groupedData = (data) => data.reduce((acc, curr) => {
+    if (!acc[curr.employeeId]) {
+        acc[curr.employeeId] = [];
+    }
+    acc[curr.employeeId].push(curr);
+    return acc;
+}, {});
 /**
  * 
  * @param {Array<any>} records 
@@ -41,8 +47,6 @@ const Styles = {
 const pages = [30, 50, 100]
 export default function useTable(data, headCells, filterFn, pagination = true) {
 
-
-
     const [records, setRecords] = useState([]);
     const [page, setPage] = useState(0)
     const [rowsPerPage, setRowsPerPage] = useState(pages[page])
@@ -52,19 +56,22 @@ export default function useTable(data, headCells, filterFn, pagination = true) {
     useEffect(() => {
         if (data) {
             if (pagination)
-                setRecords(data.slice(page * rowsPerPage, (page + 1) * rowsPerPage));
+                setRecords(data.slice(0 * rowsPerPage, (0 + 1) * rowsPerPage));
             else setRecords(data)
+
+            setPage(0);
         }
 
     }, [data])
 
     const TblContainer = useCallback(props => (
-        <TableContainer sx={{ px: 1, overflow: 'auto', maxHeight: 500 }} >
+        <TableContainer sx={{ px: 1, overflow: 'auto' }} >
             <Table sx={Styles.table}>
                 {props.children}
             </Table>
         </TableContainer>
     ), []);
+
 
     const TblHead = useCallback(props => {
 
@@ -178,4 +185,52 @@ export default function useTable(data, headCells, filterFn, pagination = true) {
         TblPagination,
         recordsAfterPagingAndSorting
     }
+}
+
+
+const ReportTable = ({ data, headCells, options = { isPageBreak: false, pageBreakOn: "" } }) => {
+    const [records, setRecords] = useState([]);
+    const [page, setPage] = useState(0)
+    const [rowsPerPage, setRowsPerPage] = useState(pages[page])
+    const [order, setOrder] = useState()
+    const [orderBy, setOrderBy] = useState()
+    const { isPageBreak } = options;
+
+    useEffect(() => {
+        if (data) {
+            if (pagination)
+                setRecords(data.slice(page * rowsPerPage, (page + 1) * rowsPerPage));
+            else setRecords(data)
+        }
+
+    }, [data])
+
+    return (
+        <TableContainer>
+            {records.map((rec, i) => {
+
+                <TableHead>
+                    <TableRow>
+                        {
+                            headCells.map(headCell => (
+                                <TableCell key={headCell.id}
+                                    sortDirection={orderBy === headCell.id ? order : false}>
+                                    {headCell.disableSorting ? headCell.label :
+                                        <TableSortLabel
+                                            active={orderBy === headCell.id}
+                                            direction={orderBy === headCell.id ? order : 'asc'}
+                                            onClick={() => { handleSortRequest(headCell.id) }}>
+                                            {headCell.label}
+                                        </TableSortLabel>
+                                    }
+                                </TableCell>))
+                        }
+                    </TableRow>
+                </TableHead>
+
+            })}
+
+        </TableContainer>
+    )
+
 }

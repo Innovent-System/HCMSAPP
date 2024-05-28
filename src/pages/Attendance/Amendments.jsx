@@ -51,6 +51,7 @@ const fields = {
 const flagMap = {
     0: { tag: "H", color: "info" },
     1: { tag: "L", color: "warning" },
+    2: { tag: "HD", color: "warning" },
     7: { tag: "A", color: "error" },
     8: { tag: "FL", color: "secondary" },
     9: { tag: "HL", color: "secondary" },
@@ -212,7 +213,7 @@ const Amend = () => {
                 ...(stateIds && { "companyInfo.fkStateId": { $in: stateIds.split(',') } }),
                 ...(cityIds && { "companyInfo.fkCityId": { $in: cityIds.split(',') } }),
                 ...(areaIds && { "companyInfo.fkAreaId": { $in: areaIds.split(',') } }),
-                ...(groupIds && { "companyInfo.fkGroupId": { $in: groupIds.split(',') } }),
+                ...(groupIds && { "companyInfo.fkEmployeeGroupId": { $in: groupIds.split(',') } }),
                 ...(departmentIds && { "companyInfo.fkDepartmentId": { $in: departmentIds.split(',') } }),
                 ...(designationIds && { "companyInfo.fkDesignationId": { $in: designationIds.split(',') } }),
                 ...query

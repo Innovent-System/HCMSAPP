@@ -28,11 +28,15 @@ function CommonDropDown({ isMultiple, flexDirection = "row", breakpoints = DEFAU
 
     const handleDropDownIds = (data, type, matchWith) => {
         startTransition(() => {
-            const setOfIds = setDropDownIds(data, type, "_id");
+            const isMonthYear = ['year', 'month'].includes(type);
+            const setOfIds = setDropDownIds(data, type, isMonthYear ? 'id' : "_id");
             dispatch(dropDownIdsAction(setOfIds));
-            if (typeof setIdSet === "function") setIdSet(setOfIds);
-            if (["company", "area"].includes(type)) matchWith = "_id";
-            setFilter(data, type, matchWith);
+            if (typeof setIdSet === "function") setIdSet({ ...idset, ...setOfIds });
+            if (!isMonthYear) {
+                if (["company", "area", 'department', 'group', 'designation'].includes(type)) matchWith = "_id";
+                setFilter(data, type, matchWith);
+            }
+
         })
 
     }
@@ -83,6 +87,8 @@ CommonDropDown.propTypes = {
         [filterTypes.DEPARTMENT]: PropTypes.bool,
         [filterTypes.DESIGNATION]: PropTypes.bool,
         [filterTypes.EMPLOYEE]: PropTypes.bool,
+        [filterTypes.YEAR]: PropTypes.bool,
+        [filterTypes.MONTH]: PropTypes.bool,
     }),
     setProps: PropTypes.shape({
         [filterTypes.COMPANY]: PropTypes.object,
@@ -94,6 +100,8 @@ CommonDropDown.propTypes = {
         [filterTypes.DEPARTMENT]: PropTypes.object,
         [filterTypes.DESIGNATION]: PropTypes.object,
         [filterTypes.EMPLOYEE]: PropTypes.object,
+        [filterTypes.YEAR]: PropTypes.object,
+        [filterTypes.MONTH]: PropTypes.object,
     }),
     idSet: PropTypes.shape({
         countryIds: PropTypes.string,
@@ -104,6 +112,8 @@ CommonDropDown.propTypes = {
         departmentIds: PropTypes.string,
         designationIds: PropTypes.string,
         employeeIds: PropTypes.string,
+        yearIds: PropTypes.string,
+        monthIds: PropTypes.string
     }),
     setIdSet: PropTypes.func
 }

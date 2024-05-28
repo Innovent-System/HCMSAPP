@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { useAppSelector } from '../store/storehook';
+import { getMonths, getYears } from '../util/common';
 
 export const filterTypes = Object.freeze({
     DEFAULT: 'default',
@@ -13,6 +14,8 @@ export const filterTypes = Object.freeze({
     EMPLOYEE: 'employee',
     GROUP: 'group',
     DESIGNATION: 'designation',
+    YEAR: 'year',
+    MONTH: 'month'
 })
 
 const useStateWithCallbackLazy = initialValue => {
@@ -59,7 +62,7 @@ function range(start = 0, end = 0, step = 1) {
         }
     }
 }
-
+const _years = getYears(), _months = getMonths();
 export const useDropDown = () => {
     const [countries, setCountries] = useState([]);
     const [states, setStates] = useState([]);
@@ -72,6 +75,7 @@ export const useDropDown = () => {
     const DropDownData = useAppSelector(e => e.appdata.DropDownData);
     const employeeData = useAppSelector(e => e.appdata.employeeData);
 
+    const { companyIds, countryIds, stateIds, cityIds, departmentIds, areaIds, groupIds, designationIds } = useAppSelector(e => e.appdata.dropdownIds);
     const [filter, setFilter] = useState({
         type: filterTypes.DEFAULT,
         data: null,
@@ -111,7 +115,14 @@ export const useDropDown = () => {
         let ids = filter.data[0] ? filter.data.map(d => d[filter.matchWith]) : [];
         const _countries = [], _states = [], _cities = [], _areas = [], _employees = [];
         let count = -1;
-        let _areaIds = {};
+        let _companyIds = companyIds ? companyIds.split(",").reduce((acc, item) => { acc[item] = item; return acc }, {}) : {},
+            _departmentIds = departmentIds ? departmentIds.split(",").reduce((acc, item) => { acc[item] = item; return acc }, {}) : {},
+            _groupIds = groupIds ? groupIds.split(",").reduce((acc, item) => { acc[item] = item; return acc }, {}) : {},
+            _designationIds = designationIds ? designationIds.split(",").reduce((acc, item) => { acc[item] = item; return acc }, {}) : {},
+            _countryIds = countryIds ? countryIds.split(",").reduce((acc, item) => { acc[item] = item; return acc }, {}) : {},
+            _stateIds = stateIds ? stateIds.split(",").reduce((acc, item) => { acc[item] = item; return acc }, {}) : {},
+            _cityIds = cityIds ? cityIds.split(",").reduce((acc, item) => { acc[item] = item; return acc }, {}) : {},
+            _areaIds = areaIds ? areaIds.split(",").reduce((acc, item) => { acc[item] = item; return acc }, {}) : {}
         switch (filter.type) {
             case filterTypes.COMPANY:
                 if (ids.length) {
@@ -200,27 +211,41 @@ export const useDropDown = () => {
                 }
                 setAreas(_areas);
                 break;
-            case filterTypes.AREA:
-                if (ids.length) {
-                    _areaIds = ids.reduce((acc, item) => { acc[item] = item; return acc }, {});
-                }
-                break;
             default:
                 break;
         }
 
-        if (Object.keys(_areaIds).length) {
+        const hasFilters = {
+            company: Object.keys(_companyIds).length > 0,
+            country: Object.keys(_countryIds).length > 0,
+            state: Object.keys(_stateIds).length > 0,
+            city: Object.keys(_cityIds).length > 0,
+            area: Object.keys(_areaIds).length > 0,
+            department: Object.keys(_departmentIds).length > 0,
+            group: Object.keys(_groupIds).length > 0,
+            designation: Object.keys(_designationIds).length > 0,
+        };
+
+        if (!["employee", "year", "month"].includes(filter.type)) {
             count = employeeData.Employees.length;
             while (count--) {
                 const element = employeeData.Employees[count];
-                if (_areaIds[element.companyInfo.fkAreaId]) {
+
+                if ((!hasFilters.company || _companyIds[element.fkCompanyId]) &&
+                    (!hasFilters.country || _countryIds[element.companyInfo.fkCountryId]) &&
+                    (!hasFilters.state || _stateIds[element.companyInfo.fkStateId]) &&
+                    (!hasFilters.city || _cityIds[element.companyInfo.fkCityId]) &&
+                    (!hasFilters.area || _areaIds[element.companyInfo.fkAreaId]) &&
+                    (!hasFilters.department || _departmentIds[element.companyInfo.fkDepartmentId]) &&
+                    (!hasFilters.group || _groupIds[element.companyInfo.fkEmployeeGroupId]) &&
+                    (!hasFilters.designation || _designationIds[element.companyInfo.fkDesignationId])
+                ) {
                     _employees.push(element);
                 }
 
             }
+            setEmployees(_employees);
         }
-
-        setEmployees(_employees);
 
         if (callbackRef.current) {
             callbackRef.current({ countries, states, cities, areas })
@@ -243,6 +268,8 @@ export const useDropDown = () => {
         religion: employeeData.Religion,
         employeeStatus: employeeData.EmployeeStatus,
         leaveAccural: employeeData.LeaveAccural,
+        years: _years,
+        months: _months,
         setFilter: handleFilter,
         filterType: filterTypes
     }
@@ -265,7 +292,7 @@ export const useFilterBarEvent = (onReset) => {
     }, [onReset])
 }
 
-const { DEFAULT, COMPANY, COUNTRY, STATE, CITY, AREA, DEPARTMENT, GROUP, DESIGNATION, EMPLOYEE } = filterTypes;
+const { DEFAULT, COMPANY, COUNTRY, STATE, CITY, AREA, DEPARTMENT, GROUP, DESIGNATION, EMPLOYEE, YEAR, MONTH } = filterTypes;
 
 export const showFilterProps = {
     [COMPANY]: true,
@@ -276,7 +303,9 @@ export const showFilterProps = {
     [DEPARTMENT]: false,
     [GROUP]: false,
     [DESIGNATION]: false,
-    [EMPLOYEE]: false
+    [EMPLOYEE]: false,
+    [YEAR]: false,
+    [MONTH]: false
 }
 
 useDropDown.propTypes = {
@@ -298,8 +327,12 @@ export const Name_MAP = {
     [DEPARTMENT]: "departments",
     [GROUP]: "groups",
     [DESIGNATION]: "designations",
-    [EMPLOYEE]: 'employees'
+    [EMPLOYEE]: 'employees',
+    [YEAR]: 'years',
+    [MONTH]: 'months'
 }
+
+
 
 export const DROPDOWN_PROPS = {
     [COMPANY]: {
@@ -382,5 +415,25 @@ export const DROPDOWN_PROPS = {
         dataId: '_id',
         dataName: "fullName",
         defaultValue: []
+    },
+    [YEAR]: {
+        elementType: "dropdown",
+        name: "year",
+        label: "Year",
+        isNone: false,
+        dataId: "id",
+        dataName: "title",
+        defaultValue: _years[_years.length - 1].id,
+        // options: _years,
+    },
+    [MONTH]: {
+        elementType: "dropdown",
+        name: "month",
+        label: "Month",
+        isNone: false,
+        dataId: "id",
+        dataName: "title",
+        defaultValue: _months[new Date().getMonth()].id,
+        // options: _months,
     }
 }
