@@ -24,7 +24,6 @@ const TableHead = [
   { id: 'startDateTime', disableSorting: false, label: 'Actual In', valueGetter: ({ row }) => formateISODateTime(row.startDateTime) },
   { id: 'endDateTime', disableSorting: false, label: 'Actual Out', valueGetter: ({ row }) => formateISODateTime(row.endDateTime) },
   { id: 'status', disableSorting: false, label: 'Remarks', valueGetter: ({ row }) => AttendanceflagMap[row.status].tag }
-
 ];
 
 const DetailPanelContent = ({ row }) => {
@@ -60,7 +59,7 @@ const Reports = () => {
   const handleReport = (isDownload = false) => {
     setLoader(!loader);
     getAttendanceReport({
-      url: `${API.AttendanceReport}/${isDownload ? 'download' : 'view'}`,
+      url: `${API.Payslip}/${isDownload ? 'download' : 'view'}`,
       fileName: "AttendanceReport",
       data: {
         page: gridFilter.page,
@@ -119,7 +118,7 @@ const Reports = () => {
         </Grid>
 
         <Grid item sm={9} md={9} lg={9}>
-          <AppBar color='transparent' sx={{ borderRadius: 1, mb: 1 }} position='static'><Toolbar variant='dense'>
+          <AppBar color='transparent' sx={{ borderRadius: 1, mb: 1 }} position='sticky'><Toolbar variant='dense'>
             <Grid container alignItems="center">
               <Grid item>
                 <IconButton title='Print'>

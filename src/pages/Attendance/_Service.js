@@ -14,5 +14,6 @@ export const API = {
     MarkAttendance: "attendance/mark",
     AmendRoster: "attendance/amendroster",
     ApprovalAction: "attendance/approval/action",
+    Payslip: "payroll/report/payslip"
     // Designation: "employee/designation",
 }

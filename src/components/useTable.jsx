@@ -111,11 +111,7 @@ export default function useTable(data, headCells, filterFn, pagination = true) {
                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                 >
                     {cols.map((_key, index) =>
-                        <>
-                            {index === 0 ? <TableCell component="th" scope="row">
-                                {typeof _key?.valueGetter === "function" ? _key?.valueGetter({ row }) : row[_key.id]}
-                            </TableCell> : <TableCell sx={{ paddingLeft: 4 }} >{typeof _key?.valueGetter === "function" ? _key?.valueGetter({ row }) : row[_key.id]}</TableCell>}
-                        </>
+                        <TableCell key={'cell-' + index} sx={{ paddingLeft: 4 }} >{typeof _key?.valueGetter === "function" ? _key?.valueGetter({ row }) : row[_key.id]}</TableCell>
                     )
                     }
                 </TableRow>

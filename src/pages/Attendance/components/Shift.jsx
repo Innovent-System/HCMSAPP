@@ -7,7 +7,7 @@ import { API } from '../_Service';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAction } from '../../../store/actions/httpactions';
 import { GridToolbarContainer } from "../../../deps/ui";
 import { Circle, Add as AddIcon, Delete as DeleteIcon, } from "../../../deps/ui/icons";
-import DataGrid, { useGridApi, getActions,GridToolbar } from '../../../components/useDataGrid';
+import DataGrid, { useGridApi, getActions, GridToolbar } from '../../../components/useDataGrid';
 import { useSocketIo } from '../../../components/useSocketio';
 import ConfirmDialog from '../../../components/ConfirmDialog';
 import PropTypes from 'prop-types'
@@ -89,6 +89,11 @@ const flagCol = [
     }
 ]
 const DEFAULT_API = API.Shift;
+const setToCurrentDate = (date = new Date()) => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), now.getDate(),
+        date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
+}
 let editId = 0;
 export const AddShift = ({ openPopup, setOpenPopup, isEdit = false, row = null }) => {
     const { addEntity } = useEntityAction();
@@ -105,7 +110,13 @@ export const AddShift = ({ openPopup, setOpenPopup, isEdit = false, row = null }
         if (openPopup && !isEdit)
             resetForm();
         else {
-            setFormValue(row);
+            setFormValue({
+                ...row,
+                startTime: new Date(row.startTime),
+                endTime: new Date(row.endTime),
+                minTime: new Date(row.minTime),
+                maxTime: new Date(row.maxTime)
+            });
             setFlagRow(row.attendanceflag.map(a => ({ ...a, name: attendanceFlag.find(c => c.flagCode === a.flagCode).name, id: a._id })));
         }
     }, [openPopup, formApi])
@@ -129,7 +140,13 @@ export const AddShift = ({ openPopup, setOpenPopup, isEdit = false, row = null }
 
         if (validateFields()) {
             let values = getValue();
-
+            values = {
+                ...values,
+                startTime: setToCurrentDate(values.startTime),
+                endTime: setToCurrentDate(values.endTime),
+                minTime: setToCurrentDate(values.minTime),
+                maxTime: setToCurrentDate(values.maxTime)
+            }
             if (isEdit)
                 values._id = editId
 
