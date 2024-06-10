@@ -5,7 +5,7 @@ import Routes from "./router";
 import { ThemeProvider } from "./deps/ui";
 import GlobalStyles from './layout/styles/GlobalStyles';
 import { Provider } from "react-redux";
-import { store } from "./store/reducers/store";
+import { store } from "./store/store";
 import { SocketContext, appsocket } from './services/socketService';
 import { SnackbarProvider } from 'notistack';
 import { theme } from './config/theme';

@@ -1,3 +1,4 @@
+import React from 'react';
 import { ElementType } from '../components/controls/Controls';
 /**
  * @typedef {Object} RefType
@@ -45,6 +46,7 @@ import { ElementType } from '../components/controls/Controls';
  * @property {RefType} ref
  * @property {Array<FormType>} formData
  * @prop {BreakPointsType} breakpoints
+ * @prop {React.ReactNode} children
  * @prop {boolean} isValidate
  * @prop {boolean} isEdit
  * @prop {"row" | "column"} flexDirection

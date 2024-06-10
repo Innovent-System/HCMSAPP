@@ -1,12 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { AutoForm } from '../../../../components/useForm'
-import { DisplaySettings, Percent, AttachMoney, RemoveCircleOutline, AddCircleOutline, SaveTwoTone, Add } from '../../../../deps/ui/icons'
-import { Divider, Chip, InputAdornment, IconButton, Fab, Stack } from '../../../../deps/ui'
+import { DisplaySettings, Percent, AttachMoney, RemoveCircleOutline, AddCircleOutline, SaveTwoTone } from '../../../../deps/ui/icons'
+import { Divider, Chip, InputAdornment, IconButton, Fab } from '../../../../deps/ui'
 import { API, basicSalaryTypeList, PercentageBased, dayRange, defaultCaluation, payScheduleType, perDayCalulationsList, PayslipType, PercentageOfBasicSalary } from '../../_Service'
 import { useAppDispatch, useAppSelector } from '../../../../store/storehook'
 import { PayrollDataThunk, useEntityAction, useLazyEntityByIdQuery } from '../../../../store/actions/httpactions'
-import Popup from '../../../../components/Popup';
-import Controls from '../../../../components/controls/Controls'
 import { useSocketIo } from '../../../../components/useSocketio'
 import { GET_PAYROLL_DATA } from '../../../../services/UrlService'
 
@@ -20,12 +18,12 @@ const listStyle = {
     color: 'ActiveBorder'
 }
 const DEFAULT_API = API.PayrollSetup, DEFAULT_NAME = "Setup";
-const PaySettings = () => {
+const PaySettings = ({ setupId, paySettingData }) => {
     const formApi = useRef(null);
-    const titleFormApi = useRef(null);
+
     const allowanceApi = useRef(null);
     const dispatch = useAppDispatch();
-    const [openPopup, setOpenPopup] = useState(false);
+
     const isEdit = useRef(true);
     const { AllowancesTitle, DeductionsTitle, PayrollSetups } = useAppSelector(c => c.appdata.payrollData)
     const allowances = useRef([{ fkAllowanceId: AllowancesTitle.length ? AllowancesTitle[0]._id : "", type: PercentageOfBasicSalary, amount: 0, percentage: 0 }]).current
@@ -33,7 +31,7 @@ const PaySettings = () => {
     const [disabledAllowance, setDisabledAllowance] = useState(AllowancesTitle?.length ? [AllowancesTitle[0]._id] : []);
     const [disabledDeduction, setDisabledDeduct] = useState(DeductionsTitle?.length ? [DeductionsTitle[0]._id] : [])
     const { addEntity } = useEntityAction();
-    const [setupId, setSetupId] = useState(() => PayrollSetups?.length ? PayrollSetups[0]._id : "");
+
     const [getPayrollSetup] = useLazyEntityByIdQuery();
 
     const handleAddItems = (isAllowance = true) => {
@@ -55,21 +53,21 @@ const PaySettings = () => {
 
     }
 
-    const handleSetup = () => {
-        if (isEdit.current) return;
-        dispatch(PayrollDataThunk({ url: GET_PAYROLL_DATA })).unwrap().then(({ data }) => {
-            if (data?.PayrollSetups?.length) {
-                const id = data.PayrollSetups[data.PayrollSetups.length - 1]._id;
-                handleSetupChange(id);
-            }
-        });
-    }
+    // const handleSetup = () => {
+    //     if (isEdit.current) return;
+    //     dispatch(PayrollDataThunk({ url: GET_PAYROLL_DATA })).unwrap().then(({ data }) => {
+    //         if (data?.PayrollSetups?.length) {
+    //             const id = data.PayrollSetups[data.PayrollSetups.length - 1]._id;
+    //             handleSetupChange(id);
+    //         }
+    //     });
+    // }
     useEffect(() => {
-        if (formApi.current && PayrollSetups?.length) {
-            handleSetupChange(PayrollSetups[0]._id);
+        if (formApi.current && paySettingData) {
+            handleSetupChange(paySettingData);
         }
-    }, [formApi])
-    const { socketData } = useSocketIo(`changeInPayroll${DEFAULT_NAME}`, handleSetup);
+    }, [paySettingData, formApi])
+    // const { socketData } = useSocketIo(`changeInPayroll${DEFAULT_NAME}`, handleSetup);
 
     const handleRemoveItems = (_index, isAllowance = true) => {
         const { getValue, setFormValue } = formApi.current;
@@ -107,17 +105,13 @@ const PaySettings = () => {
             dataToInsert._id = setupId;
             dataToInsert.name = PayrollSetups.find(c => c._id === setupId).name;
         }
-        else {
-            const { getValue, validateFields } = titleFormApi.current
-            if (!validateFields()) return;
-            dataToInsert.name = getValue().name;
-        }
+        // else {
+        //     const { getValue, validateFields } = titleFormApi.current
+        //     if (!validateFields()) return;
+        //     dataToInsert.name = getValue().name;
+        // }
 
-        addEntity({ url: DEFAULT_API, data: [dataToInsert] }).then(r => {
-            if (!isEdit.current) {
-                setOpenPopup(false);
-            }
-        });
+        addEntity({ url: DEFAULT_API, data: [dataToInsert] });
     }
 
     const formData = [
@@ -463,82 +457,39 @@ const PaySettings = () => {
         },
     ]
 
-    const tileFormData = [
-        {
-            elementType: "inputfield",
-            name: "name",
-            label: `${DEFAULT_NAME} Title`,
-            required: true,
-            onKeyDown: (e) => e.keyCode == 13 && handleSubmit(),
-            validate: {
-                errorMessage: `${DEFAULT_NAME} Title is required`
-            },
-            defaultValue: ""
+
+
+    const handleSetupChange = (result) => {
+        // getPayrollSetup({ url: DEFAULT_API, id: id }).then(p => {
+        if (result) {
+            const { startDay, endDay, deletePayrollAfterDays, calculationMethod,
+                basicSalaryType,
+                percentage_or_amount,
+                allowances: _allowances, deductions: _deductions
+            } = result;
+            const { setFormValue } = formApi.current;
+            // setSetupId(id);
+            setDisabledAllowance(_allowances.map(a => a.fkAllowanceId));
+            setDisabledDeduct(_deductions.map(d => d.fkDeductionId));
+            setFormValue({
+                startDay,
+                endDay: startDay === 0 ? "Last Day of Month" : endDay,
+                deletePayrollAfterDays,
+                calculationMethod,
+                basicSalaryType,
+                percentage: basicSalaryType === PercentageBased ? percentage_or_amount : 0,
+                amount: basicSalaryType !== PercentageBased ? percentage_or_amount : 0,
+                allowances: _allowances.map(c => ({ fkAllowanceId: c.fkAllowanceId, type: c.type, percentage: c.type === PercentageOfBasicSalary ? c.percentage_or_amount : 0, amount: c.type !== PercentageOfBasicSalary ? c.percentage_or_amount : 0 })),
+                deductions: _deductions.map(c => ({ fkDeductionId: c.fkDeductionId, type: c.type, percentage: c.type === PercentageOfBasicSalary ? c.percentage_or_amount : 0, amount: c.type !== PercentageOfBasicSalary ? c.percentage_or_amount : 0 }))
+            })
         }
-    ];
-    const handleShow = () => {
-        const { resetForm } = titleFormApi.current
-        isEdit.current = false;
-        resetForm()
-        setOpenPopup(true);
-    }
 
-    const handleSetupChange = (id) => {
-        getPayrollSetup({ url: DEFAULT_API, id: id }).then(p => {
-            if (p?.data?.result) {
-                const { startDay, endDay, deletePayrollAfterDays, calculationMethod,
-                    basicSalaryType,
-                    percentage_or_amount,
-                    allowances: _allowances, deductions: _deductions
-                } = p.data.result;
-                const { setFormValue } = formApi.current;
-                setSetupId(id);
-                setDisabledAllowance(_allowances.map(a => a.fkAllowanceId));
-                setDisabledDeduct(_deductions.map(d => d.fkDeductionId));
-                setFormValue({
-                    startDay,
-                    endDay: startDay === 0 ? "Last Day of Month" : endDay,
-                    deletePayrollAfterDays,
-                    calculationMethod,
-                    basicSalaryType,
-                    percentage: basicSalaryType === PercentageBased ? percentage_or_amount : 0,
-                    amount: basicSalaryType !== PercentageBased ? percentage_or_amount : 0,
-                    allowances: _allowances.map(c => ({ fkAllowanceId: c.fkAllowanceId, type: c.type, percentage: c.type === PercentageOfBasicSalary ? c.percentage_or_amount : 0, amount: c.type !== PercentageOfBasicSalary ? c.percentage_or_amount : 0 })),
-                    deductions: _deductions.map(c => ({ fkDeductionId: c.fkDeductionId, type: c.type, percentage: c.type === PercentageOfBasicSalary ? c.percentage_or_amount : 0, amount: c.type !== PercentageOfBasicSalary ? c.percentage_or_amount : 0 }))
-                })
-            }
-
-        })
+        // })
     }
     return (
         <>
-            <Stack width={300} justifyContent='flex-end' sx={{ float: 'right' }} flexDirection='row'>
-                <Controls.Select
-                    options={PayrollSetups}
-                    label='Payroll Setup'
-                    value={setupId}
-                    onChange={(e) => handleSetupChange(e.target.value)}
-                    name='setup'
-                    dataId="_id"
-                    dataName="name"
-                    isNone={false}
-                />
-                <IconButton onClick={handleShow}><Add /></IconButton>
-            </Stack>
-
             <AutoForm formData={formData} ref={formApi} isValidate={true} />
             <Fab sx={{ position: 'absolute', bottom: 16, right: 16 }} onClick={() => { isEdit.current = true; handleSubmit() }} color='success' title='Save' ><SaveTwoTone fontSize='large' /></Fab>
-
-            <Popup
-                title="Add Payroll Setup"
-                openPopup={openPopup}
-                maxWidth="sm"
-                keepMounted={true}
-                isEdit={isEdit.current}
-                addOrEditFunc={handleSubmit}
-                setOpenPopup={setOpenPopup}>
-                <AutoForm formData={tileFormData} ref={titleFormApi} isValidate={true} />
-            </Popup>
         </>
     )
 }

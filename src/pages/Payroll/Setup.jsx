@@ -1,21 +1,94 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import PageHeader from '../../components/PageHeader'
-import { PeopleOutline } from '../../deps/ui/icons'
+import { PeopleOutline, Add } from '../../deps/ui/icons'
+import { Stack, IconButton } from '../../deps/ui'
 import Tabs from '../../components/Tabs'
 import PaySettings from './components/setups/PaySettings';
+import Popup from '../../components/Popup';
+import Controls from '../../components/controls/Controls'
+import { useAppSelector } from '../../store/storehook';
+import { AutoForm } from '../../components/useForm'
+import { useEntityAction, useLazyEntityByIdQuery } from '../../store/actions/httpactions';
+import { API } from './_Service';
 
 
-const tabs = [
-    {
-        title: "Pay Setting",
-        panel: <PaySettings />
-    }
-]
 
+const DEFAULT_API = API.PayrollSetup;
 export default function Manage() {
-    const [value, setValue] = useState('0')
+    const [openPopup, setOpenPopup] = useState(false);
+    const titleFormApi = useRef(null);
+    const { PayrollSetups } = useAppSelector(c => c.appdata.payrollData);
+    const { addEntity } = useEntityAction();
+    const [getPayrollSetup] = useLazyEntityByIdQuery();
+    const [setupId, setSetupId] = useState(() => PayrollSetups?.length ? PayrollSetups[0]._id : "");
+    const [value, setValue] = useState('0');
+
+    useEffect(() => {
+
+    }, [PayrollSetups])
+    const handleSubmit = () => {
+        const { getValue, validateFields } = titleFormApi.current
+        if (!validateFields()) return;
+        addEntity({ url: DEFAULT_API, data: [getValue()] });
+    }
+
+    const tabs = useMemo(() =>
+        [
+            {
+                title: "Pay Setting",
+                panel: <PaySettings setupId={setupId} />
+            }
+        ]
+        , [setupId])
+
+    const tileFormData = [
+        {
+            elementType: "inputfield",
+            name: "name",
+            label: `Setup Title`,
+            required: true,
+            onKeyDown: (e) => e.keyCode == 13 && handleSubmit(),
+            validate: {
+                errorMessage: `Setup Title is required`
+            },
+            defaultValue: ""
+        }
+    ];
+
+    const handleShow = () => {
+        const { resetForm } = titleFormApi.current
+        // isEdit.current = false;
+        resetForm()
+        setOpenPopup(true);
+    }
+
     return (
+        <>
+            <Popup
+                title="Add Payroll Setup"
+                openPopup={openPopup}
+                maxWidth="sm"
+                keepMounted={true}
+                isEdit={false}
+                addOrEditFunc={handleSubmit}
+                setOpenPopup={setOpenPopup}>
+                <AutoForm formData={tileFormData} ref={titleFormApi} isValidate={true} />
+            </Popup>
+            <Stack width={300} justifyContent='flex-end' sx={{ float: 'right' }} flexDirection='row'>
+                <Controls.Select
+                    options={PayrollSetups}
+                    label='Payroll Setup'
+                    value={setupId}
+                    onChange={(e) => setSetupId(e.target.value)}
+                    name='setup'
+                    dataId='_id'
+                    dataName="name"
+                    isNone={false}
+                />
+                <IconButton onClick={handleShow}><Add /></IconButton>
+            </Stack>
             <Tabs orientation='horizontal' value={value} setValue={setValue} TabsConfig={tabs} />
+        </>
     );
 }
 

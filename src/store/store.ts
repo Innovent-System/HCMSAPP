@@ -1,6 +1,6 @@
 
 import { configureStore } from '@reduxjs/toolkit'
-import { getApi, appSlice, empSlice } from '../actions/httpactions'
+import { getApi, appSlice, empSlice } from './actions/httpactions'
 
 
 export const store = configureStore({
