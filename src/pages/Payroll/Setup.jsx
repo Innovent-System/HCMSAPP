@@ -1,7 +1,7 @@
 import React, { useState, useRef, useMemo, useEffect } from 'react';
 import PageHeader from '../../components/PageHeader'
 import { PeopleOutline, Add } from '../../deps/ui/icons'
-import { Stack, IconButton } from '../../deps/ui'
+import { Stack, IconButton, Divider } from '../../deps/ui'
 import Tabs from '../../components/Tabs'
 import PaySettings from './components/setups/PaySettings';
 import Popup from '../../components/Popup';
@@ -20,12 +20,18 @@ export default function Manage() {
     const { PayrollSetups } = useAppSelector(c => c.appdata.payrollData);
     const { addEntity } = useEntityAction();
     const [getPayrollSetup] = useLazyEntityByIdQuery();
-    const [setupId, setSetupId] = useState(() => PayrollSetups?.length ? PayrollSetups[0]._id : "");
+    const [setup, setSetup] = useState(null);
     const [value, setValue] = useState('0');
+    const [setupId, setSetupId] = useState(() => PayrollSetups?.length ? PayrollSetups[0]._id : "");
+    const handleSetup = (id) => getPayrollSetup({ url: DEFAULT_API, id }).then(p => {
+        setSetupId(id);
+        setSetup(p.data.result);
+    });
 
     useEffect(() => {
-
+        if (PayrollSetups?.length) handleSetup(PayrollSetups[0]._id);
     }, [PayrollSetups])
+
     const handleSubmit = () => {
         const { getValue, validateFields } = titleFormApi.current
         if (!validateFields()) return;
@@ -36,10 +42,10 @@ export default function Manage() {
         [
             {
                 title: "Pay Setting",
-                panel: <PaySettings setupId={setupId} />
+                panel: <PaySettings data={setup} />
             }
         ]
-        , [setupId])
+        , [setup])
 
     const tileFormData = [
         {
@@ -79,7 +85,7 @@ export default function Manage() {
                     options={PayrollSetups}
                     label='Payroll Setup'
                     value={setupId}
-                    onChange={(e) => setSetupId(e.target.value)}
+                    onChange={(e) => handleSetup(e.target.value)}
                     name='setup'
                     dataId='_id'
                     dataName="name"
@@ -87,6 +93,7 @@ export default function Manage() {
                 />
                 <IconButton onClick={handleShow}><Add /></IconButton>
             </Stack>
+            
             <Tabs orientation='horizontal' value={value} setValue={setValue} TabsConfig={tabs} />
         </>
     );

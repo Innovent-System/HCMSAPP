@@ -18,7 +18,7 @@ const listStyle = {
     color: 'ActiveBorder'
 }
 const DEFAULT_API = API.PayrollSetup, DEFAULT_NAME = "Setup";
-const PaySettings = ({ setupId, paySettingData }) => {
+const PaySettings = ({ data }) => {
     const formApi = useRef(null);
 
     const allowanceApi = useRef(null);
@@ -63,10 +63,10 @@ const PaySettings = ({ setupId, paySettingData }) => {
     //     });
     // }
     useEffect(() => {
-        if (formApi.current && paySettingData) {
-            handleSetupChange(paySettingData);
+        if (formApi.current && data) {
+            handleSetupChange(data);
         }
-    }, [paySettingData, formApi])
+    }, [data, formApi])
     // const { socketData } = useSocketIo(`changeInPayroll${DEFAULT_NAME}`, handleSetup);
 
     const handleRemoveItems = (_index, isAllowance = true) => {
@@ -102,8 +102,8 @@ const PaySettings = ({ setupId, paySettingData }) => {
         if (isEdit.current) {
             const { validateFields: allValidateFields } = allowanceApi.current;
             if (!validateFields() || !allValidateFields()) return;
-            dataToInsert._id = setupId;
-            dataToInsert.name = PayrollSetups.find(c => c._id === setupId).name;
+            dataToInsert._id = data._id;
+            dataToInsert.name = PayrollSetups.find(c => c._id === data._id).name;
         }
         // else {
         //     const { getValue, validateFields } = titleFormApi.current
@@ -130,9 +130,9 @@ const PaySettings = ({ setupId, paySettingData }) => {
             breakpoints,
             dataId: "id",
             dataName: "title",
-            onChange: (data) => {
+            onChange: (day) => {
                 const { setFormValue } = formApi.current;
-                setFormValue({ endDay: data === 0 ? "Last Day of Month" : data - 1 });
+                setFormValue({ endDay: day === 0 ? "Last Day of Month" : day - 1 });
 
             },
             isNone: false,
@@ -468,7 +468,7 @@ const PaySettings = ({ setupId, paySettingData }) => {
                 allowances: _allowances, deductions: _deductions
             } = result;
             const { setFormValue } = formApi.current;
-            // setSetupId(id);
+  
             setDisabledAllowance(_allowances.map(a => a.fkAllowanceId));
             setDisabledDeduct(_deductions.map(d => d.fkDeductionId));
             setFormValue({
