@@ -24,7 +24,8 @@ const Styles = {
 
 export default function Popup(props) {
 
-    const { title, children, openPopup, setOpenPopup, buttonName = "", fullScreen = false, maxWidth = "md", isEdit, addOrEditFunc, footer, keepMounted } = props;
+    const { title, children,
+        openPopup, setOpenPopup, buttonName = "", fullScreen = false, maxWidth = "md", isEdit = false, addOrEditFunc = () => { }, footer, keepMounted = false } = props;
 
 
     return (
@@ -63,8 +64,3 @@ Popup.propTypes = {
     fullScreen: PropTypes.bool
 }
 
-Popup.defaultProps = {
-    isEdit: false,
-    keepMounted: false,
-    addOrEditFunc: () => { },
-}

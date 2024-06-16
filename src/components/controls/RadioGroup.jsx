@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
  */
 export default function RadioGroup(props) {
 
-    const { name, label, value, onChange, items } = props;
+    const { name, label, value = null, onChange, items } = props;
 
     return (
         <FormControl>
@@ -29,10 +29,6 @@ export default function RadioGroup(props) {
     )
 }
 
-
-RadioGroup.defaultProps = {
-    value:null
-}
 
 RadioGroup.propTypes = {
     name:PropTypes.string.isRequired,

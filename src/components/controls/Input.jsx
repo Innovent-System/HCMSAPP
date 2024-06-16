@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
  */
 export default function Input(props) {
 
-  const { name, label, variant = "outlined", value, error = null, onChange, sx = {}, ...other } = props;
+  const { name, label, variant = "outlined", value = null, error = null, onChange, sx = {}, ...other } = props;
   return (
     <TextField
       variant={variant}
@@ -29,9 +29,6 @@ export default function Input(props) {
   )
 }
 
-Input.defaultProps = {
-  value: null
-}
 
 Input.propTypes = {
   name: PropTypes.string,

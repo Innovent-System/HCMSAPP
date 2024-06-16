@@ -14,7 +14,7 @@ const ChartType = {
 }
 
 
-const Amchart = ({ chartId, type, data, options }) => {
+const Amchart = ({ chartId, type = 'bar', data, options }) => {
     
     const [amchart,setAmChart] = useState(null);
     useEffect(() => {
@@ -173,10 +173,6 @@ Amchart.propTypes = {
     parentLabel: PropTypes.arrayOf(PropTypes.string).isRequired,
     data: PropTypes.arrayOf(PropTypes.object).isRequired,
     options: PropTypes.object.isRequired
-};
-
-Amchart.defaultProps = {
-    type: "bar"
 };
 
 export default Amchart;

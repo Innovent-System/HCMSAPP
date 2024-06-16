@@ -17,7 +17,7 @@ const DashBoard = () => {
            <Grid  container spacing={3}>
 
             <Grid lg={12} sm={12} item>
-                <Amchart chartId="flag-6" parentLabel={label} data={data} options={{
+                <Amchart chartId="flag-6" type='bar' parentLabel={label} data={data} options={{
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {

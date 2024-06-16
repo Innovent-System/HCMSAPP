@@ -1,5 +1,5 @@
 import React from 'react'
-import { Dialog, DialogTitle, DialogContent, Typography, DialogActions,IconButton } from '../deps/ui';
+import { Dialog, DialogTitle, DialogContent, Typography, DialogActions, IconButton } from '../deps/ui';
 import Controls from "./controls/Controls";
 import { Close as CloseIcon } from '../deps/ui/icons';
 import PropTypes from 'prop-types'
@@ -24,7 +24,7 @@ const Styles = {
 
 export default function ErrorPopup(props) {
 
-    const { title, children, openPopup, setOpenPopup, fullScreen = false, maxWidth = "md", isEdit, addOrEditFunc, footer, keepMounted } = props;
+    const { title, children, openPopup, setOpenPopup, fullScreen = false, maxWidth = "md", isEdit = false, addOrEditFunc = () => {}, footer, keepMounted = false } = props;
 
 
     return (
@@ -60,10 +60,4 @@ ErrorPopup.propTypes = {
     footer: PropTypes.node,
     keepMounted: PropTypes.bool,
     fullScreen: PropTypes.bool
-}
-
-ErrorPopup.defaultProps = {
-    isEdit: false,
-    keepMounted: false,
-    addOrEditFunc: () => { },
 }
