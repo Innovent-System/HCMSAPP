@@ -10,6 +10,7 @@ import { useAppSelector } from '../../store/storehook';
 import { AutoForm } from '../../components/useForm'
 import { useEntityAction, useLazyEntityByIdQuery } from '../../store/actions/httpactions';
 import { API } from './_Service';
+import { AutoDeduction } from './components/setups/AutoDeduction';
 
 
 
@@ -46,7 +47,7 @@ export default function Manage() {
             },
             {
                 title: "Auto Dedcution",
-                panel: <PaySettings data={setup} />
+                panel: <AutoDeduction data={setup} />
             }
         ]
         , [setup])

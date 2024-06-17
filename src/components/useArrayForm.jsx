@@ -94,7 +94,13 @@ export const ArrayForm = forwardRef(function (props, ref) {
     const { formData, initialState, value, onChange, name, breakpoints, children, isValidate = false, isEdit = false, flexDirection = "row", as = "form", ...other } = props;
     const formStates = useRef({
         initialValues: [],
-        errorProps: [],
+        errorProps: formData.filter(e => "validate" in e).map(m => ({
+            [m.name]: "",
+            validate: m.validate?.validate,
+            when: m.validate?.when,
+            message: m.validate.errorMessage,
+            required: typeof m["required"] === "function" ? m["required"] : true
+        })),
     });
     const keyId = useId();
     const { errorProps, initialValues } = formStates.current;
@@ -137,67 +143,67 @@ export const ArrayForm = forwardRef(function (props, ref) {
     } = useArrayForm(initialValues, isValidate, validateField, onChange, name, value);
 
 
-    useEffect(() => {
-        // if(!isEdit && Object.keys(initialValues).length === Object.keys(values).length) return
-        const valuesData = [];
+    // useEffect(() => {
+    //     // if(!isEdit && Object.keys(initialValues).length === Object.keys(values).length) return
+    //     const valuesData = [];
 
-        for (const state of value) {
-            const pushObject = {};
-            for (const item of formData) {
-                if ("Component" in item) {
-                    for (const childItem of item._children) {
-                        if ("validate" in childItem) {
-                            const exists = errorProps.findIndex(c => c[childItem.name] === "");
-                            if (exists === -1)
-                                errorProps.push({
-                                    [childItem.name]: "",
-                                    validate: childItem.validate?.validate,
-                                    message: childItem.validate.errorMessage,
-                                    when: childItem.validate?.when,
-                                    required: typeof childItem["required"] === "function" ? childItem["required"] : true
-                                })
+    //     for (const state of value) {
+    //         const pushObject = {};
+    //         for (const item of formData) {
+    //             if ("Component" in item) {
+    //                 for (const childItem of item._children) {
+    //                     if ("validate" in childItem) {
+    //                         const exists = errorProps.findIndex(c => c[childItem.name] === "");
+    //                         if (exists === -1)
+    //                             errorProps.push({
+    //                                 [childItem.name]: "",
+    //                                 validate: childItem.validate?.validate,
+    //                                 message: childItem.validate.errorMessage,
+    //                                 when: childItem.validate?.when,
+    //                                 required: typeof childItem["required"] === "function" ? childItem["required"] : true
+    //                             })
 
-                            delete childItem.validate;
-                        }
-                        if ("defaultValue" in childItem) {
-                            const value = childItem.defaultValue;
-                            delete childItem.defaultValue;
-                            childItem.name && Object.assign(pushObject, { [childItem.name]: state[childItem.name] })
-                        }
+    //                         delete childItem.validate;
+    //                     }
+    //                     if ("defaultValue" in childItem) {
+    //                         const value = childItem.defaultValue;
+    //                         delete childItem.defaultValue;
+    //                         childItem.name && Object.assign(pushObject, { [childItem.name]: state[childItem.name] })
+    //                     }
 
-                    }
-                    continue;
-                }
+    //                 }
+    //                 continue;
+    //             }
 
-                if ("validate" in item) {
-                    const exists = errorProps.findIndex(c => c[item.name] === "");
-                    if (exists === -1)
-                        errorProps.push({
-                            [item.name]: "",
-                            validate: item.validate?.validate,
-                            when: item.validate?.when,
-                            message: item.validate.errorMessage,
-                            required: typeof item["required"] === "function" ? item["required"] : true
-                        })
-                    delete item.validate;
-                }
+    //             if ("validate" in item) {
+    //                 const exists = errorProps.findIndex(c => c[item.name] === "");
+    //                 if (exists === -1)
+    //                     errorProps.push({
+    //                         [item.name]: "",
+    //                         validate: item.validate?.validate,
+    //                         when: item.validate?.when,
+    //                         message: item.validate.errorMessage,
+    //                         required: typeof item["required"] === "function" ? item["required"] : true
+    //                     })
+    //                 delete item.validate;
+    //             }
 
-                const value = item.defaultValue;
-                delete item.defaultValue;
-                item.name && Object.assign(pushObject, { [item.name]: state[item.name] })
+    //             const value = item.defaultValue;
+    //             delete item.defaultValue;
+    //             item.name && Object.assign(pushObject, { [item.name]: state[item.name] })
 
-            }
-            // if (initialValues.length < initialState.length)
-            valuesData.push(pushObject)
+    //         }
+    //         // if (initialValues.length < initialState.length)
+    //         valuesData.push(pushObject)
 
-        }
+    //     }
 
-        // formStates.current.initialValues = valuesData;
-        // setValues(valuesData);
-        // if (!valuesData.length && errors.length)
-        //     setErrors([])
+    //     // formStates.current.initialValues = valuesData;
+    //     // setValues(valuesData);
+    //     // if (!valuesData.length && errors.length)
+    //     //     setErrors([])
 
-    }, [value])
+    // }, [value])
 
     const setFormValue = (properties = []) => {
         // if(!isEdit) return console.warn("set Values only in Edit mode");
