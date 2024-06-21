@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { AutoForm } from '../../../../components/useForm'
 import { DisplaySettings, Percent, AttachMoney, RemoveCircleOutline, AddCircleOutline, SaveTwoTone } from '../../../../deps/ui/icons'
-import { Divider, Chip, InputAdornment, IconButton, Fab } from '../../../../deps/ui'
+import { Divider, Chip, InputAdornment, IconButton, Fab, Grid } from '../../../../deps/ui'
 import { API, basicSalaryTypeList, PercentageBased, dayRange, defaultCaluation, payScheduleType, perDayCalulationsList, PayslipType, PercentageOfBasicSalary } from '../../_Service'
 import { useAppDispatch, useAppSelector } from '../../../../store/storehook'
 import { PayrollDataThunk, useEntityAction, useLazyEntityByIdQuery } from '../../../../store/actions/httpactions'
 import { useSocketIo } from '../../../../components/useSocketio'
 import { GET_PAYROLL_DATA } from '../../../../services/UrlService'
+import Controls from '../../../../components/controls/Controls'
 
 
 const breakpoints = { md: 2, sm: 6, xs: 6 }, fullWidthPoints = { md: 12, sm: 12, xs: 12 };
@@ -468,7 +469,7 @@ const PaySettings = ({ data }) => {
                 allowances: _allowances, deductions: _deductions
             } = result;
             const { setFormValue } = formApi.current;
-  
+
             setDisabledAllowance(_allowances.map(a => a.fkAllowanceId));
             setDisabledDeduct(_deductions.map(d => d.fkDeductionId));
             setFormValue({
@@ -488,8 +489,14 @@ const PaySettings = ({ data }) => {
     }
     return (
         <>
-            <AutoForm formData={formData} ref={formApi} isValidate={true} />
-            <Fab sx={{ position: 'absolute', bottom: 16, right: 16 }} onClick={() => { isEdit.current = true; handleSubmit() }} color='success' title='Save' ><SaveTwoTone fontSize='large' /></Fab>
+            <AutoForm formData={formData} ref={formApi} isValidate={true} >
+                <Grid item sm={12} md={12} lg={12} textAlign="right">
+                    <Divider variant='fullWidth' sx={{ mb: 1 }} />
+                    <Controls.Button sx={{ width: 100 }} onClick={() => { { isEdit.current = true; handleSubmit() } }} startIcon={<SaveTwoTone />} text="Save" />
+                </Grid>
+            </AutoForm>
+
+            {/* <Fab  onClick={() => { isEdit.current = true; handleSubmit() }} color='success' title='Save' ><SaveTwoTone fontSize='large' /></Fab> */}
         </>
     )
 }

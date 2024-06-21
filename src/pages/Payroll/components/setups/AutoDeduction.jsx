@@ -1,15 +1,19 @@
 import React, { useRef, useState } from 'react'
-import { Divider, Chip, IconButton } from '../../../../deps/ui'
-import { DisplaySettings, AddCircleOutline, RemoveCircleOutline } from '../../../../deps/ui/icons'
+import { Divider, Chip, IconButton, Grid } from '../../../../deps/ui'
+import { DisplaySettings, AddCircleOutline, RemoveCircleOutline, SaveTwoTone } from '../../../../deps/ui/icons'
 import { AutoForm } from '../../../../components/useForm'
 import { useAppSelector } from '../../../../store/storehook';
+import { useEntityAction } from '../../../../store/actions/httpactions';
+import { API } from '../../_Service';
+import Controls from '../../../../components/controls/Controls';
 
 const breakpoints = { md: 2, sm: 6, xs: 6 }, fullWidthPoints = { md: 12, sm: 12, xs: 12 };
 const frequencyType = [{ id: "Once", title: "Once" },
 { id: "EveryOccurance", title: "Every Occurance" }
 ]
 const DefaultFrequency = "EveryOccurance";
-export const AutoDeduction = () => {
+const DEFAULT_API = API.PayrollSetup;
+export const AutoDeduction = ({ data }) => {
   const formApi = useRef(null);
   const attendanceFlag = useAppSelector(e => e.appdata.employeeData?.AttendanceFlag)
 
@@ -20,6 +24,22 @@ export const AutoDeduction = () => {
     effectedFrequency: DefaultFrequency,
     deductionDays: 1
   }]).current
+  const { addEntity } = useEntityAction();
+  const handleSubmit = () => {
+    const { getValue } = formApi.current;
+    const values = getValue();
+    const dataToInsert = {
+      _id: data._id,
+      name: data.name,
+      autoDeduction: {
+        ...values,
+        flagSetting: values.flagSetting.map(e => ({ ...e, flagCode: attendanceFlag.find(a => a._id === e.flagId).flagCode }))
+      }
+    }
+
+    addEntity({ url: DEFAULT_API, data: [dataToInsert] });
+
+  }
 
   const handleAddItems = () => {
     const { getValue, setFormValue } = formApi.current;
@@ -37,14 +57,12 @@ export const AutoDeduction = () => {
     disabledFlags.push(newId);
     setDisabledFlags([...disabledFlags])
 
-
-
   }
 
   const handleRemoveItems = (_index) => {
+    if (disabledFlags.length === 1) return
     const { getValue, setFormValue } = formApi.current;
     const { flagSetting } = getValue();
-
     disabledFlags.splice(disabledFlags.indexOf(flagSetting[_index].flagId), 1);
     setDisabledFlags([...disabledFlags]);
     setFormValue({ flagSetting: flagSetting.toSpliced(_index, 1) })
@@ -60,8 +78,15 @@ export const AutoDeduction = () => {
       elementType: "checkbox",
       name: "enable",
       label: "Auto Dedution(s) For Attendance Flag",
-      // breakpoints: { xs: 6, sm: 6, md: 5 },
-      defaultValue: false,
+      breakpoints: { xs: 6, sm: 6, md: 4 },
+      defaultValue: true
+    },
+    {
+      elementType: "checkbox",
+      name: "isLeaveDeductionFirst",
+      label: "Is Leave Deduction First",
+      breakpoints: { xs: 6, sm: 6, md: 4 },
+      defaultValue: true
     },
     {
       elementType: "arrayForm",
@@ -130,8 +155,23 @@ export const AutoDeduction = () => {
           options: frequencyType,
         },
         {
+          elementType: "inputfield",
+          name: "deductionDays",
+          label: "Deduction Days",
+          inputMode: 'numeric',
+          type: "number",
+          validate: {
+            errorMessage: "Dedcution Day is required",
+          },
+          inputProps: {
+            min: 0,
+          },
+          breakpoints,
+          defaultValue: "",
+        },
+        {
           elementType: "custom",
-          breakpoints: { xs: 12, lg: 4, md: 4 },
+          breakpoints: { xs: 12, lg: 2, md: 2 },
           NodeElement: ({ dataindex }) => <>
             <IconButton onClick={() => handleRemoveItems(dataindex)}>
               <RemoveCircleOutline color='warning' />
@@ -147,12 +187,16 @@ export const AutoDeduction = () => {
       NodeElement: () => <IconButton title='Add Allowance' size='small' aria-label="delete" onClick={handleAddItems}>
         <AddCircleOutline color='primary' />
       </IconButton>
-    },
-
-
+    }
   ]
 
   return (
-    <AutoForm formData={formData} ref={formApi} isValidate={true} />
+    <AutoForm formData={formData} ref={formApi} isValidate={true} >
+
+      <Grid item sm={12} md={12} lg={12} textAlign="right">
+        <Divider variant='fullWidth' sx={{ mb: 1 }} />
+        <Controls.Button sx={{ width: 100 }} onClick={handleSubmit} startIcon={<SaveTwoTone />} text="Save" />
+      </Grid>
+    </AutoForm>
   )
 }

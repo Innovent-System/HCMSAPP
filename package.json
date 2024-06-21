@@ -41,7 +41,7 @@
     "secure-web-storage": "^1.0.2",
     "socket.io-client": "^4.7.5",
     "wave-visualizer": "^1.0.6",
-    "xlsx": "^0.18.5",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz",
     "xlsx-js-style": "^1.2.0"
   },
   "devDependencies": {

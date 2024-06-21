@@ -1,7 +1,7 @@
 import React, { useState, useRef, useMemo, useEffect } from 'react';
 import PageHeader from '../../components/PageHeader'
 import { PeopleOutline, Add } from '../../deps/ui/icons'
-import { Stack, IconButton, Divider } from '../../deps/ui'
+import { Stack, IconButton, Divider, Grid } from '../../deps/ui'
 import Tabs from '../../components/Tabs'
 import PaySettings from './components/setups/PaySettings';
 import Popup from '../../components/Popup';
@@ -85,20 +85,23 @@ export default function Manage() {
                 setOpenPopup={setOpenPopup}>
                 <AutoForm formData={tileFormData} ref={titleFormApi} isValidate={true} />
             </Popup>
-            <Stack width={300} justifyContent='flex-end' sx={{ float: 'right' }} flexDirection='row'>
-                <Controls.Select
-                    options={PayrollSetups}
-                    label='Payroll Setup'
-                    value={setupId}
-                    onChange={(e) => handleSetup(e.target.value)}
-                    name='setup'
-                    dataId='_id'
-                    dataName="name"
-                    isNone={false}
-                />
+            <Grid container justifyContent={{ sm: "flex-start", md: "flex-end" }}>
+                <Grid item sm={12} md={4} lg={3}>
+                    <Controls.Select
+                        options={PayrollSetups}
+                        label='Payroll Setup'
+                        value={setupId}
+                        onChange={(e) => handleSetup(e.target.value)}
+                        name='setup'
+                        dataId='_id'
+                        dataName="name"
+                        isNone={false}
+                    />
+                </Grid>
+
                 <IconButton onClick={handleShow}><Add /></IconButton>
-            </Stack>
-            
+            </Grid>
+
             <Tabs orientation='horizontal' value={value} setValue={setValue} TabsConfig={tabs} />
         </>
     );
