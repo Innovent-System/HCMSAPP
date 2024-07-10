@@ -263,7 +263,7 @@ export function QuotaToolbar(props) {
             <FormControl sx={{ width: 120 }} size="small">
                 <InputLabel size="small" id={`demo-multiple-name-year`}>Year</InputLabel>
                 <Select size="small" value={year} onChange={(e) => setYear(e.target.value)} variant="outlined" name="year" label="Year">
-                    {Years.map(y => <MenuItem key={y} value={y}>{y}</MenuItem>)}
+                    {Years.map(y => <MenuItem key={y.id} value={y.id}>{y.title}</MenuItem>)}
                 </Select>
             </FormControl>
             {records?.length ? <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Update Quota" /> : null}

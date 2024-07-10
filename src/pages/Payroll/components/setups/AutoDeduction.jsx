@@ -1,9 +1,9 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Divider, Chip, IconButton, Grid } from '../../../../deps/ui'
 import { DisplaySettings, AddCircleOutline, RemoveCircleOutline, SaveTwoTone } from '../../../../deps/ui/icons'
 import { AutoForm } from '../../../../components/useForm'
 import { useAppSelector } from '../../../../store/storehook';
-import { useEntityAction } from '../../../../store/actions/httpactions';
+import { useEntityAction, useLazyPostQuery } from '../../../../store/actions/httpactions';
 import { API } from '../../_Service';
 import Controls from '../../../../components/controls/Controls';
 
@@ -16,6 +16,14 @@ const DEFAULT_API = API.PayrollSetup;
 export const AutoDeduction = ({ data }) => {
   const formApi = useRef(null);
   const attendanceFlag = useAppSelector(e => e.appdata.employeeData?.AttendanceFlag)
+  const { data: leaveTypes, isLoading, refetch, totalRecord } = useEntitiesQuery({
+    url: API.LeaveType,
+    data: {
+      limit: 100,
+      page: 1,
+      searchParams: {}
+    }
+  }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
 
   const [disabledFlags, setDisabledFlags] = useState(attendanceFlag?.length ? [attendanceFlag[0]._id] : []);
   const flagSetting = useRef([{
