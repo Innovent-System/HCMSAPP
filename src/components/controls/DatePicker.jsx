@@ -9,7 +9,7 @@ import PropTypes from 'prop-types';
 
 export default function DatePicker(props) {
 
-    const { name, label, value, onChange, size = "small", error = null, variant = "outlined", category = "date", ...others } = props
+    const { name, label, value = null, onChange, size = "small", error = null, variant = "outlined", category = "date", ...others } = props
     const theme = useTheme();
     const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
 
@@ -116,9 +116,6 @@ export default function DatePicker(props) {
     )
 }
 
-DatePicker.defaultProps = {
-    value: null
-}
 
 DatePicker.propTypes = {
     name: PropTypes.string,
@@ -128,13 +125,5 @@ DatePicker.propTypes = {
     size: PropTypes.string,
     onChange: PropTypes.func,
     category: PropTypes.oneOf(["datetime", 'date', 'time']),
-    sx: PropTypes.oneOfType([
-        PropTypes.object,
-        PropTypes.func,
-        PropTypes.arrayOf(
-            PropTypes.func,
-            PropTypes.object,
-            PropTypes.bool
-        )
-    ])
+    sx: PropTypes.any
 }

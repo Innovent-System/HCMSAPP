@@ -180,7 +180,7 @@ const AddDepartment = ({ openPopup, excelConfig, setOpenPopup, isEdit = false, r
             elementType: "arrayForm",
             name: "designations",
             arrayFormRef: desgFormApi,
-            breakpoints: { md: 12, lg: 12, sx: 12 },
+            breakpoints: { md: 12, lg: 12, xs: 12 },
             defaultValue: mapDesignation,
             formData: [
                 {

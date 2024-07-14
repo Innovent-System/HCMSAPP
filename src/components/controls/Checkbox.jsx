@@ -36,13 +36,5 @@ Checkbox.propTypes = {
     variant: PropTypes.string,
     size: PropTypes.string,
     onChange: PropTypes.func,
-    sx: PropTypes.oneOfType([
-        PropTypes.object,
-        PropTypes.func,
-        PropTypes.arrayOf(
-            PropTypes.func,
-            PropTypes.object,
-            PropTypes.bool
-        )
-    ])
+    sx: PropTypes.any
 }

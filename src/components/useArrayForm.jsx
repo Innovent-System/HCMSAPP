@@ -339,7 +339,7 @@ ArrayForm.propTypes = {
                     lg: PropTypes.number,
                     xl: PropTypes.number
                 }),
-                sx: PropTypes.arrayOf(PropTypes.object),
+                sx: PropTypes.any,
                 [PropTypes.string]: PropTypes.any
             })
         ),
@@ -359,7 +359,7 @@ ArrayForm.propTypes = {
                             lg: PropTypes.number,
                             xl: PropTypes.number
                         }),
-                        sx: PropTypes.object,
+                        sx: PropTypes.any,
                         [PropTypes.string]: PropTypes.any
                     })
                 ),
@@ -370,7 +370,7 @@ ArrayForm.propTypes = {
     ]).isRequired,
     isValidate: PropTypes.bool,
     isEdit: PropTypes.bool.isRequired,
-    sx: PropTypes.object,
+    sx: PropTypes.any,
     flexDirection: PropTypes.oneOf(["row", "row-reverse", "column", "column-reverse", "revert", "inherit", "initial", "-moz-initial"]),
     breakpoints: PropTypes.shape({
         xs: PropTypes.number, //extra-small: 0px

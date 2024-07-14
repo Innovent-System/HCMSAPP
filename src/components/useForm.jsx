@@ -325,11 +325,6 @@ export const AutoForm = forwardRef(function (props, ref) {
     )
 })
 
-AutoForm.defaultProps = {
-    isEdit: false,
-    flexDirection: "row"
-}
-
 AutoForm.propTypes = {
     formData: PropTypes.oneOfType([
         PropTypes.arrayOf(
@@ -375,7 +370,7 @@ AutoForm.propTypes = {
 
     ]).isRequired,
     isValidate: PropTypes.bool,
-    isEdit: PropTypes.bool.isRequired,
+    isEdit: PropTypes.bool,
     sx: PropTypes.any,
     flexDirection: PropTypes.oneOf(["row", "row-reverse", "column", "column-reverse", "revert", "inherit", "initial", "-moz-initial"]),
     breakpoints: PropTypes.shape({
@@ -386,5 +381,3 @@ AutoForm.propTypes = {
         xl: PropTypes.number  //extra-large: 1536px
     })
 }
-
-AutoForm.displayName = 'AutoForm'

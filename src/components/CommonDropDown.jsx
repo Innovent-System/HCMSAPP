@@ -19,7 +19,7 @@ const setDropDownIds = (data, type, matchWith) => ({ [type + "Ids"]: bindDataIds
 
 const DEFAULT_BREAK_POINTS = { xs: 12, sm: 6, md: 6 };
 
-function CommonDropDown({ isMultiple, flexDirection = "row", breakpoints = DEFAULT_BREAK_POINTS, showFilters, idset, setIdSet, setProps }) {
+function CommonDropDown({ isMultiple = false, flexDirection = "row", breakpoints = DEFAULT_BREAK_POINTS, showFilters = null, idset, setIdSet, setProps }) {
     const { filterType, setFilter, ...dropDown } = useDropDown();
     const dispatch = useAppDispatch();
     const formApi = React.useRef(null);
@@ -71,10 +71,6 @@ function CommonDropDown({ isMultiple, flexDirection = "row", breakpoints = DEFAU
     return <AutoForm flexDirection={flexDirection} formData={formData()} ref={formApi} />
 }
 
-CommonDropDown.defaultProps = {
-    isMultiple: false,
-    showFilters: null
-}
 CommonDropDown.propTypes = {
     isMultiple: PropTypes.bool,
     showFilters: PropTypes.shape({

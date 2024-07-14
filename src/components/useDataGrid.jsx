@@ -259,18 +259,19 @@ function Pagination({
 function CustomPagination(props) {
   return <GridPagination ActionsComponent={Pagination} {...props} />;
 }
+
 /**
- * 
  * @param {import('@mui/x-data-grid-pro/models/dataGridProProps').DataGridProPropsWithoutDefaultValue} props 
  * @returns {JSX.Element}
  */
 export default function FeaturedCrudGrid(props) {
 
-  const { apiRef, columns, rows, loading,
+  const { apiRef, columns, rows, loading = false,
     pageSize = 10, onRowsScrollEnd,
     page = 0,
     setSelectionModel,
     setFilter,
+    editable = false,
     density = "compact",
     sortingMode = 'server',
     paginationMode = 'server',
@@ -361,13 +362,6 @@ FeaturedCrudGrid.propTypes = {
   setFilter: PropTypes.func,
   gridToolBar: PropTypes.elementType,
   toolbarProps: PropTypes.object
-}
-
-FeaturedCrudGrid.defaultProps = {
-  checkboxSelection: true,
-  pageSize: 10,
-  loading: false,
-  editable: false
 }
 
 export function GridToolbar(props) {

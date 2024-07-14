@@ -40,13 +40,5 @@ Button.propTypes = {
   icon: PropTypes.any,
   variant: PropTypes.string,
   size: PropTypes.string,
-  sx: PropTypes.oneOfType([
-    PropTypes.object,
-    PropTypes.func,
-    PropTypes.arrayOf(
-      PropTypes.func,
-      PropTypes.object,
-      PropTypes.bool
-    )
-  ])
+  sx: PropTypes.any
 }

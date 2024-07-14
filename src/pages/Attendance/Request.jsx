@@ -184,7 +184,7 @@ const AddAttendanceRequest = ({ openPopup, setOpenPopup }) => {
             },
             minRows: 5,
             variant: "outlined",
-            breakpoints: { md: 12, sx: 12, xs: 12 },
+            breakpoints: { md: 12, sm: 12, xs: 12 },
             defaultValue: ""
         }
 

@@ -120,7 +120,7 @@ const AddLeaveRequest = ({ openPopup, setOpenPopup }) => {
             name: "leavesDate",
             required: true,
             disableFuture: true,
-            breakpoints: { md: 12, sx: 12, xs: 12 },
+            breakpoints: { md: 12, sm: 12, xs: 12 },
             validate: {
                 errorMessage: "Select Date please",
             },
@@ -150,7 +150,7 @@ const AddLeaveRequest = ({ openPopup, setOpenPopup }) => {
             },
             minRows: 5,
             variant: "outlined",
-            breakpoints: { md: 12, sx: 12, xs: 12 },
+            breakpoints: { md: 12, sm: 12, xs: 12 },
             defaultValue: ""
         }
     ];

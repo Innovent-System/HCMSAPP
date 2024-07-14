@@ -36,8 +36,12 @@ const styles = {
 
 export default function ConfirmDialog(props) {
 
-    const { confirmDialog, setConfirmDialog } = props;
-    
+    const { confirmDialog = {
+        isOpen: false,
+        title: '',
+        subTitle: '',
+    }, setConfirmDialog } = props;
+
 
     return (
         <Dialog open={confirmDialog.isOpen} sx={{ paper: styles.dialog }}>
@@ -62,7 +66,7 @@ export default function ConfirmDialog(props) {
                 <Controls.Button
                     text="Yes"
                     color="secondary"
-                    onClick={() => {confirmDialog.onConfirm();setConfirmDialog({ ...confirmDialog, isOpen: false })}} />
+                    onClick={() => { confirmDialog.onConfirm(); setConfirmDialog({ ...confirmDialog, isOpen: false }) }} />
             </DialogActions>
         </Dialog>
     )
@@ -73,15 +77,7 @@ ConfirmDialog.propTypes = {
         isOpen: PropTypes.bool.isRequired,
         title: PropTypes.string.isRequired,
         subTitle: PropTypes.string,
-        onConfirm:PropTypes.func
+        onConfirm: PropTypes.func
     }).isRequired,
-    setConfirmDialog:PropTypes.func.isRequired
-}
-
-ConfirmDialog.defaultProps = {
-    confirmDialog: {
-        isOpen:false,
-        title:'',
-        subTitle:'',
-    }
+    setConfirmDialog: PropTypes.func.isRequired
 }
