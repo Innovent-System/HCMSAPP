@@ -1,20 +1,15 @@
 import React, { useState } from 'react'
-import { Box, Stack, Typography, Paper, Toolbar, AppBar, Grid, IconButton, Chip } from '../../deps/ui'
-import { LocalPrintshop, PictureAsPdf, Description, OpenInNew, PeopleOutline } from '../../deps/ui/icons'
-import CommonDropDown from '../../components/CommonDropDown'
+import { Grid } from '../../deps/ui'
+import { PeopleOutline } from '../../deps/ui/icons'
 import Controls from '../../components/controls/Controls'
-import DataGrid from '../../components/useDataGrid';
-import { formateISODateTime, formateISOTime, getMonthStartEnd } from '../../services/dateTimeService'
+import { formateISODateTime, getMonthStartEnd } from '../../services/dateTimeService'
 import { useLazyFileQuery } from '../../store/actions/httpactions'
 import { API } from './_Service'
 import useTable from '../../components/useTable'
 import { AttendanceflagMap } from '../../util/common'
 import { useDropDownIds } from '../../components/useDropDown'
-import CircularLoading from '../../components/Circularloading'
 import PageHeader from '../../components/PageHeader'
-
-const BREAK_POINTS = { xs: 10, sm: 10, md: 10 };
-
+import ReportViewer from '../../components/ReportViewer'
 
 const TableHead = [
   { id: 'employeeCode', disableSorting: false, label: 'Code' },
@@ -26,20 +21,6 @@ const TableHead = [
   { id: 'status', disableSorting: false, label: 'Remarks', valueGetter: ({ row }) => AttendanceflagMap[row.status].tag }
 ];
 
-const DetailPanelContent = ({ row }) => {
-
-  const { TblContainer, TblHead, TblBody, TblPagination } = useTable(row, TableHead)
-  return (
-    <>
-      <TblContainer>
-        <TblHead />
-        <TblBody />
-      </TblContainer>
-      <TblPagination />
-    </>
-
-  )
-}
 
 const { monthStart, monthEnd } = getMonthStartEnd();
 const Reports = () => {
@@ -59,7 +40,7 @@ const Reports = () => {
   const handleReport = (isDownload = false) => {
     setLoader(!loader);
     getAttendanceReport({
-      url: `${API.Payslip}/${isDownload ? 'download' : 'view'}`,
+      url: `${API.AttendanceReport}/${isDownload ? 'download' : 'view'}`,
       fileName: "AttendanceReport",
       data: {
         page: gridFilter.page,
@@ -95,54 +76,21 @@ const Reports = () => {
         subTitle="Manage Attendance Reports"
         icon={<PeopleOutline fontSize="large" />}
       />
-      <Grid container spacing={3}>
-        <Grid item sm={3} md={3} lg={3}>
-          <CommonDropDown isMultiple={true} breakpoints={BREAK_POINTS} flexDirection='column' showFilters={{
-            company: true,
-            country: true,
-            state: true,
-            city: true,
-            area: true,
-            department: true,
-            designation: true,
-            group: true,
-            employee: true
-          }} />
-
-          <Grid item sm={10} marginTop={2} md={10} lg={10}>
-            <Controls.DateRangePicker onChange={({ target }) => { setDateRange(target.value) }} value={dateRange} />
-          </Grid>
-          <Grid item sm={10} md={10} lg={10} pr={1}>
-            <Controls.Button text="Generate" onClick={() => handleReport()} fullWidth />
-          </Grid>
+      <ReportViewer TableHeaders={TableHead} handleReport={handleReport} loader={loader} records={records} showFilters={{
+        company: true,
+        country: true,
+        state: true,
+        city: true,
+        area: true,
+        department: true,
+        designation: true,
+        group: true,
+        employee: true
+      }}>
+        <Grid item sm={10} md={10} lg={10}>
+          <Controls.DateRangePicker onChange={({ target }) => { setDateRange(target.value) }} value={dateRange} />
         </Grid>
-
-        <Grid item sm={9} md={9} lg={9}>
-          <AppBar color='transparent' sx={{ borderRadius: 1, mb: 1 }} position='sticky'><Toolbar variant='dense'>
-            <Grid container alignItems="center">
-              <Grid item>
-                <IconButton title='Print'>
-                  <LocalPrintshop />
-                </IconButton>
-                <IconButton title='Download Pdf' onClick={() => handleReport(true)}>
-                  <PictureAsPdf />
-                </IconButton>
-                <IconButton title='Download Excel'>
-                  <Description />
-                </IconButton>
-                <IconButton title='New Tab'>
-                  <OpenInNew />
-                </IconButton>
-              </Grid>
-
-            </Grid>
-          </Toolbar>
-          </AppBar>
-          <CircularLoading open={loader} />
-          <DetailPanelContent row={records} />
-        </Grid>
-
-      </Grid>
+      </ReportViewer>
     </>
 
 

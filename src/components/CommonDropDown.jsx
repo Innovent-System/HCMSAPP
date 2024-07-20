@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, startTransition } from 'react'
 import PropTypes from 'prop-types'
-import { useDropDown, DROPDOWN_PROPS, Name_MAP, filterTypes } from "./useDropDown";
+import { useDropDown, DROPDOWN_PROPS, Name_MAP, filterTypes, showFilterProps } from "./useDropDown";
 import { AutoForm } from './useForm';
 import { dropDownIdsAction, resetAction, clearDropDownIdsAction } from '../store/actions/httpactions'
 import { useAppDispatch, useAppSelector } from '../store/storehook';
+
 
 const bindDataIds = (data, matchWith) => {
     if (!data) return '';
@@ -19,7 +20,7 @@ const setDropDownIds = (data, type, matchWith) => ({ [type + "Ids"]: bindDataIds
 
 const DEFAULT_BREAK_POINTS = { xs: 12, sm: 6, md: 6 };
 
-function CommonDropDown({ isMultiple = false, flexDirection = "row", breakpoints = DEFAULT_BREAK_POINTS, showFilters = null, idset, setIdSet, setProps }) {
+function CommonDropDown({ isMultiple = false, children, flexDirection = "row", breakpoints = DEFAULT_BREAK_POINTS, showFilters, idset, setIdSet, setProps }) {
     const { filterType, setFilter, ...dropDown } = useDropDown();
     const dispatch = useAppDispatch();
     const formApi = React.useRef(null);
@@ -68,36 +69,36 @@ function CommonDropDown({ isMultiple = false, flexDirection = "row", breakpoints
         [showFilter, dropDown],
     )
 
-    return <AutoForm flexDirection={flexDirection} formData={formData()} ref={formApi} />
+    return <AutoForm flexDirection={flexDirection} formData={formData()} ref={formApi} >{children}</AutoForm>
 }
 
 CommonDropDown.propTypes = {
     isMultiple: PropTypes.bool,
     showFilters: PropTypes.shape({
-        [filterTypes.COMPANY]: PropTypes.bool,
-        [filterTypes.COUNTRY]: PropTypes.bool,
-        [filterTypes.STATE]: PropTypes.bool,
-        [filterTypes.CITY]: PropTypes.bool,
-        [filterTypes.AREA]: PropTypes.bool,
-        [filterTypes.GROUP]: PropTypes.bool,
-        [filterTypes.DEPARTMENT]: PropTypes.bool,
-        [filterTypes.DESIGNATION]: PropTypes.bool,
-        [filterTypes.EMPLOYEE]: PropTypes.bool,
-        [filterTypes.YEAR]: PropTypes.bool,
-        [filterTypes.MONTH]: PropTypes.bool,
+        company: PropTypes.bool,
+        country: PropTypes.bool,
+        state: PropTypes.bool,
+        city: PropTypes.bool,
+        area: PropTypes.bool,
+        group: PropTypes.bool,
+        department: PropTypes.bool,
+        designation: PropTypes.bool,
+        employee: PropTypes.bool,
+        year: PropTypes.bool,
+        month: PropTypes.bool,
     }),
     setProps: PropTypes.shape({
-        [filterTypes.COMPANY]: PropTypes.object,
-        [filterTypes.COUNTRY]: PropTypes.object,
-        [filterTypes.STATE]: PropTypes.object,
-        [filterTypes.CITY]: PropTypes.object,
-        [filterTypes.AREA]: PropTypes.object,
-        [filterTypes.GROUP]: PropTypes.object,
-        [filterTypes.DEPARTMENT]: PropTypes.object,
-        [filterTypes.DESIGNATION]: PropTypes.object,
-        [filterTypes.EMPLOYEE]: PropTypes.object,
-        [filterTypes.YEAR]: PropTypes.object,
-        [filterTypes.MONTH]: PropTypes.object,
+        company: PropTypes.object,
+        country: PropTypes.object,
+        state: PropTypes.object,
+        city: PropTypes.object,
+        area: PropTypes.object,
+        group: PropTypes.object,
+        department: PropTypes.object,
+        designation: PropTypes.object,
+        employee: PropTypes.object,
+        year: PropTypes.object,
+        month: PropTypes.object,
     }),
     idSet: PropTypes.shape({
         countryIds: PropTypes.string,

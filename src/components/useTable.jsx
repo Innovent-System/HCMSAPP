@@ -99,7 +99,7 @@ export default function useTable(data, headCells, filterFn, pagination = true) {
                 }
             </TableRow>
         </TableHead>)
-    }, [])
+    }, [headCells])
 
     const TblBody = useCallback((props) => {
 

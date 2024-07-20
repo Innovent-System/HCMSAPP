@@ -37,5 +37,6 @@ export default Object.freeze({
     27: lazy(() => import("../pages/Payroll/Approval")),
     30: lazy(() => import("../pages/Payroll/AdvanceSalary")),
     31: lazy(() => import("../pages/Payroll/Loan")),
+    35: lazy(() => import("../pages/Payroll/Reports")),
     32: lazy(() => import("../pages/Payroll/Settings"))
 })

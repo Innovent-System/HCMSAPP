@@ -267,7 +267,7 @@ export const AutoForm = forwardRef(function (props, ref) {
     }
 
     return (
-        <Grid  {...breakpoints} flexDirection={flexDirection} spacing={2} container {...other}>
+        <Grid  {...breakpoints}  flexDirection={flexDirection} spacing={2} container {...other}>
             {Object.keys(initialValues).length ? formData.map(({ name, label, required, elementType, Component = null, disabled, classes, _children, breakpoints = DEFAULT_BREAK_POINTS, onChange, modal, defaultValue, isShow, ...others }, index) => (
                 Component ? <Component {...others} key={index + "comp"}>
                     <Grid spacing={2} container>
