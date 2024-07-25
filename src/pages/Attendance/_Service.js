@@ -13,7 +13,6 @@ export const API = {
     Approval: "attendance/approval",
     MarkAttendance: "attendance/mark",
     AmendRoster: "attendance/amendroster",
-    ApprovalAction: "attendance/approval/action",
-    Payslip: "payroll/report/payslip"
+    ApprovalAction: "attendance/approval/action"
     // Designation: "employee/designation",
 }

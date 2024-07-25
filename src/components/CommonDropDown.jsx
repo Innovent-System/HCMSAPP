@@ -7,7 +7,10 @@ import { useAppDispatch, useAppSelector } from '../store/storehook';
 
 
 const bindDataIds = (data, matchWith) => {
-    if (!data) return '';
+    if (!data || (Array.isArray(data) && !data.length)) return '';
+    if (!isNaN(data)) {
+        return data;
+    }
     if (!Array.isArray(data)) {
         data = [data];
     }

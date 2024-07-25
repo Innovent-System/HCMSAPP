@@ -9,7 +9,8 @@ export const API = {
     CancelAdvanceSalary: 'payroll/advancesalary/cancel',
     Approval: "payroll/approval",
     ApprovalAction: "payroll/approval/action",
-    LeaveType: "leave/type"
+    LeaveType: "leave/type",
+    PayslipReport: "payroll/report/payslip"
 }
 
 export const payScheduleType = [{ id: "Monthly", title: "Monthly" },

@@ -10,6 +10,7 @@ import { AttendanceflagMap } from '../../util/common'
 import { useDropDownIds } from '../../components/useDropDown'
 import PageHeader from '../../components/PageHeader'
 import ReportViewer from '../../components/ReportViewer'
+import { ReportPage } from '../ReportToRoute'
 
 const TableHead = [
   { id: 'employeeCode', disableSorting: false, label: 'Code' },
@@ -76,21 +77,7 @@ const Reports = () => {
         subTitle="Manage Attendance Reports"
         icon={<PeopleOutline fontSize="large" />}
       />
-      <ReportViewer TableHeaders={TableHead} handleReport={handleReport} loader={loader} records={records} showFilters={{
-        company: true,
-        country: true,
-        state: true,
-        city: true,
-        area: true,
-        department: true,
-        designation: true,
-        group: true,
-        employee: true
-      }}>
-        <Grid item sm={10} md={10} lg={10}>
-          <Controls.DateRangePicker onChange={({ target }) => { setDateRange(target.value) }} value={dateRange} />
-        </Grid>
-      </ReportViewer>
+      <ReportPage formId={23} defaultReport={1} />
     </>
 
 

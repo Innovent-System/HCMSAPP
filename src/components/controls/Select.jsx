@@ -128,6 +128,7 @@ Select.propTypes = {
   value: PropTypes.any,
   onChange: PropTypes.func,
   isMultiple: PropTypes.bool,
+  isNone: PropTypes.bool,
   options: PropTypes.array.isRequired
 }
 

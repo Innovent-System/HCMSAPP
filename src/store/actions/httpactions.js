@@ -193,7 +193,9 @@ const INITIAL_STATE = {
   },
   routeData: {
     sideMenuData: [],
-    appRoutes: []
+    appRoutes: [],
+    appReports: []
+
   },
   commands: [],
   authData: {},
@@ -215,8 +217,8 @@ const INITIAL_STATE = {
     groupIds: '',
     departmentIds: '',
     designationIds: '',
-    yearIds: '',
-    monthIds: ''
+    yearIds: new Date().getFullYear(),
+    monthIds: new Date().getMonth()
   },
   isReset: false,
   fileConfig: {
@@ -248,7 +250,9 @@ export const appSlice = createSlice({
         areaIds: '',
         groupIds: '',
         departmentIds: '',
-        designationIds: ''
+        designationIds: '',
+        yearIds: new Date().getFullYear(),
+        monthIds: new Date().getMonth()
       }
     },
     showDropDownFilterAction(state, action) {
