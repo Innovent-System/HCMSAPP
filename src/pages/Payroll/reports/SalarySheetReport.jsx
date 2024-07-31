@@ -7,39 +7,40 @@ import CommonDropDown from '../../../components/CommonDropDown';
 import { Grid } from '../../../deps/ui'
 import { API } from '../_Service';
 import Controls from '../../../components/controls/Controls';
-import { AttendanceflagMap } from '../../../util/common';
+import { AttendanceflagMap, currencyFormat } from '../../../util/common';
 
 const TableHead = [
-    { id: 'employeeCode', disableSorting: false, label: 'Code' },
+    { id: 'emplyeeRefNo', disableSorting: false, label: 'Code' },
     { id: 'fullName', disableSorting: false, label: 'Employee' },
-    { id: 'scheduleStartDt', disableSorting: false, label: 'Schedule Start', valueGetter: ({ row }) => formateISODateTime(row.scheduleStartDt) },
-    { id: 'scheduleEndDt', disableSorting: false, label: 'Schedule End', valueGetter: ({ row }) => formateISODateTime(row.scheduleEndDt) },
-    { id: 'startDateTime', disableSorting: false, label: 'Actual In', valueGetter: ({ row }) => formateISODateTime(row.startDateTime) },
-    { id: 'endDateTime', disableSorting: false, label: 'Actual Out', valueGetter: ({ row }) => formateISODateTime(row.endDateTime) },
-    { id: 'status', disableSorting: false, label: 'Remarks', valueGetter: ({ row }) => AttendanceflagMap[row.status].tag }
+    { id: 'department', disableSorting: false, label: 'Department' },
+    { id: 'designation', disableSorting: false, label: 'Designation' },
+    { id: 'monthlySalary', disableSorting: false, label: 'Monthly Salary', valueGetter: ({ row }) => currencyFormat.format(row.payroll.monthlySalary) },
+    { id: 'workingDays', disableSorting: false, label: 'Present Days', valueGetter: ({ row }) => row.payroll?.workingDays },
+    { id: 'totalEarning', disableSorting: false, label: 'Gross Pay', valueGetter: ({ row }) => currencyFormat.format(row.payroll.totalEarning) },
+    { id: 'totalDeduction', disableSorting: false, label: 'Deductions', valueGetter: ({ row }) => currencyFormat.format(row.payroll.totalDeduction) },
+    { id: 'totalSalary', disableSorting: false, label: 'Net Pay', valueGetter: ({ row }) => currencyFormat.format(row.payroll.totalSalary) },
 ];
 
-const { monthStart, monthEnd } = getMonthStartEnd();
 
-const AttendanceReport = ({ loader, setLoader }) => {
+const SalarySheetReport = ({ loader, setLoader }) => {
     const [records, setRecords] = useState([]);
-   
-    const [dateRange, setDateRange] = useState([monthStart, monthEnd])
+
+
     const [gridFilter, setGridFilter] = useState({
         lastKey: null,
         limit: 30,
         page: 0,
         totalRecord: 0
     })
-    const [getAttendanceReport] = useLazyFileQuery();
+    const [getReport] = useLazyFileQuery();
 
-    const { countryIds, stateIds, cityIds, areaIds, departmentIds, groupIds, designationIds, employeeIds } = useDropDownIds();
+    const { countryIds, stateIds, cityIds, areaIds, departmentIds, groupIds, designationIds, employeeIds, monthIds, yearIds } = useDropDownIds();
 
     const handleReport = (isDownload = false) => {
         setLoader(!loader);
-        getAttendanceReport({
-            url: `${API.AttendanceReport}/${isDownload ? 'download' : 'view'}`,
-            fileName: "AttendanceReport",
+        getReport({
+            url: `${API.SalarySheetReport}/${isDownload ? 'download' : 'view'}`,
+            fileName: "SalarySheetReport",
             data: {
                 page: gridFilter.page,
                 limit: gridFilter.limit,
@@ -52,8 +53,8 @@ const AttendanceReport = ({ loader, setLoader }) => {
                     ...(groupIds && { "companyInfo.fkEmployeeGroupId": { $in: groupIds.split(',') } }),
                     ...(departmentIds && { "companyInfo.fkDepartmentId": { $in: departmentIds.split(',') } }),
                     ...(designationIds && { "companyInfo.fkDesignationId": { $in: designationIds.split(',') } }),
-                    scheduleStartDt: dateRange[0],
-                    scheduleEndDt: dateRange[1]
+                    month: monthIds,
+                    year: yearIds
                     // ...query
                 }
             }
@@ -73,9 +74,6 @@ const AttendanceReport = ({ loader, setLoader }) => {
             </Grid>
             <Grid item sm={3} md={3} lg={3}>
                 <CommonDropDown flexDirection='column' breakpoints={{ sm: 10, md: 10, lg: 10 }} showFilters={{
-                    country: true,
-                    state: true,
-                    city: true,
                     area: true,
                     department: true,
                     group: true,
@@ -83,9 +81,6 @@ const AttendanceReport = ({ loader, setLoader }) => {
                     month: true,
                     year: true
                 }}>
-                    <Grid item sm={10} md={10} lg={10}>
-                        <Controls.DateRangePicker onChange={({ target }) => { setDateRange(target.value) }} value={dateRange} />
-                    </Grid>
                     <Grid item sm={10} md={10} lg={10} pr={1}>
                         <Controls.Button text="Generate" onClick={() => handleReport()} fullWidth />
                     </Grid>
@@ -98,4 +93,4 @@ const AttendanceReport = ({ loader, setLoader }) => {
     )
 }
 
-export default AttendanceReport
+export default SalarySheetReport

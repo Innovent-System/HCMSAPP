@@ -13,9 +13,11 @@ export const MimeTypesMap = {
     xls: 'application/vnd.ms-excel',
     xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 };
-const monthNames = ["January", "February", "March", "April", "May", "June",
+export const monthNames = ["January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
 ];
+export const currencyFormat = new Intl.NumberFormat();
+
 export const getYears = (startYear = 2010) => {
     const currentYear = new Date().getFullYear(), years = [];
     while (startYear <= currentYear) {
@@ -203,69 +205,70 @@ const numbersToWords = {
     70: "Seventy",
     80: "Eighty",
     90: "Ninety",
-  };
+};
 
 export function convertNumberToWords(number) {
     // if number present in object no need to go further
+    if(["",null,undefined].includes(number)) return "";
     if (number < 0) {
-      return "minus " + convertNumberToWords(number);
+        return "minus " + convertNumberToWords(Math.abs(number));
     }
     if (number in numbersToWords) return numbersToWords[number];
-  
+
     // Initialize the words variable to an empty string
     let words = "";
-  
+
     // If the number is greater than or equal to 100, handle the hundreds place (ie, get the number of hundres)
     if (number >= 100) {
-      // Add the word form of the number of hundreds to the words string
-      words += convertNumberToWords(Math.floor(number / 100)) + " hundred";
-  
-      // Remove the hundreds place from the number
-      number %= 100;
+        // Add the word form of the number of hundreds to the words string
+        words += convertNumberToWords(Math.floor(number / 100)) + " hundred";
+
+        // Remove the hundreds place from the number
+        number %= 100;
     }
-  
+
     // If the number is greater than zero, handle the remaining digits
     if (number > 0) {
-      // If the words string is not empty, add "and"
-      if (words !== "") words += " and ";
-  
-      // If the number is less than 20, look up the word form in the numbersToWords object
-      if (number < 20) words += numbersToWords[number];
-      else {
-        // Otherwise, add the word form of the tens place to the words string
-        //if number = 37, Math.floor(number /10) will give you 3 and 3 * 10 will give you 30
-        words += numbersToWords[Math.floor(number / 10) * 10];
-  
-        // If the ones place is not zero, add the word form of the ones place
-        if (number % 10 > 0) {
-          words += "-" + numbersToWords[number % 10];
+        // If the words string is not empty, add "and"
+        if (words !== "") words += " and ";
+
+        // If the number is less than 20, look up the word form in the numbersToWords object
+        if (number < 20) words += numbersToWords[number];
+        else {
+            // Otherwise, add the word form of the tens place to the words string
+            //if number = 37, Math.floor(number /10) will give you 3 and 3 * 10 will give you 30
+            words += numbersToWords[Math.floor(number / 10) * 10];
+
+            // If the ones place is not zero, add the word form of the ones place
+            if (number % 10 > 0) {
+                words += "-" + numbersToWords[number % 10];
+            }
         }
-      }
     }
-  
+
     if (number >= 1000) {
-      const thousands = Math.floor(number / 1000);
-      words += convertNumberToWords(thousands) + " thousand";
-      number %= 1000;
+        const thousands = Math.floor(number / 1000);
+        words += convertNumberToWords(thousands) + " thousand";
+        number %= 1000;
     }
-  
+
     // If the number is greater than or equal to 1,000,000, handle the millions place
     if (number >= 1000000) {
-      const millions = Math.floor(number / 1000000);
-      words += convertNumberToWords(millions) + " million";
-      number %= 1000000;
+        const millions = Math.floor(number / 1000000);
+        words += convertNumberToWords(millions) + " million";
+        number %= 1000000;
     }
-  
+
     // If the number is greater than or equal to 1,000,000,000, handle the billions place
     if (number >= 1000000000) {
-      const billions = Math.floor(number / 1000000000);
-      words += convertNumberToWords(billions) + " billion";
-      number %= 1000000000;
+        const billions = Math.floor(number / 1000000000);
+        words += convertNumberToWords(billions) + " billion";
+        number %= 1000000000;
     }
-  
+
     // Return the word form of the number
     return words;
-  }
+}
 
 // export const getYears = (earliestYear = 2010) => {
 //     let currentYear = new Date().getFullYear();

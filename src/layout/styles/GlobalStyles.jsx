@@ -41,7 +41,9 @@ const useStyles = makeStyles(() => createStyles({
       },
       '& .MuiTabPanel-root': {
         padding: 0,
-      }
+      },
+      "& .MuiInputBase-root": { height: "35px", overflow: 'hidden' },
+      "& .MuiInputLabel-root": { lineHeight: '1em' }
     },
     a: {
       textDecoration: 'none'

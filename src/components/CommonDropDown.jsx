@@ -5,12 +5,11 @@ import { AutoForm } from './useForm';
 import { dropDownIdsAction, resetAction, clearDropDownIdsAction } from '../store/actions/httpactions'
 import { useAppDispatch, useAppSelector } from '../store/storehook';
 
-
+const NULLVALUES = ["", null, undefined]
 const bindDataIds = (data, matchWith) => {
-    if (!data || (Array.isArray(data) && !data.length)) return '';
-    if (!isNaN(data)) {
-        return data;
-    }
+    if (NULLVALUES.includes(data) || (Array.isArray(data) && !data.length)) return '';
+    if (!isNaN(data)) return data;
+
     if (!Array.isArray(data)) {
         data = [data];
     }
@@ -23,7 +22,7 @@ const setDropDownIds = (data, type, matchWith) => ({ [type + "Ids"]: bindDataIds
 
 const DEFAULT_BREAK_POINTS = { xs: 12, sm: 6, md: 6 };
 
-function CommonDropDown({ isMultiple = false, children, flexDirection = "row", breakpoints = DEFAULT_BREAK_POINTS, showFilters, idset, setIdSet, setProps }) {
+function CommonDropDown({ isMultiple = false, children, flexDirection = "row", breakpoints = DEFAULT_BREAK_POINTS, showFilters, idset, setIdSet, setProps, ...others }) {
     const { filterType, setFilter, ...dropDown } = useDropDown();
     const dispatch = useAppDispatch();
     const formApi = React.useRef(null);
@@ -49,8 +48,8 @@ function CommonDropDown({ isMultiple = false, children, flexDirection = "row", b
 
     useEffect(() => {
         if (isReset) {
-            resetForm();
             const { resetForm } = formApi.current;
+            resetForm();
             dispatch(clearDropDownIdsAction());
             setFilter(null, filterType.DEFAULT);
             dispatch(resetAction(false));
@@ -72,7 +71,7 @@ function CommonDropDown({ isMultiple = false, children, flexDirection = "row", b
         [showFilter, dropDown],
     )
 
-    return <AutoForm flexDirection={flexDirection} formData={formData()} ref={formApi} >{children}</AutoForm>
+    return <AutoForm flexDirection={flexDirection} formData={formData()} ref={formApi} {...others} >{children}</AutoForm>
 }
 
 CommonDropDown.propTypes = {

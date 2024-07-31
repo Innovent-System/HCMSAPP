@@ -7,6 +7,8 @@ import { useDispatch } from 'react-redux';
 import { builderQueryAction } from '../store/actions/httpactions'
 import { throttle, debounce } from '../util/common'
 // Choose your skin (ant/material/vanilla):
+MuiConfig.settings.maxNesting = 1;
+MuiConfig.settings.addRuleLabel = "Filter";
 const InitialConfig = MuiConfig; // or MaterialConfig or MuiConfig or BootstrapConfig or BasicConfig
 
 // You need to provide your own config. See below 'Config format'
@@ -15,7 +17,7 @@ export const queryValue = { "id": QbUtils.uuid(), "type": "group" };
 export const loadTree = QbUtils.loadTree;
 
 export const defultValue = () => ({
-    tree: QbUtils.checkTree(QbUtils.loadTree(queryValue), InitialConfig),
+    tree: QbUtils.sanitizeTree(QbUtils.loadTree(queryValue), InitialConfig).fixedTree,
     config: InitialConfig
 })
 // You can load query value from your backend storage (for saving see `Query.onChange()`)
@@ -29,7 +31,7 @@ export const defultValue = () => ({
 const QueryBuilder = ({ fields, query, setQuery }) => {
 
     const dispatch = useDispatch();
-    
+
     // const [query, setQuery] = useState({
     //     tree: QbUtils.checkTree(QbUtils.loadTree(queryValue), InitialConfig),
     //     config: InitialConfig
@@ -40,9 +42,10 @@ const QueryBuilder = ({ fields, query, setQuery }) => {
 
     useEffect(() => {
         if (fields) {
+            InitialConfig.settings.maxNumberOfRules = Object.keys(fields).length;
             const setConfig = { ...InitialConfig, fields }
             setQuery({
-                tree: QbUtils.checkTree(QbUtils.loadTree(queryValue), setConfig),
+                tree: QbUtils.sanitizeTree(QbUtils.loadTree(queryValue), setConfig).fixedTree,
                 config: setConfig
             })
         }
@@ -71,8 +74,8 @@ const QueryBuilder = ({ fields, query, setQuery }) => {
 
         setQuery({ tree: immutableTree, config: config });
         dispatch(builderQueryAction(QbUtils.mongodbFormat(immutableTree, config)));
-        const jsonTree = QbUtils.getTree(immutableTree);
-        console.log(jsonTree);
+        // const jsonTree = QbUtils.getTree(immutableTree);
+        // console.log(jsonTree);
         // `jsonTree` can be saved to backend, and later loaded to `queryValue`
     }
 
@@ -84,7 +87,7 @@ const QueryBuilder = ({ fields, query, setQuery }) => {
                 onChange={debouncedClick}
                 renderBuilder={renderBuilder}
             />
-            {renderResult(query)}
+            {/* {renderResult(query)} */}
         </div>
     )
 }

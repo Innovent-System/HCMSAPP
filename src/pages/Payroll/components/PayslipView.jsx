@@ -53,15 +53,15 @@ const PayslipView = ({
                     Payslip Report From {payroll.payrollStartDate} to {payroll.payrollEndDate}
                 </Typography>
                 <Divider />
-                <Table size='small' padding=''>
+                <Table size='small'>
                     <TableRow>
                         <TableCell>Employee Code: <b>{emplyeeRefNo}</b></TableCell>
                         <TableCell>Employee Name: <b>{fullName}</b></TableCell>
-                        <TableCell>Area:  <b>{area?.areaName}</b></TableCell>
+                        <TableCell>Area:  <b>{area}</b></TableCell>
                     </TableRow>
                     <TableRow>
-                        <TableCell>Department: <b>{department?.departmentName}</b></TableCell>
-                        <TableCell>Designation:<b>{designation?.name}</b></TableCell>
+                        <TableCell>Department: <b>{department}</b></TableCell>
+                        <TableCell>Designation:<b>{designation}</b></TableCell>
                         <TableCell>CnicNo: <b>{nic}</b></TableCell>
                     </TableRow>
                     <TableRow>

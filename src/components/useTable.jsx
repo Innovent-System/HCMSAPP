@@ -103,14 +103,14 @@ export default function useTable(data, headCells, filterFn, pagination = true) {
 
     const TblBody = useCallback((props) => {
 
-        const cols = records.length ? headCells.filter(f => Object.keys(records[0]).includes(f.id)) : [];
+        // const cols = records.length ? headCells.filter(f => Object.keys(records[0]).includes(f.id)) : [];
         return (<TableBody >
             {records.map((row) => (
                 <TableRow
                     key={row.id}
                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                 >
-                    {cols.map((_key, index) =>
+                    {headCells.map((_key, index) =>
                         <TableCell key={'cell-' + index} sx={{ paddingLeft: 4 }} >{typeof _key?.valueGetter === "function" ? _key?.valueGetter({ row }) : row[_key.id]}</TableCell>
                     )
                     }

@@ -8,29 +8,28 @@ import { useDropDownIds } from '../../components/useDropDown';
 import DataGrid, { useGridApi } from '../../components/useDataGrid';
 import Controls from "../../components/controls/Controls";
 import { API } from './_Service';
+import { getYears, monthNames } from '../../util/common';
 
 
 /**
  * @type {import('@react-awesome-query-builder/mui').Fields}
  */
 const fields = {
-    firstName: {
-        label: 'Employee Name',
-        type: 'text',
-        valueSources: ['value'],
-        preferWidgets: ['text'],
+    month: {
+        label: "Month",
+        type: "select",
+        valueSources: ["value"],
+        defaultValue: new Date().getMonth(),
+        listValues: monthNames.map((e, i) => ({ value: i, title: e })),
+
     },
-    payrollDate: {
-        label: 'Payroll Date',
-        operators: ['equal'],
-        type: 'date',
-        fieldSettings: {
-            dateFormat: "D/M/YYYY",
-            mongoFormatValue: val => new Date(val).toISOString(),
-        },
+    year: {
+        label: 'Year',
+        type: 'select',
         valueSources: ['value'],
-        preferWidgets: ['date'],
-    },
+        defaultValue: new Date().getFullYear(),
+        listValues: getYears(2015).map(e => ({ title: e.title, value: e.id }))
+    }
 
 }
 
@@ -54,6 +53,9 @@ const getColumns = (apiRef, onEdit, onActive) => {
         },
         {
             field: 'payrollSetup', headerName: 'Payroll Setup', hideable: false
+        },
+        {
+            field: 'month', headerName: 'Month', hideable: false, valueGetter: ({ value }) => monthNames[value]
         },
         { field: 'totalSalary', headerName: 'Total Salary', hideable: false, valueGetter: ({ value }) => currFormat.format(value) },
         { field: 'annualSalary', headerName: 'Annual Salary', hideable: false, valueGetter: ({ value }) => currFormat.format(value) },

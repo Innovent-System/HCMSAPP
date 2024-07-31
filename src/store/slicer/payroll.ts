@@ -7,8 +7,8 @@ const InitialState = {
         startDay: 0,
         endDay: 0,
         deletePayrollAfterDays: 0,
-        calculationMethod:,
-        basicSalaryType: ,
+        calculationMethod:"",
+        basicSalaryType: "",
         percentage_or_amount: 0,
         allowances: [],
         deductions: []

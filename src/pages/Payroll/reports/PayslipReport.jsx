@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useId, useRef, useState } from 'react'
 import CommonDropDown from '../../../components/CommonDropDown'
 import { Grid, Pagination } from '../../../deps/ui'
 import PayslipView from '../components/PayslipView'
@@ -18,7 +18,8 @@ const PayslipReport = ({ setLoader, loader }) => {
 
   const [getReport] = useLazyFileQuery();
   const [records, setRecords] = useState([]);
-  const currenSlip = useRef();
+  const _key = useId();
+  const currenSlip = useRef({ _id: _key });
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(1);
 
@@ -92,7 +93,7 @@ const PayslipReport = ({ setLoader, loader }) => {
         </CommonDropDown>
       </Grid>
       <Grid item sm={9} md={9} lg={9}>
-        <PayslipView {...currenSlip.current} />
+        <PayslipView key={currenSlip.current?._id} {...currenSlip.current} />
       </Grid>
     </>
   )

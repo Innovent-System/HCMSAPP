@@ -24,7 +24,7 @@
     "@pdfme/generator": "^3.4.0",
     "@pdfme/schemas": "^3.4.0",
     "@pdfme/ui": "^3.4.0",
-    "@react-awesome-query-builder/mui": "^6.6.1",
+    "@react-awesome-query-builder/mui": "^6.6.2",
     "@reduxjs/toolkit": "^2.2.5",
     "axios": "^1.7.2",
     "chart.js": "^2.9.4",

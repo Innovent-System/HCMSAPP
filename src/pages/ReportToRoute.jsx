@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from "react"
+import { lazy, Suspense, useMemo, useState } from "react"
 import CircularLoading from "../components/Circularloading";
 import Comingsoon from "../components/Comingsoon";
 import Controls from "../components/controls/Controls";
@@ -9,6 +9,7 @@ import { useAppSelector } from "../store/storehook";
 const reportMap = Object.freeze({
     1: lazy(() => import(`./Attendance/reports/AttendanceReport`)),
     2: lazy(() => import(`./Payroll/reports/PayslipReport`)),
+    3: lazy(() => import(`./Payroll/reports/SalarySheetReport`)),
 })
 
 const ReportToRoute = ({ reportId, loader, setLoader }) => {
@@ -20,7 +21,8 @@ export const ReportPage = ({ formId, defaultReport }) => {
     const [loader, setLoader] = useState(false);
     const [reportId, setReportId] = useState(defaultReport)
 
-    const reports = useAppSelector(e => e.appdata.routeData.appReports.filter(c => formId === c.formId));
+    const reportsData = useAppSelector(e => e.appdata.routeData.appReports);
+    const reports = useMemo(() => reportsData.filter(c => formId === c.formId), [formId])
 
     return (
         <>

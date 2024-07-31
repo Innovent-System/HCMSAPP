@@ -4,7 +4,8 @@ import {
   GridView as GridViewIcon,
   ExpandMore as ExpandMoreIcon,
   FilterList as FilterListIcon,
-  CloudUpload, FileCopy
+  CloudUpload, FileCopy,
+  Close
 } from "../deps/ui/icons";
 import PropTypes from "prop-types";
 import Controls from "./controls/Controls";
@@ -107,6 +108,7 @@ export default function PageHeader(props) {
   const [query, setQuery] = useState(() => defultValue());
 
   const handleReset = () => {
+    setDrawer(false);
     setQuery({ ...query, tree: loadTree(queryValue) });
     dispatch(builderQueryAction({}));
     dispatch(resetAction(true));
@@ -175,41 +177,49 @@ export default function PageHeader(props) {
 
         </Grid>
       </Grid>
-      <Grid container spacing={2}>
-        <Grid item>
-          <Drawer
-            className={classes.Drawer}
-            anchor={"right"}
-            keepMounted
-            open={drawer}
-            onClose={() => setDrawer(!drawer)}>
-            <Box role="presentation" width={400}>
-              {setEnableFilter && (
-                <Accordion>
-                  <AccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
-                    aria-controls="panel11a-content"
-                    id="panel1a-header">
-                    <GridViewIcon />
-                    <Typography> Filter:</Typography>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <CommonDropDown />
-                  </AccordionDetails>
-                </Accordion>
-              )}
+      <Drawer
+        className={classes.Drawer}
+        anchor={"right"}
+        keepMounted
+        open={drawer}
 
-              <QueryBuilder query={query} setQuery={setQuery} fields={fields} />
-            </Box>
-            {/* <Controls.Button text='Apply' onClick={handleApply} /> */}
-            <Controls.Button
-              color="primary"
-              onClick={handleReset}
-              text="Reset"
-            />
-          </Drawer>
-        </Grid>
-      </Grid>
+        onClose={() => setDrawer(!drawer)}>
+        <Box role="presentation" p={1} width={400}>
+          {/* <IconButton size="small">
+            <Close />
+          </IconButton> */}
+          {setEnableFilter && (
+            // <Accordion  elevation={0}>
+            //   <AccordionSummary
+            //     expandIcon={<ExpandMoreIcon />}
+            //     aria-controls="panel11a-content"
+            //     id="panel1a-header">
+
+            //     <Typography> Filter</Typography>
+            //   </AccordionSummary>
+            //   <AccordionDetails sx={{ padding: 5 }} >
+            //   </AccordionDetails>
+            // </Accordion>
+            <CommonDropDown>
+              <Grid item sm={12} md={12} lg={12}>
+                <QueryBuilder query={query} setQuery={setQuery} fields={fields} />
+              </Grid>
+              <Grid item sm={12}  md={12} lg={12}>
+                <Controls.Button
+                  color="inherit"
+                  fullWidth={true}
+                  onClick={handleReset}
+                  text="Cancel"
+                />
+              </Grid>
+
+            </CommonDropDown>
+          )}
+
+        </Box>
+        {/* <Controls.Button text='Apply' onClick={handleApply} /> */}
+
+      </Drawer>
     </>
   );
 }

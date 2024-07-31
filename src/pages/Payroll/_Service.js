@@ -10,7 +10,8 @@ export const API = {
     Approval: "payroll/approval",
     ApprovalAction: "payroll/approval/action",
     LeaveType: "leave/type",
-    PayslipReport: "payroll/report/payslip"
+    PayslipReport: "payroll/report/payslip",
+    SalarySheetReport: 'payroll/report/salarysheet'
 }
 
 export const payScheduleType = [{ id: "Monthly", title: "Monthly" },
