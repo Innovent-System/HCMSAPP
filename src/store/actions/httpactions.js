@@ -184,8 +184,19 @@ const emptyString = "";
 
 const INITIAL_STATE = {
   status: false,
-  DropDownData: {},
-  employeeData: {},
+  DropDownData: {
+    Countries: [],
+    States: [],
+    Cities: [],
+    Companies: [],
+    Areas: [],
+    Departments: []
+  },
+  employeeData: {
+    Employees: [],
+    Designations: [], Groups: [], RoleTemplates: [], Schedules: [], AttendanceFlag: [], Religion: [],
+    EmployeeStatus: [], LeaveAccural: []
+  },
   payrollData: {
     AllowancesTitle: [],
     DeductionsTitle: [],

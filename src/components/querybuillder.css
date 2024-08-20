@@ -1,0 +1,8 @@
+.query-builder {
+    margin: 0;
+}
+
+.query-builder .group {
+    background-color: transparent;
+    border: none;
+}

@@ -1,37 +1,48 @@
 import Chart from '../../../components/Chart';
 import { Grid } from '../../../deps/ui';
 import Amchart from '../../../components/Amchart';
+import { useEntitiesQuery } from '../../../store/actions/httpactions';
 
-
+const API = 'employee/dashboard'
 const DashBoard = () => {
-    
 
-    const label = ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'];
-    const data = [{ "label": "Amount", "data": [12, 19, 3, 5, 2, 3] }];
+    const { data, isLoading, refetch } = useEntitiesQuery({
+        url: API,
+        data: {
+
+        }
+    });
+    console.log(data)
     return (
-       <Grid sx={{
-           m:2,
-           p:1
-       }} >
-      
-           <Grid  container spacing={3}>
+        <Grid container spacing={1}>
 
-            <Grid lg={12} sm={12} item>
-                <Amchart chartId="flag-6" type='bar' parentLabel={label} data={data} options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        yAxes: [{
-                            ticks: {
-                                beginAtZero: true
-                            }
-                        }]
-                    }
-                }} />
+            <Grid lg={6} sm={6} xs={12} item>
+                <Amchart chartId="flag-1" type='XY' data={data?.departmentCount}
+                    dataId={'_id'} dataName={'count'}
+                    yHeading="Departments"
+                />
             </Grid>
 
+            <Grid lg={6} sm={6} xs={12} item>
+                <Amchart chartId="flag-2" type='XY' data={data?.areaCount}
+                    dataId={'_id'} dataName={'count'}
+                    yHeading="Areas"
+                />
+            </Grid>
+            <Grid lg={6} sm={6} xs={12} item>
+                <Amchart chartId="flag-3" type='XY' data={data?.designationCount}
+                    dataId={'_id'} dataName={'count'}
+                    yHeading="Designations"
+                />
+            </Grid>
+            <Grid lg={6} sm={6} xs={12} item>
+                <Amchart chartId="flag-4" type='PIE' data={data?.genderCount}
+                    dataId={'_id'} dataName={'count'}
+                />
+            </Grid>
+            
+
         </Grid>
-        </Grid>        
     )
 }
 

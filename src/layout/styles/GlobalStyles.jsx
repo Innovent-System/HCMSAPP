@@ -42,7 +42,7 @@ const useStyles = makeStyles(() => createStyles({
       '& .MuiTabPanel-root': {
         padding: 0,
       },
-      "& .MuiInputBase-root": { height: "35px", overflow: 'hidden' },
+      "& .MuiInputBase-root:has(input)": { height: "35px", overflow: 'hidden' },
       "& .MuiInputLabel-root": { lineHeight: '1em' }
     },
     a: {
@@ -79,7 +79,8 @@ const useStyles = makeStyles(() => createStyles({
           padding: '4px 8px',
           borderBottom: '1px solid #e0e0e0',
         }
-      }
+      },
+      
       // '& .MuiBox-root': {
 
       // }

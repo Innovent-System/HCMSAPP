@@ -69,7 +69,7 @@ const processAndVerifyData = ({ colInfo, excelData, transformData }) => {
                     else
                         isExist = prop?.options.find(c => c[prop.dataName].toLowerCase() === value);
                     if (isExist) {
-                        objectData[prop.name] = prop.elementType === "dropdown" ? isExist[prop?.dataId] : { ...isExist };
+                        objectData[prop.name] = ['ad_dropdown','dropdown'].includes(prop.elementType) === "" ? isExist[prop?.dataId] : { ...isExist };
                     }
                     else
                         errorMsg = `${errorPrefix}${i + 1} value not correct for ${prop.label},

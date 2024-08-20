@@ -2,11 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import { AutoForm } from '../../../../components/useForm'
 import { DisplaySettings, Percent, AttachMoney, RemoveCircleOutline, AddCircleOutline, SaveTwoTone } from '../../../../deps/ui/icons'
 import { Divider, Chip, InputAdornment, IconButton, Fab, Grid } from '../../../../deps/ui'
-import { API, basicSalaryTypeList, PercentageBased, dayRange, defaultCaluation, payScheduleType, perDayCalulationsList, PayslipType, PercentageOfBasicSalary } from '../../_Service'
+import { API, basicSalaryTypeList, PercentageBased, dayRange, defaultCaluation, payScheduleType, perDayCalulationsList, CalculationType, PercentageOfBasicSalary } from '../../_Service'
 import { useAppDispatch, useAppSelector } from '../../../../store/storehook'
 import { PayrollDataThunk, useEntityAction, useLazyEntityByIdQuery } from '../../../../store/actions/httpactions'
-import { useSocketIo } from '../../../../components/useSocketio'
-import { GET_PAYROLL_DATA } from '../../../../services/UrlService'
 import Controls from '../../../../components/controls/Controls'
 
 
@@ -278,7 +276,7 @@ const PaySettings = ({ data }) => {
                     dataName: "title",
                     isNone: false,
                     defaultValue: PercentageOfBasicSalary,
-                    options: PayslipType,
+                    options: CalculationType,
                 },
                 {
                     elementType: "inputfield",
@@ -386,7 +384,7 @@ const PaySettings = ({ data }) => {
                     dataName: "title",
                     isNone: false,
                     defaultValue: PercentageOfBasicSalary,
-                    options: PayslipType,
+                    options: CalculationType,
                 },
                 {
                     elementType: "inputfield",

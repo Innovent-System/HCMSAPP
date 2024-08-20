@@ -6,11 +6,11 @@ import PropTypes from 'prop-types'
 import { useDispatch } from 'react-redux';
 import { builderQueryAction } from '../store/actions/httpactions'
 import { throttle, debounce } from '../util/common'
+import './querybuillder.css'
 // Choose your skin (ant/material/vanilla):
 MuiConfig.settings.maxNesting = 1;
-MuiConfig.settings.addRuleLabel = "Filter";
+MuiConfig.settings.addRuleLabel = "Add Filter";
 const InitialConfig = MuiConfig; // or MaterialConfig or MuiConfig or BootstrapConfig or BasicConfig
-
 // You need to provide your own config. See below 'Config format'
 InitialConfig.operators.like.mongoFormatOp = (field, op, value) => ({ [field]: { '$regex': value, "$options": "i" } });
 export const queryValue = { "id": QbUtils.uuid(), "type": "group" };
@@ -31,7 +31,7 @@ export const defultValue = () => ({
 const QueryBuilder = ({ fields, query, setQuery }) => {
 
     const dispatch = useDispatch();
-
+   
     // const [query, setQuery] = useState({
     //     tree: QbUtils.checkTree(QbUtils.loadTree(queryValue), InitialConfig),
     //     config: InitialConfig
@@ -56,7 +56,8 @@ const QueryBuilder = ({ fields, query, setQuery }) => {
 
     const renderBuilder = (props) => (
         <div className="query-builder-container">
-            <div className="query-builder qb-lite">
+            {/* qb-lite */}
+            <div className="query-builder" >
                 <Builder {...props} />
             </div>
         </div>
@@ -81,12 +82,15 @@ const QueryBuilder = ({ fields, query, setQuery }) => {
 
     return (
         <div>
+
             <Query
                 {...query.config}
                 value={query.tree}
                 onChange={debouncedClick}
                 renderBuilder={renderBuilder}
+
             />
+
             {/* {renderResult(query)} */}
         </div>
     )

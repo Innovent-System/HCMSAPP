@@ -11,7 +11,8 @@ import PropTypes from "prop-types";
 import Controls from "./controls/Controls";
 import {
   Paper, Typography, Grid, Drawer, Box, Accordion, AccordionSummary,
-  IconButton, AccordionDetails, Input, Tooltip
+  IconButton, AccordionDetails, Input, Tooltip,
+  Divider
 } from "../deps/ui";
 import CommonDropDown from "./CommonDropDown";
 import {
@@ -90,10 +91,11 @@ function trigger(eventType, data) {
   const event = new CustomEvent(eventType, { detail: data });
   document.dispatchEvent(event);
 }
-
+const breakPoints6 = { xs: 6, sm: 6, md: 6, lg: 6 }
+const breakPoints12 = { xs: 12, sm: 12, md: 12, lg: 12 }
 export default function PageHeader(props) {
   const classes = useStyles();
-  const { title, subTitle, icon, handleUpload, handleTemplate, enableFilter, showQueryFilter = true } = props;
+  const { title, subTitle, icon, handleUpload, handleApply, handleTemplate, enableFilter, showQueryFilter = true } = props;
   const dispatch = useAppDispatch();
   const [drawer, setDrawer] = useState(false);
 
@@ -185,9 +187,9 @@ export default function PageHeader(props) {
 
         onClose={() => setDrawer(!drawer)}>
         <Box role="presentation" p={1} width={400}>
-          {/* <IconButton size="small">
+          <IconButton size="small" onClick={() => setDrawer(!drawer)} sx={{ float: "right" }}>
             <Close />
-          </IconButton> */}
+          </IconButton>
           {setEnableFilter && (
             // <Accordion  elevation={0}>
             //   <AccordionSummary
@@ -202,9 +204,21 @@ export default function PageHeader(props) {
             // </Accordion>
             <CommonDropDown>
               <Grid item sm={12} md={12} lg={12}>
+                <Divider />
+
+              </Grid>
+              <Grid item sm={12} md={12} lg={12}>
                 <QueryBuilder query={query} setQuery={setQuery} fields={fields} />
               </Grid>
-              <Grid item sm={12}  md={12} lg={12}>
+              {handleApply && <Grid item sm={6} md={6} lg={6}>
+                <Controls.Button
+                  color="primary"
+                  fullWidth={true}
+                  onClick={handleApply}
+                  text="Apply"
+                />
+              </Grid>}
+              <Grid item {...(handleApply ? breakPoints6 : breakPoints12)}>
                 <Controls.Button
                   color="inherit"
                   fullWidth={true}
@@ -217,7 +231,6 @@ export default function PageHeader(props) {
           )}
 
         </Box>
-        {/* <Controls.Button text='Apply' onClick={handleApply} /> */}
 
       </Drawer>
     </>

@@ -67,6 +67,16 @@ export const sort_by = (field, reverse, primer) => {
     }
 }
 
+export const groupBy = (data, fieldName = "") => {
+    return data.reduce((acc, current) => {
+        const field = String(current[fieldName]).toLowerCase();
+        if (!acc[field]) {
+            acc[field] = [];
+        }
+        acc[field].push(current);
+        return acc;
+    }, {});
+}
 
 
 export const groupBySum = (arr = [], groupby = "", fieldtosum = "") => {
@@ -209,7 +219,7 @@ const numbersToWords = {
 
 export function convertNumberToWords(number) {
     // if number present in object no need to go further
-    if(["",null,undefined].includes(number)) return "";
+    if (["", null, undefined].includes(number)) return "";
     if (number < 0) {
         return "minus " + convertNumberToWords(Math.abs(number));
     }

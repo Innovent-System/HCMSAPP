@@ -69,9 +69,17 @@ const Maritalstatus = [
   { id: "Divorced", title: "Divorced" },
 ]
 
-
+// 'Work & Educational'
 const getSteps = () => {
-  return ['General', 'Company', 'Work & Educational'];
+  return ['General', 'Company'];
+}
+const bindObject = (obj) => {
+  const result = {};
+  Object.keys(obj).forEach(k => {
+    if (typeof obj[k] === "object") Object.assign(result, bindObject(obj[k]))
+    else result[k] = obj[k]
+  })
+  return result;
 }
 
 export const mapEmployee = (values) => {
@@ -175,7 +183,7 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
         state: values?.contactDetial?.state,
         city: values?.contactDetial?.city,
         mobileNo: values?.contactDetial?.mobileNo,
-        workNo: values?.contactDetial?.values,
+        workNo: values?.contactDetial?.workNo,
         emergencyNo: values?.contactDetial?.emergencyNo
       });
     }).finally(() => {
@@ -803,16 +811,16 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
           );
         })}
       </Stepper>
-      <Box>
-        <Box display='flex' flexDirection='column' justifyContent='space-between'>
-          <AutoForm formData={formData} ref={formApi} isValidate={true} />
-          <Box>
-            <Controls.Button onClick={handleBack} disabled={activeStep === 0} sx={Styles.button} text="Back" />
-            {activeStep !== steps.length - 1 && <Controls.Button onClick={handleNext} sx={Styles.button} text={'Next'} />}
-            {activeStep === steps.length - 1 && <Controls.Button onClick={handleSubmit} sx={Styles.button} text="Submit" />}
-          </Box>
+
+      <Box display='flex' p={2} flexDirection='column' justifyContent='space-between'>
+        <AutoForm formData={formData} ref={formApi} isValidate={true} />
+        <Box>
+          <Controls.Button onClick={handleBack} disabled={activeStep === 0} sx={Styles.button} text="Back" />
+          {activeStep !== steps.length - 1 && <Controls.Button onClick={handleNext} sx={Styles.button} text={'Next'} />}
+          {activeStep === steps.length - 1 && <Controls.Button onClick={handleSubmit} sx={Styles.button} text="Submit" />}
         </Box>
       </Box>
+
     </Box>
   );
 }

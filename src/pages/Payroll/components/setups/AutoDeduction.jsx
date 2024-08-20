@@ -3,7 +3,7 @@ import { Divider, Chip, IconButton, Grid } from '../../../../deps/ui'
 import { DisplaySettings, AddCircleOutline, RemoveCircleOutline, SaveTwoTone } from '../../../../deps/ui/icons'
 import { AutoForm } from '../../../../components/useForm'
 import { useAppSelector } from '../../../../store/storehook';
-import { useEntityAction, useLazyPostQuery } from '../../../../store/actions/httpactions';
+import { useEntitiesQuery, useEntityAction, useLazyPostQuery } from '../../../../store/actions/httpactions';
 import { API } from '../../_Service';
 import Controls from '../../../../components/controls/Controls';
 
@@ -34,8 +34,12 @@ export const AutoDeduction = ({ data }) => {
   }]).current
   const { addEntity } = useEntityAction();
   const handleSubmit = () => {
-    const { getValue } = formApi.current;
+    const { getValue, validateFields } = formApi.current;
     const values = getValue();
+    if (!values?.isLeaveDeductionFirst) {
+      values.leaveDeductionOrder = []
+    }
+    if (!validateFields()) return
     const dataToInsert = {
       _id: data._id,
       name: data.name,
@@ -48,6 +52,12 @@ export const AutoDeduction = ({ data }) => {
     addEntity({ url: DEFAULT_API, data: [dataToInsert] });
 
   }
+  useEffect(() => {
+    if (formApi.current && data) {
+      const { setFormValue } = formApi.current;
+      setFormValue(structuredClone(data.autoDeduction))
+    }
+  }, [data, formApi])
 
   const handleAddItems = () => {
     const { getValue, setFormValue } = formApi.current;
@@ -95,6 +105,28 @@ export const AutoDeduction = ({ data }) => {
       label: "Is Leave Deduction First",
       breakpoints: { xs: 6, sm: 6, md: 4 },
       defaultValue: true
+    },
+    {
+      elementType: "dropdown",
+      name: "leaveDeductionOrder",
+      label: "Leave Type",
+      breakpoints: { xs: 6, sm: 6, md: 2 },
+      isMultiple: true,
+      isShow: (value) => value.isLeaveDeductionFirst,
+      required: true,
+      validate: {
+        errorMessage: "Leave Type is required",
+      },
+      // onChange: (_allowanc, _ind) => {
+      //   const { getValue } = formApi.current;
+      //   setDisabledFlags(getValue().flagSetting.map(c => c.flagId))
+      // },
+      // disableitems: disabledFlags,
+      dataId: "_id",
+      dataName: "title",
+      isNone: false,
+      defaultValue: [],
+      options: leaveTypes,
     },
     {
       elementType: "arrayForm",

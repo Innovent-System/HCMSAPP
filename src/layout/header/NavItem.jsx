@@ -16,7 +16,7 @@ const styles = {
     }
 }
 
-const NavItem = ({ title, routes, icon: Icon, tabClick }) => {
+const NavItem = ({ title, routes, routeTo, icon: Icon, tabClick, isChildren = true }) => {
     return (
         <Accordion>
             <AccordionSummary
@@ -45,6 +45,7 @@ const NavItem = ({ title, routes, icon: Icon, tabClick }) => {
                 </List>
             </AccordionDetails>
         </Accordion>
+
     )
 }
 

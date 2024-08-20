@@ -30,7 +30,7 @@ export default function Popup(props) {
 
     return (
         <Dialog open={openPopup} keepMounted={keepMounted} fullScreen={fullScreen} fullWidth maxWidth={maxWidth} sx={{ paper: Styles.dialogWrapper }}>
-            <DialogTitle sx={Styles.dialogTitle}>
+            <DialogTitle sx={Styles.dialogTitle} textAlign="center">
                 <div style={{ display: 'flex' }}>
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1, p: 0.6 }}>
                         {title}

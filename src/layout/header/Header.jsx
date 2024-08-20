@@ -9,6 +9,7 @@ import {
   Badge,
   Box,
   Drawer,
+  Link,
 } from "../../deps/ui";
 import * as iconMapping from "../../assets/icons";
 import NavItem from "./NavItem";
@@ -229,16 +230,18 @@ export default function Header() {
                 color="secondary">
                 <FormatListBulletedIcon />
               </IconButton>
-              <img src={Logo} alt="Logo" />
+              <Link onClick={() => navigate("/dashboard")}>
+                <img src={Logo} alt="Logo" />
+              </Link>
             </Grid>
             <Grid item xs className="center">
-              <InputBase
+              {/* <InputBase
                 placeholder="Search"
                 startAdornment={<SearchIcon fontSize="small" color="primary" />}
                 fullWidth
                 color="inherit"
                 variant="outlined"
-              />
+              /> */}
 
             </Grid>
             <Grid item xs>
@@ -280,6 +283,8 @@ export default function Header() {
               title={item.title}
               tabClick={toggleSidebar("left", false)}
               icon={iconMapping[item.icon]}
+              routeTo={item.routeTo}
+              isChildren={item?.children?.length > 0}
               routes={item?.children}
             />
           ))}

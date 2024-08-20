@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useAppSelector } from "../../store/storehook";
 
-let appcommands = [];
+// let appcommands = [];
 export const useSpeechSynthesis = () => {
   const [voices, setVoices] = useState([]);
 
@@ -11,7 +11,7 @@ export const useSpeechSynthesis = () => {
   };
 
   const appstate = useAppSelector(a => a.appdata.commands);
-  appcommands = appstate;
+  // appcommands = appstate;
   
   const speak = (text, voice, pitch = 1, rate = 1) => {
     const utterance = new SpeechSynthesisUtterance(text);
@@ -21,7 +21,7 @@ export const useSpeechSynthesis = () => {
     utterance.volume = 1;
     utterance.rate = rate;
 
-    const instrcution = appcommands.find(c => c.matchText.some(c => c.exec(text)));
+    const instrcution = appstate.find(c => c.matchText.some(c => c.exec(text)));
     if (instrcution) {
       instrcution.onMatch();
     }
@@ -46,6 +46,6 @@ export const useSpeechSynthesis = () => {
   return {
     voices,
     speak,
-    isReady: appcommands?.length > 0
+    isReady: appstate?.length > 0
   }
 }

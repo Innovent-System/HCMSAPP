@@ -5,6 +5,7 @@ export const API = {
     Salary: 'payroll/salary',
     Process: 'payroll/process',
     AdvanceSalary: 'payroll/advancesalary',
+    Bonus: 'payroll/bonus',
     LoanRequest: 'payroll/loan',
     CancelAdvanceSalary: 'payroll/advancesalary/cancel',
     Approval: "payroll/approval",
@@ -28,8 +29,9 @@ export const basicSalaryTypeList = [
     { id: "FixedAmount", title: "Fix Amount" }
 ], PercentageBased = "PercentageBased";
 
-export const PayslipType = [
+export const CalculationType = [
     { id: "PercentageOfBasicSalary", title: "Percentage of Basic Salary" },
+    { id: "PercentageOfGrossSalary", title: "Percentage of Gross Salary" },
     { id: "FixedAmount", title: "Fix Amount" }
-], PercentageOfBasicSalary = "PercentageOfBasicSalary";
+], PercentageOfBasicSalary = "PercentageOfBasicSalary", FixedAmount = "FixedAmount";
 
