@@ -5,7 +5,7 @@ import { useAppSelector } from '../../store/storehook';
 import { Divider, Chip, InputAdornment, Grid, Typography, FormHelperText } from '../../deps/ui'
 import { DisplaySettings, AttachMoney } from '../../deps/ui/icons'
 import { useEntityAction, useEntityByIdQuery, useLazyEntityByIdQuery } from '../../store/actions/httpactions';
-import { API, PercentageBased, PercentageOfBasicSalary } from './_Service';
+import { API, defaultOverTimeCalculation, OverTimeCalculation, PercentageBased, PercentageOfBasicSalary } from './_Service';
 import CircularLoading from '../../components/Circularloading';
 import Controls from '../../components/controls/Controls'
 const _salaryType = [{ id: "Monthly", title: "Monthly" },
@@ -102,7 +102,7 @@ const SalarySetup = () => {
     }
     const updateSalary = () => {
         const { getValue, validateFields } = formApi.current
-        const { monthlySalary, fkEmployeeId, annualSalary, salaryType, fkPayrollSetupId } = getValue();
+        const { monthlySalary, fkEmployeeId, salaryType, fkPayrollSetupId, ...overTime } = getValue();
         if (!validateFields()) return;
         if (+monthlySalary !== +(estimateSalary.current.replaceAll(",", ""))) return setSalaryError(true);
 
@@ -110,7 +110,8 @@ const SalarySetup = () => {
             url: `${API.Salary}/${fkEmployeeId._id}`, data: {
                 monthlySalary,
                 annualSalary: monthlySalary * 12,
-                salaryType, fkPayrollSetupId
+                salaryType, fkPayrollSetupId,
+                overTime
             }
         }).then(console.log);
     }
@@ -165,7 +166,121 @@ const SalarySetup = () => {
         breakpoints: fullWidthPoints,
         NodeElement: () => <Divider><Chip label="Details" icon={<DisplaySettings />} /></Divider>
     },
-
+    {
+        elementType: "checkbox",
+        name: "enable",
+        label: "Enable Over Time",
+        breakpoints: { xs: 12, sm: 12, md: 12 },
+        defaultValue: false
+    },
+    {
+        elementType: "dropdown",
+        name: "wdType",
+        label: "Working Day Rate",
+        breakpoints: { xs: 6, sm: 6, md: 2 },
+        isShow: (value) => value.enable,
+        dataId: "id",
+        dataName: "title",
+        isNone: false,
+        defaultValue: defaultOverTimeCalculation,
+        options: OverTimeCalculation,
+    },
+    {
+        elementType: "inputfield",
+        name: "wdAmount",
+        breakpoints: { xs: 6, sm: 6, md: 2 },
+        isShow: (value) => value.enable && value.wdType === defaultOverTimeCalculation,
+        label: "Amount",
+        inputMode: 'numeric',
+        type: "number",
+        inputProps: {
+            min: 0,
+        },
+        InputProps: {
+            endAdornment: (
+                <InputAdornment position="end">
+                    <AttachMoney />
+                </InputAdornment>
+            )
+        },
+        defaultValue: 0,
+    },
+    {
+        elementType: "clearfix",
+        breakpoints: { md: 12, sm: 12, xs: 12 }
+    },
+    {
+        elementType: "dropdown",
+        name: "hdType",
+        label: "Holiday Rate",
+        breakpoints: { xs: 6, sm: 6, md: 2 },
+        isShow: (value) => value.enable,
+        dataId: "id",
+        dataName: "title",
+        isNone: false,
+        defaultValue: defaultOverTimeCalculation,
+        options: OverTimeCalculation,
+    },
+    {
+        elementType: "inputfield",
+        name: "hdAmount",
+        breakpoints: { xs: 6, sm: 6, md: 2 },
+        isShow: (value) => value.enable && value.hdType === defaultOverTimeCalculation,
+        label: "Amount",
+        inputMode: 'numeric',
+        type: "number",
+        inputProps: {
+            min: 0,
+        },
+        InputProps: {
+            endAdornment: (
+                <InputAdornment position="end">
+                    <AttachMoney />
+                </InputAdornment>
+            )
+        },
+        defaultValue: 0,
+    },
+    {
+        elementType: "clearfix",
+        breakpoints: { md: 12, sm: 12, xs: 12 }
+    },
+    {
+        elementType: "dropdown",
+        name: "ghType",
+        label: "Gazetted Holiday Rate",
+        breakpoints: { xs: 6, sm: 6, md: 2 },
+        isShow: (value) => value.enable,
+        dataId: "id",
+        dataName: "title",
+        isNone: false,
+        defaultValue: defaultOverTimeCalculation,
+        options: OverTimeCalculation,
+    },
+    {
+        elementType: "inputfield",
+        name: "ghAmount",
+        breakpoints: { xs: 6, sm: 6, md: 2 },
+        isShow: (value) => value.enable && value.ghType === defaultOverTimeCalculation,
+        label: "Amount",
+        inputMode: 'numeric',
+        type: "number",
+        inputProps: {
+            min: 0,
+        },
+        InputProps: {
+            endAdornment: (
+                <InputAdornment position="end">
+                    <AttachMoney />
+                </InputAdornment>
+            )
+        },
+        defaultValue: 0,
+    },
+    {
+        elementType: "clearfix",
+        breakpoints: { md: 12, sm: 12, xs: 12 }
+    },
     {
         elementType: "inputfield",
         name: "monthlySalary",
