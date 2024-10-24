@@ -56,7 +56,7 @@ const getColumns = (apiRef, onEdit, onActive) => {
                 <Stack>
                     <Link underline="hover">{row.fullName}</Link>
                     <Typography variant="caption"><strong>Department :</strong>{row.department.departmentName}</Typography>
-                    <Typography variant="caption"><strong>Designation :</strong>{row.designation.name}</Typography>
+                    <Typography variant="caption"><strong>Designation :</strong>{row.designation?.name}</Typography>
                     <Typography variant="caption"><strong>Group :</strong>{row.group.groupName}</Typography>
                 </Stack>
             )

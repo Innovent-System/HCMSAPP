@@ -119,12 +119,12 @@ const DetailPanelContent = ({ row }) => {
                 <Grid item xs={4} md={4} lg={4} p={2}>
                     <Divider>Total</Divider>
                     <Box textAlign='right'>
-                        <Typography >{currFormat.format(row.totalEarning)}</Typography>
+                        <Typography >{currFormat.format(Math.round(row.totalEarning))}</Typography>
                     </Box>
                 </Grid>
                 <Grid item xs={4} md={4} lg={4} p={2}><Divider>Total</Divider>
                     <Box textAlign='right'>
-                        <Typography >{currFormat.format(row.totalDeduction)}</Typography>
+                        <Typography >{currFormat.format(Math.round(row.totalDeduction))}</Typography>
                     </Box>
                 </Grid>
                 <Grid item xs={4} md={4} lg={4} p={2}><Divider>Total</Divider></Grid>
@@ -257,7 +257,7 @@ const RunPayroll = () => {
                 checkboxSelection={false}
                 getRowId={(r) => r.fkEmployeeId}
                 detailPanelExpandedRowIds={detailPanelExpandedRowIds}
-
+            
                 onDetailPanelExpandedRowIdsChange={handleDetailPanelExpandedRowIdsChange}
                 getDetailPanelContent={getDetailPanelContent}
                 getDetailPanelHeight={getDetailPanelHeight} // Height based on the content.

@@ -53,10 +53,10 @@ function TabsComponent({ TabsConfig, orientation = "vertical", value = '0', setV
                     },
                 },
             }} orientation={orientation} variant="scrollable" scrollButtons="auto" onChange={handleChange} aria-label="lab API tabs example">
-                {TabsConfig.map(({ title, panel, value, ...restTabs }, index) => <Tab role='button' centerRipple {...restTabs} aria-orientation={orientation} sx={{ textTransform: 'capitalize' }} key={title} label={title} value={value ?? String(index)} />)}
+                {TabsConfig.map(({ title, panel, value, ...restTabs }, index) => <Tab role='button' centerRipple {...restTabs} aria-orientation={orientation} sx={{ textTransform: 'capitalize' }} key={`tab-${title}-${index}`} label={title} value={value ?? String(index)} />)}
             </TabList>
 
-            {TabsConfig.map((m, index) => <TabPanel index={index} value={m?.value ?? String(index)} key={index}> {m.panel}</TabPanel>)}
+            {TabsConfig.map((m, index) => <TabPanel index={index} value={m?.value ?? String(index)} key={`panel-${m.title}-${index}`}> {m.panel}</TabPanel>)}
 
         </TabContext>
 

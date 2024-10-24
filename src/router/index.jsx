@@ -21,7 +21,7 @@ const LazyDashboard = lazy(() => import(`../pages/General/Dashboard`));
 
 const MapToRoute = ({ formId }) => {
   const Map = componentsToMap[formId];
-  return <Suspense fallback={<CircularLoading open={true} />}>{Map ? <Map /> : <ComingSoon />}</Suspense>
+  return Map ? <Map /> : <ComingSoon />
 
 }
 

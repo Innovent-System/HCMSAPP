@@ -5,6 +5,7 @@ import { Outlet, useParams } from 'react-router-dom';
 import Header from '../layout/header/Header';
 import Speech from '../components/speech/SpeechRecognition';
 import Auth from '../services/AuthenticationService'
+import BreadCrumbs from '../components/BreadCrumbs';
 
 const Layout = () => {
 
@@ -44,6 +45,7 @@ const Layout = () => {
     <>
       <Header />
       <Paper className={"content-area"}>
+        {/* <BreadCrumbs /> */}
         <Outlet />
       </Paper>
       {/* <Speech mode='obey'/> */}

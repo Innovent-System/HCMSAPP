@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { AutoForm } from '../../../../components/useForm'
 import { DisplaySettings, Percent, AttachMoney, RemoveCircleOutline, AddCircleOutline, SaveTwoTone } from '../../../../deps/ui/icons'
 import { Divider, Chip, InputAdornment, IconButton, Fab, Grid } from '../../../../deps/ui'
-import { API, basicSalaryTypeList, PercentageBased, dayRange, defaultCaluation, payScheduleType, perDayCalulationsList, CalculationType, PercentageOfBasicSalary } from '../../_Service'
+import { API, basicSalaryTypeList, PercentageBased, dayRange, defaultCaluation, payScheduleType, 
+    perDayCalulationsList, CalculationType, PercentageOfBasicSalary,FixedAmount } from '../../_Service'
 import { useAppDispatch, useAppSelector } from '../../../../store/storehook'
 import { PayrollDataThunk, useEntityAction, useLazyEntityByIdQuery } from '../../../../store/actions/httpactions'
 import Controls from '../../../../components/controls/Controls'
@@ -281,7 +282,7 @@ const PaySettings = ({ data }) => {
                 {
                     elementType: "inputfield",
                     name: "percentage",
-                    isShow: (values) => values.type === PercentageOfBasicSalary,
+                    isShow: (values) => values.type !== FixedAmount,
                     label: "Percentage",
                     inputMode: 'numeric',
                     // required: (values) => values.type === PercentageOfBasicSalary,
@@ -306,11 +307,11 @@ const PaySettings = ({ data }) => {
                 {
                     elementType: "inputfield",
                     name: "amount",
-                    isShow: (values) => values.type !== PercentageOfBasicSalary,
+                    isShow: (values) => values.type === FixedAmount,
                     label: "Amount",
                     inputMode: 'numeric',
                     type: "number",
-                    required: (values) => values.type !== PercentageOfBasicSalary,
+                    required: (values) => values.type === FixedAmount,
                     validate: {
                         errorMessage: "Amount is required",
                     },
@@ -389,7 +390,7 @@ const PaySettings = ({ data }) => {
                 {
                     elementType: "inputfield",
                     name: "percentage",
-                    isShow: (values) => values.type === PercentageOfBasicSalary,
+                    isShow: (values) => values.type !== FixedAmount,
                     label: "Percentage",
                     inputMode: 'numeric',
                     type: "number",
@@ -414,11 +415,11 @@ const PaySettings = ({ data }) => {
                 {
                     elementType: "inputfield",
                     name: "amount",
-                    isShow: (values) => values.type !== PercentageOfBasicSalary,
+                    isShow: (values) => values.type === FixedAmount,
                     label: "Amount",
                     inputMode: 'numeric',
                     type: "number",
-                    required: (values) => values.type !== PercentageOfBasicSalary,
+                    required: (values) => values.type === FixedAmount,
                     validate: {
                         errorMessage: "Amount is required",
                     },

@@ -16,6 +16,7 @@ import Loader from '../../components/Circularloading'
 import { useDropDownIds } from "../../components/useDropDown";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
 import { useExcelReader } from "../../hooks/useExcelReader";
+import InfoToolTip from "../../components/InfoToolTip";
 
 const fields = {
     status: {
@@ -68,7 +69,7 @@ const getColumns = (onCancel) => [
     { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
     getActions(null, { onCancel })
 ];
-
+const min = 0, max = 48;
 const AddOverTime = ({ openPopup, setOpenPopup, colData = [] }) => {
     const formApi = useRef(null);
     const [loader, setLoader] = useState(false);
@@ -82,6 +83,10 @@ const AddOverTime = ({ openPopup, setOpenPopup, colData = [] }) => {
             resetForm();
         }
     }, [openPopup, formApi])
+    const handleInvalid = (e) => {
+        e.preventDefault();
+        alert(`Value must be between `);
+    };
     const formData = [
         {
             elementType: "ad_dropdown",
@@ -147,18 +152,29 @@ const AddOverTime = ({ openPopup, setOpenPopup, colData = [] }) => {
             name: "OTHours",
             label: "Hours",
             inputMode: 'numeric',
+            // modal: {
+            //     Component: ,
+            // },
             required: true,
+            onChange: (hour) => {
+                const { setFormValue } = formApi.current;
+                if (+hour < min || +hour > max) {
+                    setFormValue({ OTHours: '' })
+                }
+            },
             validate: {
                 errorMessage: "OverTime Hours is required",
             },
             type: "number",
             inputProps: {
-                min: 0,
+                min,
+                max
             },
             // breakpoints,
             InputProps: {
                 endAdornment: (
                     <InputAdornment position="end">
+                        <InfoToolTip sx={{ float: "right", pt: 1 }} color="info" title="Hours should be between 0 - 48" />
                         <HourglassBottom />
                     </InputAdornment>
                 )

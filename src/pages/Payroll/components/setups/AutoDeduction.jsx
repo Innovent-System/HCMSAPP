@@ -26,12 +26,14 @@ export const AutoDeduction = ({ data }) => {
   }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
 
   const [disabledFlags, setDisabledFlags] = useState(attendanceFlag?.length ? [attendanceFlag[0]._id] : []);
-  const flagSetting = useRef([{
+  const _flagSetting = useRef([{
     flagId: attendanceFlag.length ? attendanceFlag[0]._id : "",
     count: 1, exemptedCount: 3,
     effectedFrequency: DefaultFrequency,
     deductionDays: 1
-  }]).current
+  }])
+
+  console.log(_flagSetting)
   const { addEntity } = useEntityAction();
   const handleSubmit = () => {
     const { getValue, validateFields } = formApi.current;
@@ -134,7 +136,7 @@ export const AutoDeduction = ({ data }) => {
       // sx: listStyle,
       // arrayFormRef: allowanceApi,
       breakpoints: fullWidthPoints,
-      defaultValue: flagSetting,
+      defaultValue: _flagSetting.current,
       formData: [
         {
           elementType: "dropdown",

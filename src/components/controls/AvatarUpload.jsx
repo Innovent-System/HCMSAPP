@@ -48,7 +48,7 @@ const AvatarUpload = (props) => {
       badgeContent={
         <>
           <label style={{ display: value && 'none' }} htmlFor="icon-button-file">
-            <Input style={{ display: 'none' }} name={name} ref={inputFileRef} onChange={async (e) => onChange(await onImageChange(e))} accept="image/*" id="icon-button-file" type="file" />
+            <Input style={{ display: 'none' }} name={name} ref={inputFileRef} onChange={async (e) => onChange(await onImageChange(e))} inputProps={{ accept: "image/*" }}  id="icon-button-file" type="file" />
             <IconButton size='medium' color="primary" aria-label="upload picture" component="span">
               <PhotoCamera />
             </IconButton>

@@ -43,11 +43,11 @@ export default function Manage() {
         [
             {
                 title: "Pay Setting",
-                panel: <PaySettings data={setup} />
+                panel: <PaySettings key="PaySettings" data={setup} />
             },
             {
                 title: "Auto Dedcution",
-                panel: <AutoDeduction data={setup} />
+                panel: <AutoDeduction key="AutoDeduction" data={setup} />
             }
         ]
         , [setup])

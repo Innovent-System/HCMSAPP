@@ -5,7 +5,7 @@ import { useAppSelector } from '../../store/storehook';
 import { Divider, Chip, InputAdornment, Grid, Typography, FormHelperText } from '../../deps/ui'
 import { DisplaySettings, AttachMoney } from '../../deps/ui/icons'
 import { useEntityAction, useEntityByIdQuery, useLazyEntityByIdQuery } from '../../store/actions/httpactions';
-import { API, defaultOverTimeCalculation, OverTimeCalculation, PercentageBased, PercentageOfBasicSalary } from './_Service';
+import { API, defaultOverTimeCalculation, OverTimeCalculation, PercentageBased, PercentageOfBasicSalary, FixedAmount } from './_Service';
 import CircularLoading from '../../components/Circularloading';
 import Controls from '../../components/controls/Controls'
 const _salaryType = [{ id: "Monthly", title: "Monthly" },
@@ -42,6 +42,7 @@ const SalarySetup = () => {
     const payrollSetups = useAppSelector(e => e.appdata.payrollData.PayrollSetups);
     const [salaryError, setSalaryError] = useState(false)
     const estimateSalary = useRef("");
+    
     const { updateEntity, addEntity } = useEntityAction();
     const [salaryItems, setSalaryItems] = useState([]);
     const [getPayroll] = useLazyEntityByIdQuery();
@@ -55,35 +56,48 @@ const SalarySetup = () => {
             const { getValue } = formApi.current;
             const { monthlySalary = 0 } = getValue();
             const currentItems = [];
-            estimateSalary.current = calculateOn(monthlySalary, basicSalaryType === PercentageBased, true, percentage_or_amount);
-            currentItems.push({ item: `Basic Salary ${basicSalaryType === PercentageBased ? `(${percentage_or_amount}%)` : ''}`, amount: calculateOn(monthlySalary, basicSalaryType === PercentageBased, true, percentage_or_amount), isPercent: basicSalaryType === PercentageBased, isAllowance: true, percentage_or_amount });
+            const isPercentageBase = basicSalaryType === PercentageBased;
+            const basicSalaryAmount = calculateOn(monthlySalary, isPercentageBase, true, percentage_or_amount);
+
+            estimateSalary.current = basicSalaryAmount;
+            currentItems.push({ item: `Basic Salary ${isPercentageBase ? `(${percentage_or_amount}%)` : ''}`, amount: basicSalaryAmount, isPercent: isPercentageBase, isAllowance: true, percentage_or_amount });
+
             currentItems.push(...allowances.map(c => {
-                const _amount = calculateOn(monthlySalary, c.type === PercentageOfBasicSalary, true, c.percentage_or_amount);
+                const _amount = calculateOn(c.type === PercentageOfBasicSalary ? basicSalaryAmount : monthlySalary, c.type !== FixedAmount, true, c.percentage_or_amount);
                 estimateSalary.current += _amount;
                 return {
-                    item: `${c.titles.name} ${c.type === PercentageOfBasicSalary ? `(${c.percentage_or_amount}%)` : ''}`,
+                    item: `${c.titles.name} ${c.type !== FixedAmount ? `(${c.percentage_or_amount}%)` : ''}`,
                     amount: intFormat.format(_amount),
-                    isPercent: c.type === PercentageOfBasicSalary, isAllowance: true,
-                    percentage_or_amount: c.percentage_or_amount
+                    isPercent: c.type !== FixedAmount, isAllowance: true,
+                    percentage_or_amount: c.percentage_or_amount,
+                    type: c.type
                 }
             }));
-            currentItems.push(...deductions.map(d => ({ item: `${d.titles.name} ${d.type === PercentageOfBasicSalary ? `(${d.percentage_or_amount}%)` : ''}`, amount: intFormat.format(calculateOn(monthlySalary, d.type === PercentageOfBasicSalary, false, d.percentage_or_amount)), isPercent: d.type === PercentageOfBasicSalary, isAllowance: false, percentage_or_amount: d.percentage_or_amount })));
-            estimateSalary.current = intFormat.format(estimateSalary.current);
+
+            currentItems.push(...deductions.map(d => ({
+                item: `${d.titles.name} ${d.type !== FixedAmount ? `(${d.percentage_or_amount}%)` : ''}`,
+                 amount: intFormat.format(calculateOn(d.type === PercentageOfBasicSalary ? basicSalaryAmount : monthlySalary, d.type !== FixedAmount, false, d.percentage_or_amount)),
+                isPercent: d.type !== FixedAmount, isAllowance: false, percentage_or_amount: d.percentage_or_amount,
+                type: d.type
+            })));
+            estimateSalary.current = intFormat.format(Math.round(estimateSalary.current));
             setSalaryError(false);
             setSalaryItems(currentItems);
 
         })
     }
     const handleSalaryChange = (monthlySalary) => {
+
         estimateSalary.current = 0;
         const { setFormValue } = formApi.current;
 
-        const curItems = salaryItems.map(c => {
-            const currAmount = calculateOn(monthlySalary, c.isPercent, c.isAllowance, c.percentage_or_amount);
+        const _currentBasicAmount = calculateOn(monthlySalary, salaryItems[0]?.isPercent, true, salaryItems[0]?.percentage_or_amount);
+        const curItems = salaryItems.map((c, i) => {
+            const currAmount = calculateOn((c?.type === PercentageOfBasicSalary) ? _currentBasicAmount : monthlySalary, c.isPercent, c.isAllowance, c.percentage_or_amount);
             estimateSalary.current += c.isAllowance ? currAmount : 0;
             return { ...c, amount: intFormat.format(currAmount) }
         })
-        estimateSalary.current = intFormat.format(estimateSalary.current);
+        estimateSalary.current = intFormat.format(Math.round(estimateSalary.current));
         setSalaryItems(curItems);
         setSalaryError(false);
         setFormValue({ annualSalary: intFormat.format(+monthlySalary * 12) });
@@ -289,14 +303,17 @@ const SalarySetup = () => {
             errorMessage: "Monthly Salary is required",
         },
         onChange: handleSalaryChange,
+        onKeyDown: (e) => e.keyCode !== 190,
         label: "Monthly Salary",
         inputMode: 'numeric',
         type: "number",
         inputProps: {
             min: 0,
+            step: 1
         },
         breakpoints,
         InputProps: {
+
             endAdornment: (
                 <InputAdornment position="end">
                     <AttachMoney />
