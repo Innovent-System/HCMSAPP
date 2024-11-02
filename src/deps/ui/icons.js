@@ -10,5 +10,5 @@ export {
     Circle, GridView, Add, RemoveCircleOutline, AccessTime, Addchart, DoneAll, Info, InfoRounded, InfoOutlined, InfoSharp, FileCopy, WatchLater, Call, Business,
     North, South, KeyboardVoice, MicOff, CheckCircle, Cancel, Description, AdminPanelSettings, Groups, Article, Person2Rounded, PersonOffRounded,
     Beenhere, DisplaySettings, Update, RequestPage, Percent, AddCircleOutline, CancelScheduleSend, RestartAlt, LocalPrintshop,
-    PictureAsPdf, OpenInNew, HourglassBottom
+    PictureAsPdf, OpenInNew, HourglassBottom, MoreVert,EmailOutlined,LocationOnOutlined,DomainOutlined
 } from '@mui/icons-material';

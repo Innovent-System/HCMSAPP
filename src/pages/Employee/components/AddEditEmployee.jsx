@@ -85,6 +85,7 @@ const bindObject = (obj) => {
 export const mapEmployee = (values) => {
   if (!Object.keys(values).length) return;
   const employee = {
+    employeeImage:values.employeeImage,
     emplyeeRefNo: values.emplyeeRefNo,
     punchCode: values.punchCode,
     firstName: values.firstName,
@@ -108,7 +109,7 @@ export const mapEmployee = (values) => {
       fkEmployeeGroupId: values.fkEmployeeGroupId._id,
       fkEmployeeStatusId: values.fkEmployeeStatusId._id,
       fkStateId: values.fkStateId._id,
-      joiningDate: new Date().toISOString(),
+      joiningDate: values.joiningDate,
       confirmationDate: values.confirmationDate,
       fkManagerId: values.fkManagerId?._id ?? null
     },

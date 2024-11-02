@@ -31,9 +31,8 @@ export const AutoDeduction = ({ data }) => {
     count: 1, exemptedCount: 3,
     effectedFrequency: DefaultFrequency,
     deductionDays: 1
-  }])
-
-  console.log(_flagSetting)
+  }]).current;
+  
   const { addEntity } = useEntityAction();
   const handleSubmit = () => {
     const { getValue, validateFields } = formApi.current;
@@ -136,7 +135,7 @@ export const AutoDeduction = ({ data }) => {
       // sx: listStyle,
       // arrayFormRef: allowanceApi,
       breakpoints: fullWidthPoints,
-      defaultValue: _flagSetting.current,
+      defaultValue: _flagSetting,
       formData: [
         {
           elementType: "dropdown",
@@ -144,6 +143,7 @@ export const AutoDeduction = ({ data }) => {
           label: "Title",
           breakpoints,
           onChange: (_allowanc, _ind) => {
+            
             const { getValue } = formApi.current;
             setDisabledFlags(getValue().flagSetting.map(c => c.flagId))
           },

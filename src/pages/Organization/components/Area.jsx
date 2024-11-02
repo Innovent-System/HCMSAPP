@@ -71,13 +71,13 @@ const getColumns = (apiRef, onEdit, onActive) => {
       field: 'isActive', headerName: 'Status', renderCell: (param) => (
         param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
       ),
-      flex: '0 1 5%',
+      // flex: '0 1 5%',
       align: 'center',
     },
     {
       field: 'detail',
       headerName: 'Detail',
-      flex: '0 1 30%',
+      flex:1,
       renderCell: CombineDetail
     },
     getActions(apiRef, actionKit)

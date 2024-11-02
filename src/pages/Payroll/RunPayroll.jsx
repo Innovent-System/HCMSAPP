@@ -249,7 +249,7 @@ const RunPayroll = () => {
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: handleSavePayroll,
-                    getPayroll: handleProcessPayroll,
+                    // getPayroll: handleProcessPayroll,
 
                     records,
                     selectionModel

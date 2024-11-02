@@ -164,13 +164,17 @@ export default function Header() {
     socket.on("changeInCompany", handler);
     socket.on("changeInCountry", handler);
     socket.on("changeInDepartment", handler);
-
+    
+    socket.on("changeInEmployee", employeeHanlder);
     socket.on("changeInGroup", employeeHanlder);
     socket.on("changeInDesignation", employeeHanlder);
+    socket.on("changeInSchedule", employeeHanlder);
 
     return () => {
       socket.off("changeInGroup", employeeHanlder);
       socket.off("changeInDesignation", employeeHanlder);
+      socket.off("changeInEmployee", employeeHanlder);
+      socket.off("changeInSchedule", employeeHanlder);
       socket.off("changeInArea", handler);
       socket.off("changeInCompany", handler);
       socket.off("changeInCountry", handler);

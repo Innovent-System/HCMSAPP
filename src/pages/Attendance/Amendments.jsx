@@ -294,6 +294,7 @@ const Amend = () => {
         <>
             <PageHeader
                 title="Amend Attendance"
+                handleApply={handleAmendAttendance}
                 enableFilter={true}
                 subTitle="Manage Amend Attendance"
                 icon={<PeopleOutline fontSize="large" />}
@@ -316,7 +317,7 @@ const Amend = () => {
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: handleSaveAttendance,
-                    getAttendance: handleAmendAttendance,
+                    // getAttendance: handleAmendAttendance,
 
                     records,
                     selectionModel
@@ -338,7 +339,7 @@ export function AmendToolbar(props) {
         <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
 
             {selectionModel?.length ? <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Save" /> : null}
-            <Controls.Button onClick={getAttendance} startIcon={<AddIcon />} text="Apply" />
+            {/* <Controls.Button onClick={getAttendance} startIcon={<AddIcon />} text="Apply" /> */}
         </GridToolbarContainer>
     );
 }

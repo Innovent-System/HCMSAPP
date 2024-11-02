@@ -4,7 +4,7 @@ import Controls from '../../components/controls/Controls';
 import Popup from '../../components/Popup';
 import { API, alphabets } from './_Service';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction } from '../../store/actions/httpactions';
-import { Typography, Stack, Link, ButtonGroup } from "../../deps/ui";
+import { Typography, Stack, Link, ButtonGroup, Grid } from "../../deps/ui";
 import { Circle, PeopleOutline } from "../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions, GridToolbar } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
@@ -17,6 +17,7 @@ import { useDropDownIds } from '../../components/useDropDown';
 import AddEmployee from "./components/AddEmployee";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
 import { downloadTextFIle } from "../../util/common";
+import EmployeeCard from "./components/EmployeeCard";
 
 
 const fields = {
@@ -94,7 +95,7 @@ const Employee = () => {
 
     const excelColData = useRef([]);
 
-    const { inProcess, setFile, excelData, getTemplate } = useExcelReader(excelColData.current,mapEmployee);
+    const { inProcess, setFile, excelData, getTemplate } = useExcelReader(excelColData.current, mapEmployee);
 
     const [gridFilter, setGridFilter] = useState({
         lastKey: null,
@@ -114,7 +115,7 @@ const Employee = () => {
 
     const { countryIds, stateIds, cityIds, areaIds, departmentIds, groupIds, designationIds } = useDropDownIds();
 
-    const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
+    const { data = [], isLoading, refetch, totalRecord } = useEntitiesQuery({
         url: DEFAULT_API,
         data: {
             limit: gridFilter.limit,
@@ -229,7 +230,10 @@ const Employee = () => {
                     <Controls.Button onClick={handleAlphabetSearch} color={word === alpha ? 'info' : 'inherit'} key={alpha} text={alpha} />
                 ))}
             </ButtonGroup>
-            <DataGrid apiRef={gridApiRef}
+            <Grid container p={1} gap={2}>
+                {data.map(e => <Grid key={e._id} item><EmployeeCard employeeInfo={e} handleEdit={handleEdit} /> </Grid>)}
+            </Grid>
+            {/* <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={data}
                 totalCount={totalRecord}
                 pageSize={gridFilter.limit}
@@ -247,7 +251,7 @@ const Employee = () => {
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
 
-            />
+            /> */}
             <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
         </>
     );

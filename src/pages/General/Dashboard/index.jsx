@@ -12,7 +12,7 @@ const DashBoard = () => {
 
         }
     });
-    console.log(data)
+    
     return (
         <Grid container spacing={1}>
 

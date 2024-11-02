@@ -123,13 +123,13 @@ function Select(props) {
 Select.propTypes = {
   dataId: PropTypes.string,
   dataName: PropTypes.string,
-  name: PropTypes.string.isRequired,
-  label: PropTypes.string.isRequired,
+  name: PropTypes.string,
+  label: PropTypes.string,
   value: PropTypes.any,
   onChange: PropTypes.func,
   isMultiple: PropTypes.bool,
   isNone: PropTypes.bool,
-  options: PropTypes.array.isRequired
+  options: PropTypes.array
 }
 
 

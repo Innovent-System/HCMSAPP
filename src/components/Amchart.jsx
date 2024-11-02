@@ -67,11 +67,11 @@ const Amchart = ({ chartId, type = ChartType.XY, data, dataId, dataName, yHeadin
 }
 
 Amchart.propTypes = {
-  chartId: PropTypes.string.isRequired,
-  type: PropTypes.string.isRequired,
-  parentLabel: PropTypes.arrayOf(PropTypes.string).isRequired,
-  data: PropTypes.arrayOf(PropTypes.object).isRequired,
-  options: PropTypes.object.isRequired
+  chartId: PropTypes.string,
+  type: PropTypes.string,
+  parentLabel: PropTypes.arrayOf(PropTypes.string),
+  data: PropTypes.arrayOf(PropTypes.object),
+  options: PropTypes.object
 };
 
 export default Amchart;
