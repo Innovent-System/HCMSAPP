@@ -101,7 +101,7 @@ const AddLaonRequest = ({ openPopup, setOpenPopup, colData = [] }) => {
             label: "Date",
             name: "loanRequest",
             required: true,
-            disablePast: true,
+            // disablePast: true,
             validate: {
                 errorMessage: "Select Date please",
             },
@@ -130,7 +130,7 @@ const AddLaonRequest = ({ openPopup, setOpenPopup, colData = [] }) => {
             onChange: (val) => {
                 const { setFormValue, getValue } = formApi.current;
                 const { repayAmount } = getValue();
-                setFormValue({ distributedMonth: (+val / +repayAmount) })
+                setFormValue({ distributedMonth: Math.ceil(+val / +repayAmount) })
             },
             type: "number",
             label: "Loan Amount",
@@ -151,7 +151,7 @@ const AddLaonRequest = ({ openPopup, setOpenPopup, colData = [] }) => {
                 const { setFormValue, getValue } = formApi.current;
                 const { principleAmount } = getValue();
 
-                setFormValue({ distributedMonth: (+principleAmount / +val) })
+                setFormValue({ distributedMonth: Math.ceil(+principleAmount / +val) })
             },
             label: "Repay Amount",
             validate: {

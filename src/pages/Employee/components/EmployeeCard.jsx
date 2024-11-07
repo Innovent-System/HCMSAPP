@@ -58,7 +58,7 @@ export default function EmployeeCard({ employeeInfo, handleEdit }) {
 
     return (
         <Card sx={{
-            // background: 'linear-gradient(135deg, rgba(25, 118, 210, 0.7), rgba(25, 118, 210, 0.3))',
+            //background: 'linear-gradient(135deg, rgba(25, 118, 210, 0.7), rgba(25, 118, 210, 0.3))',
             minWidth: 445,
             borderRadius: 2
         }} elevation={5} >

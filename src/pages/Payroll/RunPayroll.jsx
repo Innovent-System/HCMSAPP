@@ -77,8 +77,8 @@ const gridCellStyle = {
 const DetailPanelContent = ({ row }) => {
 
     return (
-        <Grid container >
-            <Grid item xs={4} md={4} lg={4} p={2}>
+        <Grid container>
+            <Grid  item xs={4} md={4} lg={4} p={2}>
                 <Divider><Chip label="Earnings" icon={<DisplaySettings fontSize='small' />} /></Divider>
                 <Box display='flex' justifyContent='space-between'>
                     <Box>
@@ -119,12 +119,12 @@ const DetailPanelContent = ({ row }) => {
                 <Grid item xs={4} md={4} lg={4} p={2}>
                     <Divider>Total</Divider>
                     <Box textAlign='right'>
-                        <Typography >{currFormat.format(Math.round(row.totalEarning))}</Typography>
+                        <Typography >{currFormat.format(row.totalEarning)}</Typography>
                     </Box>
                 </Grid>
                 <Grid item xs={4} md={4} lg={4} p={2}><Divider>Total</Divider>
                     <Box textAlign='right'>
-                        <Typography >{currFormat.format(Math.round(row.totalDeduction))}</Typography>
+                        <Typography >{currFormat.format(row.totalDeduction)}</Typography>
                     </Box>
                 </Grid>
                 <Grid item xs={4} md={4} lg={4} p={2}><Divider>Total</Divider></Grid>
@@ -149,7 +149,8 @@ const RunPayroll = () => {
     const [records, setRecords] = useState([]);
     const [extraData, setExtraData] = useState({
         loanDetail: [],
-        bounsDetail: []
+        bounsDetail: [],
+        leaveDetail: []
     });
     const { addEntity } = useEntityAction();
     const gridApiRef = useGridApi();
@@ -184,6 +185,7 @@ const RunPayroll = () => {
 
     const handleDetailPanelExpandedRowIdsChange = React.useCallback((newIds) => {
         setDetailPanelExpandedRowIds(newIds);
+
     }, []);
     const columns = getColumns(gridApiRef);
 
@@ -204,19 +206,21 @@ const RunPayroll = () => {
             const { payrollDetails, ...extra } = data
             setRecords(data?.payrollDetails)
             setExtraData(extra)
+            setDetailPanelExpandedRowIds(payrollDetails.map(e => e.fkEmployeeId));
             // console.log(data);
         })
     }
     const handleSavePayroll = () => {
-
+        const processData = records.filter(c => c.isProcess);
         addEntity({
             url: `${DEFAULT_API}/save`, data: {
-                payrollData: records.filter(c => c.isProcess),
-                loanData: extraData.loanDetail,
-                bounReportData: extraData.bounsDetail,
+                payrollData: processData,
+                loanDetail: extraData.loanDetail,
+                bounsDetail: extraData.bounsDetail,
+                leaveDetail: extraData.leaveDetail,
                 year: records[0].year,
                 month: records[0].month,
-                employeeIds: records.map(c => c.fkEmployeeId)
+                employeeIds: processData.map(c => c.fkEmployeeId)
             }
         })
     }
@@ -257,7 +261,7 @@ const RunPayroll = () => {
                 checkboxSelection={false}
                 getRowId={(r) => r.fkEmployeeId}
                 detailPanelExpandedRowIds={detailPanelExpandedRowIds}
-            
+
                 onDetailPanelExpandedRowIdsChange={handleDetailPanelExpandedRowIdsChange}
                 getDetailPanelContent={getDetailPanelContent}
                 getDetailPanelHeight={getDetailPanelHeight} // Height based on the content.
