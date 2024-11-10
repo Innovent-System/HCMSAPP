@@ -192,7 +192,7 @@ const Employee = () => {
     const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive);
     useEffect(() => {
         if (excelData) {
-            addEntity({ url: DEFAULT_API, data: resultData });
+            addEntity({ url: DEFAULT_API, data: excelData });
         }
     }, [excelData])
 

@@ -16,7 +16,7 @@ const _salaryType = [{ id: "Monthly", title: "Monthly" },
 const calculateOn = (salary, isPercent, isAllowance, amount) => {
 
     const _amount = (isPercent ? (+salary / 100) * amount : +amount);
-    return isAllowance ? _amount : -1 * _amount;
+    return  isAllowance ? _amount : -1 * _amount;
 }
 /**
  * @type {import('@mui/material').SxProps}
@@ -63,7 +63,7 @@ const SalarySetup = () => {
             currentItems.push({ item: `Basic Salary ${isPercentageBase ? `(${percentage_or_amount}%)` : ''}`, amount: basicSalaryAmount, isPercent: isPercentageBase, isAllowance: true, percentage_or_amount });
 
             currentItems.push(...allowances.map(c => {
-                const _amount = calculateOn(c.type === PercentageOfBasicSalary ? basicSalaryAmount : monthlySalary, c.type !== FixedAmount, true, c.percentage_or_amount);
+                const _amount = calculateOn(c?.type === PercentageOfBasicSalary ? basicSalaryAmount : monthlySalary, c?.type !== FixedAmount, true, c.percentage_or_amount);
                 estimateSalary.current += _amount;
                 return {
                     item: `${c.titles.name} ${c.type !== FixedAmount ? `(${c.percentage_or_amount}%)` : ''}`,
@@ -76,7 +76,7 @@ const SalarySetup = () => {
 
             currentItems.push(...deductions.map(d => ({
                 item: `${d.titles.name} ${d.type !== FixedAmount ? `(${d.percentage_or_amount}%)` : ''}`,
-                 amount: intFormat.format(calculateOn(d.type === PercentageOfBasicSalary ? basicSalaryAmount : monthlySalary, d.type !== FixedAmount, false, d.percentage_or_amount)),
+                 amount: intFormat.format(calculateOn(d?.type === PercentageOfBasicSalary ? basicSalaryAmount : monthlySalary, d?.type !== FixedAmount, false, d.percentage_or_amount)),
                 isPercent: d.type !== FixedAmount, isAllowance: false, percentage_or_amount: d.percentage_or_amount,
                 type: d.type
             })));

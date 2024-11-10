@@ -333,7 +333,7 @@ const Amend = () => {
 }
 
 export function AmendToolbar(props) {
-    const { onAdd, getAttendance, selectionModel, records } = props;
+    const { onAdd, getAttendance, selectionModel } = props;
 
     return (
         <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>

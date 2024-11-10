@@ -206,7 +206,7 @@ const RunPayroll = () => {
             const { payrollDetails, ...extra } = data
             setRecords(data?.payrollDetails)
             setExtraData(extra)
-            setDetailPanelExpandedRowIds(payrollDetails.map(e => e.fkEmployeeId));
+            setDetailPanelExpandedRowIds(payrollDetails.filter(c => c.isProcess).map(e => e.fkEmployeeId));
             // console.log(data);
         })
     }

@@ -54,6 +54,9 @@ const useStyles = makeStyles((theme) => ({
     }
   },
   Drawer: {
+    '&.MuiDrawer-root': {
+      zIndex: theme.zIndex.modal
+    },
     "& .MuiAccordion-root": {
       margin: theme.spacing(0.5),
       "& .MuiAccordionSummary-root": {

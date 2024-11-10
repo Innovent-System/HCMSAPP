@@ -40,7 +40,7 @@ export default function Popup(props) {
                     </IconButton>
                 </div>
             </DialogTitle>
-            <DialogContent dividers sx={{ overflowY: 'hidden' }}>
+            <DialogContent dividers >
                 {children}
             </DialogContent>
             <DialogActions>

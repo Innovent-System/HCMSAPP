@@ -4,6 +4,7 @@ export const API = {
     PayrollSetup: "payroll/setup",
     Salary: 'payroll/salary',
     Process: 'payroll/process',
+    PayrollDetail: 'payroll/process',
     AdvanceSalary: 'payroll/advancesalary',
     Bonus: 'payroll/bonus',
     OverTime: 'payroll/overtime',

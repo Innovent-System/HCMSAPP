@@ -101,7 +101,25 @@ const AddLaonRequest = ({ openPopup, setOpenPopup, colData = [] }) => {
             label: "Date",
             name: "loanRequest",
             required: true,
-            // disablePast: true,
+
+            validate: {
+                errorMessage: "Select Date please",
+            },
+            defaultValue: new Date(),
+            excel: {
+                sampleData: new Date().toLocaleDateString('en-US')
+            }
+        },
+        {
+            elementType: "datetimepicker",
+            label: "Loan Start Date",
+            name: "loanStartDate",
+            required: true,
+            shouldDisableDate: (date) => {
+                const { getValue } = formApi.current;
+                const { loanRequest } = getValue();
+                return date?.getTime() < loanRequest?.getTime()
+            },
             validate: {
                 errorMessage: "Select Date please",
             },

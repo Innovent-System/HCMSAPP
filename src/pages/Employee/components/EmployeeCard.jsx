@@ -50,18 +50,27 @@ const MenuOption = ({ menuId, options }) => {
         </Menu>
     </>
 }
+const style = {
+    card: {
+        //background: 'linear-gradient(135deg, rgba(25, 118, 210, 0.7), rgba(25, 118, 210, 0.3))',
+        minWidth: 445,
+        borderRadius: 2
+    },
+    cardContent: {
+        pt: 0, pl: 8,
+        '&:last-child': {
+            pb: 0
+        }
+    }
+}
 //linear-gradient(135deg, rgba(25, 118, 210, 0.7), rgba(25, 118, 210, 0.3))
 //linear-gradient(135deg, #009688, #1976d2)
 export default function EmployeeCard({ employeeInfo, handleEdit }) {
 
-    const { _id, fullName, designation, city, tenure, generalInfo, employementstatus, companyInfo } = employeeInfo;
+    const { _id, fullName, designation, city, tenure, generalInfo, department, employementstatus, companyInfo } = employeeInfo;
 
     return (
-        <Card sx={{
-            //background: 'linear-gradient(135deg, rgba(25, 118, 210, 0.7), rgba(25, 118, 210, 0.3))',
-            minWidth: 445,
-            borderRadius: 2
-        }} elevation={5} >
+        <Card sx={style.card} elevation={5} >
             <CardHeader
                 avatar={
                     <Avatar aria-label="recipe">
@@ -83,15 +92,20 @@ export default function EmployeeCard({ employeeInfo, handleEdit }) {
                 image="/static/images/cards/paella.jpg"
                 alt="Paella dish"
             /> */}
-            <CardContent sx={{ pt: 0, pl: 8 }}>
+            <CardContent sx={style.cardContent}>
                 <List>
-                    <ListItem disablePadding>
+                    <ListItem  disablePadding>
                         <ListItemIcon sx={{ minWidth: 30 }}>
                             <EmailOutlined fontSize='small' />
                         </ListItemIcon>
-                        <ListItemText primary={generalInfo?.email ? generalInfo?.email : "--"} />
+                        <ListItemText sx={{ '&::first-letter': { textTransform: "capitalize" } }} primary={generalInfo?.email ? generalInfo?.email : "--"} />
                     </ListItem>
-
+                    <ListItem disablePadding>
+                        <ListItemIcon sx={{ minWidth: 30 }}>
+                            <DomainOutlined fontSize='small' />
+                        </ListItemIcon>
+                        <ListItemText primary={department.departmentName} />
+                    </ListItem>
                     <ListItem disablePadding>
                         <ListItemIcon sx={{ minWidth: 30 }}>
                             <LocationOnOutlined fontSize='small' />
