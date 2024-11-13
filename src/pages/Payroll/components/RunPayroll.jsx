@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react'
-import PageHeader from '../../components/PageHeader'
-import { Circle, Add as AddIcon, PeopleOutline, DisplaySettings, RestartAlt } from "../../deps/ui/icons";
-import { GridToolbarContainer, Grid, Typography, Divider, Chip, Box } from "../../deps/ui";
-import { useAppDispatch, useAppSelector } from '../../store/storehook';
-import { builderFieldsAction, showDropDownFilterAction, useEntityAction, useLazyPostQuery } from '../../store/actions/httpactions';
-import { useDropDownIds } from '../../components/useDropDown';
-import DataGrid, { useGridApi } from '../../components/useDataGrid';
-import Controls from "../../components/controls/Controls";
-import { API } from './_Service';
-import { getYears, monthNames } from '../../util/common';
+import PageHeader from '../../../components/PageHeader'
+import { Circle, Add as AddIcon, PeopleOutline, DisplaySettings, RestartAlt } from "../../../deps/ui/icons";
+import { GridToolbarContainer, Grid, Typography, Divider, Chip, Box } from "../../../deps/ui";
+import { useAppDispatch, useAppSelector } from '../../../store/storehook';
+import { builderFieldsAction, showDropDownFilterAction, useEntityAction, useLazyPostQuery } from '../../../store/actions/httpactions';
+import { useDropDownIds } from '../../../components/useDropDown';
+import DataGrid, { useGridApi } from '../../../components/useDataGrid';
+import Controls from "../../../components/controls/Controls";
+import { API } from '../_Service';
+import { getYears, monthNames } from '../../../util/common';
 
 
 /**
@@ -177,7 +177,7 @@ const RunPayroll = () => {
         [],
     );
 
-    const getDetailPanelHeight = React.useCallback(() => 220, []);
+    const getDetailPanelHeight = React.useCallback(() => 240, []);
 
     const [detailPanelExpandedRowIds, setDetailPanelExpandedRowIds] = React.useState(
         [],

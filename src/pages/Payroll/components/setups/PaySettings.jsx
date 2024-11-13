@@ -96,8 +96,8 @@ const PaySettings = ({ data }) => {
             calculationMethod,
             basicSalaryType,
             percentage_or_amount: basicSalaryType === PercentageBased ? percentage : amount,
-            allowances: allowances.map(c => ({ fkAllowanceId: c.fkAllowanceId, type: c.type, percentage_or_amount: c.type === PercentageOfBasicSalary ? c.percentage : c.amount })),
-            deductions: deductions.map(c => ({ fkDeductionId: c.fkDeductionId, type: c.type, percentage_or_amount: c.type === PercentageOfBasicSalary ? c.percentage : c.amount }))
+            allowances: allowances.map(c => ({ fkAllowanceId: c.fkAllowanceId, type: c.type, percentage_or_amount:  c.type !== FixedAmount ? c.percentage : c.amount })),
+            deductions: deductions.map(c => ({ fkDeductionId: c.fkDeductionId, type: c.type, percentage_or_amount: c.type !== FixedAmount ? c.percentage : c.amount }))
         };
         if (isEdit.current) {
             const { validateFields: allValidateFields } = allowanceApi.current;
@@ -479,8 +479,8 @@ const PaySettings = ({ data }) => {
                 basicSalaryType,
                 percentage: basicSalaryType === PercentageBased ? percentage_or_amount : 0,
                 amount: basicSalaryType !== PercentageBased ? percentage_or_amount : 0,
-                allowances: _allowances.map(c => ({ fkAllowanceId: c.fkAllowanceId, type: c.type, percentage: c.type === PercentageOfBasicSalary ? c.percentage_or_amount : 0, amount: c.type !== PercentageOfBasicSalary ? c.percentage_or_amount : 0 })),
-                deductions: _deductions.map(c => ({ fkDeductionId: c.fkDeductionId, type: c.type, percentage: c.type === PercentageOfBasicSalary ? c.percentage_or_amount : 0, amount: c.type !== PercentageOfBasicSalary ? c.percentage_or_amount : 0 }))
+                allowances: _allowances.map(c => ({ fkAllowanceId: c.fkAllowanceId, type: c.type, percentage: c.type !== FixedAmount ? c.percentage_or_amount : 0, amount: c.type === FixedAmount ? c.percentage_or_amount : 0 })),
+                deductions: _deductions.map(c => ({ fkDeductionId: c.fkDeductionId, type: c.type, percentage: c.type !== FixedAmount ? c.percentage_or_amount : 0, amount: c.type === FixedAmount ? c.percentage_or_amount : 0 }))
             })
         }
 

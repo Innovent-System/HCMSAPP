@@ -17,7 +17,7 @@ import { useDropDownIds } from "../../components/useDropDown";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
 import { useExcelReader } from "../../hooks/useExcelReader";
 import Controls from "../../components/controls/Controls";
-import RunPayroll from "./RunPayroll";
+import RunPayroll from "./components/RunPayroll";
 
 const fields = {
     status: {
@@ -42,12 +42,6 @@ const fields = {
         valueSources: ['value'],
         preferWidgets: ['date'],
     }
-}
-
-const mapAdvSalary = (values) => {
-    const map = { ...values };
-    map.fkEmployeeId = values.fkEmployeeId._id;
-    return map
 }
 
 const getColumns = (onDelete) => [
@@ -134,20 +128,42 @@ const Payroll = () => {
     const { socketData } = useSocketIo("changeInPayroll", refetch);
 
 
-    const handelDeleteItems = (ids) => {
+    const handelDeleteItems = (ids = []) => {
         let idTobeDelete = ids;
-        if (Array.isArray(ids)) {
-            idTobeDelete = ids.join(',');
+        if (!Array.isArray(ids)) {
+            idTobeDelete = [ids];
         }
+        const deletPayroll = data.filter(e => idTobeDelete.includes(e.id));
+
+        const distinctMap = {
+            payrollIds: [],
+            employeeIds: new Set(),
+            years: new Set(),
+            months: new Set()
+        };
+
+        for (const del of deletPayroll) {
+            distinctMap.payrollIds.push(del.id);
+            distinctMap.employeeIds.add(del.fkEmployeeId);
+            distinctMap.years.add(del.year);
+            distinctMap.months.add(del.monthInNumber);
+        }
+
+        distinctMap.employeeIds = Array.from(distinctMap.employeeIds);
+        distinctMap.years = Array.from(distinctMap.years);
+        distinctMap.months = Array.from(distinctMap.months);
 
         setConfirmDialog({
             isOpen: true,
             title: "Are you sure to delete this records?",
             subTitle: "You can't undo this operation",
             onConfirm: () => {
-                removeEntity({ url: DEFAULT_API, params: idTobeDelete }).then(res => {
+                addEntity({
+                    url: `${DEFAULT_API}/delete`, data: distinctMap
+                }).then(res => {
                     setSelectionModel([]);
                 })
+
             },
         });
     }
@@ -206,6 +222,7 @@ const Payroll = () => {
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: showAddModal,
+                    onMultipleDelete: handelDeleteItems,
                     selectionModel
                 }}
                 gridToolBar={PayrollToolbar}
@@ -219,11 +236,11 @@ const Payroll = () => {
 }
 
 function PayrollToolbar(props) {
-    const { onAdd, selectionModel } = props;
+    const { onAdd, selectionModel, onMultipleDelete } = props;
 
     return (
         <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
-            {selectionModel?.length ? <Controls.Button onClick={() => { }} startIcon={<Delete />} text="Delete Payroll" /> : null}
+            {selectionModel?.length ? <Controls.Button onClick={() => onMultipleDelete(selectionModel)} startIcon={<Delete />} text="Delete Payroll" /> : null}
             <Controls.Button onClick={onAdd} startIcon={<AccountBalanceWallet />} text="Genearate" />
         </GridToolbarContainer>
     );
