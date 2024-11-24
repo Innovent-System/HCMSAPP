@@ -97,7 +97,7 @@ const Allowance = ({ DEFAULT_API = API.Allowance, DEFAULT_NAME = "Allowance" }) 
     const query = useAppSelector(e => e.appdata.query.builder);
 
     const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
-        url: DEFAULT_API,
+        url: `${DEFAULT_API}/get`,
         data: {
             limit: gridFilter.limit,
             page: gridFilter.page + 1,

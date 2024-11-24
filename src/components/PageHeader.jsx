@@ -25,6 +25,7 @@ import {
 import QueryBuilder, {
   defultValue,
   loadTree,
+  mapToQueryBuilderFormat,
   queryValue,
 } from "./QueryBuilder";
 import { useAppDispatch, useAppSelector } from "../store/storehook";
@@ -102,7 +103,8 @@ export default function PageHeader(props) {
   const dispatch = useAppDispatch();
   const [drawer, setDrawer] = useState(false);
 
-  const fields = useAppSelector((e) => e.appdata.query?.fields ?? {});
+  const fields = useAppSelector((e) => e.appdata.query?.fields);
+  // const filters = useAppSelector((e) => e.appdata.query?.filters);
   const setEnableFilter = useAppSelector(
     (e) => enableFilter ?? e.appdata.enableFilter
   );
@@ -114,7 +116,8 @@ export default function PageHeader(props) {
 
   const handleReset = () => {
     setDrawer(false);
-    setQuery({ ...query, tree: loadTree(queryValue) });
+    
+    setQuery({ ...query, tree: loadTree(mapToQueryBuilderFormat(fields)) });
     dispatch(builderQueryAction({}));
     dispatch(resetAction(true));
   };

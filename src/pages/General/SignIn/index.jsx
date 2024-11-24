@@ -6,7 +6,7 @@ import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { InputAdornment, IconButton, Link, Box, Grid, CircularProgress, Card, CardContent, CardMedia, CardActions } from "../../../deps/ui";
 import { Visibility, VisibilityOff, Person } from '../../../deps/ui/icons';
 import { green } from '../../../deps/ui/colorschema';
-import { AppRoutesThunk, AuthThunk, setUserInfo } from '../../../store/actions/httpactions';
+import { AppRoutesThunk, AuthThunk, setUserInfo, useLazySingleQuery } from '../../../store/actions/httpactions';
 import { useDispatch } from "react-redux";
 import { API_USER_LOGIN } from '../../../services/UrlService';
 import Auth from '../../../services/AuthenticationService';
@@ -56,6 +56,7 @@ const SignIn = () => {
     companyId: null
   });
 
+  const [userSignIn] = useLazySingleQuery();
 
   const validate = (fieldValues = values) => {
     let temp = { ...errors };
@@ -81,9 +82,11 @@ const SignIn = () => {
         password: values.password
       }
       setLoader(true);
-      dispatch(AuthThunk({ url: API_USER_LOGIN, params: signInData })).unwrap().then(res => {
+      
+      userSignIn({url: API_USER_LOGIN, params: signInData}).then(res => {
+        console.log(res);
         if (res) {
-          const { token } = res.data;
+          const { token } = res.data.result;
           const data = jwtDecode(token);
           dispatch(setUserInfo({
             email: data.email,
@@ -108,7 +111,7 @@ const SignIn = () => {
 
         }
 
-      }).finally(c => setLoader(false));
+      }).catch(console.log).finally(c => setLoader(false));
 
     }
   };

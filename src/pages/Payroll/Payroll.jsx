@@ -19,13 +19,21 @@ import { useExcelReader } from "../../hooks/useExcelReader";
 import Controls from "../../components/controls/Controls";
 import RunPayroll from "./components/RunPayroll";
 
+/**
+ * @type {import('@react-awesome-query-builder/mui').Fields}
+ */
 const fields = {
+
     status: {
         label: "Status",
         type: "select",
         valueSources: ["value"],
+        fieldName: "status", //must taken to for query binding
+        defaultOperator: "select_equals", //must taken to for query binding
+        defaultValue: null, //must taken to for query binding
         fieldSettings: {
             listValues: [
+                { value: "", title: "" },
                 { value: "Pending", title: "Pending" },
                 { value: "Approved", title: "Approved" },
                 { value: "Rejected", title: "Rejected" }
@@ -35,9 +43,12 @@ const fields = {
     createdAt: {
         label: 'Created Date',
         type: 'date',
+        fieldName: "createdAt",
+        defaultOperator: "equal",
+        defaultValue: null,
         fieldSettings: {
             dateFormat: "D/M/YYYY",
-            mongoFormatValue: val => ({ $date: new Date(val).toISOString() }),
+            // mongoFormatValue: val => ({ $date: new Date(val).toISOString() }),
         },
         valueSources: ['value'],
         preferWidgets: ['date'],
@@ -50,7 +61,7 @@ const getColumns = (onDelete) => [
         field: 'fullName', headerName: 'Name', width: 220, hideable: false, valueGetter: ({ row }) => row.employees?.fullName
     },
     {
-        field: 'payrollsetup', headerName: 'Payroll Setup', hideable: false, valueGetter: ({ row }) => row.payrollsetup?.name
+        field: 'payrollsetup', headerName: 'Setup', hideable: false, valueGetter: ({ row }) => row.payrollsetup?.name
     },
     { field: 'salaryType', headerName: 'Type', hideable: false },
     { field: 'month', headerName: 'Month', hideable: false },
@@ -90,7 +101,7 @@ const Payroll = () => {
     const { countryIds, stateIds, cityIds, areaIds, departmentIds, groupIds, designationIds, employeeIds } = useDropDownIds();
 
     const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
-        url: DEFAULT_API,
+        url: `${DEFAULT_API}/get`,
         data: {
             limit: gridFilter.limit,
             page: gridFilter.page + 1,
@@ -123,7 +134,7 @@ const Payroll = () => {
         });
 
     }
-
+   
 
     const { socketData } = useSocketIo("changeInPayroll", refetch);
 

@@ -2,9 +2,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { API } from './_Service';
 import { builderFieldsAction, useEntityAction, enableFilterAction, useLazyPostQuery, showDropDownFilterAction } from '../../store/actions/httpactions';
-import { Circle, Add as AddIcon, PeopleOutline } from "../../deps/ui/icons";
+import { Circle, Add as AddIcon, PeopleOutline, Edit as EditIcon, Cancel as CancelIcon, Save as SaveIcon } from "../../deps/ui/icons";
 import { GridToolbarContainer, Chip } from "../../deps/ui";
-import DataGrid, { useGridApi } from '../../components/useDataGrid';
+import DataGrid, { getActions, useGridApi, GridRowModes, GridActionsCellItem, GridRowEditStopReasons } from '../../components/useDataGrid';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { formateISODateTime } from "../../services/dateTimeService";
 import Controls from "../../components/controls/Controls";
@@ -13,6 +13,7 @@ import { weekday } from "../../util/common";
 import { useDropDownIds } from "../../components/useDropDown";
 import { addDays, startOfDay, isEqual } from '../../services/dateTimeService'
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
+import { useSocketIo } from "../../components/useSocketio";
 
 /**
  * @type {import('@react-awesome-query-builder/mui').Fields}
@@ -26,6 +27,9 @@ const fields = {
     },
     scheduleStartDt: {
         label: 'From',
+        fieldName: "scheduleStartDt",
+        defaultOperator: "greater_or_equal",
+        defaultValue: null,
         operators: ['greater_or_equal'],
         type: 'date',
         fieldSettings: {
@@ -37,6 +41,9 @@ const fields = {
     },
     scheduleEndDt: {
         label: 'To',
+        fieldName: "scheduleEndDt",
+        defaultOperator: "less_or_equal",
+        defaultValue: null,
         type: 'date',
         operators: ['less_or_equal'],
         fieldSettings: {
@@ -59,12 +66,13 @@ const flagMap = {
     null: { tag: "P", color: "success" }
 }
 
-const DateTimeCell = ({ apiRef, value, id, field, row, type = 'In' }) => {
+const DateTimeCell = ({ apiRef, value, id, field, hasFocus, row, type = 'In' }) => {
     const [error, setError] = useState(null);
 
     const schedule = row.schedule.at(0), schDt = new Date(type === "In" ? row.scheduleStartDt : row.scheduleEndDt);
+
     const hanldechange = (e) => {
-        let { value } = e.target;
+        let { value: currentValue } = e.target;
 
         const dayShift = schedule.weeks.find(c => c.name === weekday[schDt.getDay()]);
         const shift = schedule.shift.find(s => s._id === dayShift.fkShiftId);
@@ -76,15 +84,16 @@ const DateTimeCell = ({ apiRef, value, id, field, row, type = 'In' }) => {
         maxDate.setDate(schDt.getDate());
         maxDate.setMonth(schDt.getMonth());
         maxDate.setFullYear(schDt.getFullYear());
-        if (value.getTime() < minDate.getTime() || value.getTime() > maxDate.getTime()) {
-            value = null;
+
+        if (currentValue.getTime() < minDate.getTime() || currentValue.getTime() > maxDate.getTime()) {
+            currentValue = null;
             setError(`${type} time should be between company ${type.toLowerCase()} time`);
         }
         else if (error)
             setError(null)
 
+        apiRef.current.setEditCellValue({ id, field, value: currentValue, debounceMs: 150 });
 
-        apiRef.current.setEditCellValue({ id, field, value, debounceMs: 200 });
         // .then(c => apiRef.current.setRows([...Array.from(apiRef.current.getRowModels().values()), { ...row, [field]: value }]));
 
 
@@ -108,10 +117,11 @@ const DateTimeCell = ({ apiRef, value, id, field, row, type = 'In' }) => {
  * @param {Function} onActive  
  * @returns {import("@mui/x-data-grid-pro").GridColumns}
  */
-const getColumns = (apiRef, onActive) => {
-    const actionKit = {
-        onActive: onActive
-    }
+const getColumns = (apiRef, onEdit, onSave, onCancel) => {
+
+    // const actionKit = {
+    //     onEdit, onSave
+    // }
     return [
         { field: '_id', headerName: 'Id', hide: true, hideable: false },
         {
@@ -140,6 +150,45 @@ const getColumns = (apiRef, onActive) => {
         },
         {
             field: 'status', headerName: 'Status', width: 180, hideable: false, renderCell: ({ row }) => <Chip color={flagMap[row.status].color} label={flagMap[row.status].tag} />
+        },
+        {
+            field: 'actions',
+            type: 'actions',
+            headerName: 'Actions',
+            width: 100,
+            cellClassName: 'actions',
+            getActions: ({ id }) => {
+
+                const isInEditMode = apiRef.current.getRowMode(id) === 'edit';
+
+                if (isInEditMode) {
+                    return [
+                        <GridActionsCellItem
+                            icon={<SaveIcon />}
+                            label="Save"
+                            onClick={onSave(id)}
+                            color="primary"
+                        />,
+                        <GridActionsCellItem
+                            icon={<CancelIcon />}
+                            label="Cancel"
+                            className="textPrimary"
+                            onClick={onCancel(id)}
+                            color="inherit"
+                        />,
+                    ];
+                }
+
+                return [
+                    <GridActionsCellItem
+                        icon={<EditIcon />}
+                        label="Edit"
+                        className="textPrimary"
+                        onClick={onEdit(id)}
+                        color="inherit"
+                    />
+                ];
+            }
         }
     ]
 }
@@ -152,9 +201,9 @@ const Amend = () => {
     const isEdit = React.useRef(false);
     const row = React.useRef(null);
     const [selectionModel, setSelectionModel] = React.useState([]);
+    const [editedRow, setEditedRow] = useState([]);
 
-
-    const [cellModesModel, setCellModesModel] = React.useState({});
+    const [rowModesModel, setRowModesModel] = React.useState({});
 
     const [gridFilter, setGridFilter] = useState({
         lastKey: null,
@@ -231,17 +280,29 @@ const Amend = () => {
             }
         })
     }
+    const processRowUpdate = (newRow, prev) => {
+
+        const updatedRow = { ...newRow, isNew: false };
+        if (JSON.stringify(newRow) !== JSON.stringify(prev) && !editedRow.includes(newRow.id)) {
+            setEditedRow([...editedRow, newRow.id])
+        }
+        // setRecords(records.map((row) => (row.id === newRow.id ? updatedRow : row)));
+        return updatedRow;
+    }
     const handleSaveAttendance = () => {
+
         const attData = Array.from(gridApiRef.current.getRowModels().values());
         addEntity({
             url: API.AttendanceInsert,
             data: {
-                attendances: attData.filter(c => selectionModel.includes(c._id)),
+                attendances: attData.filter(c => editedRow.includes(c.id) && c.startDateTime),
                 ids: selectionModel
             }
         }).finally(() => {
+            handleAmendAttendance()
             setSelectionModel([]);
-            setCellModesModel(selectionModel.reduce((a, v) => ({ ...a, [v]: { mode: 'view' } }), {}));
+            setEditedRow([]);
+            setRowModesModel(selectionModel.reduce((a, v) => ({ ...a, [v]: { mode: 'view' } }), {}));
         })
     }
 
@@ -261,7 +322,32 @@ const Amend = () => {
         dispatch(builderFieldsAction(fields));
     }, [dispatch])
 
-    const columns = getColumns(gridApiRef, handleActiveInActive);
+    const handleEditClick = (id) => () => {
+        setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
+    };
+
+    const handleSaveClick = (id) => () => {
+        setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
+    };
+
+    const handleRowEditStop = (params, event) => {
+        if (params.reason === GridRowEditStopReasons.rowFocusOut) {
+            event.defaultMuiPrevented = true;
+        }
+    };
+
+    const handleCancelClick = (id) => () => {
+        setRowModesModel({
+            ...rowModesModel,
+            [id]: { mode: GridRowModes.View, ignoreModifications: true },
+        });
+
+        // const editedRow = rows.find((row) => row.id === id);
+        // if (editedRow.isNew) {
+        //     setRows(rows.filter((row) => row.id !== id));
+        // }
+    };
+    const columns = getColumns(gridApiRef, handleEditClick, handleSaveClick, handleCancelClick);
 
     const showAddModal = () => {
         isEdit.current = false;
@@ -270,23 +356,20 @@ const Amend = () => {
     /** @param {Array} _selectModels  */
     const hanldeSelectionEdit = (_selectModels) => {
 
-        const id = _selectModels.at(-1);
+        // const id = _selectModels.at(-1);
+        let selectedCells = { ...rowModesModel }
+        const notSelected = selectionModel.filter(e => !_selectModels.includes(e));
 
-        if (selectionModel.length > _selectModels.length) {
-            const [offId] = selectionModel.filter(s => !_selectModels.includes(s));
-            setCellModesModel({
-                ...cellModesModel,
-                [offId]: { mode: "view", ignoreModifications: true },
-            });
+        selectedCells = _selectModels.reduce((acc, curr) => {
+            acc[curr] = { mode: "edit" };
+            return acc;
+        }, selectedCells)
 
+        notSelected.forEach((acc) => {
+            selectedCells[acc] = { mode: "view" };
+        })
 
-        } else {
-
-            setCellModesModel({
-                ...cellModesModel,
-                [id]: { mode: "edit" },
-            });
-        }
+        setRowModesModel(selectedCells);
         setSelectionModel(_selectModels);
     }
 
@@ -305,13 +388,16 @@ const Amend = () => {
                 autoHeight={true}
                 totalCount={records?.length}
                 disableSelectionOnClick
-                rowModesModel={cellModesModel}
+                rowModesModel={rowModesModel}
                 page={gridFilter.page}
                 pageSize={gridFilter.limit}
                 editMode='row'
                 paginationMode='client'
+                onRowEditStop={handleRowEditStop}
                 experimentalFeatures={{ newEditingApi: true }}
-                onRowModesModelChange={(model) => setCellModesModel(model)}
+                processRowUpdate={processRowUpdate}
+                onRowEditCommit={console.log}
+                onRowModesModelChange={setRowModesModel}
                 setFilter={setGridFilter}
                 // isCellEditable={console.log}
                 toolbarProps={{
@@ -320,7 +406,7 @@ const Amend = () => {
                     // getAttendance: handleAmendAttendance,
 
                     records,
-                    selectionModel
+                    editedRow
                 }}
 
                 gridToolBar={AmendToolbar}
@@ -333,12 +419,12 @@ const Amend = () => {
 }
 
 export function AmendToolbar(props) {
-    const { onAdd, getAttendance, selectionModel } = props;
+    const { onAdd, getAttendance, editedRow } = props;
 
     return (
         <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
 
-            {selectionModel?.length ? <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Save" /> : null}
+            {editedRow?.length ? <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Save" /> : null}
             {/* <Controls.Button onClick={getAttendance} startIcon={<AddIcon />} text="Apply" /> */}
         </GridToolbarContainer>
     );

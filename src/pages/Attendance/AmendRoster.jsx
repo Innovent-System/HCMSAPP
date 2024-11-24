@@ -210,7 +210,7 @@ const AmendRoster = () => {
     }, [roster, shifts])
     const { getTemplate, excelData, setFile } = useExcelReader(rosterExcel, transform, "AmendRoster.xlsx");
     const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
-        url: DEFAULT_API,
+        url: `${DEFAULT_API}/get`,
         data: {
             limit: filter.limit,
             page: filter.page + 1,

@@ -206,7 +206,7 @@ const ExemptionRequest = () => {
     const { countryIds, stateIds, cityIds, areaIds } = useDropDownIds();
 
     const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
-        url: API.ExemptionRequest,
+        url: `${API.ExemptionRequest}/get` ,
         data: {
             limit: gridFilter.limit,
             page: gridFilter.page + 1,

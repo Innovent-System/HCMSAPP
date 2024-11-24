@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { Query, Builder, BasicConfig, Utils as QbUtils } from '@react-awesome-query-builder/mui';
 import { MuiConfig } from '@react-awesome-query-builder/mui';
 import '@react-awesome-query-builder/mui/css/styles.css' //optional, for more compact styles
-import PropTypes from 'prop-types'
+import PropTypes, { object } from 'prop-types'
 import { useDispatch } from 'react-redux';
 import { builderQueryAction } from '../store/actions/httpactions'
 import { throttle, debounce } from '../util/common'
@@ -16,8 +16,8 @@ InitialConfig.operators.like.mongoFormatOp = (field, op, value) => ({ [field]: {
 export const queryValue = { "id": QbUtils.uuid(), "type": "group" };
 export const loadTree = QbUtils.loadTree;
 
-export const defultValue = () => ({
-    tree: QbUtils.sanitizeTree(QbUtils.loadTree(queryValue), InitialConfig).fixedTree,
+export const defultValue = (treeValue = queryValue) => ({
+    tree: QbUtils.sanitizeTree(QbUtils.loadTree(treeValue), InitialConfig).fixedTree,
     config: InitialConfig
 })
 // You can load query value from your backend storage (for saving see `Query.onChange()`)
@@ -28,10 +28,10 @@ export const defultValue = () => ({
  * @param {{tree:import('@react-awesome-query-builder/mui').ImmutableTree,config:import('@react-awesome-query-builder/mui').Config}} Props.query
  * @param {(tree:import('@react-awesome-query-builder/mui').ImmutableTree,config:import('@react-awesome-query-builder/mui').Config) => {}} Props.setQuery 
  */
-const QueryBuilder = ({ fields, query, setQuery }) => {
+const QueryBuilder = ({ fields, query, setQuery, resetQuery }) => {
 
     const dispatch = useDispatch();
-   
+
     // const [query, setQuery] = useState({
     //     tree: QbUtils.checkTree(QbUtils.loadTree(queryValue), InitialConfig),
     //     config: InitialConfig
@@ -43,9 +43,11 @@ const QueryBuilder = ({ fields, query, setQuery }) => {
     useEffect(() => {
         if (fields) {
             InitialConfig.settings.maxNumberOfRules = Object.keys(fields).length;
+            InitialConfig.settings.defaultMaxRows = InitialConfig.settings.maxNumberOfRules;
             const setConfig = { ...InitialConfig, fields }
+
             setQuery({
-                tree: QbUtils.sanitizeTree(QbUtils.loadTree(queryValue), setConfig).fixedTree,
+                tree: QbUtils.loadTree(mapToQueryBuilderFormat(fields)),
                 config: setConfig
             })
         }
@@ -65,7 +67,6 @@ const QueryBuilder = ({ fields, query, setQuery }) => {
 
     const renderResult = ({ tree: immutableTree, config }) => (
         <div className="query-builder-result">
-
             <div>MongoDb query: <pre>{JSON.stringify(QbUtils.mongodbFormat(immutableTree, config))}</pre></div>
         </div>
     )
@@ -132,3 +133,31 @@ QueryBuilder.propTypes = {
 }
 
 export default QueryBuilder;
+
+
+/**
+ * 
+ * @param {import('@react-awesome-query-builder/mui').Fields} _fields 
+ * @returns {Object}
+ */
+export const mapToQueryBuilderFormat = (_fields) => {
+
+    return {
+        "id": QbUtils.uuid(),
+        "type": "group",
+        "children1": Object.keys(_fields).filter(c => "defaultValue" in _fields[c]).map(k => ({
+            "type": "rule",
+            "id": QbUtils.uuid(),
+            "properties": {
+                "fieldSrc": "field",
+                "field": _fields[k]?.fieldName ?? _fields[k]?.label.toLocaleLowerCase(),
+                "operator": _fields[k]?.defaultOperator,
+                "value": [_fields[k]?.defaultValue],
+                "valueType": [_fields[k].type],
+                "valueSrc": ["value"]
+            }
+
+        }))
+    }
+
+}

@@ -3,7 +3,7 @@ import { Grid } from '../../../deps/ui';
 import Amchart from '../../../components/Amchart';
 import { useEntitiesQuery } from '../../../store/actions/httpactions';
 
-const API = 'employee/dashboard'
+const API = 'employee/dashboard/get'
 const DashBoard = () => {
 
     const { data, isLoading, refetch } = useEntitiesQuery({

@@ -8,7 +8,8 @@ export {
     Card, Dialog, DialogTitle, DialogContent, ListSubheader, StepContent,
     TableContainer, TableBody, Table, TableHead, TableRow, TableCell, TablePagination, TableSortLabel, Autocomplete, createFilterOptions,
     DialogActions, Stack, Tab, Tabs, Accordion, AccordionSummary, AccordionDetails, Backdrop, CardActionArea, CardContent, CardActions, CardHeader, MenuList
-    , SpeedDial, SpeedDialAction, SpeedDialIcon, Chip, Fab, Grow, Pagination, CardMedia, Switch, LinearProgress, Breadcrumbs,Menu,ListItemButton
+    , SpeedDial, SpeedDialAction, SpeedDialIcon, Chip, Fab, Grow, Pagination, CardMedia, Switch, LinearProgress, Breadcrumbs, Menu, ListItemButton
+    , TabScrollButton
 } from '@mui/material';
 
 export {

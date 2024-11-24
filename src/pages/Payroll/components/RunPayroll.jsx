@@ -11,6 +11,7 @@ import { API } from '../_Service';
 import { getYears, monthNames } from '../../../util/common';
 
 
+
 /**
  * @type {import('@react-awesome-query-builder/mui').Fields}
  */
@@ -18,7 +19,9 @@ const fields = {
     month: {
         label: "Month",
         type: "select",
+        fieldName: "month",
         valueSources: ["value"],
+        defaultOperator: "select_equals",
         defaultValue: new Date().getMonth(),
         hideForCompare: true,
         operators: ["select_equals"],
@@ -28,13 +31,16 @@ const fields = {
     year: {
         label: 'Year',
         type: 'select',
+        fieldName: "year",
         valueSources: ['value'],
+        defaultOperator: "select_equals",
         operators: ["select_equals"],
         defaultValue: new Date().getFullYear(),
         listValues: getYears(2015).map(e => ({ title: e.title, value: e.id }))
     }
 
 }
+
 
 const currFormat = new Intl.NumberFormat();
 /**
@@ -78,7 +84,7 @@ const DetailPanelContent = ({ row }) => {
 
     return (
         <Grid container>
-            <Grid  item xs={4} md={4} lg={4} p={2}>
+            <Grid item xs={4} md={4} lg={4} p={2}>
                 <Divider><Chip label="Earnings" icon={<DisplaySettings fontSize='small' />} /></Divider>
                 <Box display='flex' justifyContent='space-between'>
                     <Box>

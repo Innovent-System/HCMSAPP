@@ -89,9 +89,21 @@ function StatusHanlder() {
       const keyName = Object.keys(queryNotify)[length - 1];
 
       if (queryNotify[keyName].status === 'rejected') {
-        const { status } = queryNotify[keyName].error;
 
+        const { status, data: { message, result } } = queryNotify[keyName].error;
+        if (Array.isArray(result)) {
+          setErrors(result);
+          setOpenPopup(true);
+        }
+        else if (message) {
+          enqueueSnackbar(message, {
+            variant: "error",
+            action
+          });
+        }
+        
         if (status === 401) {
+         
           const info = Auth.getitem('userInfo') || {};
           const formId = window.location.pathname.substr(window.location.pathname.lastIndexOf("/") + 1);
           sessionStorage.clear();

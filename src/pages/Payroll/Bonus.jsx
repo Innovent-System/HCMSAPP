@@ -267,7 +267,7 @@ const BonusRequest = () => {
     const query = useAppSelector(e => e.appdata.query.builder);
     const { countryIds, stateIds, cityIds, areaIds } = useDropDownIds();
     const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
-        url: DEFAULT_API,
+        url: `${DEFAULT_API}/get`,
         data: {
             limit: gridFilter.limit,
             page: gridFilter.page + 1,

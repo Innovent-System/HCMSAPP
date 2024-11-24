@@ -17,7 +17,7 @@ export const AutoDeduction = ({ data }) => {
   const formApi = useRef(null);
   const attendanceFlag = useAppSelector(e => e.appdata.employeeData?.AttendanceFlag)
   const { data: leaveTypes, isLoading, refetch, totalRecord } = useEntitiesQuery({
-    url: API.LeaveType,
+    url:  `${API.LeaveType}/get`,
     data: {
       limit: 100,
       page: 1,

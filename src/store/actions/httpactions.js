@@ -11,7 +11,7 @@ export const getApi = createApi({
   keepUnusedDataFor: 30,
   endpoints: (builder) => ({
     entities: builder.query({
-      query: ({ url, data }) => ({ url: `${url}/get`, body: data, method: "POST", headers: headerOption() }),
+      query: ({ url, data }) => ({ url, body: data, method: "POST", headers: headerOption() }),
       transformResponse: (response) => response?.result
 
     }),
@@ -89,9 +89,11 @@ export const AuthThunk = createAsyncThunk('auth/requestStatus', async ({ url, pa
       message
     })
   } catch (err) {
+    console.log(err)
+    const { response } = err;
     return rejectWithValue({
-      msg: (err.response?.data ? err.response.data.message : err.message),
-      code: err.response.status
+      msg: (response?.data?.message ? response.data?.message : response.statusText),
+      code: response.status
     })
   }
 })
@@ -110,9 +112,10 @@ export const AppRoutesThunk = createAsyncThunk('approute/requestStatus', async (
       message
     })
   } catch (err) {
+    const { response } = err;
     return rejectWithValue({
-      msg: (err.response?.data ? err.response.data.message : err.message),
-      code: err.response.status
+      msg: (response.data?.message ? response.data?.message : response.message),
+      code: response.status
     })
   }
 })
@@ -240,7 +243,8 @@ const INITIAL_STATE = {
   enableFilter: false,
   query: {
     fields: {},
-    builder: ''
+    builder: '',
+    filters: {}
   }
 }
 
@@ -301,6 +305,9 @@ export const appSlice = createSlice({
     },
     builderFieldsAction(state, action) {
       state.query.fields = action.payload
+    },
+    builderFilterAction(state, action) {
+      state.query.filters = action.payload
     },
     setUserInfo(state, action) {
       state.userInfo = { ...state.userInfo, ...action.payload }
@@ -442,6 +449,7 @@ export const empSlice = createSlice({
 
 export const { builderQueryAction,
   builderFieldsAction,
+  builderFilterAction,
   resetAction,
   dropDownIdsAction,
   enableFilterAction,

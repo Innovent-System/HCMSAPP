@@ -12,37 +12,50 @@ import ConfirmDialog from '../../components/ConfirmDialog';
 import EmpoyeeModal, { mapEmployee } from './components/AddEditEmployee';
 import PageHeader from '../../components/PageHeader'
 import { useExcelReader } from "../../hooks/useExcelReader";
-import Loader from '../../components/Circularloading'
+import Loader, { LinearProgress } from '../../components/Circularloading'
 import { useDropDownIds } from '../../components/useDropDown';
 import AddEmployee from "./components/AddEmployee";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
 import { downloadTextFIle } from "../../util/common";
 import EmployeeCard from "./components/EmployeeCard";
 
-
+/**
+ * @type {import('@react-awesome-query-builder/mui').Fields}
+ */
 const fields = {
     fullName: {
         label: 'Full Name',
         type: 'text',
+        fieldName: "fullName",
+        defaultOperator: "like",
+        operators: ["like", "equal"],
+        defaultValue: undefined,
         valueSources: ['value'],
         preferWidgets: ['text'],
     },
     createdAt: {
         label: 'Created Date',
+        defaultOperator: "equal",
+        fieldName: "createdAt",
+        defaultValue: null,
         type: 'date',
         fieldSettings: {
             dateFormat: "D/M/YYYY",
-            mongoFormatValue: val => ({ $date: new Date(val).toISOString() }),
+            // mongoFormatValue: val => ({ $date: new Date(val).toISOString() }),
         },
         valueSources: ['value'],
         preferWidgets: ['date'],
     },
-
     isActive: {
         label: 'Status',
         type: 'boolean',
+        fieldName: "isActive",
+        defaultValue: true,
+        defaultOperator: "equal",
         operators: ['equal'],
         valueSources: ['value'],
+        preferWidgets: ['boolean']
+
     },
 }
 const getColumns = (apiRef, onEdit, onActive) => {
@@ -116,13 +129,14 @@ const Employee = () => {
     const { countryIds, stateIds, cityIds, areaIds, departmentIds, groupIds, designationIds } = useDropDownIds();
 
     const { data = [], isLoading, refetch, totalRecord } = useEntitiesQuery({
-        url: DEFAULT_API,
+        url: `${DEFAULT_API}/get`,
         data: {
             limit: gridFilter.limit,
             page: gridFilter.page + 1,
             lastKeyId: gridFilter.lastKey,
             ...sort,
             searchParams: {
+                isActive: true,
                 ...query,
                 ...(word && { firstName: { "$regex": `^${word}`, "$options": "i" } }),
                 ...(countryIds && { "companyInfo.fkCountryId": { $in: countryIds.split(',') } }),
@@ -204,6 +218,7 @@ const Employee = () => {
     return (
         <>
             <Loader open={inProcess} />
+
             <PageHeader
                 title="Employee"
                 enableFilter={true}
@@ -225,13 +240,15 @@ const Employee = () => {
             </Popup>
 
             {/* <Link style={{ float: "right" }} onClick={getTemplate}> Employee Template</Link> */}
-            <ButtonGroup fullWidth >
+
+            <ButtonGroup size="small" fullWidth >
                 {alphabets.map(alpha => (
-                    <Controls.Button onClick={handleAlphabetSearch} color={word === alpha ? 'info' : 'inherit'} key={alpha} text={alpha} />
+                    <Controls.Button key={`word-${alpha}`} onClick={handleAlphabetSearch} color={word === alpha ? 'info' : 'inherit'} text={alpha} />
                 ))}
             </ButtonGroup>
-            <Grid container p={1} gap={2}>
-                {data.map(e => <Grid key={e._id} item><EmployeeCard employeeInfo={e} handleEdit={handleEdit} /> </Grid>)}
+            {isLoading && <LinearProgress />}
+            <Grid container p={0.5} flexDirection={{ xs: "column", sm: "row" }} gap={1}>
+                {data.map(e => <Grid key={e._id} sm={3.5} item><EmployeeCard employeeInfo={e} handleEdit={handleEdit} /> </Grid>)}
             </Grid>
             {/* <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={data}

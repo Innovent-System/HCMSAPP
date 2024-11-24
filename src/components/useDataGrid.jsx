@@ -19,6 +19,7 @@ import {
   GridPagination,
 
 } from '@mui/x-data-grid-pro';
+export { GridRowModes, GridActionsCellItem, GridRowEditStopReasons } from '@mui/x-data-grid-pro'
 import LinearProgress from '@mui/material/LinearProgress';
 
 const Key = '0f94d8b65161817ca5d7f7af8ac2f042T1JERVI6TVVJLVN0b3J5Ym9vayxFWFBJUlk9MTY1NDg1ODc1MzU1MCxLRVlWRVJTSU9OPTE=';
@@ -27,8 +28,9 @@ LicenseInfo.setLicenseKey(Key);
 export const getCrudActions = (apiRef, onSave, onDelete) => {
 
   const handleEditClick = (id) => (event) => {
-    event.stopPropagation();
-    apiRef.current.setRowMode(id, 'edit');
+    // event.stopPropagation();
+    // apiRef.current.startRowEditMode()
+    apiRef.current.startRowEditMode(id);
   };
 
   const handleSaveClick = (id) => async (event) => {
@@ -50,13 +52,13 @@ export const getCrudActions = (apiRef, onSave, onDelete) => {
   }
 
   const handleCancelClick = (id) => (event) => {
-    event.stopPropagation();
-    apiRef.current.setRowMode(id, 'view');
+    // event.stopPropagation();
+    apiRef.current.stopRowEditMode({ id });
 
-    const row = apiRef.current.getRow(id);
-    if (row.isNew) {
-      apiRef.current.updateRows([{ id, _action: 'delete' }]);
-    }
+    // const row = apiRef.current.getRow(id);
+    // if (row.isNew) {
+    //   apiRef.current.updateRows([{ id, _action: 'delete' }]);
+    // }
   }
 
   return {
@@ -65,7 +67,8 @@ export const getCrudActions = (apiRef, onSave, onDelete) => {
     headerName: 'Actions',
     width: 100,
     cellClassName: 'actions',
-    getActions: ({ id }) => {
+    getActions: ({ id, ...test }) => {
+      console.log({ test })
       const isInEditMode = apiRef.current.getRowMode(id) === 'edit';
 
       if (isInEditMode) {
@@ -286,7 +289,7 @@ export default function FeaturedCrudGrid(props) {
   return (
     <Box
       sx={{
-         height: `calc(100vh - ${gridHeight}px)`
+        height: `calc(100vh - ${gridHeight}px)`
         //width: '100%',
         // '& .actions': {
         //   color: 'text.secondary',
@@ -299,7 +302,7 @@ export default function FeaturedCrudGrid(props) {
       <StripedDataGrid
         density={density}
         rows={rows ?? []}
-        
+
         loading={loading}
         {...(setSelectionModel && {
           onSelectionModelChange: (newSelectionModel) => {
@@ -315,7 +318,7 @@ export default function FeaturedCrudGrid(props) {
         getRowClassName={(params) =>
           params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd'
         }
-
+        
         sortingMode={sortingMode}
         rowCount={totalCount}
         rowsPerPageOptions={[10, 25, 50, 100]}

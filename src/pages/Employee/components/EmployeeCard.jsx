@@ -53,7 +53,8 @@ const MenuOption = ({ menuId, options }) => {
 const style = {
     card: {
         //background: 'linear-gradient(135deg, rgba(25, 118, 210, 0.7), rgba(25, 118, 210, 0.3))',
-        minWidth: 445,
+        minWidth: 300,
+
         borderRadius: 2
     },
     cardContent: {
@@ -94,7 +95,7 @@ export default function EmployeeCard({ employeeInfo, handleEdit }) {
             /> */}
             <CardContent sx={style.cardContent}>
                 <List>
-                    <ListItem  disablePadding>
+                    <ListItem disablePadding>
                         <ListItemIcon sx={{ minWidth: 30 }}>
                             <EmailOutlined fontSize='small' />
                         </ListItemIcon>

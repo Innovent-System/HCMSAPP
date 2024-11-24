@@ -9,7 +9,7 @@ import PropTypes from 'prop-types';
 
 export default function DatePicker(props) {
 
-    const { name, label, value = null, onChange, size = "small", error = null, variant = "outlined", category = "date", ...others } = props
+    const { name, label, value = null, onChange, size = "small", error = null,  variant = "outlined", category = "date", ...others } = props
     const theme = useTheme();
     const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
 
@@ -19,16 +19,17 @@ export default function DatePicker(props) {
             name, value
         }
     })
-
+    
     const renderDateTime = useCallback(() => {
         if (category === "datetime") {
             return <>
                 {isDesktop ?
                     <DesktopDateTimePicker
+
                         label={label}
                         {...others}
                         name={name}
-
+                        
                         value={value}
                         onChange={date => onChange(convertToDefEventPara(name, date))}
                         renderInput={(params) => <TextField fullWidth={true} {...(error && { error: true, helperText: error })} size={size} variant={variant}  {...params} />}

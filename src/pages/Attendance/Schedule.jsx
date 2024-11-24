@@ -150,7 +150,7 @@ const Schedule = () => {
     const query = useAppSelector(e => e.appdata.query.builder);
 
     const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
-        url: DEFAULT_API,
+        url: `${DEFAULT_API}/get`,
         data: {
             limit: filter.limit,
             page: filter.page + 1,

@@ -256,7 +256,7 @@ const GazettedHoliday = () => {
     const { countryIds, stateIds, cityIds } = useDropDownIds();
 
     const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
-        url: DEFAULT_API,
+        url: `${DEFAULT_API}/get`,
         data: {
             limit: filter.limit,
             page: filter.page + 1,

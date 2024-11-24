@@ -1,7 +1,7 @@
 import React from 'react';
 import { CircularProgress, Backdrop, Avatar } from '../deps/ui';
 import loaderImg from '../assets/images/logo-loader.png'
-
+export { LinearProgress } from '@mui/material'
 
 export default function CircularLoading({ open = false }) {
 
