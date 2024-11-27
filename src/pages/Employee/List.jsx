@@ -4,20 +4,21 @@ import Controls from '../../components/controls/Controls';
 import Popup from '../../components/Popup';
 import { API, alphabets } from './_Service';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction } from '../../store/actions/httpactions';
-import { Typography, Stack, Link, ButtonGroup, Grid } from "../../deps/ui";
-import { Circle, PeopleOutline } from "../../deps/ui/icons";
+import { Typography, Stack, Link, ButtonGroup, Grid, Divider } from "../../deps/ui";
+import { Circle, PeopleOutline, Add as AddIcon } from "../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions, GridToolbar } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import EmpoyeeModal, { mapEmployee } from './components/AddEditEmployee';
 import PageHeader from '../../components/PageHeader'
 import { useExcelReader } from "../../hooks/useExcelReader";
-import Loader, { LinearProgress } from '../../components/Circularloading'
+import Loader from '../../components/Circularloading'
 import { useDropDownIds } from '../../components/useDropDown';
 import AddEmployee from "./components/AddEmployee";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
 import { downloadTextFIle } from "../../util/common";
 import EmployeeCard from "./components/EmployeeCard";
+import LinearLoader from '../../components/LinearLoader'
 
 /**
  * @type {import('@react-awesome-query-builder/mui').Fields}
@@ -239,14 +240,19 @@ const Employee = () => {
                 <EmpoyeeModal coldata={excelColData} isEdit={isEdit.current} editId={editId} setOpenPopup={setOpenPopup} />
             </Popup>
 
-            {/* <Link style={{ float: "right" }} onClick={getTemplate}> Employee Template</Link> */}
-
             <ButtonGroup size="small" fullWidth >
                 {alphabets.map(alpha => (
                     <Controls.Button key={`word-${alpha}`} onClick={handleAlphabetSearch} color={word === alpha ? 'info' : 'inherit'} text={alpha} />
                 ))}
             </ButtonGroup>
-            {isLoading && <LinearProgress />}
+
+            <Controls.Button
+                onClick={showAddModal}
+                startIcon={<AddIcon />}
+                text="Add Record"
+                sx={{ float: "right" }}
+            />
+          
             <Grid container p={0.5} flexDirection={{ xs: "column", sm: "row" }} gap={1}>
                 {data.map(e => <Grid key={e._id} sm={3.5} item><EmployeeCard employeeInfo={e} handleEdit={handleEdit} /> </Grid>)}
             </Grid>

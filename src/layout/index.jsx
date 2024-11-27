@@ -6,6 +6,7 @@ import Header from '../layout/header/Header';
 import Speech from '../components/speech/SpeechRecognition';
 import Auth from '../services/AuthenticationService'
 import BreadCrumbs from '../components/BreadCrumbs';
+import LinearLoader from '../components/LinearLoader';
 
 const Layout = () => {
 
@@ -44,6 +45,7 @@ const Layout = () => {
   return (
     <>
       <Header />
+      <LinearLoader  />
       <Paper className={"content-area"}>
         {/* <BreadCrumbs /> */}
         <Outlet />

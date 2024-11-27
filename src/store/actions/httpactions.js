@@ -187,6 +187,7 @@ const emptyString = "";
 
 const INITIAL_STATE = {
   status: false,
+  isLoading: false,
   DropDownData: {
     Countries: [],
     States: [],
@@ -289,6 +290,9 @@ export const appSlice = createSlice({
     },
     resetAction(state, action) {
       state.isReset = action.payload
+    },
+    setGlobalLoader(state, action) {
+      state.isLoading = action.payload;
     },
     /**
      * 
@@ -455,6 +459,6 @@ export const { builderQueryAction,
   enableFilterAction,
   showDropDownFilterAction,
   setUserInfo,
-  clearDropDownIdsAction, setCommand, setFileConfig } = appSlice.actions;
+  clearDropDownIdsAction, setCommand, setFileConfig, setGlobalLoader } = appSlice.actions;
 
 export const { setGeneralAction, setCompanyAction, resetEmployee } = empSlice.actions

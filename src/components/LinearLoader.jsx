@@ -1,5 +1,7 @@
 import React from 'react'
-import { LinearProgress } from '../deps/ui'
+import { LinearProgress, Backdrop } from '../deps/ui'
+import CircularLoading from './Circularloading'
+import { useAppSelector } from '../store/storehook'
 
 /**
  * 
@@ -7,9 +9,10 @@ import { LinearProgress } from '../deps/ui'
  * @returns {JSX}
  */
 function LinearLoader({ open = false }) {
-    return (
-        open && <LinearProgress />
-    )
+
+    const isLoading = useAppSelector(e => e.appdata.isLoading);
+
+    return <Backdrop sx={{ background: "transparent", zIndex: (theme) => theme.zIndex.drawer + 1 }} open={isLoading}><LinearProgress color='warning' sx={{ position: "absolute", top: 0, width: "100%" }} /></Backdrop>
 }
 
 export default LinearLoader

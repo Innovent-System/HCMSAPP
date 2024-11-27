@@ -66,9 +66,9 @@ const CrudUI = ({ DEFAULT_API, DEFAULT_NAME, fields, socketName }) => {
 
     const gridApiRef = useGridApi();
     const query = useAppSelector(e => e.appdata.query.builder);
-
+   
     const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
-        url: DEFAULT_API,
+        url: `${DEFAULT_API}/get`,
         data: {
             limit: gridFilter.limit,
             page: gridFilter.page + 1,

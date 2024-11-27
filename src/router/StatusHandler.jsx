@@ -7,12 +7,13 @@ import { useSnackbar } from 'notistack';
 import { IconButton, List, ListItem, ListItemText, Divider } from '../deps/ui';
 import { Close as CloseIcon } from '../deps/ui/icons';
 import ErrorModal from '../components/ErrorModal';
-import { useAppSelector } from '../store/storehook';
+import { useAppDispatch, useAppSelector } from '../store/storehook';
+import { setGlobalLoader } from '../store/actions/httpactions';
 
 function StatusHanlder() {
   const routeNotify = useAppSelector(state => state.resource.mutations);
   const queryNotify = useAppSelector(state => state.resource.queries);
-
+  const dispatch = useAppDispatch();
   const socket = useContext(SocketContext);
   const navigate = useNavigate();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
@@ -36,8 +37,11 @@ function StatusHanlder() {
     const length = Object.keys(routeNotify).length;
     if (length) {
       const keyName = Object.keys(routeNotify)[length - 1];
-
-      if (routeNotify[keyName].status === 'fulfilled') {
+      if (routeNotify[keyName].status === "pending") {
+        dispatch(setGlobalLoader(true))
+      }
+      else if (routeNotify[keyName].status === 'fulfilled') {
+        dispatch(setGlobalLoader(false))
         const { message } = routeNotify[keyName].data;
         if (message) {
           enqueueSnackbar(message, {
@@ -46,6 +50,7 @@ function StatusHanlder() {
           });
         }
       } else if (routeNotify[keyName].status === 'rejected') {
+        dispatch(setGlobalLoader(false))
         const { status, data: { message, result } } = routeNotify[keyName].error;
         if (Array.isArray(result)) {
           setErrors(result);
@@ -88,8 +93,10 @@ function StatusHanlder() {
     if (length) {
       const keyName = Object.keys(queryNotify)[length - 1];
 
-      if (queryNotify[keyName].status === 'rejected') {
-
+      if (queryNotify[keyName].status === "pending") dispatch(setGlobalLoader(true))
+      else if (queryNotify[keyName].status === 'fulfilled') dispatch(setGlobalLoader(false))
+      else if (queryNotify[keyName].status === 'rejected') {
+        dispatch(setGlobalLoader(false))
         const { status, data: { message, result } } = queryNotify[keyName].error;
         if (Array.isArray(result)) {
           setErrors(result);
@@ -101,9 +108,9 @@ function StatusHanlder() {
             action
           });
         }
-        
+
         if (status === 401) {
-         
+
           const info = Auth.getitem('userInfo') || {};
           const formId = window.location.pathname.substr(window.location.pathname.lastIndexOf("/") + 1);
           sessionStorage.clear();

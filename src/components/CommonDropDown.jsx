@@ -4,6 +4,7 @@ import { useDropDown, DROPDOWN_PROPS, Name_MAP, filterTypes, showFilterProps } f
 import { AutoForm } from './useForm';
 import { dropDownIdsAction, resetAction, clearDropDownIdsAction } from '../store/actions/httpactions'
 import { useAppDispatch, useAppSelector } from '../store/storehook';
+import { debounce } from '../util/common';
 
 const NULLVALUES = ["", null, undefined]
 const bindDataIds = (data, matchWith) => {
@@ -43,6 +44,7 @@ function CommonDropDown({ isMultiple = false, children, flexDirection = "row", b
         })
 
     }
+    const debouncedClick = React.useRef(debounce(handleDropDownIds, 300)).current;
 
     const isReset = useAppSelector(e => e.appdata.isReset);
 
@@ -64,7 +66,7 @@ function CommonDropDown({ isMultiple = false, children, flexDirection = "row", b
                     ...(setProps && setProps[filter]),
                     breakpoints,
                     options: dropDown[Name_MAP[filter]],
-                    onChange: (data) => handleDropDownIds(data, filter, "id")
+                    onChange: (data) => debouncedClick(data, filter, "id")
                 }
             ))
         },
