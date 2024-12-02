@@ -93,10 +93,10 @@ function StatusHanlder() {
     if (length) {
       const keyName = Object.keys(queryNotify)[length - 1];
 
-      if (queryNotify[keyName].status === "pending") dispatch(setGlobalLoader(true))
-      else if (queryNotify[keyName].status === 'fulfilled') dispatch(setGlobalLoader(false))
-      else if (queryNotify[keyName].status === 'rejected') {
-        dispatch(setGlobalLoader(false))
+      // if (queryNotify[keyName].status === "pending") dispatch(setGlobalLoader(true))
+      // else if (queryNotify[keyName].status === 'fulfilled') dispatch(setGlobalLoader(false))
+      if (queryNotify[keyName].status === 'rejected') {
+        // dispatch(setGlobalLoader(false))
         const { status, data: { message, result } } = queryNotify[keyName].error;
         if (Array.isArray(result)) {
           setErrors(result);

@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { lazy, useState } from 'react';
 import PageHeader from '../../components/PageHeader'
 import { PeopleOutline } from '../../deps/ui/icons'
 import Tabs from '../../components/Tabs'
-import Shift from './components/Shift';
-import ApprovalStages from '../ApprovalStages';
+
+const Shift = lazy(() => import('./components/Shift'));
+const ApprovalStages = lazy(() => import('../ApprovalStages'));
 
 const tabs = [
     {

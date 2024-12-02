@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, lazy } from 'react';
 import PageHeader from '../../components/PageHeader'
 import { PeopleOutline } from '../../deps/ui/icons'
 import Tabs from '../../components/Tabs'
-import ApprovalStages from '../ApprovalStages';
-import Allowance from './components/Allowance';
-import Deduction from './components/Deduction';
+// import ApprovalStages from '../ApprovalStages';
+// import Allowance from './components/Allowance';
+// import Deduction from './components/Deduction';
 
+const ApprovalStages = lazy(() => import("../ApprovalStages"));
+const Allowance = lazy(() => import("./components/Allowance"));
+const Deduction = lazy(() => import("./components/Deduction"));
 
 const tabs = [
     {

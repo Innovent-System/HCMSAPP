@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { lazy, useState } from 'react';
 import PageHeader from '../../components/PageHeader'
 import { PeopleOutline } from '../../deps/ui/icons'
 import Tabs from '../../components/Tabs'
-import Country from './components/Country'
-import Area from './components/Area'
+
+const Country = lazy(()=> import('./components/Country')); 
+const Area = lazy(()=> import('./components/Area')) 
 import Company from './components/Company';
-import Department from './components/Department';
+const Department = lazy(()=> import('./components/Department'));
 
 
 const tabs = [

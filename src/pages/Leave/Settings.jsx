@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { lazy, useState } from 'react';
 import PageHeader from '../../components/PageHeader'
 import { PeopleOutline } from '../../deps/ui/icons'
 import Tabs from '../../components/Tabs'
-import ApprovalStages from '../ApprovalStages';
-import LeaveType from './components/LeaveType';
-import LeaveQuota from './components/LeaveQuota';
 
+const ApprovalStages = lazy(() => import('../ApprovalStages'));
+const LeaveType = lazy(() => import('./components/LeaveType'));
+const LeaveQuota = lazy(() => import('./components/LeaveQuota'));
 
 
 const tabs = [

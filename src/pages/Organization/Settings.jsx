@@ -1,8 +1,9 @@
 import React from 'react'
+import OrgChart from '../../components/charts/OrganoChart'
 
 const Settings = () => {
   return (
-    <div>Settings</div>
+    <OrgChart />
   )
 }
 

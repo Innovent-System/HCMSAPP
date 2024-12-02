@@ -1,13 +1,12 @@
-import React, { useState } from 'react';
+import React, { lazy, useState } from 'react';
 import PageHeader from '../../components/PageHeader'
 import { PeopleOutline } from '../../deps/ui/icons'
 import Tabs from '../../components/Tabs'
-import Group from './components/settings/Group'
-import Designation from './components/settings/Designation'
-import EmployeeStatus from './components/settings/EmployeeStatus'
-import ApprovalStages from '../ApprovalStages';
 
-
+const Group = lazy(() => import('./components/settings/Group'));
+const Designation = lazy(() => import('./components/settings/Designation'));
+const EmployeeStatus = lazy(() => import('./components/settings/EmployeeStatus'))
+const ApprovalStages = lazy(()=> import('../ApprovalStages'));
 
 const tabs = [
     {

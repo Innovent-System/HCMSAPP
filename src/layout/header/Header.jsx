@@ -164,7 +164,7 @@ export default function Header() {
     socket.on("changeInCompany", handler);
     socket.on("changeInCountry", handler);
     socket.on("changeInDepartment", handler);
-    
+
     socket.on("changeInEmployee", employeeHanlder);
     socket.on("changeInGroup", employeeHanlder);
     socket.on("changeInDesignation", employeeHanlder);
@@ -248,7 +248,8 @@ export default function Header() {
               /> */}
 
             </Grid>
-            <Grid item xs>
+
+            <Grid item xs display={{ xs: "none",sm:"block" }}>
               <DigitalTimer />
             </Grid>
             <Grid item xs className="right">

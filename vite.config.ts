@@ -38,7 +38,6 @@ function viteIgnoreStaticImport(importKeys) {
 export default defineConfig({
   plugins: [react()],
   build:{
-    minify:false,
     rollupOptions:{
       external:["./node_modules/@mui/base/ModalUnstyled", "./node_modules/@mui/base/PopperUnstyled"]
     }

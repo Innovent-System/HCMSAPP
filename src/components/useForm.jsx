@@ -89,7 +89,7 @@ const validateAllFields = (fieldValues, values) => {
             if (typeof errorItem?.validate === "function") {
                 temp[key] = !errorItem.validate(values) ? errorItem.message : itemValue ? "" : errorItem.message
             }
-            else if (!isNaN(itemValue) && itemValue < 0)
+            else if (!isNaN(itemValue) && itemValue <= 0)
                 temp[key] = errorItem.message;
             else if (Array.isArray(itemValue) && !itemValue.length)
                 temp[key] = errorItem.message;
@@ -137,7 +137,7 @@ export const AutoForm = forwardRef(function (props, ref) {
         if (typeof fieldValues?.validate === "function") {
             temp[key] = !fieldValues.validate(singleField) ? fieldValues.message : singleField[key] ? "" : fieldValues.message
         }
-        else if (!isNaN(singleField[key]) && singleField[key] < 0)
+        else if (!isNaN(singleField[key]) && singleField[key] <= 0)
             temp[key] = fieldValues.message;
         else if (Array.isArray(singleField[key]) && !singleField[key].length)
             temp[key] = fieldValues.message;
