@@ -1,14 +1,14 @@
 import React from "react";
 import Tree from "react-d3-tree";
 import { useCenteredTree } from "../../hooks/useCenteredTree";
-import { Card, CardHeader, CardContent, Avatar, CardActionArea, IconButton } from '../../deps/ui'
-import { ExpandMore, ExpandLess } from '../../deps/ui/icons'
+import { Card, CardHeader, CardContent, Avatar, CardActionArea, IconButton, Box, Typography } from '../../deps/ui'
+import { Add, Remove } from '../../deps/ui/icons'
 import Controls from "../controls/Controls";
-
+import { purple, red } from '@mui/material/colors';
 
 const containerStyles = {
   width: "100vw",
-  height: "100vh"
+  height: "calc(100vh - 64px)"
 };
 const data = {
   "name": "CEO",
@@ -93,28 +93,26 @@ const renderForeignObjectNode = ({
 
     {/* `foreignObject` requires width & height to be explicitly set. */}
     <foreignObject {...foreignObjectProps}>
-      <Card elevation={5}>
+      <Card elevation={3} sx={{ borderTop: "5px solid #66bb6a" }} >
         <CardHeader
-
           avatar={
-            <Avatar variant="rounded" aria-label="recipe">
+            <Avatar aria-label="recipe">
               {getInitials(nodeDatum.name)}
             </Avatar>
           }
-          sx={{ pb: 0 }}
-
           title={nodeDatum.name}
           subheader={nodeDatum?.attributes?.department}
         />
-        {/* <h3 style={{ textAlign: "center" }}>{nodeDatum.name}</h3> */}
-        {nodeDatum.children && (
-          <CardActionArea sx={{ textAlign: "center" }}>
-            <IconButton size="small" onClick={toggleNode}>
-              {nodeDatum.__rd3t.collapsed ? <ExpandMore fontSize="small" /> : <ExpandLess fontSize="small" />}
-            </IconButton>
-          </CardActionArea>
 
-        )}
+        <CardActionArea sx={{ textAlign: "center" }}>
+          {nodeDatum.children && (
+            <IconButton size="small" onClick={toggleNode}>
+              {nodeDatum.__rd3t.collapsed ? <Add fontSize="small" /> : <Remove fontSize="small" />}
+            </IconButton>
+          )}
+        </CardActionArea>
+
+
       </Card>
     </foreignObject>
   </g>
@@ -123,7 +121,7 @@ const renderForeignObjectNode = ({
 export default function App() {
   const [translate, containerRef] = useCenteredTree();
   const nodeSize = { x: 200, y: 200 };
-  const foreignObjectProps = { width: nodeSize.x, height: nodeSize.y, x: -100 };
+  const foreignObjectProps = { width: nodeSize.x, height: nodeSize.y, x: -100,  };
   return (
     <div style={containerStyles} ref={containerRef}>
       <Tree
