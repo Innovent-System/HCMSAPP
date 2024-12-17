@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { Table, TableHead, TableRow, TableBody, TableCell, TablePagination, TableSortLabel, TableContainer, Paper } from '../deps/ui'
+import { Table, TableHead, TableRow, TableBody, TableCell, TablePagination, TableSortLabel, TableContainer, Paper, Pagination } from '../deps/ui'
 
 /**
  * @type {import('@mui/material').SxProps}
@@ -45,11 +45,15 @@ const groupedData = (data) => data.reduce((acc, curr) => {
  * @returns 
  */
 const pages = [30, 50, 100]
-export default function useTable(data, headCells, filterFn, pagination = true) {
+export default function useTable(data, headCells, Footer = {
+    Element: null,
+    data: []
+}, filterFn, isSingleEmployee = false, pagination = true) {
 
     const [records, setRecords] = useState([]);
     const [page, setPage] = useState(0)
     const [rowsPerPage, setRowsPerPage] = useState(pages[page])
+    const [employeeCount, setEmployeeCount] = useState(0)
     const [order, setOrder] = useState()
     const [orderBy, setOrderBy] = useState()
 
@@ -57,6 +61,12 @@ export default function useTable(data, headCells, filterFn, pagination = true) {
         if (data) {
             if (pagination)
                 setRecords(data.slice(0 * rowsPerPage, (0 + 1) * rowsPerPage));
+            else if (isSingleEmployee) {
+                setRecords(data.filter(e => e.pageIndex === 0));
+                setEmployeeCount(data[data?.length - 1]?.pageIndex ?? 0);
+                setPage(1);
+                return;
+            }
             else setRecords(data)
 
             setPage(0);
@@ -105,16 +115,19 @@ export default function useTable(data, headCells, filterFn, pagination = true) {
 
         // const cols = records.length ? headCells.filter(f => Object.keys(records[0]).includes(f.id)) : [];
         return (<TableBody >
-            {records.map((row) => (
-                <TableRow
-                    key={row.id}
-                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                >
-                    {headCells.map((_key, index) =>
-                        <TableCell key={'cell-' + index} sx={{ paddingLeft: 4 }} >{typeof _key?.valueGetter === "function" ? _key?.valueGetter({ row }) : row[_key.id]}</TableCell>
-                    )
-                    }
-                </TableRow>
+            {records.map((row, _index) => (
+                <>
+                    <TableRow
+                        key={row.id}
+                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                    >
+                        {headCells.map((_key, index) =>
+                            <TableCell key={'cell-' + index} sx={{ paddingLeft: 4 }} >{typeof _key?.valueGetter === "function" ? _key?.valueGetter({ row }) : row[_key.id]}</TableCell>
+                        )
+                        }
+                    </TableRow>
+                    {_index === (records.length - 1) && Footer.Element ? <Footer.Element employeeId={records[0]?.fkEmployeeId} data={Footer.data} index={_index} /> : null}
+                </>
             ))}
         </TableBody>)
     }
@@ -124,6 +137,10 @@ export default function useTable(data, headCells, filterFn, pagination = true) {
         setPage(newPage);
         setRecords(data.slice(newPage * rowsPerPage, (newPage + 1) * rowsPerPage));
     }
+    const handleEmployeePage = (event, value) => {
+        setRecords(data.filter(e => e.pageIndex == value))
+        setPage(value);
+    }
 
     const handleChangeRowsPerPage = event => {
         const per = parseInt(event.target.value, 10);
@@ -132,9 +149,14 @@ export default function useTable(data, headCells, filterFn, pagination = true) {
         setRecords(data.slice(0 * per, (0 + 1) * per));
     }
 
-    const TblPagination = () => (<TablePagination
+    const TblPagination = () => (isSingleEmployee ? <Pagination
+        page={page}
+        onChange={handleEmployeePage}
+        count={employeeCount}
+    /> : <TablePagination
         component="div"
         page={page}
+        size='small'
         rowsPerPageOptions={pages}
         rowsPerPage={rowsPerPage}
         count={data?.length}

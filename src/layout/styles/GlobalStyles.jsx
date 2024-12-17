@@ -42,8 +42,11 @@ const useStyles = makeStyles(() => createStyles({
       '& .MuiTabPanel-root': {
         padding: 0,
       },
-      "& .MuiInputBase-root:has(input)": { height: "35px", overflow: 'hidden' },
-      "& .MuiInputLabel-root": { lineHeight: '1em' }
+      "& .MuiInputBase-root:has(input)": {
+        minHeight: "35px",
+        overflow: 'hidden'
+      },
+      // "& .MuiInputLabel-root": { lineHeight: '1em' }
     },
     a: {
       textDecoration: 'none'
@@ -80,7 +83,7 @@ const useStyles = makeStyles(() => createStyles({
           borderBottom: '1px solid #e0e0e0',
         }
       },
-      
+
       // '& .MuiBox-root': {
 
       // }

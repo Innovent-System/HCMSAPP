@@ -10,9 +10,12 @@ import { useAppSelector } from '../store/storehook'
 
 const BREAK_POINTS = { xs: 10, sm: 10, md: 10 };
 
-export const DetailPanelContent = ({ row, headCells }) => {
+export const DetailPanelContent = ({ row, headCells, Footer = {
+    Element: null,
+    data: []
+}, isSingleEmployee = false, pagination = true }) => {
 
-    const { TblContainer, TblHead, TblBody, TblPagination } = useTable(row, headCells)
+    const { TblContainer, TblHead, TblBody, TblPagination } = useTable(row, headCells, Footer, {}, isSingleEmployee, pagination)
     return (
         <>
             <TblContainer>

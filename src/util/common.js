@@ -34,6 +34,7 @@ export const AttendanceflagMap = {
     0: { tag: "Holiday", color: "green" },
     1: { tag: "Late", color: "yellow" },
     2: { tag: "Half Day", color: "yellow" },
+    3: { tag: "Short Day", color: "yellow" },
     7: { tag: "Absent", color: "black" },
     8: { tag: "Full Leave", color: "#ddd" },
     9: { tag: "Half Leave", color: "#ddd" },

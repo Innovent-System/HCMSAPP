@@ -4,7 +4,7 @@ import { useDropDownIds } from '../../../components/useDropDown';
 import { formateISODateTime, getMonthStartEnd } from '../../../services/dateTimeService';
 import { DetailPanelContent, ReportHeader } from '../../../components/ReportViewer';
 import CommonDropDown from '../../../components/CommonDropDown';
-import { Grid } from '../../../deps/ui'
+import { Box, Grid, Stack, TableCell, Typography } from '../../../deps/ui'
 import { API } from '../_Service';
 import Controls from '../../../components/controls/Controls';
 import { AttendanceflagMap } from '../../../util/common';
@@ -20,10 +20,41 @@ const TableHead = [
 ];
 
 const { monthStart, monthEnd } = getMonthStartEnd();
+const TableFooter = ({ employeeId, data, index }) => {
+    return <TableCell variant='footer' colSpan={data?.length}>
+        {data.filter(e => e.fkEmployeeId == employeeId).map(e => <Box pb={1} pl={1} borderRadius={1} borderColor="whitesmoke" component="fieldset">
+            <Typography component="legend">Summary</Typography>
+            <Stack flexDirection="row" justifyContent="space-evenly">
+                <Stack>
+                    <Typography variant='subtitle2'>Presents : {e.present}</Typography>
+                    <Typography variant='subtitle2'>Absents : {e.absent}</Typography>
+                    <Typography variant='subtitle2'>Holidays : {e.holiday}</Typography>
+                </Stack>
+                <Stack>
+                    <Typography variant='subtitle2'>Late : {e.late}</Typography>
+                    <Typography variant='subtitle2'>Leaves : {e.leaves}</Typography>
+
+                </Stack>
+                <Stack>
+                    <Typography variant='subtitle2'>Half Days : {e.halfDay}</Typography>
+                    <Typography variant='subtitle2'>Short Days : {e.shortDay}</Typography>
+                </Stack>
+
+
+            </Stack>
+
+
+
+        </Box>)}
+    </TableCell>
+}
 
 const AttendanceReport = ({ loader, setLoader }) => {
-    const [records, setRecords] = useState([]);
-   
+    const [records, setRecords] = useState({
+        attendanceList: [],
+        summary: []
+    });
+
     const [dateRange, setDateRange] = useState([monthStart, monthEnd])
     const [gridFilter, setGridFilter] = useState({
         lastKey: null,
@@ -79,9 +110,7 @@ const AttendanceReport = ({ loader, setLoader }) => {
                     area: true,
                     department: true,
                     group: true,
-                    employee: true,
-                    month: true,
-                    year: true
+                    employee: true
                 }}>
                     <Grid item sm={10} md={10} lg={10}>
                         <Controls.DateRangePicker onChange={({ target }) => { setDateRange(target.value) }} value={dateRange} />
@@ -92,7 +121,13 @@ const AttendanceReport = ({ loader, setLoader }) => {
                 </CommonDropDown>
             </Grid>
             <Grid item sm={9} md={9} lg={9}>
-                <DetailPanelContent row={records} headCells={TableHead} />
+                <DetailPanelContent row={records?.attendanceList} headCells={TableHead} Footer={{
+                    Element: TableFooter,
+                    data: records.summary
+                }}
+                    pagination={false}
+                    isSingleEmployee={true}
+                />
             </Grid>
         </>
     )

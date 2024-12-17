@@ -1,5 +1,5 @@
 /* eslint-disable no-use-before-define */
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import { Autocomplete, TextField, Checkbox, FormControlLabel, Popper, ButtonGroup, Button, Box, Chip } from '../../deps/ui'
 import { Check, Clear, CheckBox as CheckBoxIcon, CheckBoxOutlineBlank as CheckBoxOutlineBlankIcon } from '../../deps/ui/icons'
 import ListboxComponent from '../ReactWindow';
@@ -37,6 +37,7 @@ function MultiSelect(props) {
 
   const { name, label, value, error = null, onChange, options = [], dataId = "", dataName = "", isMultiple = false, ...other } = props;
   const autoCompleteRef = useRef(null);
+  const inputId = useId();
   const convertToDefEventPara = (name, value) => ({
     target: {
       name,
@@ -74,14 +75,15 @@ function MultiSelect(props) {
       {...other}
       value={value}
       onChange={(event, value) => onChange(convertToDefEventPara(name, value))}
-      id={`multiple-limit-tags-${name}`}
+      id={inputId}
+
       size="small"
       options={options}
       getOptionLabel={getOptionLabel}
       onInputChange={handleInputeChange}
       disableCloseOnSelect={isMultiple}
       disableListWrap
-      
+
       ListboxComponent={ListboxComponent}
       {...(isMultiple && {
         renderOption: (props, option, { selected }) =>
@@ -90,31 +92,33 @@ function MultiSelect(props) {
             <Checkbox
               icon={icon}
               checkedIcon={checkedIcon}
-              style={{ marginRight: 8 }}
+              // style={{ marginRight: 8 }}
               checked={selected}
             />
             {option[dataName]}
           </li>
-        )
-        // renderTags: (value, getTagProps) => {
-        //   console.log(value, name);
-        //   return value.map((option, index) => (
-        //     <Chip
-        //       variant="outlined"
-        //       onChange={console.log}
-        //       label={option[dataName]}
-        //       size="small"
-        //       {...getTagProps({ index })}
-        //     />
-        //   ))
-        // }
+        ),
+
+        renderTags: (value, getTagProps, prop) => {
+
+          return value.slice(0, prop.limitTags).map((option, index) => (
+            <Chip
+
+              label={option[dataName]}
+              size="small"
+              {...getTagProps({ index })}
+            />
+          ))
+        }
 
 
       })}
 
       renderInput={(params) => (
         <TextField {...params} {...(error && { error: true, helperText: error })}
-          variant="outlined" size='small' label={label} />
+          variant="outlined" size='small' label={label}
+
+        />
       )}
     />
   );

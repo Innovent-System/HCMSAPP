@@ -11,6 +11,7 @@ import MultiSelect from "./MultiSelect";
 import PropTypes from 'prop-types'
 import { ArrayForm } from '../useArrayForm'
 import FileInput from "./FileInput";
+import TagInput from "./TagInput";
 
 const Controls = {
     Input,
@@ -23,19 +24,21 @@ const Controls = {
     ActionButton,
     MultiSelect,
     Avatar,
-    FileInput
+    FileInput,
+    TagInput
 };
 
 export default Controls;
 
 
-export const ElementType = Object.freeze(["inputfield", "radiogroup", "checkbox", "dropdown", "clearfix", "ad_dropdown", "datetimepicker", "daterangepicker", "uploadavatar", "arrayForm", "custom"]);
+export const ElementType = Object.freeze(["inputfield", "taginput", "radiogroup", "checkbox", "dropdown", "clearfix", "ad_dropdown", "datetimepicker", "daterangepicker", "uploadavatar", "arrayForm", "custom"]);
 
 export function Element(props) {
 
     const { elementType, NodeElement, arrayFormRef, ...others } = props;
     switch (elementType) {
         case "inputfield": return <Input {...others} />
+        case "taginput": return <TagInput {...others} />
         case "checkbox": return <Checkbox {...others} />
         case "radiogroup": return <RadioGroup {...others} />
         case "datetimepicker": return <DatePicker {...others} />

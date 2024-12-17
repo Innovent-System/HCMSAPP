@@ -119,7 +119,7 @@ const AddLeaveRequest = ({ openPopup, setOpenPopup }) => {
             elementType: "daterangepicker",
             name: "leavesDate",
             required: true,
-            disableFuture: true,
+            // disableFuture: true,
             breakpoints: { md: 12, sm: 12, xs: 12 },
             validate: {
                 errorMessage: "Select Date please",
