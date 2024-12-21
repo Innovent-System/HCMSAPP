@@ -17,7 +17,7 @@ export const AutoDeduction = ({ data }) => {
   const formApi = useRef(null);
   const attendanceFlag = useAppSelector(e => e.appdata.employeeData?.AttendanceFlag)
   const { data: leaveTypes, isLoading, refetch, totalRecord } = useEntitiesQuery({
-    url:  `${API.LeaveType}/get`,
+    url: `${API.LeaveType}/get`,
     data: {
       limit: 100,
       page: 1,
@@ -32,7 +32,7 @@ export const AutoDeduction = ({ data }) => {
     effectedFrequency: DefaultFrequency,
     deductionDays: 1
   }]).current;
-  
+
   const { addEntity } = useEntityAction();
   const handleSubmit = () => {
     const { getValue, validateFields } = formApi.current;
@@ -96,15 +96,23 @@ export const AutoDeduction = ({ data }) => {
     {
       elementType: "checkbox",
       name: "enable",
-      label: "Auto Dedution(s) For Attendance Flag",
-      breakpoints: { xs: 6, sm: 6, md: 4 },
+      label: "Auto Dedution(s)",
+      title: "For Attendance Flag",
+      breakpoints,
       defaultValue: true
+    },
+    {
+      elementType: "checkbox",
+      name: "isMinuteWiseDeduction",
+      label: "Minute Wise Deduction",
+      breakpoints,
+      defaultValue: false
     },
     {
       elementType: "checkbox",
       name: "isLeaveDeductionFirst",
       label: "Is Leave Deduction First",
-      breakpoints: { xs: 6, sm: 6, md: 4 },
+      breakpoints,
       defaultValue: true
     },
     {
@@ -143,7 +151,7 @@ export const AutoDeduction = ({ data }) => {
           label: "Title",
           breakpoints,
           onChange: (_allowanc, _ind) => {
-            
+
             const { getValue } = formApi.current;
             setDisabledFlags(getValue().flagSetting.map(c => c.flagId))
           },

@@ -62,7 +62,7 @@ export default function useTable(data, headCells, Footer = {
             if (pagination)
                 setRecords(data.slice(0 * rowsPerPage, (0 + 1) * rowsPerPage));
             else if (isSingleEmployee) {
-                setRecords(data.filter(e => e.pageIndex === 0));
+                setRecords(data.filter(e => e.pageIndex === 1));
                 setEmployeeCount(data[data?.length - 1]?.pageIndex ?? 0);
                 setPage(1);
                 return;

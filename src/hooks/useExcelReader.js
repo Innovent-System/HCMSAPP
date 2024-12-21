@@ -59,7 +59,7 @@ const processAndVerifyData = ({ colInfo, excelData, transformData }) => {
             errorMsg = "";
             if (prop?.required && notValid.includes(value)) { errorMsg = `${errorPrefix}${i + 1}${prop.label} is required`; continue };
             if (prop?.options) {
-                value = value.toLowerCase();
+                value = String(value)?.toLowerCase() ?? "";
                 if (notValid.includes(value)) {
                     objectData[prop.name] = null;
                 } else {

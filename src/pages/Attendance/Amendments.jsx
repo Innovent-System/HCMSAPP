@@ -70,14 +70,12 @@ const flagMap = {
 const DateTimeCell = ({ apiRef, value, id, field, hasFocus, row, type = 'In' }) => {
     const [error, setError] = useState(null);
 
-    const schedule = row.schedule.at(0), schDt = new Date(type === "In" ? row.scheduleStartDt : row.scheduleEndDt);
+    const schDt = new Date(type === "In" ? row.scheduleStartDt : row.scheduleEndDt);
 
     const hanldechange = (e) => {
         let { value: currentValue } = e.target;
 
-        const dayShift = schedule.weeks.find(c => c.name === weekday[schDt.getDay()]);
-        const shift = schedule.shift.find(s => s._id === dayShift.fkShiftId);
-        const minDate = new Date(shift.minTime), maxDate = new Date(shift.maxTime);
+        const minDate = new Date(row.minTime), maxDate = new Date(row.maxTime);
         minDate.setDate(schDt.getDate());
         minDate.setMonth(schDt.getMonth());
         minDate.setFullYear(schDt.getFullYear());
