@@ -8,6 +8,7 @@ import { Box, Grid, Stack, TableCell, Typography } from '../../../deps/ui'
 import { API } from '../_Service';
 import Controls from '../../../components/controls/Controls';
 import { AttendanceflagMap } from '../../../util/common';
+import ReportTable from '../../../components/Table';
 
 const TableHead = [
     { id: 'employeeCode', disableSorting: false, label: 'Code' },
@@ -19,10 +20,20 @@ const TableHead = [
     { id: 'status', disableSorting: false, label: 'Remarks', valueGetter: ({ row }) => AttendanceflagMap[row?.status]?.tag }
 ];
 
+
+const columns = [
+    { field: 'employeeCode', disableSorting: false, headerName: 'Code' },
+    { field: 'fullName', disableSorting: false, headerName: 'Employee' },
+    { field: 'scheduleStartDt', disableSorting: false, headerName: 'Schedule Start', valueGetter: ({ row }) => formateISODateTime(row.scheduleStartDt) },
+    { field: 'scheduleEndDt', disableSorting: false, headerName: 'Schedule End', valueGetter: ({ row }) => formateISODateTime(row.scheduleEndDt) },
+    { field: 'startDateTime', disableSorting: false, headerName: 'Actual In', valueGetter: ({ row }) => formateISODateTime(row.startDateTime) },
+    { field: 'endDateTime', disableSorting: false, headerName: 'Actual Out', valueGetter: ({ row }) => formateISODateTime(row.endDateTime) },
+    { field: 'status', disableSorting: false, headerName: 'Remarks', valueGetter: ({ row }) => AttendanceflagMap[row?.status]?.tag }
+];
 const { monthStart, monthEnd } = getMonthStartEnd();
-const TableFooter = ({ employeeId, data, index }) => {
-    return <TableCell variant='footer' colSpan={data?.length}>
-        {data.filter(e => e.fkEmployeeId == employeeId).map(e => <Box pb={1} pl={1} borderRadius={1} borderColor="whitesmoke" component="fieldset">
+const TableFooter = ({ row, summary = [], index }) => {
+    return <TableCell variant='footer' colSpan={8}>
+        {summary?.filter(e => e.fkEmployeeId == row.fkEmployeeId).map(e => <Box pb={1} pl={1} borderRadius={1} borderColor="whitesmoke" component="fieldset">
             <Typography component="legend">Summary</Typography>
             <Stack flexDirection="row" justifyContent="space-evenly">
                 <Stack>
@@ -33,6 +44,7 @@ const TableFooter = ({ employeeId, data, index }) => {
                 <Stack>
                     <Typography variant='subtitle2'>Late : {e.late}</Typography>
                     <Typography variant='subtitle2'>Leaves : {e.leaves}</Typography>
+                    <Typography variant='subtitle2'>Act. Present : {e.actualPresent}</Typography>
 
                 </Stack>
                 <Stack>
@@ -121,13 +133,21 @@ const AttendanceReport = ({ loader, setLoader }) => {
                 </CommonDropDown>
             </Grid>
             <Grid item sm={9} md={9} lg={9}>
-                <DetailPanelContent row={records?.attendanceList} headCells={TableHead} Footer={{
+                <ReportTable columnPrint={columns}
+                    pageBreak={true}
+                    pageBreakOn='fkEmployeeId'
+                    reportData={records?.attendanceList} Summary={TableFooter}
+                    summaryProps={{
+                        summary: records?.summary
+                    }}
+                />
+                {/* <DetailPanelContent row={records?.attendanceList} headCells={TableHead} Footer={{
                     Element: TableFooter,
                     data: records.summary
                 }}
                     pagination={false}
                     isSingleEmployee={true}
-                />
+                /> */}
             </Grid>
         </>
     )

@@ -45,7 +45,7 @@ const getColumns = (apiRef, onCancel) => [
     {
         field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.employees.fullName
     },
-    { field: 'requestDate', headerName: 'Request Date', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.requestDate) },
+    { field: 'requestDate', headerName: 'Request Date', flex: 1 },
     { field: 'changeType', headerName: 'Change Type', flex: 1, valueGetter: ({ row }) => row.changeType.join(',') },
     {
         field: 'status', headerName: 'Status', flex: 1, renderCell: renderStatusCell

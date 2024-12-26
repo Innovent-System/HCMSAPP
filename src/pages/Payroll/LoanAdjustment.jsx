@@ -4,8 +4,8 @@ import Popup from '../../components/Popup';
 import { API } from './_Service';
 
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction, useLazySingleQuery } from '../../store/actions/httpactions';
-import { PeopleOutline, Delete, AdminPanelSettings, CancelScheduleSend } from "../../deps/ui/icons";
-import { GridActionsCellItem } from "../../deps/ui";
+import { PeopleOutline, AttachMoney, DisplaySettings, RemoveCircleOutline, AddCircleOutline } from "../../deps/ui/icons";
+import { InputAdornment, Divider, Chip, IconButton } from "../../deps/ui";
 import DataGrid, { GridToolbar, renderStatusCell, useGridApi, getActions } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
@@ -69,12 +69,16 @@ const LoanType = [
     { id: "Personal", title: "Personal Loan" },
     { id: "PF", title: "PF Loan" }
 ]
-const AddLaonRequest = ({ openPopup, setOpenPopup, colData = [] }) => {
+const breakpoints = { md: 12 }
+const AddLoanAdjustment = ({ openPopup, setOpenPopup, colData = [] }) => {
     const formApi = useRef(null);
+    const loanAjApi = useRef(null);
+    const loadId = useRef(null);
     const [loader, setLoader] = useState(false);
-
+    const initLoanDetail = useRef([{ _id: null, paidDate: new Date(), amount: 0 }]);
     const { Employees } = useAppSelector(e => e.appdata.employeeData);
     const { addEntity } = useEntityAction();
+    const [getLoanDetail] = useLazySingleQuery();
 
     useEffect(() => {
         if (formApi.current && openPopup) {
@@ -82,6 +86,21 @@ const AddLaonRequest = ({ openPopup, setOpenPopup, colData = [] }) => {
             resetForm();
         }
     }, [openPopup, formApi])
+
+    const handleAddItems = (i) => {
+        const { getValue, setFormValue } = formApi.current;
+        if (getValue().distributedMonth === getValue().loanSchedule.length) return;
+        setFormValue({ loanSchedule: [...getValue().loanSchedule, { _id: null, paidDate: new Date(), amount: 0 }] })
+
+
+    }
+    const handleRemoveItems = (_index) => {
+        const { getValue, setFormValue } = formApi.current;
+        const { loanSchedule } = getValue();
+
+        setFormValue({ loanSchedule: loanSchedule.toSpliced(_index, 1) })
+    }
+
     const formData = [
         {
             elementType: "ad_dropdown",
@@ -94,6 +113,35 @@ const AddLaonRequest = ({ openPopup, setOpenPopup, colData = [] }) => {
             },
             dataName: 'fullName',
             dataId: "_id",
+            onChange: (data) => {
+                if (!data) return;
+
+                const { setFormValue, getValue } = formApi.current;
+                getLoanDetail({ url: API.LoanDetail, params: { employeeId: data._id } }).then(c => {
+                    if (c.data?.result) {
+                        const { result } = c.data;
+                        loadId.current = result._id;
+                        setFormValue({
+                            title: result.title, loanRequest: new Date(result.loanRequest),
+                            repayAmount: result.repayAmount, principleAmount: result.principleAmount,
+                            loanStartDate: new Date(result.loanStartDate),
+                            distributedMonth: Math.ceil(result.principleAmount / result.repayAmount),
+                            loanSchedule: result.loanSchedule.map(e => ({ _id: e._id, paidDate: new Date(e.paidDate), amount: e.amount }))
+                        });
+                    }
+                    else {
+                        loadId.current = null;
+                        setFormValue({
+                            title: "", loanRequest: new Date(),
+                            repayAmount: 0, principleAmount: 0,
+                            distributedMonth: 0,
+                            loanStartDate: new Date(),
+                            loanSchedule: [...initLoanDetail.current]
+                        });
+                    }
+
+                })
+            },
             options: Employees,
             defaultValue: null,
             excel: {
@@ -103,9 +151,9 @@ const AddLaonRequest = ({ openPopup, setOpenPopup, colData = [] }) => {
         {
             elementType: "datetimepicker",
             label: "Date",
-            name: "loanRequest",
+            disabled: true,
+            name: "loanDate",
             required: true,
-
             validate: {
                 errorMessage: "Select Date please",
             },
@@ -118,6 +166,7 @@ const AddLaonRequest = ({ openPopup, setOpenPopup, colData = [] }) => {
             elementType: "datetimepicker",
             label: "Loan Start Date",
             name: "loanStartDate",
+            disabled: true,
             required: true,
             shouldDisableDate: (date) => {
                 const { getValue } = formApi.current;
@@ -136,6 +185,7 @@ const AddLaonRequest = ({ openPopup, setOpenPopup, colData = [] }) => {
             elementType: "inputfield",
             name: "title",
             required: true,
+            disabled: true,
             label: "Title",
             validate: {
                 errorMessage: "Title required",
@@ -149,6 +199,7 @@ const AddLaonRequest = ({ openPopup, setOpenPopup, colData = [] }) => {
             elementType: "dropdown",
             name: "type",
             label: "Type",
+            disabled: true,
             isNone: false,
             dataId: "id",
             dataName: "title",
@@ -161,6 +212,7 @@ const AddLaonRequest = ({ openPopup, setOpenPopup, colData = [] }) => {
         {
             elementType: "inputfield",
             name: "principleAmount",
+            disabled: true,
             required: true,
             onChange: (val) => {
                 const { setFormValue, getValue } = formApi.current;
@@ -210,31 +262,96 @@ const AddLaonRequest = ({ openPopup, setOpenPopup, colData = [] }) => {
             defaultValue: 0
         },
         {
-            elementType: "inputfield",
-            name: "description",
-            required: true,
-            label: "Description",
-            multiline: true,
-            validate: {
-                errorMessage: "Description required",
-            },
-            minRows: 5,
-            variant: "outlined",
-            breakpoints: { md: 12, sm: 12, xs: 12 },
-            defaultValue: "",
-            excel: {
-                sampleData: "Personl reson"
-            }
+            elementType: "custom",
+            breakpoints: breakpoints,
+            NodeElement: () => <Divider><Chip size="small" label="Installment Details" icon={<DisplaySettings />} /></Divider>
+        },
+        {
+            elementType: "arrayForm",
+            name: "loanSchedule",
+            // sx: listStyle,
+            arrayFormRef: loanAjApi,
+            breakpoints: breakpoints,
+            defaultValue: initLoanDetail.current,
+            formData: [
+                {
+                    elementType: "datetimepicker",
+                    label: "Date",
+                    name: "paidDate",
+                    required: true,
+                    disabled: (value) => value["_id"],
+                    validate: {
+                        errorMessage: "Select Date please",
+                    },
+                    breakpoints: { md: 5 },
+                    defaultValue: new Date(),
+                    excel: {
+                        sampleData: new Date().toLocaleDateString('en-US')
+                    }
+                },
+                {
+                    elementType: "inputfield",
+                    name: "amount",
+                    label: "Amount",
+                    inputMode: 'numeric',
+                    disabled: (value) => value["_id"],
+                    type: "number",
+                    required: true,
+                    validate: {
+                        errorMessage: "Amount is required",
+                    },
+                    inputProps: {
+                        min: 0,
+                    },
+                    breakpoints: { md: 5 },
+                    InputProps: {
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                <AttachMoney />
+                            </InputAdornment>
+                        )
+                    },
+                    defaultValue: "",
+                },
+                {
+                    elementType: "custom",
+                    breakpoints: { md: 2 },
+                    NodeElement: ({ dataindex, datavalue }) =>
+                        !datavalue?._id ?
+                            <IconButton onClick={() => handleRemoveItems(dataindex, false)}>
+                                <RemoveCircleOutline color='warning' />
+                            </IconButton> : null
+
+                }
+            ],
+            isValidate: true,
+        },
+        {
+            elementType: "custom",
+            breakpoints: breakpoints,
+            NodeElement: () => <IconButton title='Add Installment' aria-label="delete" onClick={() => handleAddItems(false)}>
+                <AddCircleOutline color='primary' />
+            </IconButton>
         }
     ];
     colData.current = formData;
 
     const handleSubmit = (e) => {
+        if (!loadId.current) return;
         const { getValue, validateFields } = formApi.current
-        if (validateFields()) {
+        const { validateFields: adjValidateFields } = loanAjApi.current
+        if (validateFields() && adjValidateFields()) {
             let values = getValue();
-            let dataToInsert = { ...values };
-            dataToInsert.fkEmployeeId = values.fkEmployeeId._id;
+            let dataToInsert = {};
+            dataToInsert._id = loadId.current;
+            dataToInsert.repayAmount = values.repayAmount;
+            dataToInsert.isAdjust = true;
+            dataToInsert.loanSchedule = values.loanSchedule.map(({ _id, ...e }) => ({ ...e, ...(_id && { _id }), month: e.paidDate.getMonth(), year: e.paidDate.getFullYear() }));
+
+            const creditAmount = values.loanSchedule
+                .reduce((accumulator, currentValue) => accumulator + (+currentValue.amount), 0);
+
+            dataToInsert.isPaid = creditAmount === values.principleAmount;
 
             addEntity({ url: DEFAULT_API, data: [dataToInsert] });
 
@@ -243,14 +360,15 @@ const AddLaonRequest = ({ openPopup, setOpenPopup, colData = [] }) => {
     return <>
         <Loader open={loader} />
         <Popup
-            title="Loan Request"
+            title="Loan Adjustment"
             openPopup={openPopup}
-            maxWidth="sm"
+            maxWidth="xl"
+            fullScreen
             isEdit={false}
             keepMounted={true}
             addOrEditFunc={handleSubmit}
             setOpenPopup={setOpenPopup}>
-            <AutoForm formData={formData} ref={formApi} isValidate={true} />
+            <AutoForm formData={formData} ref={formApi} breakpoints={{ md: 6 }} isValidate={true} />
         </Popup>
     </>
 }
@@ -271,7 +389,7 @@ const LoanRequest = () => {
     const excelColData = useRef([]);
 
     const [sort, setSort] = useState({ sort: { createdAt: -1 } });
-    const { inProcess, setFile, excelData, getTemplate } = useExcelReader(excelColData.current, mapAdvSalary, "LoanRequest.xlsx");
+    const { inProcess, setFile, excelData, getTemplate } = useExcelReader(excelColData.current, mapAdvSalary, "LoanAdjustment.xlsx");
 
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,
@@ -290,7 +408,10 @@ const LoanRequest = () => {
             page: gridFilter.page + 1,
             lastKeyId: gridFilter.lastKey,
             ...sort,
-            searchParams: { ...query }
+            searchParams: {
+                isAdjust: true,
+                ...query
+            }
         }
     }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
 
@@ -314,7 +435,7 @@ const LoanRequest = () => {
 
     }, [excelData])
 
-    const { socketData } = useSocketIo("changeInLaon", refetch);
+    const { socketData } = useSocketIo("changeInAdj", refetch);
 
     const columns = getColumns(handleCancel);
 
@@ -352,14 +473,14 @@ const LoanRequest = () => {
     return (
         <>
             <PageHeader
-                title="Loan Request"
+                title="Loan Adjustment"
                 enableFilter={true}
                 handleUpload={(e) => setFile(e.target.files[0])}
                 handleTemplate={getTemplate}
-                subTitle="Manage Loan Request"
+                subTitle="Manage Loan Adjustment"
                 icon={<PeopleOutline fontSize="large" />}
             />
-            <AddLaonRequest colData={excelColData} openPopup={openPopup} setOpenPopup={setOpenPopup} />
+            <AddLoanAdjustment colData={excelColData} openPopup={openPopup} setOpenPopup={setOpenPopup} />
 
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={data}

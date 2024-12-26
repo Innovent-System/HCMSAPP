@@ -288,6 +288,7 @@ export const ArrayForm = forwardRef(function (props, ref) {
                                 name={name}
                                 label={label}
                                 dataindex={_stateIndex}
+                                datavalue={value[_stateIndex]}
                                 value={value[_stateIndex][name]}
                                 {...(required && { required: handleConditionalField(name, required, _stateIndex) })}
                                 {...(disabled && { disabled: (typeof disabled === "function" ? disabled(value[_stateIndex]) : required) })}
@@ -303,6 +304,7 @@ export const ArrayForm = forwardRef(function (props, ref) {
                                 name={name}
                                 label={label}
                                 dataindex={_stateIndex}
+                                datavalue={value[_stateIndex]}
                                 value={value[_stateIndex][name]}
                                 {...(required && { required: handleConditionalField(name, required, _stateIndex) })}
                                 {...(disabled && { disabled: (typeof disabled === "function" ? disabled(value[_stateIndex]) : required) })}

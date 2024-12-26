@@ -9,6 +9,7 @@ export const API = {
     Bonus: 'payroll/bonus',
     OverTime: 'payroll/overtime',
     LoanRequest: 'payroll/loan',
+    LoanDetail: 'payroll/loan/detail',
     CancelAdvanceSalary: 'payroll/advancesalary/cancel',
     Approval: "payroll/approval",
     ApprovalAction: "payroll/approval/action",
