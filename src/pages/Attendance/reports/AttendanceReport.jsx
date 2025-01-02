@@ -4,47 +4,40 @@ import { useDropDownIds } from '../../../components/useDropDown';
 import { formateISODateTime, getMonthStartEnd } from '../../../services/dateTimeService';
 import { DetailPanelContent, ReportHeader } from '../../../components/ReportViewer';
 import CommonDropDown from '../../../components/CommonDropDown';
-import { Box, Grid, Stack, TableCell, Typography } from '../../../deps/ui'
+import { Box, Grid, Stack, TableCell, TableRow, Typography } from '../../../deps/ui'
 import { API } from '../_Service';
 import Controls from '../../../components/controls/Controls';
 import { AttendanceflagMap } from '../../../util/common';
-import ReportTable from '../../../components/Table';
+import ReportTable from '../../../components/ReportTable';
 
-const TableHead = [
-    { id: 'employeeCode', disableSorting: false, label: 'Code' },
-    { id: 'fullName', disableSorting: false, label: 'Employee' },
-    { id: 'scheduleStartDt', disableSorting: false, label: 'Schedule Start', valueGetter: ({ row }) => formateISODateTime(row.scheduleStartDt) },
-    { id: 'scheduleEndDt', disableSorting: false, label: 'Schedule End', valueGetter: ({ row }) => formateISODateTime(row.scheduleEndDt) },
-    { id: 'startDateTime', disableSorting: false, label: 'Actual In', valueGetter: ({ row }) => formateISODateTime(row.startDateTime) },
-    { id: 'endDateTime', disableSorting: false, label: 'Actual Out', valueGetter: ({ row }) => formateISODateTime(row.endDateTime) },
-    { id: 'status', disableSorting: false, label: 'Remarks', valueGetter: ({ row }) => AttendanceflagMap[row?.status]?.tag }
-];
-
-
-const columns = [
-    { field: 'employeeCode', disableSorting: false, headerName: 'Code' },
-    { field: 'fullName', disableSorting: false, headerName: 'Employee' },
-    { field: 'scheduleStartDt', disableSorting: false, headerName: 'Schedule Start', valueGetter: ({ row }) => formateISODateTime(row.scheduleStartDt) },
-    { field: 'scheduleEndDt', disableSorting: false, headerName: 'Schedule End', valueGetter: ({ row }) => formateISODateTime(row.scheduleEndDt) },
-    { field: 'startDateTime', disableSorting: false, headerName: 'Actual In', valueGetter: ({ row }) => formateISODateTime(row.startDateTime) },
-    { field: 'endDateTime', disableSorting: false, headerName: 'Actual Out', valueGetter: ({ row }) => formateISODateTime(row.endDateTime) },
+const reportColumns = [
+    { field: 'employeeCode', headerName: 'Code' },
+    { field: 'fullName', headerName: 'Employee' },
+    { field: 'scheduleStartDt', headerName: 'Schedule Start', valueGetter: ({ row }) => formateISODateTime(row.scheduleStartDt) },
+    { field: 'scheduleEndDt', headerName: 'Schedule End', valueGetter: ({ row }) => formateISODateTime(row.scheduleEndDt) },
+    { field: 'startDateTime', headerName: 'Actual In', valueGetter: ({ row }) => formateISODateTime(row.startDateTime) },
+    { field: 'endDateTime', headerName: 'Actual Out', valueGetter: ({ row }) => formateISODateTime(row.endDateTime) },
+    { field: "workHrs", headerName: "Work Hrs" },
+    { field: "lateArr", headerName: "Late" },
+    { field: "earlyOut", headerName: "Early" },
+    { field: "overTime", headerName: "O.T" },
     { field: 'status', disableSorting: false, headerName: 'Remarks', valueGetter: ({ row }) => AttendanceflagMap[row?.status]?.tag }
 ];
 const { monthStart, monthEnd } = getMonthStartEnd();
 const TableFooter = ({ row, summary = [], index }) => {
-    return <TableCell variant='footer' colSpan={8}>
+    return <TableCell variant='footer' colSpan={reportColumns.length}>
         {summary?.filter(e => e.fkEmployeeId == row.fkEmployeeId).map(e => <Box pb={1} pl={1} borderRadius={1} borderColor="whitesmoke" component="fieldset">
             <Typography component="legend">Summary</Typography>
             <Stack flexDirection="row" justifyContent="space-evenly">
                 <Stack>
-                    <Typography variant='subtitle2'>Presents : {e.present}</Typography>
+                    <Typography variant='subtitle2'>OnTime : {e.present}</Typography>
                     <Typography variant='subtitle2'>Absents : {e.absent}</Typography>
                     <Typography variant='subtitle2'>Holidays : {e.holiday}</Typography>
                 </Stack>
                 <Stack>
                     <Typography variant='subtitle2'>Late : {e.late}</Typography>
                     <Typography variant='subtitle2'>Leaves : {e.leaves}</Typography>
-                    <Typography variant='subtitle2'>Act. Present : {e.actualPresent}</Typography>
+                    <Typography variant='subtitle2'>Total Present : {e.actualPresent}</Typography>
 
                 </Stack>
                 <Stack>
@@ -55,10 +48,30 @@ const TableFooter = ({ row, summary = [], index }) => {
 
             </Stack>
 
-
-
         </Box>)}
     </TableCell>
+}
+
+const GrandTotal = ({ row, minutesDetail }) => {
+    const detail = minutesDetail.find(m => m.fkEmployeeId === row.fkEmployeeId);
+    return <><TableRow>
+        <TableCell colSpan={6}>
+            Total
+        </TableCell>
+        <TableCell>{detail?.totalWorkHr}</TableCell>
+        <TableCell>{detail?.totalLateHr}</TableCell>
+        <TableCell>{detail?.totalEarly}</TableCell>
+        <TableCell colSpan={2}>{detail?.totalOverTime}</TableCell>
+    </TableRow>
+        <TableRow>
+
+            <TableCell colSpan={7}>
+                Total Overtime
+            </TableCell>
+            <TableCell colSpan={3} align='center'>{detail?.reminingOTHr}</TableCell>
+
+        </TableRow>
+    </>
 }
 
 const AttendanceReport = ({ loader, setLoader }) => {
@@ -133,12 +146,16 @@ const AttendanceReport = ({ loader, setLoader }) => {
                 </CommonDropDown>
             </Grid>
             <Grid item sm={9} md={9} lg={9}>
-                <ReportTable columnPrint={columns}
+                <ReportTable columnPrint={reportColumns}
                     pageBreak={true}
                     pageBreakOn='fkEmployeeId'
                     reportData={records?.attendanceList} Summary={TableFooter}
+                    GrandTotal={GrandTotal}
                     summaryProps={{
                         summary: records?.summary
+                    }}
+                    grandTotalProps={{
+                        minutesDetail: records?.minutesDetail
                     }}
                 />
                 {/* <DetailPanelContent row={records?.attendanceList} headCells={TableHead} Footer={{

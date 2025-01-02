@@ -35,11 +35,17 @@ const selectFromResult = ({ data, isLoading }) => {
     const { basicSalaryType, percentage_or_amount, allowances, deductions } = data?.result;
     return ({ basicSalaryType, percentage_or_amount, allowances, deductions, isLoading })
 }
+
+const adjustAmount = (isRoundOff = false,)=> {
+
+}
 const intFormat = new Intl.NumberFormat();
+
 const SalarySetup = () => {
     const formApi = useRef(null);
     const { employees } = useDropDown();
     const payrollSetups = useAppSelector(e => e.appdata.payrollData.PayrollSetups);
+    const roundOffAmount = useAppSelector(e => e.systemconfig.roundOffAmount);
     const [salaryError, setSalaryError] = useState(false)
     const estimateSalary = useRef("");
     

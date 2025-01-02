@@ -107,8 +107,10 @@ export const AddShift = ({ openPopup, setOpenPopup, isEdit = false, row = null }
     useEffect(() => {
         if (!formApi.current || !openPopup) return;
         const { resetForm, setFormValue } = formApi.current;
-        if (openPopup && !isEdit)
+        if (openPopup && !isEdit) {
             resetForm();
+            setFlagRow([...attendanceFlag])
+        }
         else {
             setFormValue({
                 ...row,
@@ -140,13 +142,7 @@ export const AddShift = ({ openPopup, setOpenPopup, isEdit = false, row = null }
 
         if (validateFields()) {
             let values = getValue();
-            // values = {
-            //     ...values,
-            //     startTime: setToCurrentDate(values.startTime),
-            //     endTime: setToCurrentDate(values.endTime),
-            //     minTime: setToCurrentDate(values.minTime),
-            //     maxTime: setToCurrentDate(values.maxTime)
-            // }
+            
             if (isEdit)
                 values._id = editId
 

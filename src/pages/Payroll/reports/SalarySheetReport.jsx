@@ -4,23 +4,27 @@ import { useDropDownIds } from '../../../components/useDropDown';
 import { formateISODateTime, getMonthStartEnd } from '../../../services/dateTimeService';
 import { DetailPanelContent, ReportHeader } from '../../../components/ReportViewer';
 import CommonDropDown from '../../../components/CommonDropDown';
-import { Grid } from '../../../deps/ui'
+import { Grid, TableCell, TableHead, Typography } from '../../../deps/ui'
 import { API } from '../_Service';
 import Controls from '../../../components/controls/Controls';
 import { AttendanceflagMap, currencyFormat } from '../../../util/common';
+import ReportTable from '../../../components/ReportTable';
 
-const TableHead = [
-    { id: 'emplyeeRefNo', disableSorting: false, label: 'Code' },
-    { id: 'fullName', disableSorting: false, label: 'Employee' },
-    { id: 'department', disableSorting: false, label: 'Department' },
-    { id: 'designation', disableSorting: false, label: 'Designation' },
-    { id: 'monthlySalary', disableSorting: false, label: 'Monthly Salary', valueGetter: ({ row }) => currencyFormat.format(row.payroll.monthlySalary) },
-    { id: 'workingDays', disableSorting: false, label: 'Present Days', valueGetter: ({ row }) => row.payroll?.workingDays },
-    { id: 'totalEarning', disableSorting: false, label: 'Gross Pay', valueGetter: ({ row }) => currencyFormat.format(row.payroll.totalEarning) },
-    { id: 'totalDeduction', disableSorting: false, label: 'Deductions', valueGetter: ({ row }) => currencyFormat.format(row.payroll.totalDeduction) },
-    { id: 'totalSalary', disableSorting: false, label: 'Net Pay', valueGetter: ({ row }) => currencyFormat.format(row.payroll.totalSalary) },
+const reportColumns = [
+    { field: 'emplyeeRefNo', headerName: 'Code' },
+    { field: 'fullName', headerName: 'Employee' },
+    { field: 'department', headerName: 'Department' },
+    { field: 'designation', headerName: 'Designation' },
+    { field: 'monthlySalary', headerName: 'Monthly Salary', valueGetter: ({ row }) => currencyFormat.format(row.payroll.monthlySalary) },
+    { field: 'workingDays', headerName: 'Present Days', valueGetter: ({ row }) => row.payroll?.workingDays },
+    { field: 'totalEarning', headerName: 'Gross Pay', valueGetter: ({ row }) => currencyFormat.format(row.payroll.totalEarning) },
+    { field: 'totalDeduction', headerName: 'Deductions', valueGetter: ({ row }) => currencyFormat.format(row.payroll.totalDeduction) },
+    { field: 'totalSalary', headerName: 'Net Pay', valueGetter: ({ row }) => currencyFormat.format(row.payroll.totalSalary) },
 ];
 
+const HeadElement = ({ row }) => {
+    return <TableHead><TableCell colSpan={11}><Typography><b>Department</b>: {row?.department} </Typography></TableCell> </TableHead>
+}
 
 const SalarySheetReport = ({ loader, setLoader }) => {
     const [records, setRecords] = useState([]);
@@ -87,7 +91,15 @@ const SalarySheetReport = ({ loader, setLoader }) => {
                 </CommonDropDown>
             </Grid>
             <Grid item sm={9} md={9} lg={9}>
-                <DetailPanelContent row={records} headCells={TableHead} />
+                {/* <DetailPanelContent row={records} headCells={TableHead} /> */}
+                <ReportTable
+                    reportData={records}
+                    columnPrint={reportColumns}
+                    HeadElement={HeadElement}
+                    groupByField='department'
+                />
+
+
             </Grid>
         </>
     )

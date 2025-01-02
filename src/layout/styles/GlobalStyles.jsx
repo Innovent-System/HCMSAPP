@@ -69,7 +69,7 @@ const useStyles = makeStyles(() => createStyles({
       height: "calc(100vh - 64px)",
       overflowY: "auto",
       overflowX: "hidden",
-      padding: 15,
+      padding: 12,
       // '& .MuiTabs-root': {
       //   background: 'linear-gradient(to bottom, #ffffff 0%,#e5e5e5 100%)',
       // },

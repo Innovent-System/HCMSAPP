@@ -63,13 +63,18 @@ const ReportTable = ({ pageBreak = false,
     Summary = null,
     summaryProps = null,
     GrandTotal = null,
+    grandTotalProps = null,
     columnPrint = [], reportData = [] }) => {
 
     const [page, setPage] = useState(1)
     const [resultCount, setResultCount] = useState(0)
     const [records, setRecords] = useState([])
     const handlePage = (event, value) => {
-        setRecords(reportData.filter(e => e.pageIndex == value))
+        if (pageBreak) {
+            setRecords(reportData.filter(e => e.pageIndex == value))
+        } else
+            setRecords(reportData.slice(value * ROW_PER_PAGE, (value + 1) * ROW_PER_PAGE));
+
         setPage(value);
     }
 
@@ -80,8 +85,8 @@ const ReportTable = ({ pageBreak = false,
             setResultCount(reportData[reportData?.length - 1]?.pageIndex ?? 0);
         }
         else {
-            setRecords(reportData.slice(page * ROW_PER_PAGE, (page + 1) * ROW_PER_PAGE));
-            setResultCount(reportData.length);
+            setRecords(reportData.slice(0 * ROW_PER_PAGE, (0 + 1) * ROW_PER_PAGE));
+            setResultCount(Math.ceil(reportData.length / ROW_PER_PAGE));
         }
 
 
@@ -104,22 +109,22 @@ const ReportTable = ({ pageBreak = false,
             const isNewGroup = String(row[groupByField]) !== String(groupValue);
 
             if (isFirst || isNewGroup) {
-                if (HeadElement) elements.push(<HeadElement key={`headElement-${row.id}`} data={row} />)
-                elements.push(<TblHead key={`head-${row.id}`} cols={columnPrint} />)
-
+                if (HeadElement) elements.push(<HeadElement key={`headElement-${row.id}`} row={row} />);
+                
+                elements.push(<TblHead key={`head-${row.id}`} cols={columnPrint} />);
             }
 
             elements.push(<Row key={`row-${row.id}`} row={row} cols={columnPrint} />)
 
             if (groupByField && !isFirst && String(row[groupByField]) !== String(records[rowsLength == _count ? rowsLength : rowsLength + 1]?.[groupByField])) {
-                GrandTotal && elements.push(<GrandTotal row={row} />);
+                GrandTotal && elements.push(<GrandTotal row={row} {...(grandTotalProps && { ...grandTotalProps })} />);
                 Summary && elements.push(<Summary row={row} {...(summaryProps && { ...summaryProps })} />);
             }
 
-            if((_count - 1) === rowsLength) {
-                GrandTotal && elements.push(<GrandTotal row={row} />);
+            if ((_count - 1) === rowsLength) {
+                GrandTotal && elements.push(<GrandTotal row={row} {...(grandTotalProps && { ...grandTotalProps })} />);
                 Summary && elements.push(<Summary row={row} {...(summaryProps && { ...summaryProps })} />);
-            }   
+            }
 
             preValue = row[pageBreakOn];
             groupValue = row[groupByField];
@@ -133,7 +138,7 @@ const ReportTable = ({ pageBreak = false,
     return <TableContainer>
         <Table sx={Styles.table}>
             {generateReport()}
-            
+
         </Table>
 
         {records.length ? <Pagination

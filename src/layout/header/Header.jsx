@@ -53,8 +53,9 @@ const useStyles = makeStyles((theme) => ({
       borderColor: theme.palette.primary.contrastText,
     },
     '& img[alt="Logo"]': {
-      width: 165,
-      height: 64,
+      width: 120,
+      height: 48,
+      objectFit: "cover"
       // filter: "brightness(0) invert(1)",
     },
     "& .left": {
@@ -249,7 +250,7 @@ export default function Header() {
 
             </Grid>
 
-            <Grid item xs display={{ xs: "none",sm:"block" }}>
+            <Grid item xs display={{ xs: "none", sm: "block" }}>
               <DigitalTimer />
             </Grid>
             <Grid item xs className="right">

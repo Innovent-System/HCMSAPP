@@ -72,7 +72,7 @@ const getColumns = (apiRef, onEdit, onActive) => {
 let editId = 0;
 // const DEFAULT_API = API.Allowance;
 
-const Allowance = ({ DEFAULT_API = API.Allowance, DEFAULT_NAME = "Allowance" }) => {
+const Allowance = ({ DEFAULT_API = API.Allowance, DEFAULT_NAME = "Allowance", formProps = [], dataMapping = null, setEditData = null }) => {
     const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
     const isEdit = React.useRef(false);
@@ -116,10 +116,18 @@ const Allowance = ({ DEFAULT_API = API.Allowance, DEFAULT_NAME = "Allowance" }) 
         editId = id;
         const { setFormValue } = formApi.current;
 
-        const editData = data.find(a => a.id === id);
-        setFormValue({
-            name: editData.name
-        });
+        const rowData = data.find(a => a.id === id);
+        let editData = formData.reduce((acc, field) => {
+            if (field.name) {
+                acc[field.name] = rowData[field.name]; // Use `name` as the key
+            }
+            return acc;
+        }, {})
+        if (typeof setEditData === "function") {
+            editData = setEditData(rowData);
+        }
+
+        setFormValue(editData);
         setOpenPopup(true);
     }
 
@@ -159,10 +167,15 @@ const Allowance = ({ DEFAULT_API = API.Allowance, DEFAULT_NAME = "Allowance" }) 
         const isValid = validateFields();
         if (isValid) {
             let values = getValue();
-            let dataToInsert = {};
-            dataToInsert.name = values.name;
+            let dataToInsert = { ...values };
+            if (typeof dataMapping === "function") {
+                dataToInsert = dataMapping(values);
+            }
+
             if (isEdit.current)
                 dataToInsert._id = editId
+
+
 
             addEntity({ url: DEFAULT_API, data: [dataToInsert] }).then(r => {
                 if (r?.data) setOpenPopup(false);
@@ -185,7 +198,8 @@ const Allowance = ({ DEFAULT_API = API.Allowance, DEFAULT_NAME = "Allowance" }) 
                 errorMessage: `${DEFAULT_NAME} Title is required`
             },
             defaultValue: ""
-        }
+        },
+        ...formProps
     ];
 
     const showAddModal = () => {

@@ -1,13 +1,14 @@
 
 import { configureStore } from '@reduxjs/toolkit'
-import { getApi, appSlice, empSlice } from './actions/httpactions'
+import { getApi, appSlice, empSlice, systemConfigSlice } from './actions/httpactions'
 
 
 export const store = configureStore({
   reducer: {
     [appSlice.name]: appSlice.reducer,
     [getApi.reducerPath]: getApi.reducer,
-    [empSlice.name]: empSlice.reducer
+    [empSlice.name]: empSlice.reducer,
+    [systemConfigSlice.name]: systemConfigSlice.reducer
   },
   middleware: (getDefaulMiddleWare) => getDefaulMiddleWare({ immutableCheck: false, serializableCheck: false }).concat(getApi.middleware)
 })
