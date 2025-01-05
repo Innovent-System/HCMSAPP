@@ -452,7 +452,7 @@ export const empSlice = createSlice({
 })
 
 const SYSTEM_CONFIG = {
-  roundOffAmount: false,
+  roundOffAmount: true,
 }
 
 export const systemConfigSlice = createSlice({

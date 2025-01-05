@@ -13,11 +13,27 @@ const _salaryType = [{ id: "Monthly", title: "Monthly" },
 { id: "Daily", title: "Daily" }
 ]
 
-const calculateOn = (salary, isPercent, isAllowance, amount) => {
+const calculateOn = (salary, isPercent, isAllowance, amount, isRoundOff = false) => {
 
     const _amount = (isPercent ? (+salary / 100) * amount : +amount);
-    return  isAllowance ? _amount : -1 * _amount;
+    const finalAmount = isAllowance ? _amount : -1 * _amount;
+    return isRoundOff ? Math.round(finalAmount) : finalAmount;
 }
+
+const adjustAmount = (monthlySalary, estimateSalary, allowances) => {
+    const roundingDifference = monthlySalary - estimateSalary;
+
+    if (roundingDifference > 0) {
+        const adjustHead = allowances.find(a => a.isAllowance && a.isAdjustAmount);
+        if (adjustHead) {
+            adjustHead.amount = intFormat.format(+(adjustHead.amount.replaceAll(",", "")) + roundingDifference);
+            estimateSalary += roundingDifference;
+        }
+    }
+
+    return estimateSalary;
+}
+
 /**
  * @type {import('@mui/material').SxProps}
  */
@@ -36,9 +52,6 @@ const selectFromResult = ({ data, isLoading }) => {
     return ({ basicSalaryType, percentage_or_amount, allowances, deductions, isLoading })
 }
 
-const adjustAmount = (isRoundOff = false,)=> {
-
-}
 const intFormat = new Intl.NumberFormat();
 
 const SalarySetup = () => {
@@ -48,7 +61,7 @@ const SalarySetup = () => {
     const roundOffAmount = useAppSelector(e => e.systemconfig.roundOffAmount);
     const [salaryError, setSalaryError] = useState(false)
     const estimateSalary = useRef("");
-    
+
     const { updateEntity, addEntity } = useEntityAction();
     const [salaryItems, setSalaryItems] = useState([]);
     const [getPayroll] = useLazyEntityByIdQuery();
@@ -63,30 +76,34 @@ const SalarySetup = () => {
             const { monthlySalary = 0 } = getValue();
             const currentItems = [];
             const isPercentageBase = basicSalaryType === PercentageBased;
-            const basicSalaryAmount = calculateOn(monthlySalary, isPercentageBase, true, percentage_or_amount);
+            const basicSalaryAmount = calculateOn(monthlySalary, isPercentageBase, true, percentage_or_amount,roundOffAmount);
 
             estimateSalary.current = basicSalaryAmount;
             currentItems.push({ item: `Basic Salary ${isPercentageBase ? `(${percentage_or_amount}%)` : ''}`, amount: basicSalaryAmount, isPercent: isPercentageBase, isAllowance: true, percentage_or_amount });
 
             currentItems.push(...allowances.map(c => {
-                const _amount = calculateOn(c?.type === PercentageOfBasicSalary ? basicSalaryAmount : monthlySalary, c?.type !== FixedAmount, true, c.percentage_or_amount);
+                const _amount = calculateOn(c?.type === PercentageOfBasicSalary ? basicSalaryAmount : monthlySalary, c?.type !== FixedAmount, true, c.percentage_or_amount,roundOffAmount);
                 estimateSalary.current += _amount;
                 return {
                     item: `${c.titles.name} ${c.type !== FixedAmount ? `(${c.percentage_or_amount}%)` : ''}`,
                     amount: intFormat.format(_amount),
                     isPercent: c.type !== FixedAmount, isAllowance: true,
                     percentage_or_amount: c.percentage_or_amount,
+                    isAdjustAmount: c.titles.isAdjustAmount,
                     type: c.type
                 }
             }));
 
             currentItems.push(...deductions.map(d => ({
                 item: `${d.titles.name} ${d.type !== FixedAmount ? `(${d.percentage_or_amount}%)` : ''}`,
-                 amount: intFormat.format(calculateOn(d?.type === PercentageOfBasicSalary ? basicSalaryAmount : monthlySalary, d?.type !== FixedAmount, false, d.percentage_or_amount)),
-                isPercent: d.type !== FixedAmount, isAllowance: false, percentage_or_amount: d.percentage_or_amount,
-                type: d.type
+                amount: intFormat.format(calculateOn(d?.type === PercentageOfBasicSalary ? basicSalaryAmount : monthlySalary, d?.type !== FixedAmount, false, d.percentage_or_amount,roundOffAmount)),
+                isPercent: d.type !== FixedAmount, isAllowance: false,
+                percentage_or_amount: d.percentage_or_amount,
+                type: d.type,
+                isAdjustAmount: d.titles.isAdjustAmount
             })));
-            estimateSalary.current = intFormat.format(Math.round(estimateSalary.current));
+
+            estimateSalary.current = intFormat.format(adjustAmount(monthlySalary, estimateSalary.current, currentItems));
             setSalaryError(false);
             setSalaryItems(currentItems);
 
@@ -97,13 +114,13 @@ const SalarySetup = () => {
         estimateSalary.current = 0;
         const { setFormValue } = formApi.current;
 
-        const _currentBasicAmount = calculateOn(monthlySalary, salaryItems[0]?.isPercent, true, salaryItems[0]?.percentage_or_amount);
+        const _currentBasicAmount = calculateOn(monthlySalary, salaryItems[0]?.isPercent, true, salaryItems[0]?.percentage_or_amount,roundOffAmount);
         const curItems = salaryItems.map((c, i) => {
-            const currAmount = calculateOn((c?.type === PercentageOfBasicSalary) ? _currentBasicAmount : monthlySalary, c.isPercent, c.isAllowance, c.percentage_or_amount);
+            const currAmount = calculateOn((c?.type === PercentageOfBasicSalary) ? _currentBasicAmount : monthlySalary, c.isPercent, c.isAllowance, c.percentage_or_amount,roundOffAmount);
             estimateSalary.current += c.isAllowance ? currAmount : 0;
             return { ...c, amount: intFormat.format(currAmount) }
         })
-        estimateSalary.current = intFormat.format(Math.round(estimateSalary.current));
+        estimateSalary.current = intFormat.format(adjustAmount(monthlySalary, estimateSalary.current, curItems));
         setSalaryItems(curItems);
         setSalaryError(false);
         setFormValue({ annualSalary: intFormat.format(+monthlySalary * 12) });

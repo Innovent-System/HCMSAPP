@@ -100,8 +100,8 @@ const PaySettings = ({ data }) => {
             deductions: deductions.map(c => ({ fkDeductionId: c.fkDeductionId, type: c.type, percentage_or_amount: c.type !== FixedAmount ? c.percentage : c.amount }))
         };
         if (isEdit.current) {
-            const { validateFields: allValidateFields } = allowanceApi.current;
-            if (!validateFields() || !allValidateFields()) return;
+            // const { validateFields: allValidateFields } = allowanceApi.current;
+            if (!validateFields()) return;
             dataToInsert._id = data._id;
             dataToInsert.name = PayrollSetups.find(c => c._id === data._id).name;
         }
