@@ -84,6 +84,9 @@ const useStyles = makeStyles(() => createStyles({
         }
       },
 
+      '& .MuiGrid-root.MuiGrid-item:has(> .clearfix)': {
+        padding: '0 !important'
+      }
       // '& .MuiBox-root': {
 
       // }

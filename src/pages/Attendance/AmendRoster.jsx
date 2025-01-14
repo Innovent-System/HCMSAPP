@@ -61,7 +61,7 @@ const getColumns = (apiRef, onEdit, onActive) => {
             field: 'shift', headerName: 'Shift', width: 180, valueGetter: ({ row }) => row.shift.shiftName
         },
         {
-            field: 'isActive', headerName: 'Status', renderCell: (param) => (
+            field: 'isActive', headerName: 'Active', renderCell: (param) => (
                 param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
             ),
             flex: '0 1 5%',

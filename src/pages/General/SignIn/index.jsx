@@ -84,7 +84,7 @@ const SignIn = () => {
       setLoader(true);
       
       userSignIn({url: API_USER_LOGIN, params: signInData}).then(res => {
-        console.log(res);
+        
         if (res) {
           const { token } = res.data.result;
           const data = jwtDecode(token);

@@ -210,7 +210,7 @@ const RunPayroll = () => {
             }
         }).then(({ data }) => {
             const { payrollDetails, ...extra } = data
-            setRecords(data?.payrollDetails)
+            setRecords(payrollDetails)
             setExtraData(extra)
             setDetailPanelExpandedRowIds(payrollDetails.filter(c => c.isProcess).map(e => e.fkEmployeeId));
             // console.log(data);
@@ -221,12 +221,10 @@ const RunPayroll = () => {
         addEntity({
             url: `${DEFAULT_API}/save`, data: {
                 payrollData: processData,
-                loanDetail: extraData.loanDetail,
-                bounsDetail: extraData.bounsDetail,
-                leaveDetail: extraData.leaveDetail,
                 year: records[0].year,
                 month: records[0].month,
-                employeeIds: processData.map(c => c.fkEmployeeId)
+                employeeIds: processData.map(c => c.fkEmployeeId),
+                ...extraData
             }
         })
     }

@@ -1,7 +1,7 @@
-import { format, parseISO,formatISO ,parse, startOfWeek, endOfWeek, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns'
+import { format, parseISO, formatISO, parse, startOfWeek, endOfWeek, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns'
 export {
     addDays, isEqual, format, startOfDay, parseISO, differenceInSeconds,
-    differenceInMilliseconds, differenceInMinutes, intervalToDuration
+    differenceInMilliseconds, differenceInMinutes, intervalToDuration, endOfDay
 } from 'date-fns';
 
 

@@ -76,12 +76,14 @@ export const getCrudActions = (apiRef, onSave, onDelete) => {
           <GridActionsCellItem
             icon={<SaveIcon />}
             label="Save"
+            size='small'
             onClick={handleSaveClick(id)}
             color="primary"
           />,
           <GridActionsCellItem
             icon={<CancelIcon />}
             label="Cancel"
+            size='small'
             className="textPrimary"
             onClick={handleCancelClick(id)}
             color="inherit"
@@ -92,6 +94,7 @@ export const getCrudActions = (apiRef, onSave, onDelete) => {
       return [
         <GridActionsCellItem
           icon={<EditIcon />}
+          size='small'
           label="Edit"
           className="textPrimary"
           onClick={handleEditClick(id)}
@@ -100,6 +103,7 @@ export const getCrudActions = (apiRef, onSave, onDelete) => {
         <GridActionsCellItem
           icon={<DeleteIcon />}
           label="Delete"
+          size='small'
           onClick={handleDeleteClick(id)}
           color="inherit"
         />,
@@ -162,6 +166,7 @@ export const getActions = (apiRef, actionKit = { onActive: null, onApproval: nul
         toolKit.push(<GridActionsCellItem
           icon={<ToggleOn fontSize='small' />}
           label="Active"
+          size='small'
           onClick={() => onActive(id)}
           color={"primary"}
 
@@ -180,6 +185,7 @@ export const getActions = (apiRef, actionKit = { onActive: null, onApproval: nul
         toolKit.push(<GridActionsCellItem
           icon={<DeleteIcon fontSize='small' />}
           label="Delete"
+          size='small'
           onClick={() => onDelete(id)}
           color={"primary"}
           showInMenu
@@ -189,6 +195,7 @@ export const getActions = (apiRef, actionKit = { onActive: null, onApproval: nul
         toolKit.push(<GridActionsCellItem
           icon={<SaveIcon fontSize='small' />}
           label="Approval"
+          size='small'
           onClick={() => onApproval(id)}
           color={"primary"}
           showInMenu
@@ -197,11 +204,13 @@ export const getActions = (apiRef, actionKit = { onActive: null, onApproval: nul
 
       if (typeof onCancel === "function") {
         toolKit.push(!["Pending"].includes(row.status) ? <GridActionsCellItem
+          size='small'
           label="Action Taken"
           icon={<AdminPanelSettings fontSize="small" />}
         /> :
           <GridActionsCellItem
             icon={<Cancel color="warning" fontSize='small' />}
+            size='small'
             label="Cancel"
             onClick={() => onCancel(id)}
             color={"primary"}
@@ -318,7 +327,7 @@ export default function FeaturedCrudGrid(props) {
         getRowClassName={(params) =>
           params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd'
         }
-        
+
         sortingMode={sortingMode}
         rowCount={totalCount}
         rowsPerPageOptions={[10, 25, 50, 100]}

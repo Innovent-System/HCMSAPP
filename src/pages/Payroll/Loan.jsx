@@ -76,18 +76,31 @@ const AddLaonRequest = ({ openPopup, setOpenPopup, colData = [] }) => {
     const { Employees } = useAppSelector(e => e.appdata.employeeData);
     const { addEntity } = useEntityAction();
 
+    const [getPFDetail] = useLazySingleQuery();
     useEffect(() => {
         if (formApi.current && openPopup) {
             const { resetForm } = formApi.current;
             resetForm();
         }
     }, [openPopup, formApi])
+
+    const handlePfBalc = (employeeId, type) => {
+        if (type !== "PF") return;
+        getPFDetail({ url: `${DEFAULT_API}/pfdetail`, params: { employeeId } }).then(res => {
+            const { setFormValue } = formApi.current;
+            if (res.data.result)
+                setFormValue({ pfBalance: res.data.result.pfBalance })
+        })
+    }
     const formData = [
         {
             elementType: "ad_dropdown",
             name: "fkEmployeeId",
             label: "Employee",
-            variant: "outlined",
+            onChange: (val) => {
+                const { getValue } = formApi.current;
+                handlePfBalc(val._id, getValue().type);
+            },
             required: true,
             validate: {
                 errorMessage: "Select Employee",
@@ -149,6 +162,10 @@ const AddLaonRequest = ({ openPopup, setOpenPopup, colData = [] }) => {
             elementType: "dropdown",
             name: "type",
             label: "Type",
+            onChange: (val) => {
+                const { getValue } = formApi.current;
+                handlePfBalc(getValue().fkEmployeeId._id, val);
+            },
             isNone: false,
             dataId: "id",
             dataName: "title",
@@ -171,6 +188,11 @@ const AddLaonRequest = ({ openPopup, setOpenPopup, colData = [] }) => {
             label: "Loan Amount",
             validate: {
                 errorMessage: "Loan Amount required",
+                validate: (val) => {
+                    const { getValue } = formApi.current;
+
+                    return (getValue().type === "PF" && val.principleAmount) ? +val.principleAmount <= +getValue().pfBalance : true
+                }
             },
             defaultValue: 0,
             excel: {
@@ -207,6 +229,15 @@ const AddLaonRequest = ({ openPopup, setOpenPopup, colData = [] }) => {
             disabled: true,
             type: "number",
             label: "Distribute in Month",
+            defaultValue: 0
+        },
+        {
+            elementType: "inputfield",
+            name: "pfBalance",
+            disabled: true,
+            isShow: val => val.fkEmployeeId && val.type === "PF",
+            type: "number",
+            label: "Balance",
             defaultValue: 0
         },
         {

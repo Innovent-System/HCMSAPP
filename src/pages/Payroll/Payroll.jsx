@@ -30,7 +30,7 @@ const fields = {
         valueSources: ["value"],
         fieldName: "status", //must taken to for query binding
         defaultOperator: "select_equals", //must taken to for query binding
-        defaultValue: null, //must taken to for query binding
+        defaultValue: undefined, //must taken to for query binding
         fieldSettings: {
             listValues: [
                 { value: "", title: "" },

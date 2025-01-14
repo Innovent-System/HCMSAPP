@@ -5,7 +5,7 @@ import { API } from '../_Service'
 const deductionTypes = [
     { id: "Other", title: "Other" },
     { id: "EOBI", title: "EOBI" },
-    { id: "PF", title: "Provident Fund" },
+    // { id: "PF", title: "Provident Fund" },
     { id: "PESI", title: "PESI" },
     { id: "SESSI", title: "SESSI" }
 ]

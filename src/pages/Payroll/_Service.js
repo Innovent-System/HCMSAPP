@@ -16,7 +16,8 @@ export const API = {
     LeaveType: "leave/type",
     PayslipReport: "payroll/report/payslip",
     SalarySheetReport: 'payroll/report/salarysheet',
-    HealthInc: 'payroll/healthinsurance'
+    HealthInc: 'payroll/healthinsurance',
+    PF: 'payroll/providentfund'
 }
 
 export const payScheduleType = [{ id: "Monthly", title: "Monthly" },
