@@ -4,7 +4,7 @@ import Controls from '../../components/controls/Controls';
 import Popup from '../../components/Popup';
 import { API, alphabets } from './_Service';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction } from '../../store/actions/httpactions';
-import { Typography, Stack, Link, ButtonGroup, Grid, Divider } from "../../deps/ui";
+import { Typography, Stack, Link, ButtonGroup, Grid, Divider, Box } from "../../deps/ui";
 import { Circle, PeopleOutline, Add as AddIcon } from "../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions, GridToolbar } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
@@ -17,8 +17,8 @@ import { useDropDownIds } from '../../components/useDropDown';
 import AddEmployee from "./components/AddEmployee";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
 import { downloadTextFIle } from "../../util/common";
-import EmployeeCard from "./components/EmployeeCard";
 import LinearLoader from '../../components/LinearLoader'
+import ResponsiveEmployeeGrid from "./components/ResponsiveGrid";
 
 /**
  * @type {import('@react-awesome-query-builder/mui').Fields}
@@ -113,7 +113,7 @@ const Employee = () => {
 
     const [gridFilter, setGridFilter] = useState({
         lastKey: null,
-        limit: 10,
+        limit: 50,
         page: 0,
         totalRecord: 0
     })
@@ -245,17 +245,23 @@ const Employee = () => {
                     <Controls.Button key={`word-${alpha}`} onClick={handleAlphabetSearch} color={word === alpha ? 'info' : 'inherit'} text={alpha} />
                 ))}
             </ButtonGroup>
+            <Stack flexDirection="row" justifyContent="space-between">
+                <Typography pt={1} >Total Employees : {totalRecord}</Typography>
+                <Controls.Button
+                    onClick={showAddModal}
+                    startIcon={<AddIcon />}
+                    text="Add Record"
+                    sx={{ float: "right" }}
+                />
+            </Stack>
 
-            <Controls.Button
-                onClick={showAddModal}
-                startIcon={<AddIcon />}
-                text="Add Record"
-                sx={{ float: "right" }}
-            />
-          
-            <Grid container p={0.5} flexDirection={{ xs: "column", sm: "row" }} gap={1}>
+
+            {/* <Grid container p={0.5} flexDirection={{ xs: "column", sm: "row" }} gap={1}>
                 {data.map(e => <Grid key={e._id} sm={3.5} item><EmployeeCard employeeInfo={e} handleEdit={handleEdit} /> </Grid>)}
-            </Grid>
+            </Grid> */}
+
+            {/* <EmployeeCardGrid data={data} handleEdit={handleEdit} /> */}
+            <ResponsiveEmployeeGrid data={data} handleEdit={handleEdit} />
             {/* <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={data}
                 totalCount={totalRecord}

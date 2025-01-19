@@ -86,10 +86,16 @@ const useStyles = makeStyles(() => createStyles({
 
       '& .MuiGrid-root.MuiGrid-item:has(> .clearfix)': {
         padding: '0 !important'
-      }
-      // '& .MuiBox-root': {
+      },
+      "& .no-scroll-grid": {//EMployee Gird Card
+        overflowX: "hidden !important", /* Hide both scroll bars */
+        // scrollbarWidth: "none" /* For Firefox */
+      },
 
+      // "& .no-scroll-grid::-webkit-scrollbar": {
+      //   display: "none" /* For Chrome, Safari, and Edge */
       // }
+
     },
   }
 }));

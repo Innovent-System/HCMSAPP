@@ -14,10 +14,13 @@ export const API = {
     Approval: "payroll/approval",
     ApprovalAction: "payroll/approval/action",
     LeaveType: "leave/type",
+    HealthInc: 'payroll/healthinsurance',
+    PF: 'payroll/providentfund',
+    ExtraAllowc: 'payroll/extraallowance',
     PayslipReport: "payroll/report/payslip",
     SalarySheetReport: 'payroll/report/salarysheet',
-    HealthInc: 'payroll/healthinsurance',
-    PF: 'payroll/providentfund'
+    LoanReport: 'payroll/report/loandetail',
+
 }
 
 export const payScheduleType = [{ id: "Monthly", title: "Monthly" },

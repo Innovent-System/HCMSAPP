@@ -23,7 +23,7 @@ const calculateOn = (salary, isPercent, isAllowance, amount, isRoundOff = false)
 const adjustAmount = (monthlySalary, estimateSalary, allowances) => {
     const roundingDifference = monthlySalary - estimateSalary;
 
-    if (roundingDifference > 0) {
+    if (roundingDifference !== 0) {
         const adjustHead = allowances.find(a => a.isAllowance && a.isAdjustAmount);
         if (adjustHead) {
             adjustHead.amount = intFormat.format(+(adjustHead.amount.replaceAll(",", "")) + roundingDifference);
@@ -76,13 +76,13 @@ const SalarySetup = () => {
             const { monthlySalary = 0 } = getValue();
             const currentItems = [];
             const isPercentageBase = basicSalaryType === PercentageBased;
-            const basicSalaryAmount = calculateOn(monthlySalary, isPercentageBase, true, percentage_or_amount,roundOffAmount);
+            const basicSalaryAmount = calculateOn(monthlySalary, isPercentageBase, true, percentage_or_amount, roundOffAmount);
 
             estimateSalary.current = basicSalaryAmount;
             currentItems.push({ item: `Basic Salary ${isPercentageBase ? `(${percentage_or_amount}%)` : ''}`, amount: basicSalaryAmount, isPercent: isPercentageBase, isAllowance: true, percentage_or_amount });
 
             currentItems.push(...allowances.map(c => {
-                const _amount = calculateOn(c?.type === PercentageOfBasicSalary ? basicSalaryAmount : monthlySalary, c?.type !== FixedAmount, true, c.percentage_or_amount,roundOffAmount);
+                const _amount = calculateOn(c?.type === PercentageOfBasicSalary ? basicSalaryAmount : monthlySalary, c?.type !== FixedAmount, true, c.percentage_or_amount, roundOffAmount);
                 estimateSalary.current += _amount;
                 return {
                     item: `${c.titles.name} ${c.type !== FixedAmount ? `(${c.percentage_or_amount}%)` : ''}`,
@@ -96,7 +96,7 @@ const SalarySetup = () => {
 
             currentItems.push(...deductions.map(d => ({
                 item: `${d.titles.name} ${d.type !== FixedAmount ? `(${d.percentage_or_amount}%)` : ''}`,
-                amount: intFormat.format(calculateOn(d?.type === PercentageOfBasicSalary ? basicSalaryAmount : monthlySalary, d?.type !== FixedAmount, false, d.percentage_or_amount,roundOffAmount)),
+                amount: intFormat.format(calculateOn(d?.type === PercentageOfBasicSalary ? basicSalaryAmount : monthlySalary, d?.type !== FixedAmount, false, d.percentage_or_amount, roundOffAmount)),
                 isPercent: d.type !== FixedAmount, isAllowance: false,
                 percentage_or_amount: d.percentage_or_amount,
                 type: d.type,
@@ -114,9 +114,9 @@ const SalarySetup = () => {
         estimateSalary.current = 0;
         const { setFormValue } = formApi.current;
 
-        const _currentBasicAmount = calculateOn(monthlySalary, salaryItems[0]?.isPercent, true, salaryItems[0]?.percentage_or_amount,roundOffAmount);
+        const _currentBasicAmount = calculateOn(monthlySalary, salaryItems[0]?.isPercent, true, salaryItems[0]?.percentage_or_amount, roundOffAmount);
         const curItems = salaryItems.map((c, i) => {
-            const currAmount = calculateOn((c?.type === PercentageOfBasicSalary) ? _currentBasicAmount : monthlySalary, c.isPercent, c.isAllowance, c.percentage_or_amount,roundOffAmount);
+            const currAmount = calculateOn((c?.type === PercentageOfBasicSalary) ? _currentBasicAmount : monthlySalary, c.isPercent, c.isAllowance, c.percentage_or_amount, roundOffAmount);
             estimateSalary.current += c.isAllowance ? currAmount : 0;
             return { ...c, amount: intFormat.format(currAmount) }
         })
@@ -364,9 +364,9 @@ const SalarySetup = () => {
 
     return (<>
         {/* <CircularLoading open={isLoading} /> */}
-        <AutoForm ref={formApi} formData={formData} />
-        <Grid container flexDirection="column" spacing={2} pt={5}>
-            <Grid item>
+        <AutoForm ref={formApi} formData={formData} >
+            {/* <Grid container flexDirection="column" spacing={2} pt={2}> */}
+            <Grid item sm={12} lg={12} md={12}>
                 {salaryItems.map((c, i) => (
                     <Grid container key={c.item + i} sx={itemStyle} gap={2}  >
                         <Grid item sm={0.5} md={0.5} lg={0.5} textAlign='center' >{i + 1}</Grid>
@@ -375,7 +375,7 @@ const SalarySetup = () => {
                     </Grid>
                 ))}
             </Grid>
-            <Grid item>
+            <Grid item sx={12} lg={12} md={12}>
                 <FormHelperText
                     error={salaryError}
                     sx={{
@@ -390,11 +390,11 @@ const SalarySetup = () => {
                     Estimated Salary : {estimateSalary.current}
                 </Typography>
             </Grid>
-            <Grid item sx={3} md={3}>
+            <Grid item sx={3} md={3} >
                 <Controls.Button size='medium' onClick={updateSalary} fullWidth text='Save' />
             </Grid>
-
-        </Grid>
+        </AutoForm>
+        {/* </Grid> */}
     </>)
 }
 

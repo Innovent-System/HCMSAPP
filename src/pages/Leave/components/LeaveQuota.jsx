@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import { API } from '../_Service';
-import { builderFieldsAction, useEntityAction, enableFilterAction, useLazyPostQuery } from '../../../store/actions/httpactions';
+import { builderFieldsAction, useEntityAction, enableFilterAction, useLazyPostQuery, showDropDownFilterAction } from '../../../store/actions/httpactions';
 import { Circle, Add as AddIcon } from "../../../deps/ui/icons";
 import { GridToolbarContainer, Select, MenuItem, FormControl, InputLabel } from "../../../deps/ui";
 import DataGrid, { useGridApi } from '../../../components/useDataGrid';
@@ -208,7 +208,20 @@ const LeaveQuota = () => {
 
     useEffect(() => {
 
-        dispatch(enableFilterAction(false));
+        dispatch(enableFilterAction(true));
+
+        dispatch(showDropDownFilterAction({
+            company: true,
+            country: true,
+            state: true,
+            city: true,
+            area: true,
+            department: true,
+            group: true,
+            designation: true,
+            employee: true,
+            year: true
+        }));
         dispatch(builderFieldsAction(fields));
     }, [dispatch])
 

@@ -18,6 +18,7 @@ export const theme = createTheme({
     },
 
     typography: {
+        fontSize: 13,
         fontFamily: ['"omnes-pro"', '"Segoe UI"', 'sans-serif'].join(','),
     },
 
@@ -118,7 +119,7 @@ export const theme = createTheme({
             defaultProps: {
                 variant: 'dense',
             },
-        },
-        
+        }
+
     },
 });

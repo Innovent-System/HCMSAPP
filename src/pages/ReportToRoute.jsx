@@ -10,6 +10,7 @@ const reportMap = Object.freeze({
     1: lazy(() => import(`./Attendance/reports/AttendanceReport`)),
     2: lazy(() => import(`./Payroll/reports/PayslipReport`)),
     3: lazy(() => import(`./Payroll/reports/SalarySheetReport`)),
+    4: lazy(() => import(`./Payroll/reports/LoanReport`)),
 })
 
 const ReportToRoute = ({ reportId, loader, setLoader }) => {

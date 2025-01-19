@@ -3,7 +3,7 @@ import { WorkerContext } from '../services/workerService';
 import { parse } from 'date-fns'
 import { downloadTextFIle } from "../util/common";
 
-const notValid = [null, undefined, "", "N/A", "-"];
+const notValid = [null, undefined, "", "N/A", "-", "undefined", "null"];
 function isValidDate(date) {
     const d = new Date(date);
     let [month, day, year] = date.split('/')
@@ -57,6 +57,9 @@ const processAndVerifyData = ({ colInfo, excelData, transformData }) => {
             let value = values[j];
             const prop = colInfo[j];
             errorMsg = "";
+            if (typeof value === "string")
+                value = value.trim()
+
             if (prop?.required && notValid.includes(value)) { errorMsg = `${errorPrefix}${i + 1}${prop.label} is required`; continue };
             if (prop?.options) {
                 value = String(value)?.toLowerCase() ?? "";
@@ -69,7 +72,7 @@ const processAndVerifyData = ({ colInfo, excelData, transformData }) => {
                     else
                         isExist = prop?.options.find(c => c[prop.dataName].toLowerCase() === value);
                     if (isExist) {
-                        objectData[prop.name] = ['dropdown'].includes(prop.elementType)  ? isExist[prop?.dataId] : { ...isExist };
+                        objectData[prop.name] = ['dropdown'].includes(prop.elementType) ? isExist[prop?.dataId] : { ...isExist };
                     }
                     else
                         errorMsg = `${errorPrefix}${i + 1} value not correct for ${prop.label},

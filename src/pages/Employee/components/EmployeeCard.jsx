@@ -9,7 +9,6 @@ import {
 } from '../../../deps/ui'
 import { MoreVert, EmailOutlined, LocationOnOutlined, DomainOutlined } from '../../../deps/ui/icons'
 import { formateISODate } from '../../../services/dateTimeService';
-import { lightBlue } from '@mui/material/colors'
 
 const getInitials = (fullName) => {
     const [firstName, lastName] = fullName.split(" ");
@@ -54,7 +53,7 @@ const style = {
     card: {
         //background: 'linear-gradient(135deg, rgba(25, 118, 210, 0.7), rgba(25, 118, 210, 0.3))',
         minWidth: 300,
-
+        m: 0.5,
         borderRadius: 2
     },
     cardContent: {

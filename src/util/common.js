@@ -18,7 +18,7 @@ export const monthNames = ["January", "February", "March", "April", "May", "June
 ];
 export const currencyFormat = new Intl.NumberFormat();
 
-export const getYears = (startYear = 2010) => {
+export const getYears = (startYear = 2020) => {
     const currentYear = new Date().getFullYear(), years = [];
     while (startYear <= currentYear) {
         const ints = startYear++

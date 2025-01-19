@@ -32,7 +32,7 @@ import { useAppDispatch, useAppSelector } from "../store/storehook";
 
 const useStyles = makeStyles((theme) => ({
   Root: {
-    padding: theme.spacing(0.5,1),
+    padding: theme.spacing(1,1),
     marginBottom: theme.spacing(1),
     background: theme.palette.secondary.main + "!important",
     "& .left": {
