@@ -32,7 +32,7 @@ import { useAppDispatch, useAppSelector } from "../store/storehook";
 
 const useStyles = makeStyles((theme) => ({
   Root: {
-    padding: theme.spacing(1,1),
+    padding: theme.spacing(1, 1),
     marginBottom: theme.spacing(1),
     background: theme.palette.secondary.main + "!important",
     "& .left": {
@@ -111,12 +111,13 @@ export default function PageHeader(props) {
 
   const upload = useAppSelector(e => handleUpload ?? e.appdata.fileConfig.upload)
   const template = useAppSelector(e => handleTemplate ?? e.appdata.fileConfig.template)
+  const applyFunc = useAppSelector(e => handleApply ?? e.appdata.pageHeaderOption.apply)
 
   const [query, setQuery] = useState(() => defultValue());
 
   const handleReset = () => {
     setDrawer(false);
-    
+
     setQuery({ ...query, tree: loadTree(mapToQueryBuilderFormat(fields)) });
     dispatch(builderQueryAction({}));
     dispatch(resetAction(true));
@@ -174,7 +175,7 @@ export default function PageHeader(props) {
               </IconButton>
             </Tooltip>
           )}
-          {showQueryFilter && (
+          {(showQueryFilter && setEnableFilter) && (
             <Tooltip title="Filter" placement="top" arrow>
               <IconButton size="small" onClick={() => setDrawer(true)}>
                 <FilterListIcon />
@@ -216,15 +217,15 @@ export default function PageHeader(props) {
               <Grid item sm={12} md={12} lg={12}>
                 <QueryBuilder query={query} setQuery={setQuery} fields={fields} />
               </Grid>
-              {handleApply && <Grid item sm={6} md={6} lg={6}>
+              {applyFunc && <Grid item sm={6} md={6} lg={6}>
                 <Controls.Button
                   color="primary"
                   fullWidth={true}
-                  onClick={handleApply}
+                  onClick={applyFunc}
                   text="Apply"
                 />
               </Grid>}
-              <Grid item {...(handleApply ? breakPoints6 : breakPoints12)}>
+              <Grid item {...(applyFunc ? breakPoints6 : breakPoints12)}>
                 <Controls.Button
                   color="inherit"
                   fullWidth={true}

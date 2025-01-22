@@ -66,7 +66,7 @@ const getColumns = (apiRef, onEdit, onActive) => {
             hideable: false,
             align: 'center',
         },
-        getActions(apiRef,actionKit)
+        getActions(apiRef, actionKit)
     ]
 
 }
@@ -271,7 +271,12 @@ const ApprovalStages = ({ moduleName }) => {
         row.current = data.find(a => a.id === id);
         setOpenPopup(true);
     }
+    
+    useEffect(() => {
 
+        dispatch(enableFilterAction(false));
+        // dispatch(builderFieldsAction(fields));
+    }, [dispatch])
     const handleActiveInActive = (id) => {
         updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
     }

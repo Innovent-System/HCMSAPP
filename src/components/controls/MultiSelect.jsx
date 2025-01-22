@@ -71,7 +71,7 @@ function MultiSelect(props) {
       ref={autoCompleteRef}
       // {...(isMultiple && { PopperComponent: MyPopper })}
       limitTags={1}
-      // isOptionEqualToValue={(option, value) => option[dataId] === value[dataId]}
+      isOptionEqualToValue={(option, value) => option[dataName] === value[dataName]}
       {...other}
       value={value}
       onChange={(event, value) => onChange(convertToDefEventPara(name, value))}

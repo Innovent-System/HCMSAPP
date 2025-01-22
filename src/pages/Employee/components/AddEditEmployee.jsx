@@ -38,7 +38,7 @@ const AddModal = ({ name }) => {
 
   const Modal = MapModel[name];
   return (
-    <Box position="absolute" top={0} right={0}>
+    <Box position="absolute" top={-15} right={0}>
       <IconButton size='small' onClick={() => {
         setOpenPopup(true);
       }}>
@@ -82,63 +82,12 @@ const bindObject = (obj) => {
   return result;
 }
 
-export const mapEmployee = (values) => {
-  if (!Object.keys(values).length) return;
-  const employee = {
-    employeeImage:values.employeeImage,
-    emplyeeRefNo: values.emplyeeRefNo,
-    punchCode: values.punchCode,
-    firstName: values.firstName,
-    lastName: values.lastName,
-    isAllowLogin: values.isAllowLogin,
-    timezone: values.fkCountryId.timezones[0].zoneName,
-    fkCompanyId: values.fkCompanyId._id,
-    generalInfo: {
-      maritalstatus: values.maritalstatus,
-      email: values.email,
-      gender: values.gender,
-      dateofBirth: values?.dateofBirth,
-      fkReligionId: values?.fkReligionId,
-    },
-    companyInfo: {
-      fkAreaId: values.fkAreaId._id,
-      fkCityId: values.fkCityId._id,
-      fkCountryId: values.fkCountryId._id,
-      fkDepartmentId: values.fkDepartmentId._id,
-      fkDesignationId: values?.fkDesignationId?._id,
-      fkEmployeeGroupId: values.fkEmployeeGroupId._id,
-      fkEmployeeStatusId: values.fkEmployeeStatusId._id,
-      fkStateId: values.fkStateId._id,
-      joiningDate: values.joiningDate,
-      confirmationDate: values.confirmationDate,
-      fkManagerId: values.fkManagerId?._id ?? null
-    },
-    contactDetial: {
-      address1: values.address1,
-      address2: values?.address2,
-      zipCode: values.zipCode,
-      country: values?.country,
-      state: values?.state,
-      city: values?.city,
-      mobileNo: values.mobileNo,
-      workNo: values?.workNo,
-      emergencyNo: values?.emergencyNo
-    },
-    scheduleId: values?.scheduleId._id
-  }
-  if (values.fkRoleTemplateId)
-    employee.companyInfo.fkRoleTemplateId = values.fkRoleTemplateId;
-
-
-  return employee;
-}
-
 const emptyString = "";
 const breakpoints = { md: 4, sm: 6, xs: 6 }
-export default function EmployaaModal({ isEdit = false, editId, coldata, add_edit_API = API.Employee }) {
+export default function EmployaaModal({ isEdit = false, formApi, editId, coldata, mapEmployeeData, setActiveStep, activeStep = 0, add_edit_API = API.Employee }) {
 
-  const formApi = useRef(null);
-  const [activeStep, setActiveStep] = React.useState(0);
+  // const formApi = useRef(null);
+  // const [activeStep, setActiveStep] = React.useState(0);
   const [loader, setLoader] = useState(false);
   const steps = getSteps();
   const [GetEmpolyee] = useLazyEntityByIdQuery();
@@ -164,6 +113,7 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
         gender: values.generalInfo.gender,
         dateofBirth: values.generalInfo.dateofBirth,
         fkReligionId: values.generalInfo.fkReligionId,
+        nic: values.generalInfo.nic,
         fkAreaId: areas.find(a => a._id === values.companyInfo.fkAreaId),
         fkCityId: cities.find(a => a._id === values.companyInfo.fkCityId),
         fkCountryId: countries.find(c => c._id === values.companyInfo.fkCountryId),
@@ -238,8 +188,8 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
           elementType: "inputfield",
           name: "emplyeeRefNo",
           label: "Employee Code",
+          disabled: isEdit,
           required: true,
-          type: 'number',
           breakpoints,
           validate: {
             when: 0,
@@ -370,6 +320,16 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
           defaultValue: null,
           excel: {
             sampleData: new Date().toLocaleDateString('en-US')
+          }
+        },
+        {
+          elementType: "inputfield",
+          name: "nic",
+          label: "National ID",
+          breakpoints,
+          defaultValue: emptyString,
+          excel: {
+            sampleData: emptyString
           }
         },
         {
@@ -593,7 +553,7 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
         {
           elementType: "custom",
           breakpoints: { sm: 12, md: 12, xl: 12 },
-          NodeElement: () => <Divider><Chip label="JCR Detail" icon={<Person />} /></Divider>
+          NodeElement: () => <Divider><Chip size='small' label="JCR Detail" icon={<Person />} /></Divider>
         },
         {
           elementType: "datetimepicker",
@@ -646,7 +606,7 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
         {
           elementType: "custom",
           breakpoints: { sm: 12, md: 12, xl: 12 },
-          NodeElement: () => <Divider><Chip label="Contact Detail" icon={<Person />} /></Divider>
+          NodeElement: () => <Divider><Chip size='small' label="Contact Detail" icon={<Person />} /></Divider>
         },
         {
           elementType: "inputfield",
@@ -716,7 +676,7 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
         {
           elementType: "custom",
           breakpoints: { sm: 12, md: 12, xl: 12 },
-          NodeElement: () => <Divider><Chip label="Telephone" icon={<Call />} /></Divider>
+          NodeElement: () => <Divider><Chip size='small' label="Telephone" icon={<Call />} /></Divider>
         },
         {
           elementType: "inputfield",
@@ -766,20 +726,11 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
   }, [companies]);
 
 
-  const handleNext = () => {
-    const { validateWhen } = formApi.current;
-    if (validateWhen(activeStep))
-      setActiveStep((prevActiveStep) => prevActiveStep + 1);
 
-  };
 
-  const handleBack = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  };
-
-  const handleReset = () => {
-    setActiveStep(0);
-  };
+  // const handleReset = () => {
+  //   setActiveStep(0);
+  // };
 
 
   const handleSubmit = (e) => {
@@ -787,7 +738,7 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
     if (validateFields()) {
 
       const values = getValue();
-      const setEmployee = mapEmployee(values);
+      const setEmployee = mapEmployeeData(values, false);
       if (isEdit)
         setEmployee._id = editId
 
@@ -806,21 +757,21 @@ export default function EmployaaModal({ isEdit = false, editId, coldata, add_edi
       }} activeStep={activeStep} orientation={isDesktop ? "vertical" : "horizontal"}>
         {steps.map((label, index) => {
           return (
-            <Step key={label} onClick={() => alert("working")}>
+            <Step key={label}>
               <StepLabel sx={{ cursor: "pointer" }}>{label}</StepLabel>
             </Step>
           );
         })}
       </Stepper>
 
-      <Box display='flex' p={2} flexDirection='column' justifyContent='space-between'>
-        <AutoForm formData={formData} ref={formApi} isValidate={true} />
+      <AutoForm formData={formData} ref={formApi} isValidate={true} />
+      {/* <Box display='flex' p={2} flexDirection='column' justifyContent='space-between'>
         <Box>
           <Controls.Button onClick={handleBack} disabled={activeStep === 0} sx={Styles.button} text="Back" />
           {activeStep !== steps.length - 1 && <Controls.Button onClick={handleNext} sx={Styles.button} text={'Next'} />}
           {activeStep === steps.length - 1 && <Controls.Button onClick={handleSubmit} sx={Styles.button} text="Submit" />}
         </Box>
-      </Box>
+      </Box> */}
 
     </Box>
   );

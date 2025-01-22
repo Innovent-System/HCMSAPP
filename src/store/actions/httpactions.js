@@ -246,6 +246,9 @@ const INITIAL_STATE = {
     fields: {},
     builder: '',
     filters: {}
+  },
+  pageHeaderOption: {
+    apply: null
   }
 }
 
@@ -303,6 +306,9 @@ export const appSlice = createSlice({
     setFileConfig(state, action) {
       state.fileConfig = action.payload
 
+    },
+    setPageHeaderOption(state, action) {
+      state.pageHeaderOption = action.payload
     },
     builderQueryAction(state, action) {
       state.query.builder = action.payload
@@ -477,6 +483,6 @@ export const { builderQueryAction,
   enableFilterAction,
   showDropDownFilterAction,
   setUserInfo,
-  clearDropDownIdsAction, setCommand, setFileConfig, setGlobalLoader } = appSlice.actions;
+  clearDropDownIdsAction, setCommand, setFileConfig, setPageHeaderOption, setGlobalLoader } = appSlice.actions;
 
 export const { setGeneralAction, setCompanyAction, resetEmployee } = empSlice.actions

@@ -7,27 +7,25 @@ import { Circle, Add as AddIcon } from "../../../deps/ui/icons";
 import { GridToolbarContainer, Select, MenuItem, FormControl, InputLabel } from "../../../deps/ui";
 import DataGrid, { useGridApi } from '../../../components/useDataGrid';
 import ConfirmDialog from '../../../components/ConfirmDialog';
-import { useDropDown } from "../../../components/useDropDown";
+import { useDropDown, useDropDownIds } from "../../../components/useDropDown";
 import { formateISODate } from "../../../services/dateTimeService";
 import Controls from "../../../components/controls/Controls";
 import useTable from "../../../components/useTable";
 import { getYears } from "../../../util/common";
 import { useAppDispatch, useAppSelector } from "../../../store/storehook";
+import { usePageHeaderOption } from "../../../hooks/usePageHeaderOption";
 
-
+/**
+ * @type {import('@react-awesome-query-builder/mui').Fields}
+ */
 const fields = {
-    title: {
-        label: 'Leave Type',
-        type: 'text',
-        valueSources: ['value'],
-        preferWidgets: ['text'],
-    },
     createdAt: {
         label: 'Created Date',
+        defaultOperator: "equal",
+        fieldName: "createdAt",
         type: 'date',
         fieldSettings: {
             dateFormat: "D/M/YYYY",
-            mongoFormatValue: val => ({ $date: new Date(val).toISOString() }),
         },
         valueSources: ['value'],
         preferWidgets: ['date'],
@@ -67,8 +65,7 @@ const TableHead = [
     { id: 'remaining', disableSorting: false, label: 'Remaining' }
 
 ];
-const Years = getYears();
-const currentYear = new Date().getFullYear();
+
 // const DetailPanelContent = ({ row }) => {
 //     const { TblContainer, TblHead, TblBody } = useTable(row, TableHead)
 //     return (
@@ -114,7 +111,7 @@ const LeaveQuota = () => {
     const isEdit = React.useRef(false);
     const row = React.useRef(null);
     const [selectionModel, setSelectionModel] = React.useState([]);
-    const [year, setYear] = useState(currentYear)
+    // const [year, setYear] = useState(currentYear)
     const [loader, setLoader] = useState(false)
     const [gridFilter, setGridFilter] = useState({
         lastKey: null,
@@ -122,6 +119,9 @@ const LeaveQuota = () => {
         page: 0,
         totalRecord: 0
     })
+
+    const { employeeIds, yearIds } = useDropDownIds();
+
 
     const getDetailPanelContent = React.useCallback(
         ({ row }) => <DetailPanelContent row={row.leaveTypes} />,
@@ -191,8 +191,8 @@ const LeaveQuota = () => {
         setLoader(true);
         getLeaveQuota({
             url: DEFAUL_API, data: {
-                year,
-                employeeIds: []
+                year: yearIds,
+                employeeIds: employeeIds ? employeeIds.split(',') : []
             }
         }).then(({ data }) => {
             if (data)
@@ -205,7 +205,7 @@ const LeaveQuota = () => {
     const handleCreateQuota = () => {
         addEntity({ url: API.LeaveQuotaInsert, data: records })
     }
-
+    usePageHeaderOption({ apply: handleLeaveQuota })
     useEffect(() => {
 
         dispatch(enableFilterAction(true));
@@ -245,9 +245,6 @@ const LeaveQuota = () => {
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: handleCreateQuota,
-                    getQuota: handleLeaveQuota,
-                    year,
-                    setYear,
                     records,
                     selectionModel
                 }}
@@ -269,18 +266,18 @@ const LeaveQuota = () => {
 }
 
 export function QuotaToolbar(props) {
-    const { onAdd, getQuota, year, setYear, records } = props;
+    const { onAdd, records } = props;
 
     return (
         <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
-            <FormControl sx={{ width: 120 }} size="small">
+            {/* <FormControl sx={{ width: 120 }} size="small">
                 <InputLabel size="small" id={`demo-multiple-name-year`}>Year</InputLabel>
                 <Select size="small" value={year} onChange={(e) => setYear(e.target.value)} variant="outlined" name="year" label="Year">
                     {Years.map(y => <MenuItem key={y.id} value={y.id}>{y.title}</MenuItem>)}
                 </Select>
-            </FormControl>
+            </FormControl> */}
             {records?.length ? <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Update Quota" /> : null}
-            <Controls.Button onClick={getQuota} startIcon={<AddIcon />} text="Create Quota" />
+            {/* <Controls.Button onClick={getQuota} startIcon={<AddIcon />} text="Create Quota" /> */}
         </GridToolbarContainer>
     );
 }

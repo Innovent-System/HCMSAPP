@@ -9,7 +9,7 @@ import { Circle, PeopleOutline, Person2Rounded, PersonOffRounded } from "../../d
 import DataGrid, { useGridApi, getActions, GridToolbar, renderStatusCell } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
-import EmpoyeeModal, { mapEmployee } from './components/AddEditEmployee';
+import EmpoyeeModal from './components/AddEditEmployee';
 import PageHeader from '../../components/PageHeader'
 import { useExcelReader } from "../../hooks/useExcelReader";
 import Loader from '../../components/Circularloading'
@@ -94,6 +94,69 @@ const ProfileRequest = () => {
     const [sort, setSort] = useState({ sort: { createdAt: -1 } });
 
     const excelColData = useRef([]);
+    
+    const { Employees } = useAppSelector(e => e.appdata.employeeData);
+
+    const mapEmployee = (values, isExcel = true) => {
+        if (!Object.keys(values).length) return;
+
+        const employee = {
+            employeeImage: values.employeeImage,
+            emplyeeRefNo: values.emplyeeRefNo,
+            punchCode: values.punchCode,
+            firstName: values.firstName,
+            lastName: values.lastName,
+            isAllowLogin: values.isAllowLogin,
+            timezone: values.fkCountryId.timezones[0].zoneName,
+            fkCompanyId: values.fkCompanyId._id,
+            generalInfo: {
+                maritalstatus: values.maritalstatus,
+                email: values.email,
+                gender: values.gender,
+                dateofBirth: values?.dateofBirth,
+                fkReligionId: values?.fkReligionId,
+                nic: values.nic
+            },
+            companyInfo: {
+                fkAreaId: values.fkAreaId._id,
+                fkCityId: values.fkCityId._id,
+                fkCountryId: values.fkCountryId._id,
+                fkDepartmentId: values.fkDepartmentId._id,
+                fkDesignationId: values?.fkDesignationId?._id,
+                fkEmployeeGroupId: values.fkEmployeeGroupId._id,
+                fkEmployeeStatusId: values.fkEmployeeStatusId._id,
+                fkStateId: values.fkStateId._id,
+                joiningDate: values.joiningDate,
+                confirmationDate: values.confirmationDate,
+                fkManagerId: values.fkManagerId?._id ?? null
+            },
+            contactDetial: {
+                address1: values.address1,
+                address2: values?.address2,
+                zipCode: values.zipCode,
+                country: values?.country,
+                state: values?.state,
+                city: values?.city,
+                mobileNo: values.mobileNo,
+                workNo: values?.workNo,
+                emergencyNo: values?.emergencyNo
+            },
+            scheduleId: values?.scheduleId._id
+        }
+        if (values.fkRoleTemplateId)
+            employee.companyInfo.fkRoleTemplateId = values.fkRoleTemplateId;
+
+        if (isExcel) {
+            const refNo = values.emplyeeRefNo.toLocaleLowerCase();
+            const updateEmp = Employees.find(e => e.emplyeeRefNo.toLocaleLowerCase() === refNo);
+            if (updateEmp) {
+                employee._id = updateEmp._id;
+            }
+        }
+
+
+        return employee;
+    }
 
     const { inProcess, setFile, excelData, getTemplate } = useExcelReader(excelColData.current, mapEmployee);
 
@@ -222,7 +285,7 @@ const ProfileRequest = () => {
                 fullScreen={true} isEdit={isEdit.current}
                 footer={<></>} keepMounted={true}
                 setOpenPopup={setOpenPopup}>
-                <EmpoyeeModal coldata={excelColData} isEdit={isEdit.current} add_edit_API={DEFAULT_API} editId={editId} setOpenPopup={setOpenPopup} />
+                <EmpoyeeModal coldata={excelColData} isEdit={isEdit.current} mapEmployeeData={mapEmployee} add_edit_API={DEFAULT_API} editId={editId} setOpenPopup={setOpenPopup} />
             </Popup>
 
             <ButtonGroup fullWidth >

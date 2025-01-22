@@ -5,14 +5,15 @@ import {
     ListItem,
     ListItemIcon,
     ListItemText, ListItemButton,
-    Divider
+    Divider, Switch
 } from '../../../deps/ui'
 import { MoreVert, EmailOutlined, LocationOnOutlined, DomainOutlined } from '../../../deps/ui/icons'
 import { formateISODate } from '../../../services/dateTimeService';
+import { green } from '@mui/material/colors';
 
 const getInitials = (fullName) => {
-    const [firstName, lastName] = fullName.split(" ");
-    return `${firstName.charAt(0)}${lastName?.charAt(0) ?? ""}`
+    const nameList = fullName.split(" ");
+    return `${nameList[0].charAt(0)}${nameList[nameList.length - 1]?.charAt(0) ?? ""}`
 }
 const MenuOption = ({ menuId, options }) => {
     const { handleEdit } = options
@@ -63,11 +64,13 @@ const style = {
         }
     }
 }
+const label = { inputProps: { 'aria-label': 'Color switch demo' } };
+
 //linear-gradient(135deg, rgba(25, 118, 210, 0.7), rgba(25, 118, 210, 0.3))
 //linear-gradient(135deg, #009688, #1976d2)
-export default function EmployeeCard({ employeeInfo, handleEdit }) {
+export default function EmployeeCard({ employeeInfo, handleEdit, handleActive }) {
 
-    const { _id, fullName, designation, city, tenure, generalInfo, department, employementstatus, companyInfo } = employeeInfo;
+    const { _id, fullName, designation, city, tenure, generalInfo, department, employementstatus, companyInfo, isActive } = employeeInfo;
 
     return (
         <Card sx={style.card} elevation={5} >
@@ -79,12 +82,20 @@ export default function EmployeeCard({ employeeInfo, handleEdit }) {
                 }
                 sx={{ pb: 0 }}
                 action={
-                    <MenuOption menuId={_id} options={{
-                        handleEdit
-                    }} />
+                    <>
+
+                        <Switch {...label} size='small' onClick={() => handleActive(_id)} color='success' defaultChecked={isActive} />
+                        <MenuOption menuId={_id} options={{
+                            handleEdit
+                        }} />
+                    </>
+
                 }
+
+                titleTypographyProps={{ maxWidth: 195, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
                 title={fullName}
                 subheader={designation?.name}
+
             />
             {/* <CardMedia
                 component="img"
