@@ -79,6 +79,42 @@ export const groupBy = (data, fieldName = "") => {
     }, {});
 }
 
+/**
+ * Filters an array of objects to remove duplicates based on specified object keys.
+ *
+ * @param {Array<Object>} _data - The array of objects to filter for unique items.
+ * @param {...string} objkeys - The keys to use for determining uniqueness of objects.
+ * @returns {Array<Object>} - An array of unique objects based on the specified keys.
+ *
+ * @example
+ * const data = [
+ *   { id: 1, name: 'Alice', age: 25 },
+ *   { id: 2, name: 'Bob', age: 30 },
+ *   { id: 1, name: 'Alice', age: 25 }, // Duplicate
+ *   { id: 3, name: 'Charlie', age: 35 },
+ *   { id: 2, name: 'Bob', age: 30 }    // Duplicate
+ * ];
+ * 
+ * const unique = uniqueData(data, 'id', 'name');
+ * console.log(unique);
+ * // Output:
+ * // [
+ * //   { id: 1, name: 'Alice', age: 25 },
+ * //   { id: 2, name: 'Bob', age: 30 },
+ * //   { id: 3, name: 'Charlie', age: 35 }
+ * // ]
+ */
+export const uniqueData = (_data = [], ...objkeys) => {
+    const seen = new Set();
+    return _data.filter(item => {
+        const key = objkeys.map(e => String(item[e]).toLowerCase()).join("_"); // Or item.id for property-based
+        if (seen.has(key)) return false; // Exclude duplicates
+        seen.add(key);
+        return true; // Include unique items
+    });
+}
+
+
 
 export const groupBySum = (arr = [], groupby = "", fieldtosum = "") => {
     const result = [];

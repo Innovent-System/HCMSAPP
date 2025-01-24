@@ -208,7 +208,7 @@ const AmendRoster = () => {
 
         return form;
     }, [roster, shifts])
-    const { getTemplate, excelData, setFile } = useExcelReader(rosterExcel, transform, "AmendRoster.xlsx");
+    const { getTemplate, excelData, setFile } = useExcelReader({ formTemplate: rosterExcel, transform, fileName: "AmendRoster.xlsx" });
     const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
         url: `${DEFAULT_API}/get`,
         data: {

@@ -247,7 +247,11 @@ const OverTimeRequest = () => {
     const excelColData = useRef([]);
 
     const [sort, setSort] = useState({ sort: { createdAt: -1 } });
-    const { inProcess, setFile, excelData, getTemplate } = useExcelReader(excelColData.current, mapOverTime, "OverTime.xlsx");
+    const { inProcess, setFile, excelData, getTemplate } = useExcelReader({
+        formTemplate: excelColData.current,
+        transform: mapOverTime,
+        fileName: "OverTime.xlsx"
+    });
 
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,

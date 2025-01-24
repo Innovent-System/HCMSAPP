@@ -224,7 +224,11 @@ const HealthInsurance = () => {
     const excelColData = useRef([]);
 
     const [sort, setSort] = useState({ sort: { createdAt: -1 } });
-    const { inProcess, setFile, excelData, getTemplate } = useExcelReader(excelColData.current, mapExcelData, "ProvidentFund.xlsx");
+    const { inProcess, setFile, excelData, getTemplate } = useExcelReader({
+        formTemplate: excelColData.current,
+        transform: mapExcelData,
+        fileName: "ProvidentFund.xlsx"
+    });
 
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,

@@ -211,7 +211,11 @@ const ExtraAllowance = () => {
     const excelColData = useRef([]);
 
     const [sort, setSort] = useState({ sort: { createdAt: -1 } });
-    const { inProcess, setFile, excelData, getTemplate } = useExcelReader(excelColData.current, mapExcelData, "AllowanceReq.xlsx");
+    const { inProcess, setFile, excelData, getTemplate } = useExcelReader({
+        formTemplate: excelColData.current,
+        transform: mapExcelData,
+        fileName: "AllowanceReq.xlsx"
+    });
 
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,

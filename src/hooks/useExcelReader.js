@@ -1,7 +1,7 @@
 import { useEffect, useState, useContext, useRef } from "react";
 import { WorkerContext } from '../services/workerService';
 import { parse } from 'date-fns'
-import { downloadTextFIle } from "../util/common";
+import { downloadTextFIle, uniqueData } from "../util/common";
 
 const notValid = [null, undefined, "", "N/A", "-", "undefined", "null"];
 function isValidDate(date) {
@@ -33,18 +33,25 @@ function isMatchEmployee(employeeName = "", searchTerm = "") {
     return matches?.length > 0;
 }
 
+const excelDateToJSDate = (serial) => {
+    const utc_days = Math.floor(serial - 25569); // Subtract 25569 to account for Excel's epoch
+    const utc_value = utc_days * 86400; // Convert days to seconds
+    return new Date(utc_value * 1000); // Convert seconds to milliseconds and create a Date object
+};
+
 /**
  * Assign the Excel Data for Modify.
  * @param {Object} data - The data who is responsible for the process.
  * @param {Array<string>} data.colInfo - The colInfo of the data.
  * @param {Array} data.excelData - The excelData's from xlsx.
  * @param {Function} data.transformData - if you want to tranform data on each row.
+ * @param {Array<string>} data.uniqueBy - record unique by.
  * @returns {Array<T>}
  */
-const processAndVerifyData = ({ colInfo, excelData, transformData }) => {
+const processAndVerifyData = ({ colInfo, excelData, transformData, uniqueBy = [] }) => {
     const modifyData = [], errors = [], errorPrefix = "#On Row --> ";
     let objectData = {}, errorMsg = "";
-
+    const hasKey = new Set();
     if (excelData[0].length !== colInfo.length) {
         errors.push("Template Format not correct");
         return [errors, modifyData];
@@ -53,6 +60,7 @@ const processAndVerifyData = ({ colInfo, excelData, transformData }) => {
         if (i === 0) continue;
         const values = excelData[i];
         objectData = {};
+
         for (let j = 0; j < values.length; j++) {
             let value = values[j];
             const prop = colInfo[j];
@@ -60,7 +68,7 @@ const processAndVerifyData = ({ colInfo, excelData, transformData }) => {
             if (typeof value === "string")
                 value = value.trim()
 
-            if (prop?.required && notValid.includes(value)) { errorMsg = `${errorPrefix}${i + 1}${prop.label} is required`; continue };
+            if (prop?.required && notValid.includes(value)) { errors.push(`${errorPrefix}${i + 1}${prop.label} is required`); continue };
             if (prop?.options) {
                 value = String(value)?.toLowerCase() ?? "";
                 if (notValid.includes(value)) {
@@ -68,7 +76,7 @@ const processAndVerifyData = ({ colInfo, excelData, transformData }) => {
                 } else {
                     let isExist = {};
                     if (prop.dataName === "fullName")
-                        isExist = prop?.options.find(c => isMatchEmployee(c[prop.dataName].toLowerCase(), value))
+                        isExist = prop?.options.find(c => isMatchEmployee(c[prop.dataName], value))
                     else
                         isExist = prop?.options.find(c => c[prop.dataName].toLowerCase() === value);
                     if (isExist) {
@@ -84,6 +92,8 @@ const processAndVerifyData = ({ colInfo, excelData, transformData }) => {
 
                 if (notValid.includes(value))
                     objectData[prop.name] = null;
+                else if (typeof value === "number")
+                    objectData[prop.name] = excelDateToJSDate(value);
                 else if (parse(value, "dd/MM/yyyy", new Date()).toString() !== "Invalid Date")
                     objectData[prop.name] = parse(value, "dd/MM/yyyy", new Date());
                 else
@@ -97,29 +107,42 @@ const processAndVerifyData = ({ colInfo, excelData, transformData }) => {
                 errors.push(errorMsg);
         }
         if (errors.length) continue;
-        if (typeof transformData === "function") {
-            const trans = transformData(objectData);
-            if (Array.isArray(trans))
-                modifyData.push(...trans);
-            else modifyData.push(trans);
+        if (!values?.length) break;
 
-        }
-        else
-            modifyData.push(objectData);
+        if (typeof transformData === "function")
+            objectData = transformData(objectData);
+
+
+        if (Array.isArray(objectData))
+            modifyData.push(...objectData);
+        else modifyData.push(objectData);
+
+
     }
     if (!modifyData.length && !errors.length)
         errors.push("No rows found");
+
+    if (uniqueBy.length) {
+        const finalData = uniqueData(modifyData, uniqueBy);
+        return [errors, finalData]
+    }
 
     return [errors, modifyData];
 }
 let colInfo = [];
 /**
- * @param {import("../types/fromstype").FormType} formTemplate 
- * @param {string} fileName 
- * @param {Function} transformData 
- * @returns 
+ * Reads and processes an Excel file based on the provided template.
+ *
+ * @function useExcelReader
+ * @param {Object} options - Configuration options for the Excel reader.
+ * @param {Array<import("../types/fromstype").FormType>} options.formTemplate - The template object defining the structure of the Excel data.
+ * @param {Function|null} [options.transform=null] - An optional transformation function to apply to the data.
+ *     The function receives the raw data as input and returns the transformed data.
+ * @param {string} [options.fileName="Template.xlsx"] - The name of the Excel file to be read.
+ * @param {Array<string>} [options.uniqueBy=[]]
+ * @returns {Array} - Returns an array containing the processed data.
  */
-export const useExcelReader = (formTemplate, transformData = null, fileName = "Template.xlsx") => {
+export const useExcelReader = ({ formTemplate, transform = null, fileName = "Template.xlsx", uniqueBy = [] }) => {
     const { excelWorker } = useContext(WorkerContext);
 
     const [file, setFile] = useState();
@@ -163,7 +186,8 @@ export const useExcelReader = (formTemplate, transformData = null, fileName = "T
                 const [error, resultData] = processAndVerifyData({
                     colInfo: colInfo,
                     excelData: result,
-                    transformData
+                    transformData: transform,
+                    uniqueBy
                 })
                 if (error.length)
                     downloadTextFIle(error.join(" "))
@@ -203,3 +227,4 @@ export const useExcelReader = (formTemplate, transformData = null, fileName = "T
         // processAndVerifyData
     };
 };
+

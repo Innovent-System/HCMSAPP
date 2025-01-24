@@ -16,7 +16,7 @@ import { formateISODateTime } from "../../services/dateTimeService";
 import Loader from '../../components/Circularloading'
 import { useDropDownIds } from "../../components/useDropDown";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
-import { useExcelReader } from "../../hooks/useExcelReader";
+
 
 const fields = {
     status: {
@@ -389,7 +389,6 @@ const LoanRequest = () => {
     const excelColData = useRef([]);
 
     const [sort, setSort] = useState({ sort: { createdAt: -1 } });
-    const { inProcess, setFile, excelData, getTemplate } = useExcelReader(excelColData.current, mapAdvSalary, "LoanAdjustment.xlsx");
 
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,
@@ -428,12 +427,6 @@ const LoanRequest = () => {
         });
 
     }
-
-    useEffect(() => {
-        if (excelData)
-            addEntity({ url: DEFAULT_API, data: excelData });
-
-    }, [excelData])
 
     const { socketData } = useSocketIo("changeInAdj", refetch);
 
@@ -475,8 +468,6 @@ const LoanRequest = () => {
             <PageHeader
                 title="Loan Adjustment"
                 enableFilter={true}
-                handleUpload={(e) => setFile(e.target.files[0])}
-                handleTemplate={getTemplate}
                 subTitle="Manage Loan Adjustment"
                 icon={<PeopleOutline fontSize="large" />}
             />

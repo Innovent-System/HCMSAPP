@@ -94,7 +94,7 @@ const ProfileRequest = () => {
     const [sort, setSort] = useState({ sort: { createdAt: -1 } });
 
     const excelColData = useRef([]);
-    
+
     const { Employees } = useAppSelector(e => e.appdata.employeeData);
 
     const mapEmployee = (values, isExcel = true) => {
@@ -158,7 +158,7 @@ const ProfileRequest = () => {
         return employee;
     }
 
-    const { inProcess, setFile, excelData, getTemplate } = useExcelReader(excelColData.current, mapEmployee);
+    const { inProcess, setFile, excelData, getTemplate } = useExcelReader({ formTemplate: excelColData.current, transform: mapEmployee });
 
 
     const [gridFilter, setGridFilter] = useState({

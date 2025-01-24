@@ -290,7 +290,7 @@ const Department = () => {
 
     const excelConfig = React.useRef([]);
     const { addEntity } = useEntityAction();
-    const { inProcess, setFile, excelData, getTemplate } = useExcelReader(excelConfig.current, null, "Departments.xlsx");
+    const { inProcess, setFile, excelData, getTemplate } = useExcelReader({ formTemplate: excelConfig.current, fileName: "Departments.xlsx" });
     const [sort, setSort] = useState({ sort: { createdAt: -1 } });
     const [filter, setFilter] = useState({
         lastKey: null,

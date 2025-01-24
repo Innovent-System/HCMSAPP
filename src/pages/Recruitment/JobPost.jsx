@@ -84,7 +84,7 @@ const getColumns = () => [
     {
         field: 'employmentType', headerName: 'Type', flex: 1
     },
-    
+
     {
         field: 'salaryRange', headerName: 'Salary Range', flex: 1
     },
@@ -384,7 +384,11 @@ const JobPost = () => {
     const excelColData = useRef([]);
 
     const [sort, setSort] = useState({ sort: { createdAt: -1 } });
-    const { inProcess, setFile, excelData, getTemplate } = useExcelReader(excelColData.current, mapJobPost, "JobPost.xlsx");
+    const { inProcess, setFile, excelData, getTemplate } = useExcelReader({
+        formTemplate: excelColData.current,
+        transform: mapJobPost,
+        fileName: "JobPost.xlsx"
+    });
 
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,

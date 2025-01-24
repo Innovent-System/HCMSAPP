@@ -13,6 +13,7 @@ import { startOfDay, formateISODate, formateISODateTime, endOfDay } from '../../
 import { useDropDownIds } from "../../components/useDropDown";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
 import { useExcelReader } from "../../hooks/useExcelReader";
+import { uniqueData } from "../../util/common";
 
 /**
  * @type {import('@react-awesome-query-builder/mui').Fields}
@@ -50,7 +51,6 @@ const fields = {
 const mapExcelData = (values) => {
     const map = { ...values };
     map.fkEmployeeId = values.fkEmployeeId._id;
-    map.endDate = endOfDay(values.endDate)
     return map
 }
 
@@ -59,8 +59,6 @@ const getColumns = (onCancel) => [
     {
         field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.employees.fullName
     },
-    { field: 'startDate', headerName: 'Start Date', flex: 1, valueGetter: ({ row }) => formateISODate(row.startDate) },
-    { field: 'endDate', headerName: 'End Date', flex: 1, valueGetter: ({ row }) => formateISODate(row.endDate) },
     { field: 'amount', headerName: 'Amount' },
     { field: 'policyNumber', headerName: 'Policy' },
     {
@@ -71,7 +69,7 @@ const getColumns = (onCancel) => [
     getActions(null, { onCancel })
 ];
 
-const AddHealthInc = ({ openPopup, setOpenPopup, colData = [] }) => {
+const AddInsurance = ({ openPopup, setOpenPopup, colData = [] }) => {
     const formApi = useRef(null);
 
 
@@ -100,33 +98,6 @@ const AddHealthInc = ({ openPopup, setOpenPopup, colData = [] }) => {
             defaultValue: null,
             excel: {
                 sampleData: "Faizan Siddiqui"
-            }
-        },
-        {
-            elementType: "datetimepicker",
-            label: "Start",
-            name: "startDate",
-            required: true,
-            validate: {
-                errorMessage: "Select Start Date please",
-            },
-            defaultValue: new Date(),
-            excel: {
-                sampleData: new Date().toLocaleDateString('en-US')
-            }
-        },
-        {
-            elementType: "datetimepicker",
-            label: "End",
-            name: "endDate",
-            shouldDisableDate: (date) => date < startOfDay(formApi.current?.getValue()?.startDate),
-            required: true,
-            validate: {
-                errorMessage: "Select End Date please",
-            },
-            defaultValue: new Date(),
-            excel: {
-                sampleData: new Date().toLocaleDateString('en-US')
             }
         },
         {
@@ -169,7 +140,7 @@ const AddHealthInc = ({ openPopup, setOpenPopup, colData = [] }) => {
     return <>
 
         <Popup
-            title="Add Health Insurance"
+            title="Add Insurance"
             openPopup={openPopup}
             maxWidth="sm"
             isEdit={false}
@@ -180,8 +151,8 @@ const AddHealthInc = ({ openPopup, setOpenPopup, colData = [] }) => {
         </Popup>
     </>
 }
-const DEFAULT_API = API.HealthInc;
-const HealthInsurance = () => {
+const DEFAULT_API = API.Insurance;
+const Insurance = () => {
     const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
 
@@ -197,7 +168,12 @@ const HealthInsurance = () => {
     const excelColData = useRef([]);
 
     const [sort, setSort] = useState({ sort: { createdAt: -1 } });
-    const { inProcess, setFile, excelData, getTemplate } = useExcelReader(excelColData.current, mapExcelData, "AdvSalary.xlsx");
+    const { inProcess, setFile, excelData, getTemplate } = useExcelReader({
+        formTemplate: excelColData.current,
+        transform: mapExcelData,
+        fileName: "Insurance.xlsx",
+        uniqueBy: ["fkEmployeeId"]
+    });
 
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,
@@ -236,11 +212,11 @@ const HealthInsurance = () => {
 
     useEffect(() => {
         if (excelData)
-            addEntity({ url: DEFAULT_API, data: excelData });
+            addEntity({ url: DEFAULT_API, data: uniqueData(excelData, "fkEmployeeId", "startDate", "endDate") });
 
     }, [excelData])
 
-    const { socketData } = useSocketIo("changeInHealthInc", refetch);
+    const { socketData } = useSocketIo("changeInInc", refetch);
 
     const columns = getColumns(handleCancel);
 
@@ -278,14 +254,14 @@ const HealthInsurance = () => {
     return (
         <>
             <PageHeader
-                title="Health Insurance"
+                title="Insurance"
                 enableFilter={true}
                 handleUpload={(e) => setFile(e.target.files[0])}
                 handleTemplate={getTemplate}
-                subTitle="Manage Health Insurance"
+                subTitle="Manage Insurance"
                 icon={<PeopleOutline fontSize="large" />}
             />
-            <AddHealthInc colData={excelColData} openPopup={openPopup} setOpenPopup={setOpenPopup} />
+            <AddInsurance colData={excelColData} openPopup={openPopup} setOpenPopup={setOpenPopup} />
 
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={data}
@@ -312,4 +288,4 @@ const HealthInsurance = () => {
     );
 }
 
-export default HealthInsurance;
+export default Insurance;

@@ -198,7 +198,10 @@ const AdvanceSalaryRequest = () => {
     const excelColData = useRef([]);
 
     const [sort, setSort] = useState({ sort: { createdAt: -1 } });
-    const { inProcess, setFile, excelData, getTemplate } = useExcelReader(excelColData.current, mapAdvSalary, "AdvSalary.xlsx");
+    const { inProcess, setFile, excelData, getTemplate } = useExcelReader({
+                                                                            formTemplate: excelColData.current,
+                                                                            transform: mapAdvSalary, fileName: "AdvSalary.xlsx"
+                                                                        });
 
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,

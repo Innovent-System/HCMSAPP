@@ -19,6 +19,7 @@ import { useAppDispatch, useAppSelector } from "../../store/storehook";
 import { downloadTextFIle } from "../../util/common";
 import LinearLoader from '../../components/LinearLoader'
 import ResponsiveEmployeeGrid from "./components/ResponsiveGrid";
+import { useTheme, useMediaQuery } from '@mui/material';
 
 /**
  * @type {import('@react-awesome-query-builder/mui').Fields}
@@ -110,7 +111,8 @@ const Employee = () => {
     const [record, setRecord] = useState([]);
     const excelColData = useRef([]);
     const [queryFilter, setQueryFilter] = useState({});
-
+    const theme = useTheme();
+    const isLarge = useMediaQuery(theme.breakpoints.up('xl'));
     const { Employees } = useAppSelector(e => e.appdata.employeeData);
 
     const mapEmployee = (values, isExcel = true) => {
@@ -173,11 +175,15 @@ const Employee = () => {
 
         return employee;
     }
-    const { inProcess, setFile, excelData, getTemplate } = useExcelReader(excelColData.current, mapEmployee);
+    const { inProcess, setFile, excelData, getTemplate } = useExcelReader({
+        formTemplate: excelColData.current,
+        transform: mapEmployee,
+        fileName: "Employees.xlsx"
+    });
 
     const [gridFilter, setGridFilter] = useState({
         startIndex: 0,
-        limit: 12,
+        limit: isLarge ? 20 : 12,
         isFromScroll: false
     })
 
@@ -237,15 +243,15 @@ const Employee = () => {
     useEffect(() => {
         if (data) {
             if (gridFilter.isFromScroll)
-                setRecord((prev) => [...prev, ...data]); 
+                setRecord((prev) => [...prev, ...data]);
             else {
                 setRecord((prev) => {
-                    
+
                     if (!prev?.length) {
-                        return [...data]; 
+                        return [...data];
                     }
                     const updates = data.reduce((map, item) => {
-                        map[item.id] = item; 
+                        map[item.id] = item;
                         return map;
                     }, {});
 

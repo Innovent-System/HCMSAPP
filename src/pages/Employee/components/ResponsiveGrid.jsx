@@ -10,17 +10,18 @@ const ResponsiveEmployeeGrid = ({ data, totalRecord = 0, handleEdit, handleActiv
     const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Mobile screen
     const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md')); // Tablet screen
     const isLaptop = useMediaQuery(theme.breakpoints.up('md')); // Laptop and larger screens
+    const isLarge = useMediaQuery(theme.breakpoints.up('xl')); // Laptop and larger screens
 
     // Calculate column count and column width based on screen size
-    const columnCount = isMobile ? 1 : isTablet ? 2 : 4; // 1 for mobile, 2 for tablet, 4 for laptop+
+    const columnCount = isMobile ? 1 : isTablet ? 2 : isLarge ? 5 : 4; // 1 for mobile, 2 for tablet, 4 for laptop+
     const columnWidth = isMobile ? 360 : isTablet ? 400 : 375; // Adjust widths for each screen size
-    const gridHeight = isMobile ? 550 : isLaptop ? 500 : 700;
+    const gridHeight = isMobile ? 550 : isLarge ? 700 : 500;
 
     const rowCount = Math.ceil(data.length / columnCount); // Calculate rows based on total items and columns
     const handleScroll = ({ scrollTop }) => {
         const totalHeight = rowCount * 210; // Total content height
         const bottomReached = (totalHeight - scrollTop) <= (isMobile ? gridHeight + 10 : gridHeight); // 100px threshold
-        console.log({ gridHeight, bottomReached })
+        
         if (bottomReached && data.length < totalRecord) {
             setGridFilter(prev => {
                 const rec = prev.startIndex + prev.limit;

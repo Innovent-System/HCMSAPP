@@ -254,7 +254,11 @@ const BonusRequest = () => {
     const excelColData = useRef([]);
 
     const [sort, setSort] = useState({ sort: { createdAt: -1 } });
-    const { inProcess, setFile, excelData, getTemplate } = useExcelReader(excelColData.current, mapAdvSalary, "Bonus.xlsx");
+    const { inProcess, setFile, excelData, getTemplate } = useExcelReader({
+        formTemplate: excelColData.current,
+        transform: mapAdvSalary,
+        fileName: "Bonus.xlsx"
+    });
 
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,

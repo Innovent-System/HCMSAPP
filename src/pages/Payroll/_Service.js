@@ -14,7 +14,7 @@ export const API = {
     Approval: "payroll/approval",
     ApprovalAction: "payroll/approval/action",
     LeaveType: "leave/type",
-    HealthInc: 'payroll/healthinsurance',
+    Insurance: 'payroll/insurance',
     PF: 'payroll/providentfund',
     ExtraAllowc: 'payroll/extraallowance',
     PayslipReport: "payroll/report/payslip",
