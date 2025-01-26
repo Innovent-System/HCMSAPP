@@ -16,7 +16,7 @@ import Loader from '../../components/Circularloading'
 import { useDropDownIds } from '../../components/useDropDown';
 import AddEmployee from "./components/AddEmployee";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
-import { downloadTextFIle } from "../../util/common";
+import { downloadAndViewFile, downloadTextFIle } from "../../util/common";
 import LinearLoader from '../../components/LinearLoader'
 import ResponsiveEmployeeGrid from "./components/ResponsiveGrid";
 import { useTheme, useMediaQuery } from '@mui/material';
@@ -99,6 +99,37 @@ const getColumns = (apiRef, onEdit, onActive) => {
 let editId = 0;
 const DEFAULT_API = API.Employee;
 const StepperCount = 2;
+
+const findDuplicatesIndividually = (array) => {
+    const seenEmail = new Set();
+    const seenEmployeeRefNo = new Set();
+    const seenPunchcode = new Set();
+
+    const errors = [];
+
+    for (const item of array) {
+
+        if (seenEmail.has(item.generalInfo?.email))
+            errors.push(`Email : ${item.generalInfo?.email} already exists`)
+        else
+            seenEmail.add(item.generalInfo?.email);
+
+
+        if (seenEmployeeRefNo.has(item.employeeRefNo))
+            errors.push(`employeeRefNo : ${item.employeeRefNo} already exists`)
+        else
+            seenEmployeeRefNo.add(item.employeeRefNo);
+
+
+        if (seenPunchcode.has(item.punchcode))
+            errors.push(`punchCode : ${item.punchcode} already exists`)
+        else
+            seenPunchcode.add(item.punchcode);
+
+    }
+
+    return errors;
+};
 const Employee = () => {
     const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
@@ -165,8 +196,9 @@ const Employee = () => {
             employee.companyInfo.fkRoleTemplateId = values.fkRoleTemplateId;
 
         if (isExcel) {
-            const refNo = values.emplyeeRefNo.toLocaleLowerCase();
-            const updateEmp = Employees.find(e => e.emplyeeRefNo.toLocaleLowerCase() === refNo);
+
+            const refNo = values.emplyeeRefNo.toLowerCase();
+            const updateEmp = Employees.find(e => e.emplyeeRefNo.toLowerCase() === refNo);
             if (updateEmp) {
                 employee._id = updateEmp._id;
             }
@@ -178,7 +210,7 @@ const Employee = () => {
     const { inProcess, setFile, excelData, getTemplate } = useExcelReader({
         formTemplate: excelColData.current,
         transform: mapEmployee,
-        fileName: "Employees.xlsx"
+        fileName: "Employees.xlsx",
     });
 
     const [gridFilter, setGridFilter] = useState({
@@ -322,6 +354,9 @@ const Employee = () => {
     const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive);
     useEffect(() => {
         if (excelData) {
+            const hasDuplicate = findDuplicatesIndividually(excelData);
+            if (hasDuplicate?.length) return downloadAndViewFile(hasDuplicate.join(" "));
+
             addEntity({ url: DEFAULT_API, data: excelData });
         }
     }, [excelData])
