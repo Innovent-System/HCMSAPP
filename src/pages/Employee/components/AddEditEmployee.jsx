@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useId } from 'react';
 import { Stepper, Collapse, Box, Step, StepLabel, Divider, Typography, IconButton, Chip } from '../../../deps/ui';
 import { Launch, Person, Call, Business } from '../../../deps/ui/icons';
 import { AutoForm } from '../../../components/useForm';
@@ -38,7 +38,7 @@ const AddModal = ({ name }) => {
 
   const Modal = MapModel[name];
   return (
-    <Box position="absolute" top={-15} right={0}>
+    <Box  position="absolute" top={-15} right={0}>
       <IconButton size='small' onClick={() => {
         setOpenPopup(true);
       }}>
@@ -367,7 +367,7 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, coldata
           dataId: "_id",
           dataName: "templateName",
           disabled: (value) => value["isAllowLogin"] === false,
-          defaultValue: "",
+          defaultValue: emptyString,
           options: roleTemplates?.length ? roleTemplates : [],
           excel: {
             sampleData: emptyString
@@ -405,7 +405,7 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, coldata
           breakpoints,
           required: true,
           modal: {
-            Component: <AddModal name="country" />,
+            Component: <AddModal key="country-modal" name="country" />,
           },
           validate: {
             when: 1,
@@ -463,7 +463,7 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, coldata
           name: "fkAreaId",
           label: "Area",
           modal: {
-            Component: <AddModal name="area" />,
+            Component: <AddModal key="area-modal" name="area" />,
           },
           breakpoints,
           required: true,
@@ -776,7 +776,3 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, coldata
     </Box>
   );
 }
-
-EmployaaModal.propTypes = {
-  isEdit: PropTypes.bool
-};

@@ -1,8 +1,9 @@
-import React, { useEffect, useRef, useState, forwardRef, useImperativeHandle } from 'react'
+import React, { useEffect, useRef, useState, forwardRef, useImperativeHandle, useId } from 'react'
 import { makeStyles, Grid } from "../deps/ui";
 import clsx from 'clsx';
 import { Element, ElementType } from './controls/Controls';
 import Loader from './Circularloading';
+import { nanoid } from 'nanoid'
 import PropTypes from 'prop-types';
 
 export function useForm(initialFValues, validateOnChange = false, validate) {
@@ -121,6 +122,8 @@ export const AutoForm = forwardRef(function (props, ref) {
         errorProps: [],
     });
 
+    const keyId = useId();
+
     const { errorProps, initialValues } = formStates.current;
 
     const validateField = (fieldValues = errorProps) => {
@@ -186,7 +189,10 @@ export const AutoForm = forwardRef(function (props, ref) {
                         childItem.name && Object.assign(initialValues, { [childItem.name]: value })
                     }
 
+                    childItem.nanoKey = nanoid();
+
                 }
+                item.nanoKey = nanoid();
                 continue;
             }
 
@@ -208,12 +214,13 @@ export const AutoForm = forwardRef(function (props, ref) {
                 item.name && Object.assign(initialValues, { [item.name]: value })
             }
 
+            item.nanoKey = nanoid();
         }
         setValues(currentValues => {
             return Object.assign({}, initialValues, currentValues)
         });
     }, [])
-   
+
     const setFormValue = (properties = {}) => {
         // if(!isEdit) return console.warn("set Values only in Edit mode");
         if (typeof properties !== 'object') return console.error("properties type must be object");
@@ -267,14 +274,16 @@ export const AutoForm = forwardRef(function (props, ref) {
     }
 
     return (
-        <Grid  {...breakpoints} flexDirection={flexDirection} columnSpacing={1} container {...other}>
-            {Object.keys(initialValues).length ? formData.map(({ name, label, required, elementType, Component = null, disabled, classes, _children, breakpoints = DEFAULT_BREAK_POINTS, onChange, modal, defaultValue, isShow, ...others }, index) => (
-                Component ? <Component {...others} key={index + "comp"}>
+        <Grid key={keyId} {...breakpoints} flexDirection={flexDirection} columnSpacing={1} container {...other}>
+            {Object.keys(initialValues).length ? formData.map(({ name, label, required, elementType, Component = null, disabled, classes, _children, breakpoints = DEFAULT_BREAK_POINTS, onChange, modal, defaultValue, isShow, nanoKey, ...others }, index) => (
+                Component ? <Component key={nanoKey} {...others}>
+                    
                     <Grid columnSpacing={1} container>
-                        {Array.isArray(_children) ? _children.map(({ name, label, required, elementType, breakpoints = DEFAULT_BREAK_POINTS, classes, disabled, onChange, modal, _defaultValue, ..._others }, innerIndex) => (
-                            <Grid {...(modal && { style: { position: "relative" } })}  {...(breakpoints && { ...breakpoints })} key={String(innerIndex) + (name ?? 'customFix')} item>
+                        {Array.isArray(_children) ? _children.map(({ name, label, required, elementType, breakpoints = DEFAULT_BREAK_POINTS, classes, disabled, onChange, modal, defaultValue, nanoKey: childKey, ..._others }, innerIndex) => (
+                            <Grid {...(modal && { style: { position: "relative" } })}  {...(breakpoints && { ...breakpoints })} key={childKey} item>
                                 {modal && modal.Component}
-                                <Element elementType={elementType}
+                                
+                                <Element key={`ele-${childKey}`} elementType={elementType}
                                     name={name}
                                     label={label}
                                     {...(required && { required: handleConditionalField(name, required) })}
@@ -290,9 +299,9 @@ export const AutoForm = forwardRef(function (props, ref) {
                         )) : null}
                     </Grid>
                 </Component> :
-                    typeof isShow === "function" ? handleShowHide(name, isShow) && <Grid {...(modal && { style: { position: "relative" } })} {...(breakpoints && { ...breakpoints })} key={index + (name ?? 'customFix')} item>
+                    typeof isShow === "function" ? handleShowHide(name, isShow) && <Grid key={nanoKey} {...(modal && { style: { position: "relative" } })} {...(breakpoints && { ...breakpoints })} item>
                         {modal && modal.Component}
-                        <Element key={"isShow" + index + name} elementType={elementType}
+                        <Element key={`lean-${nanoKey}`} elementType={elementType}
                             name={name}
                             label={label}
                             value={values[name]}
@@ -303,10 +312,10 @@ export const AutoForm = forwardRef(function (props, ref) {
                             {...(classes && { className: clsx(classes) })}
                             {...others}
                         />
-                    </Grid> : <Grid {...(modal && { style: { position: "relative" } })} {...(breakpoints && { ...breakpoints })} key={index + (name ?? 'customFix')} item>
+                    </Grid> : <Grid key={nanoKey} {...(modal && { style: { position: "relative" } })} {...(breakpoints && { ...breakpoints })} item>
                         {modal && modal.Component}
 
-                        <Element key={index + name} elementType={elementType}
+                        <Element key={`lean-${nanoKey}`} elementType={elementType}
                             name={name}
                             label={label}
                             value={values[name]}
@@ -325,59 +334,59 @@ export const AutoForm = forwardRef(function (props, ref) {
     )
 })
 
-AutoForm.propTypes = {
-    formData: PropTypes.oneOfType([
-        PropTypes.arrayOf(
-            PropTypes.shape({
-                elementType: PropTypes.oneOf(ElementType).isRequired,
-                name: PropTypes.string,
-                label: PropTypes.string,
-                defaultValue: PropTypes.any,
-                breakpoints: PropTypes.objectOf({
-                    xs: PropTypes.number,
-                    sm: PropTypes.number,
-                    md: PropTypes.number,
-                    lg: PropTypes.number,
-                    xl: PropTypes.number
-                }),
-                sx: PropTypes.any,
-                [PropTypes.string]: PropTypes.any
-            })
-        ),
-        PropTypes.arrayOf(
-            PropTypes.shape({
-                Component: PropTypes.node,
-                _children: PropTypes.arrayOf(
-                    PropTypes.shape({
-                        elementType: PropTypes.oneOf(ElementType).isRequired,
-                        name: PropTypes.string,
-                        label: PropTypes.string,
-                        defaultValue: PropTypes.any,
-                        breakpoints: PropTypes.shape({
-                            xs: PropTypes.number,
-                            sm: PropTypes.number,
-                            md: PropTypes.number,
-                            lg: PropTypes.number,
-                            xl: PropTypes.number
-                        }),
-                        sx: PropTypes.any,
-                        [PropTypes.string]: PropTypes.any
-                    })
-                ),
-                [PropTypes.string]: PropTypes.any
-            })
-        )
+// AutoForm.propTypes = {
+//     formData: PropTypes.oneOfType([
+//         PropTypes.arrayOf(
+//             PropTypes.shape({
+//                 elementType: PropTypes.oneOf(ElementType).isRequired,
+//                 name: PropTypes.string,
+//                 label: PropTypes.string,
+//                 defaultValue: PropTypes.any,
+//                 breakpoints: PropTypes.objectOf({
+//                     xs: PropTypes.number,
+//                     sm: PropTypes.number,
+//                     md: PropTypes.number,
+//                     lg: PropTypes.number,
+//                     xl: PropTypes.number
+//                 }),
+//                 sx: PropTypes.any,
+//                 [PropTypes.string]: PropTypes.any
+//             })
+//         ),
+//         PropTypes.arrayOf(
+//             PropTypes.shape({
+//                 Component: PropTypes.node,
+//                 _children: PropTypes.arrayOf(
+//                     PropTypes.shape({
+//                         elementType: PropTypes.oneOf(ElementType).isRequired,
+//                         name: PropTypes.string,
+//                         label: PropTypes.string,
+//                         defaultValue: PropTypes.any,
+//                         breakpoints: PropTypes.shape({
+//                             xs: PropTypes.number,
+//                             sm: PropTypes.number,
+//                             md: PropTypes.number,
+//                             lg: PropTypes.number,
+//                             xl: PropTypes.number
+//                         }),
+//                         sx: PropTypes.any,
+//                         [PropTypes.string]: PropTypes.any
+//                     })
+//                 ),
+//                 [PropTypes.string]: PropTypes.any
+//             })
+//         )
 
-    ]).isRequired,
-    isValidate: PropTypes.bool,
-    isEdit: PropTypes.bool,
-    sx: PropTypes.any,
-    flexDirection: PropTypes.oneOf(["row", "row-reverse", "column", "column-reverse", "revert", "inherit", "initial", "-moz-initial"]),
-    breakpoints: PropTypes.shape({
-        xs: PropTypes.number, //extra-small: 0px
-        sm: PropTypes.number, //small: 600px
-        md: PropTypes.number, //medium: 900px
-        lg: PropTypes.number, //large: 1200px
-        xl: PropTypes.number  //extra-large: 1536px
-    })
-}
+//     ]).isRequired,
+//     isValidate: PropTypes.bool,
+//     isEdit: PropTypes.bool,
+//     sx: PropTypes.any,
+//     flexDirection: PropTypes.oneOf(["row", "row-reverse", "column", "column-reverse", "revert", "inherit", "initial", "-moz-initial"]),
+//     breakpoints: PropTypes.shape({
+//         xs: PropTypes.number, //extra-small: 0px
+//         sm: PropTypes.number, //small: 600px
+//         md: PropTypes.number, //medium: 900px
+//         lg: PropTypes.number, //large: 1200px
+//         xl: PropTypes.number  //extra-large: 1536px
+//     })
+// }

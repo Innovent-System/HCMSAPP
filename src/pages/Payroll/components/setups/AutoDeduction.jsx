@@ -110,9 +110,16 @@ export const AutoDeduction = ({ data }) => {
     },
     {
       elementType: "checkbox",
+      name: "isAbsentDeduction",
+      label: "Abesent Deduction",
+      breakpoints,
+      defaultValue: true
+    },
+    {
+      elementType: "checkbox",
       name: "isLeaveDeductionFirst",
       label: "Is Leave Deduction First",
-      breakpoints,
+    breakpoints,
       defaultValue: true
     },
     {

@@ -9,7 +9,8 @@ import { throttle, debounce } from '../util/common'
 import './querybuillder.css'
 // Choose your skin (ant/material/vanilla):
 MuiConfig.settings.maxNesting = 1;
-MuiConfig.settings.addRuleLabel = "Add Filter";
+MuiConfig.settings.addRuleLabel = "Add Filter"
+MuiConfig.settings.showNot = false;
 const InitialConfig = MuiConfig; // or MaterialConfig or MuiConfig or BootstrapConfig or BasicConfig
 // You need to provide your own config. See below 'Config format'
 InitialConfig.operators.like.mongoFormatOp = (field, op, value) => ({ [field]: { '$regex': value, "$options": "i" } });
@@ -60,7 +61,7 @@ const QueryBuilder = ({ fields, query, setQuery, resetQuery }) => {
         <div className="query-builder-container">
             {/* qb-lite */}
             <div className="query-builder" >
-                <Builder {...props} />
+                <Builder {...props}  />
             </div>
         </div>
     )
@@ -97,40 +98,40 @@ const QueryBuilder = ({ fields, query, setQuery, resetQuery }) => {
     )
 }
 
-QueryBuilder.propTypes = {
-    fields: PropTypes.shape({
-        [PropTypes.string]: PropTypes.shape({
-            label: PropTypes.string,
-            type: PropTypes.oneOf(["!group", "boolean", "date", "datetime", "multiselect",
-                "case_value", "number", "select", "text", "time"]),
-            fieldSettings: PropTypes.object,
-            valueSources: PropTypes.arrayOf(PropTypes.string),
-            preferWidgets: PropTypes.arrayOf(
-                PropTypes.oneOf([
-                    "boolean",
-                    "case_value",
-                    "date",
-                    "datetime",
-                    "multiselect",
-                    "number",
-                    "select",
-                    "text",
-                    "time",
-                    "func",
-                    "field",
-                    "textarea",
-                    "slider",
-                    "rangeslider"
-                ])
-            ),
-        })
-    }),
-    query: PropTypes.shape({
-        tree: PropTypes.object,
-        config: PropTypes.object
-    }),
-    setQuery: PropTypes.func
-}
+// QueryBuilder.propTypes = {
+//     fields: PropTypes.shape({
+//         [PropTypes.string]: PropTypes.shape({
+//             label: PropTypes.string,
+//             type: PropTypes.oneOf(["!group", "boolean", "date", "datetime", "multiselect",
+//                 "case_value", "number", "select", "text", "time"]),
+//             fieldSettings: PropTypes.object,
+//             valueSources: PropTypes.arrayOf(PropTypes.string),
+//             preferWidgets: PropTypes.arrayOf(
+//                 PropTypes.oneOf([
+//                     "boolean",
+//                     "case_value",
+//                     "date",
+//                     "datetime",
+//                     "multiselect",
+//                     "number",
+//                     "select",
+//                     "text",
+//                     "time",
+//                     "func",
+//                     "field",
+//                     "textarea",
+//                     "slider",
+//                     "rangeslider"
+//                 ])
+//             ),
+//         })
+//     }),
+//     query: PropTypes.shape({
+//         tree: PropTypes.object,
+//         config: PropTypes.object
+//     }),
+//     setQuery: PropTypes.func
+// }
 
 export default QueryBuilder;
 

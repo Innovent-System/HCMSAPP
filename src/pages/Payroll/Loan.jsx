@@ -74,6 +74,7 @@ const AddLaonRequest = ({ openPopup, setOpenPopup, colData = [] }) => {
     const [loader, setLoader] = useState(false);
 
     const { Employees } = useAppSelector(e => e.appdata.employeeData);
+    const checkPfBalance = useAppSelector(e => e.modulesetting.payroll.checkPfBalance);
     const { addEntity } = useEntityAction();
 
     const [getPFDetail] = useLazySingleQuery();
@@ -189,9 +190,10 @@ const AddLaonRequest = ({ openPopup, setOpenPopup, colData = [] }) => {
             validate: {
                 errorMessage: "Loan Amount required",
                 validate: (val) => {
+                    if (!checkPfBalance || (getValue().type !== "PF" && !val.principleAmount)) return true;
                     const { getValue } = formApi.current;
 
-                    return (getValue().type === "PF" && val.principleAmount) ? +val.principleAmount <= +getValue().pfBalance : true
+                    return +val.principleAmount <= +getValue().pfBalance;
                 }
             },
             defaultValue: 0,

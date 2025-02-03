@@ -58,7 +58,7 @@ const SalarySetup = () => {
     const formApi = useRef(null);
     const { employees } = useDropDown();
     const payrollSetups = useAppSelector(e => e.appdata.payrollData.PayrollSetups);
-    const roundOffAmount = useAppSelector(e => e.systemconfig.roundOffAmount);
+    const roundOffAmount = useAppSelector(e => e.modulesetting.roundOffAmount);
     const [salaryError, setSalaryError] = useState(false)
     const estimateSalary = useRef("");
 

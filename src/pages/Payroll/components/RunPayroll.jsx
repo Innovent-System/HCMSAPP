@@ -33,10 +33,10 @@ const fields = {
         type: 'select',
         fieldName: "year",
         valueSources: ['value'],
-        defaultOperator: "select_equals",
         operators: ["select_equals"],
+        defaultOperator: "select_equals",
         defaultValue: new Date().getFullYear(),
-        listValues: getYears(2015).map(e => ({ title: e.title, value: e.id }))
+        listValues: getYears(2020).map(e => ({ title: e.title, value: e.id }))
     }
 
 }
@@ -66,7 +66,8 @@ const getColumns = (apiRef, onEdit, onActive) => {
         {
             field: 'month', headerName: 'Month', hideable: false, valueGetter: ({ value }) => monthNames[value]
         },
-        { field: 'totalSalary', headerName: 'Total Salary', hideable: false, valueGetter: ({ value }) => currFormat.format(value) },
+        { field: 'monthlySalary', headerName: 'Monthly Salary', hideable: false, valueGetter: ({ value }) => currFormat.format(value) },
+        { field: 'totalSalary', headerName: 'Net Salary', hideable: false, valueGetter: ({ value }) => currFormat.format(value) },
         { field: 'annualSalary', headerName: 'Annual Salary', hideable: false, valueGetter: ({ value }) => currFormat.format(value) },
         {
             field: 'remarks', headerName: 'Remarks', width: 220, hideable: false, cellClassName: 'error'
@@ -118,10 +119,19 @@ const DetailPanelContent = ({ row }) => {
             <Grid item xs={4} md={4} lg={4} p={2}>
                 <Divider><Chip label="Others" icon={<DisplaySettings fontSize='small' />} /></Divider>
                 <Box display='flex' justifyContent='space-between'>
-
+                <Box>
+                        {row.others.map(e => (
+                            <Typography key={e.item}>{e.item}</Typography>
+                        ))}
+                    </Box>
+                    <Box textAlign='right'>
+                        {row.others.map((e) => (
+                            <Typography key={e.item + '-amount'}>{e.displayAmount}</Typography>
+                        ))}
+                    </Box>
                 </Box>
             </Grid>
-            <Grid container display='flex' xs={12} md={12} lg={12}>
+            <Grid container display='flex'>
                 <Grid item xs={4} md={4} lg={4} p={2}>
                     <Divider>Total</Divider>
                     <Box textAlign='right'>
@@ -183,7 +193,7 @@ const RunPayroll = () => {
         [],
     );
 
-    const getDetailPanelHeight = React.useCallback(() => 240, []);
+    const getDetailPanelHeight = React.useCallback(() => 250, []);
 
     const [detailPanelExpandedRowIds, setDetailPanelExpandedRowIds] = React.useState(
         [],

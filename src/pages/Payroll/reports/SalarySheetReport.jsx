@@ -4,7 +4,7 @@ import { useDropDownIds } from '../../../components/useDropDown';
 import { formateISODateTime, getMonthStartEnd } from '../../../services/dateTimeService';
 import { DetailPanelContent, ReportHeader } from '../../../components/ReportViewer';
 import CommonDropDown from '../../../components/CommonDropDown';
-import { Grid, TableCell, TableHead, Typography } from '../../../deps/ui'
+import { Grid, TableCell, TableHead, TableRow, Typography } from '../../../deps/ui'
 import { API } from '../_Service';
 import Controls from '../../../components/controls/Controls';
 import { AttendanceflagMap, currencyFormat } from '../../../util/common';
@@ -25,11 +25,38 @@ const reportColumns = [
 const HeadElement = ({ row }) => {
     return <TableHead><TableCell colSpan={11}><Typography><b>Department</b>: {row?.department} </Typography></TableCell> </TableHead>
 }
+const subTotalBy = { "monthlySalary": 0, "totalEarning": 0, "totalDeduction": 0, "totalSalary": 0 };
 
+const SubTotal = ({ row, subTotal }) => {
+    return <TableRow >
+        <TableCell colSpan={4}>Total</TableCell>
+
+        <TableCell colSpan={2}>{currencyFormat.format(subTotal.monthlySalary)}</TableCell>
+        <TableCell>{currencyFormat.format(subTotal.totalEarning)}</TableCell>
+        <TableCell>{currencyFormat.format(subTotal.totalDeduction)}</TableCell>
+        <TableCell>{currencyFormat.format(subTotal.totalSalary)}</TableCell>
+
+    </TableRow>
+}
+
+const GrandTotal = ({ row, grandTotal }) => {
+    return grandTotal && <TableRow >
+        <TableCell colSpan={4}>Grand Total</TableCell>
+
+        <TableCell colSpan={2}>{currencyFormat.format(grandTotal.monthlySalary)}</TableCell>
+        <TableCell>{currencyFormat.format(grandTotal.totalEarning)}</TableCell>
+        <TableCell>{currencyFormat.format(grandTotal.totalDeduction)}</TableCell>
+        <TableCell>{currencyFormat.format(grandTotal.totalSalary)}</TableCell>
+
+    </TableRow>
+}
 const SalarySheetReport = ({ loader, setLoader }) => {
     const [records, setRecords] = useState([]);
-
-
+    const [option, setOption] = useState({
+        groupByField: "",
+        SubTotal: SubTotal,
+        GrandTotal: GrandTotal
+    })
     const [gridFilter, setGridFilter] = useState({
         lastKey: null,
         limit: 30,
@@ -48,6 +75,7 @@ const SalarySheetReport = ({ loader, setLoader }) => {
             data: {
                 page: gridFilter.page,
                 limit: gridFilter.limit,
+                groupBy: option.groupByField,
                 searchParams: {
                     ...(employeeIds && { "_id": { $in: employeeIds.split(',') } }),
                     ...(countryIds && { "companyInfo.fkCountryId": { $in: countryIds.split(',') } }),
@@ -69,6 +97,22 @@ const SalarySheetReport = ({ loader, setLoader }) => {
         })
 
     }
+
+    const handleGroupby = (e) => {
+        const opt = { ...option }
+        if(e.target.value){
+            opt.groupByField = e.target.name;
+            opt.GrandTotal = GrandTotal;
+            opt.SubTotal = SubTotal
+        }else{
+            opt.groupByField = "";
+            opt.GrandTotal = null;
+            opt.SubTotal = null
+        }
+
+        setRecords([]);
+        setOption(opt)
+    }
     return (
         <>
             <Grid item sm={9} md={9} lg={9}>
@@ -85,9 +129,17 @@ const SalarySheetReport = ({ loader, setLoader }) => {
                     month: true,
                     year: true
                 }}>
+
                     <Grid item sm={10} md={10} lg={10} pr={1}>
-                        <Controls.Button text="Generate" onClick={() => handleReport()} fullWidth />
+                        <Controls.Checkbox label="Department Wise Group" name="department"
+                            value={Boolean(option?.groupByField)}
+                            onChange={handleGroupby}
+                            fullWidth />
                     </Grid>
+                    <Grid item sm={10} md={10} lg={10} pr={1}>
+                        <Controls.Button text="Generate Report" onClick={() => handleReport()} fullWidth />
+                    </Grid>
+
                 </CommonDropDown>
             </Grid>
             <Grid item sm={9} md={9} lg={9}>
@@ -96,7 +148,11 @@ const SalarySheetReport = ({ loader, setLoader }) => {
                     reportData={records}
                     columnPrint={reportColumns}
                     HeadElement={HeadElement}
-                    groupByField='department'
+                    groupByField={option.groupByField}
+                    subTotalBy={subTotalBy}
+                    SubTotal={SubTotal}
+                    GrandTotal={GrandTotal}
+                    subTotalpath='payroll'
                 />
 
 

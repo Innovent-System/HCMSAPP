@@ -457,23 +457,6 @@ export const empSlice = createSlice({
 
 })
 
-const SYSTEM_CONFIG = {
-  roundOffAmount: true,
-}
-
-export const systemConfigSlice = createSlice({
-  name: "systemconfig",
-  initialState: structuredClone(SYSTEM_CONFIG),
-  reducers: {
-    /**
-     * @param {import('@reduxjs/toolkit').PayloadAction<boolean>} action 
-     */
-    setRoundOff(state, action) {
-      state.roundOffAmount = action.payload
-    }
-
-  }
-})
 
 export const { builderQueryAction,
   builderFieldsAction,

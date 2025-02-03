@@ -36,6 +36,7 @@ const PayslipView = ({
         payrollEndDate: EmptyString,
         earnings: [],
         deductions: [],
+        others:[],
         totalSalary: EmptyString
     }
 
@@ -81,7 +82,7 @@ const PayslipView = ({
                         <TableRow>
                             <TableCell><div > {payroll.earnings.map(e => <div key={e.item} style={labelStyle}> <label>{e.item}</label><label>{e.amount}</label> </div>)}</div></TableCell>
                             <TableCell><div > {payroll.deductions.map(d => <div key={d.item} style={labelStyle}><label>{d.item}</label><label>{d.amount}</label> </div>)}</div></TableCell>
-                            <TableCell><div >--</div> </TableCell>
+                            <TableCell><div > {payroll.others.map(e => <div key={e.item} style={labelStyle}> <label>{e.item}</label><label>{e.amount}</label> </div>)}</div></TableCell>
                         </TableRow>
 
                     </TableBody>

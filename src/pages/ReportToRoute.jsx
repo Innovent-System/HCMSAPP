@@ -27,7 +27,7 @@ export const ReportPage = ({ formId, defaultReport }) => {
 
     return (
         <>
-            <Grid container spacing={2}>
+            <Grid container >
                 <Grid item sm={3} md={3} lg={3} pr={7.5}>
                     <Controls.Select name="reportId" isNone={false} onChange={(e) => setReportId(e.target.value)} value={reportId}
                         label="Reports" options={reports} dataId="reportId" dataName="name" />

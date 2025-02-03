@@ -263,7 +263,7 @@ export const ArrayForm = forwardRef(function (props, ref) {
                 formData.map(({ name, label, required, elementType, Component = null, disabled, classes, _children, breakpoints = DEFAULT_BREAK_POINTS, onChange, modal, defaultValue, isShow, ...others }, index) => (
                     Component ? <Component {...others} key={index + "comp" + _stateIndex}>
                         <Grid spacing={2} container>
-                            {Array.isArray(_children) ? _children.map(({ name, label, required, elementType, breakpoints = DEFAULT_BREAK_POINTS, classes, disabled, onChange, modal, _defaultValue, ..._others }, innerIndex) => (
+                            {Array.isArray(_children) ? _children.map(({ name, label, required, elementType, breakpoints = DEFAULT_BREAK_POINTS, classes, disabled, onChange, modal, defaultValue, ..._others }, innerIndex) => (
                                 <Grid {...(modal && { style: { position: "relative" } })}  {...(breakpoints && { ...breakpoints })} key={String(innerIndex) + (name ?? 'customFix') + _stateIndex} item>
                                     {modal && modal.Component}
                                     <Element elementType={elementType}

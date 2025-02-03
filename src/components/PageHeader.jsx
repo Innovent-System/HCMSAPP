@@ -209,7 +209,7 @@ export default function PageHeader(props) {
             //   <AccordionDetails sx={{ padding: 5 }} >
             //   </AccordionDetails>
             // </Accordion>
-            <CommonDropDown>
+            <CommonDropDown key="common-drop-down">
               <Grid item sm={12} md={12} lg={12}>
                 <Divider />
 

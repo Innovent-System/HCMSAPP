@@ -4,9 +4,8 @@ import Controls from '../../components/controls/Controls';
 import Popup from '../../components/Popup';
 import { API, alphabets } from './_Service';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction } from '../../store/actions/httpactions';
-import { Typography, Stack, Link, ButtonGroup, Grid, Divider, Box } from "../../deps/ui";
-import { Circle, PeopleOutline, Add as AddIcon } from "../../deps/ui/icons";
-import DataGrid, { useGridApi, getActions, GridToolbar } from '../../components/useDataGrid';
+import { Typography, Stack, ButtonGroup } from "../../deps/ui";
+import { PeopleOutline, Add as AddIcon } from "../../deps/ui/icons";
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import EmpoyeeModal from './components/AddEditEmployee';
@@ -14,10 +13,8 @@ import PageHeader from '../../components/PageHeader'
 import { useExcelReader } from "../../hooks/useExcelReader";
 import Loader from '../../components/Circularloading'
 import { useDropDownIds } from '../../components/useDropDown';
-import AddEmployee from "./components/AddEmployee";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
-import { downloadAndViewFile, downloadTextFIle } from "../../util/common";
-import LinearLoader from '../../components/LinearLoader'
+import { downloadTextFIle } from "../../util/common";
 import ResponsiveEmployeeGrid from "./components/ResponsiveGrid";
 import { useTheme, useMediaQuery } from '@mui/material';
 
@@ -58,44 +55,44 @@ const fields = {
 
     },
 }
-const getColumns = (apiRef, onEdit, onActive) => {
-    const actionKit = {
-        onActive: onActive,
-        onEdit: onEdit
-    }
-    return [
-        { field: '_id', headerName: 'Id', hide: true },
-        {
-            field: 'fullName', headerName: 'Employee', flex: 1, hideable: false, renderCell: ({ row }) => (
-                <Stack>
-                    <Link underline="hover">{row.fullName}</Link>
-                    <Typography variant="caption"><strong>Department :</strong>{row.department.departmentName}</Typography>
-                    <Typography variant="caption"><strong>Designation :</strong>{row.designation?.name}</Typography>
-                    <Typography variant="caption"><strong>Group :</strong>{row.group.groupName}</Typography>
-                </Stack>
-            )
-        },
-        {
-            field: 'detail', headerName: 'Detail', renderCell: ({ row }) => (<Stack>
-                <Typography variant="caption"><strong>Company :</strong>{row.company.companyName} </Typography>
-                <Typography variant="caption"><strong>Country :</strong>{row.country.name}</Typography>
-                <Typography variant="caption"><strong>State :</strong>{row.state.name}</Typography>
-                <Typography variant="caption"><strong>City :</strong>{row.city.name}</Typography>
-                <Typography variant="caption"><strong>Area :</strong>{row.area.areaName}</Typography>
-            </Stack>), flex: 1
-        },
-        { field: 'modifiedOn', headerName: 'Modified On', flex: 1 },
-        { field: 'createdOn', headerName: 'Created On', flex: 1 },
-        {
-            field: 'isActive', headerName: 'Status', renderCell: ({ row }) => (
-                row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
-            ),
-            flex: '0 1 5%',
-            align: 'center',
-        },
-        getActions(apiRef, actionKit)
-    ]
-}
+// const getColumns = (apiRef, onEdit, onActive) => {
+//     const actionKit = {
+//         onActive: onActive,
+//         onEdit: onEdit
+//     }
+//     return [
+//         { field: '_id', headerName: 'Id', hide: true },
+//         {
+//             field: 'fullName', headerName: 'Employee', flex: 1, hideable: false, renderCell: ({ row }) => (
+//                 <Stack>
+//                     <Link underline="hover">{row.fullName}</Link>
+//                     <Typography variant="caption"><strong>Department :</strong>{row.department.departmentName}</Typography>
+//                     <Typography variant="caption"><strong>Designation :</strong>{row.designation?.name}</Typography>
+//                     <Typography variant="caption"><strong>Group :</strong>{row.group.groupName}</Typography>
+//                 </Stack>
+//             )
+//         },
+//         {
+//             field: 'detail', headerName: 'Detail', renderCell: ({ row }) => (<Stack>
+//                 <Typography variant="caption"><strong>Company :</strong>{row.company.companyName} </Typography>
+//                 <Typography variant="caption"><strong>Country :</strong>{row.country.name}</Typography>
+//                 <Typography variant="caption"><strong>State :</strong>{row.state.name}</Typography>
+//                 <Typography variant="caption"><strong>City :</strong>{row.city.name}</Typography>
+//                 <Typography variant="caption"><strong>Area :</strong>{row.area.areaName}</Typography>
+//             </Stack>), flex: 1
+//         },
+//         { field: 'modifiedOn', headerName: 'Modified On', flex: 1 },
+//         { field: 'createdOn', headerName: 'Created On', flex: 1 },
+//         {
+//             field: 'isActive', headerName: 'Status', renderCell: ({ row }) => (
+//                 row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
+//             ),
+//             flex: '0 1 5%',
+//             align: 'center',
+//         },
+//         getActions(apiRef, actionKit)
+//     ]
+// }
 let editId = 0;
 const DEFAULT_API = API.Employee;
 const StepperCount = 2;
@@ -225,7 +222,7 @@ const Employee = () => {
         subTitle: "",
     });
 
-    const gridApiRef = useGridApi();
+
     const query = useAppSelector(e => e.appdata.query.builder);
 
     const dropdownIds = useDropDownIds();
@@ -351,11 +348,10 @@ const Employee = () => {
         }))
     }, [dispatch])
 
-    const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive);
     useEffect(() => {
         if (excelData) {
             const hasDuplicate = findDuplicatesIndividually(excelData);
-            if (hasDuplicate?.length) return downloadAndViewFile(hasDuplicate.join(" "));
+            if (hasDuplicate?.length) return downloadTextFIle(hasDuplicate.join(" "));
 
             addEntity({ url: DEFAULT_API, data: excelData });
         }

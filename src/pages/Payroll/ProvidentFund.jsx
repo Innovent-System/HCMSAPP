@@ -207,12 +207,13 @@ const AddProvidentFund = ({ openPopup, setOpenPopup, colData = [], row = null, i
 }
 const DEFAULT_API = API.PF, DEFAULT_TITLE = "Provident Fund";
 let editId = 0;
-const HealthInsurance = () => {
+const ProvidentFund = () => {
     const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
     const isEdit = React.useRef(false);
     const row = useRef(null);
     const [selectionModel, setSelectionModel] = React.useState([]);
+    
 
     const [gridFilter, setGridFilter] = useState({
         lastKey: null,
@@ -227,7 +228,8 @@ const HealthInsurance = () => {
     const { inProcess, setFile, excelData, getTemplate } = useExcelReader({
         formTemplate: excelColData.current,
         transform: mapExcelData,
-        fileName: "ProvidentFund.xlsx"
+        fileName: "ProvidentFund.xlsx",
+        uniqueBy: ["fkEmployeeId"]
     });
 
     const [confirmDialog, setConfirmDialog] = useState({
@@ -357,4 +359,4 @@ const HealthInsurance = () => {
     );
 }
 
-export default HealthInsurance;
+export default ProvidentFund;

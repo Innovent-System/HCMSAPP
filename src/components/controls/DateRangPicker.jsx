@@ -1,46 +1,53 @@
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
-import {  LocalizationProvider } from '@mui/x-date-pickers-pro';
+import { LocalizationProvider } from '@mui/x-date-pickers-pro';
 import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
-import { AdapterDateFns } from '@mui/x-date-pickers-pro/AdapterDateFns';
+import { AdapterDateFns } from '@mui/x-date-pickers-pro/AdapterDateFnsV3';
 
-
-// LicenseInfo.setLicenseKey(
-//     'x0jTPl0USVkVZV0SsMjM1kDNyADM5cjM2ETPZJVSQhVRsIDN0YTM6IVREJ1T0b9586ef25c9853decfa7709eee27a1e'
-//   );
-
-export default function BasicDateRangePicker({ name, fromlabel = "From", toLable = "To", value, onChange, size = "small", error = null,
-    variant = "outlined", category = "date", ...others }) {
+export default function BasicDateRangePicker({ 
+    name, 
+    fromLabel = "From", // ✅ Updated: Properly named fromLabel
+    toLabel = "To", // ✅ Updated: Properly named toLabel
+    value, 
+    onChange, 
+    size = "small", 
+    error = null,
+    variant = "outlined", 
+    category = "date", 
+    ...others 
+}) {
 
     const convertToDefEventPara = (name, value) => ({
-        target: {
-            name, value
-        }
-    })
+        target: { name, value }
+    });
 
     const removeExpire = () => {
         setTimeout(() => {
-            document.getElementsByClassName('MuiDateRangePickerToolbar-root')[0].parentElement.firstChild.remove();
-        }, [100])
-    }
+            document.getElementsByClassName('MuiDateRangePickerToolbar-root')[0]?.parentElement?.firstChild?.remove();
+        }, 100);
+    };
 
     return (
-        <LocalizationProvider
-            dateAdapter={AdapterDateFns}
-            localeText={{ start: fromlabel, end: toLable }}
-        >
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
             <DateRangePicker
                 value={value}
                 onOpen={removeExpire}
                 {...others}
-                onChange={dates => onChange(convertToDefEventPara(name, dates))}
-                renderInput={(startProps, endProps) => (
-                    <>
-                        <TextField variant={variant} size={size} fullWidth {...(error && { error: true, helperText: error })} {...startProps} />
-                        <Box sx={{ mx: 1 }}></Box>
-                        <TextField variant={variant} size={size} fullWidth {...(error && { error: true, helperText: error })} {...endProps} />
-                    </>
-                )}
+                onChange={(dates) => onChange(convertToDefEventPara(name, dates))}
+                localeText={{ start: fromLabel, end: toLabel }} // ✅ Correctly setting the labels
+                slots={{ textField: TextField }} // ✅ Updated for MUI v6
+                slotProps={{
+                    textField: ({ position }) => ({
+                        label: position === "start" ? fromLabel : toLabel, // ✅ Dynamically setting labels
+                        variant,
+                        size,
+                        fullWidth: true,
+                        error: !!error,
+                        helperText: error,
+                        ...(position === "start" ? others : {}) // Apply additional props
+                    }),
+                }}
+                renderSeparator={() => <Box sx={{ display: 'none' }} />}
             />
         </LocalizationProvider>
     );
