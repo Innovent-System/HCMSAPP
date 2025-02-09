@@ -19,21 +19,6 @@ import { uniqueData } from "../../util/common";
  * @type {import('@react-awesome-query-builder/mui').Fields}
  */
 const fields = {
-    status: {
-        label: "Status",
-        type: "select",
-        valueSources: ["value"],
-        fieldName: "status", //must taken to for query binding
-        defaultOperator: "select_equals", //must taken to for query binding
-        defaultValue: undefined, //must taken to for query binding
-        fieldSettings: {
-            listValues: [
-                { value: "Pending", title: "Pending" },
-                { value: "Approved", title: "Approved" },
-                { value: "Rejected", title: "Rejected" }
-            ]
-        }
-    },
     createdAt: {
         label: 'Created Date',
         type: 'date',
@@ -63,16 +48,12 @@ const getColumns = (onCancel) => [
     { field: 'startDate', headerName: 'Start Date', flex: 1, valueGetter: ({ row }) => formateISODate(row.startDate) },
     { field: 'endDate', headerName: 'End Date', flex: 1, valueGetter: ({ row }) => formateISODate(row.endDate) },
     { field: 'amount', headerName: 'Amount' },
-    { field: 'policyNumber', headerName: 'Policy' },
-    {
-        field: 'status', headerName: 'Status', flex: 1, renderCell: renderStatusCell
-    },
     { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
     { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
     getActions(null, { onCancel })
 ];
 
-const AddInsurance = ({ openPopup, setOpenPopup, colData = [] }) => {
+const AddTaxIncome = ({ openPopup, setOpenPopup, colData = [] }) => {
     const formApi = useRef(null);
 
 
@@ -143,16 +124,7 @@ const AddInsurance = ({ openPopup, setOpenPopup, colData = [] }) => {
             excel: {
                 sampleData: 10000
             }
-        },
-        {
-            elementType: "inputfield",
-            name: "policyNumber",
-            label: "Policy Number",
-            defaultValue: "",
-            excel: {
-                sampleData: ""
-            }
-        },
+        }
     ];
     colData.current = formData;
 
@@ -170,7 +142,7 @@ const AddInsurance = ({ openPopup, setOpenPopup, colData = [] }) => {
     return <>
 
         <Popup
-            title="Add Insurance"
+            title="Add Tax Income"
             openPopup={openPopup}
             maxWidth="sm"
             isEdit={false}
@@ -181,8 +153,8 @@ const AddInsurance = ({ openPopup, setOpenPopup, colData = [] }) => {
         </Popup>
     </>
 }
-const DEFAULT_API = API.Insurance;
-const Insurance = () => {
+const DEFAULT_API = API.TaxIncome;
+const TaxIncome = () => {
     const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
 
@@ -201,7 +173,7 @@ const Insurance = () => {
     const { inProcess, setFile, excelData, getTemplate } = useExcelReader({
         formTemplate: excelColData.current,
         transform: mapExcelData,
-        fileName: "Insurance.xlsx",
+        fileName: "TaxIncome.xlsx",
         uniqueBy: ["fkEmployeeId"]
     });
 
@@ -246,7 +218,7 @@ const Insurance = () => {
 
     }, [excelData])
 
-    const { socketData } = useSocketIo("changeInInc", refetch);
+    const { socketData } = useSocketIo("changeInTax", refetch);
 
     const columns = getColumns(handleCancel);
 
@@ -284,14 +256,14 @@ const Insurance = () => {
     return (
         <>
             <PageHeader
-                title="Insurance"
+                title="Tax Income"
                 enableFilter={true}
                 handleUpload={(e) => setFile(e.target.files[0])}
                 handleTemplate={getTemplate}
-                subTitle="Manage Insurance"
+                subTitle="Manage Tax Income"
                 icon={<PeopleOutline fontSize="large" />}
             />
-            <AddInsurance colData={excelColData} openPopup={openPopup} setOpenPopup={setOpenPopup} />
+            <AddTaxIncome colData={excelColData} openPopup={openPopup} setOpenPopup={setOpenPopup} />
 
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={data}
@@ -318,4 +290,4 @@ const Insurance = () => {
     );
 }
 
-export default Insurance;
+export default TaxIncome;

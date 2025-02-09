@@ -119,7 +119,7 @@ export const AutoDeduction = ({ data }) => {
       elementType: "checkbox",
       name: "isLeaveDeductionFirst",
       label: "Is Leave Deduction First",
-    breakpoints,
+      breakpoints,
       defaultValue: true
     },
     {
@@ -244,7 +244,19 @@ export const AutoDeduction = ({ data }) => {
       NodeElement: () => <IconButton title='Add Allowance' size='small' aria-label="delete" onClick={handleAddItems}>
         <AddCircleOutline color='primary' />
       </IconButton>
-    }
+    },
+    {
+      elementType: "custom",
+      breakpoints: fullWidthPoints,
+      NodeElement: () => <Divider><Chip label="Tax Rule" icon={<DisplaySettings />} /></Divider>
+    },
+    {
+      elementType: "checkbox",
+      name: "autoTaxIncome",
+      label: "Auto Tax Deduction",
+      breakpoints,
+      defaultValue: true
+    },
   ]
 
   return (

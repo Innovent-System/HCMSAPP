@@ -199,6 +199,12 @@ const Allowance = ({ DEFAULT_API = API.Allowance, DEFAULT_NAME = "Allowance", fo
             },
             defaultValue: ""
         },
+        {
+            elementType: "checkbox",
+            name: "isTaxable",
+            label: "Taxable",
+            defaultValue: true
+          },
         ...formProps
     ];
 
