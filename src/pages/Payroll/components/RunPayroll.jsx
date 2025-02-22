@@ -5,10 +5,10 @@ import { GridToolbarContainer, Grid, Typography, Divider, Chip, Box } from "../.
 import { useAppDispatch, useAppSelector } from '../../../store/storehook';
 import { builderFieldsAction, showDropDownFilterAction, useEntityAction, useLazyPostQuery } from '../../../store/actions/httpactions';
 import { useDropDownIds } from '../../../components/useDropDown';
-import DataGrid, { useGridApi } from '../../../components/useDataGrid';
+import DataGrid, { GridToolbarQuickFilter, useGridApi } from '../../../components/useDataGrid';
 import Controls from "../../../components/controls/Controls";
 import { API } from '../_Service';
-import { getYears, monthNames } from '../../../util/common';
+import { getDefaultMonth, getYears, monthNames } from '../../../util/common';
 
 
 
@@ -22,7 +22,7 @@ const fields = {
         fieldName: "month",
         valueSources: ["value"],
         defaultOperator: "select_equals",
-        defaultValue: new Date().getMonth(),
+        defaultValue: getDefaultMonth(),
         hideForCompare: true,
         operators: ["select_equals"],
         listValues: monthNames.map((e, i) => ({ value: i, title: e })),
@@ -119,7 +119,7 @@ const DetailPanelContent = ({ row }) => {
             <Grid item xs={4} md={4} lg={4} p={2}>
                 <Divider><Chip label="Others" icon={<DisplaySettings fontSize='small' />} /></Divider>
                 <Box display='flex' justifyContent='space-between'>
-                <Box>
+                    <Box>
                         {row.others.map(e => (
                             <Typography key={e.item}>{e.item}</Typography>
                         ))}
@@ -150,13 +150,12 @@ const DetailPanelContent = ({ row }) => {
     )
 }
 const DEFAULT_API = API.Process;
-const RunPayroll = () => {
+const RunPayroll = ({ setOpenPopup }) => {
     const dispatch = useAppDispatch();
     const query = useAppSelector(e => e.appdata.query.builder);
     const [selectionModel, setSelectionModel] = React.useState([]);
 
     const [gridFilter, setGridFilter] = useState({
-        lastKey: null,
         limit: 10,
         page: 0,
         totalRecord: 0
@@ -220,6 +219,7 @@ const RunPayroll = () => {
             }
         }).then(({ data }) => {
             const { payrollDetails, ...extra } = data
+            setGridFilter({ ...gridFilter, limit: 10, page: 0 });
             setRecords(payrollDetails)
             setExtraData(extra)
             setDetailPanelExpandedRowIds(payrollDetails.filter(c => c.isProcess).map(e => e.fkEmployeeId));
@@ -236,7 +236,7 @@ const RunPayroll = () => {
                 employeeIds: processData.map(c => c.fkEmployeeId),
                 ...extraData
             }
-        })
+        }).finally(e => setOpenPopup(false))
     }
 
     return (
@@ -293,7 +293,8 @@ export function RunPayrollToolbar(props) {
     const { onAdd, getPayroll, selectionModel, records } = props;
 
     return (
-        <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
+        <GridToolbarContainer sx={{ justifyContent: "space-between" }}>
+            <GridToolbarQuickFilter />
 
             {records?.length ? <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Save" /> : null}
             {/* <Controls.Button onClick={getPayroll} startIcon={<RestartAlt />} text="Process" /> */}

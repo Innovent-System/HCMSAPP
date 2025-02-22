@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, forwardRef, useImperativeHandle, useId } from 'react'
+import React, { useEffect, useRef, useState, forwardRef, useImperativeHandle, useCallback, useId } from 'react'
 import { makeStyles, Grid } from "../deps/ui";
 import clsx from 'clsx';
 import { Element, ElementType } from './controls/Controls';
@@ -221,14 +221,11 @@ export const AutoForm = forwardRef(function (props, ref) {
         });
     }, [])
 
-    const setFormValue = (properties = {}) => {
-        // if(!isEdit) return console.warn("set Values only in Edit mode");
-        if (typeof properties !== 'object') return console.error("properties type must be object");
+    const setFormValue = useCallback((properties = {}) => {
+        if (typeof properties !== 'object') return console.error("Properties must be an object");
         resetError();
-        setValues(currentValues => {
-            return Object.assign({}, currentValues, properties)
-        });
-    }
+        setValues((currentValues) => Object.assign({}, currentValues, properties));
+    }, []);
 
     const validateFields = () => {
         const isValidate = validateAllFields(errorProps, values);
@@ -276,14 +273,14 @@ export const AutoForm = forwardRef(function (props, ref) {
     return (
         <Grid key={keyId} {...breakpoints} flexDirection={flexDirection} columnSpacing={1} container {...other}>
             {Object.keys(initialValues).length ? formData.map(({ name, label, required, elementType, Component = null, disabled, classes, _children, breakpoints = DEFAULT_BREAK_POINTS, onChange, modal, defaultValue, isShow, nanoKey, ...others }, index) => (
-                Component ? <Component key={nanoKey} {...others}>
-                    
+                Component ? <Component key={`comp-${index}`} {...others}>
+
                     <Grid columnSpacing={1} container>
                         {Array.isArray(_children) ? _children.map(({ name, label, required, elementType, breakpoints = DEFAULT_BREAK_POINTS, classes, disabled, onChange, modal, defaultValue, nanoKey: childKey, ..._others }, innerIndex) => (
-                            <Grid {...(modal && { style: { position: "relative" } })}  {...(breakpoints && { ...breakpoints })} key={childKey} item>
+                            <Grid {...(modal && { style: { position: "relative" } })}  {...(breakpoints && { ...breakpoints })} key={`${elementType}-${innerIndex}-${name}`} item>
                                 {modal && modal.Component}
-                                
-                                <Element key={`ele-${childKey}`} elementType={elementType}
+                                {console.log({ innerIndex, elementType })}
+                                <Element key={`child-${elementType}-${innerIndex}-${name}`} elementType={elementType}
                                     name={name}
                                     label={label}
                                     {...(required && { required: handleConditionalField(name, required) })}
@@ -299,9 +296,10 @@ export const AutoForm = forwardRef(function (props, ref) {
                         )) : null}
                     </Grid>
                 </Component> :
-                    typeof isShow === "function" ? handleShowHide(name, isShow) && <Grid key={nanoKey} {...(modal && { style: { position: "relative" } })} {...(breakpoints && { ...breakpoints })} item>
+                    typeof isShow === "function" ? handleShowHide(name, isShow) && <Grid key={`${elementType}-${index}-${name}`} {...(modal && { style: { position: "relative" } })} {...(breakpoints && { ...breakpoints })} item>
                         {modal && modal.Component}
-                        <Element key={`lean-${nanoKey}`} elementType={elementType}
+
+                        <Element key={`lean-${elementType}-${index}-${name}`} elementType={elementType}
                             name={name}
                             label={label}
                             value={values[name]}
@@ -312,10 +310,10 @@ export const AutoForm = forwardRef(function (props, ref) {
                             {...(classes && { className: clsx(classes) })}
                             {...others}
                         />
-                    </Grid> : <Grid key={nanoKey} {...(modal && { style: { position: "relative" } })} {...(breakpoints && { ...breakpoints })} item>
+                    </Grid> : <Grid key={`${elementType}-${index}`} {...(modal && { style: { position: "relative" } })} {...(breakpoints && { ...breakpoints })} item>
                         {modal && modal.Component}
 
-                        <Element key={`lean-${nanoKey}`} elementType={elementType}
+                        <Element key={`lean-${elementType}-${index}`} elementType={elementType}
                             name={name}
                             label={label}
                             value={values[name]}

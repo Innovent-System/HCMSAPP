@@ -9,7 +9,7 @@ import ConfirmDialog from '../../components/ConfirmDialog';
 import { formateISODateTime } from "../../services/dateTimeService";
 import Controls from "../../components/controls/Controls";
 import PageHeader from '../../components/PageHeader'
-import { weekday } from "../../util/common";
+import { AttendanceflagMap, weekday } from "../../util/common";
 import { useDropDownIds } from "../../components/useDropDown";
 import { addDays, startOfDay, isEqual } from '../../services/dateTimeService'
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
@@ -55,17 +55,6 @@ const fields = {
     },
 }
 
-const flagMap = {
-    0: { tag: "H", color: "info" },
-    1: { tag: "L", color: "warning" },
-    2: { tag: "HD", color: "warning" },
-    3: { tag: "SD", color: "warning" },
-    7: { tag: "A", color: "error" },
-    8: { tag: "FL", color: "secondary" },
-    9: { tag: "HL", color: "secondary" },
-    10: { tag: "GH", color: "info" },
-    null: { tag: "P", color: "success" }
-}
 
 const DateTimeCell = ({ apiRef, value, id, field, hasFocus, row, type = 'In' }) => {
     const [error, setError] = useState(null);
@@ -148,7 +137,7 @@ const getColumns = (apiRef, onEdit, onSave, onCancel) => {
             renderEditCell: (params) => <DateTimeCell type="Out" apiRef={apiRef} {...params} />
         },
         {
-            field: 'status', headerName: 'Status', width: 180, hideable: false, renderCell: ({ row }) => <Chip color={flagMap[row.status].color} label={flagMap[row.status].tag} />
+            field: 'status', headerName: 'Status', width: 180, hideable: false, renderCell: ({ row }) => <Chip color={AttendanceflagMap[row.status].color} label={AttendanceflagMap[row.status].short} />
         },
         {
             field: 'actions',

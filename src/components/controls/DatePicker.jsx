@@ -20,15 +20,15 @@ export default function DatePicker(props) {
             name,
             value,
             onChange: (date) => onChange(convertToDefEventPara(name, date)),
-            slotProps: { textField: { size, error: !!error, helperText: error, fullWidth: true, variant } } // ✅ Updated here
+            slotProps: { textField: { autoComplete: "off", size, error: !!error, helperText: error, fullWidth: true, variant } } // ✅ Updated here
         };
 
         if (category === "datetime") {
             return isDesktop ? <DesktopDateTimePicker {...commonProps} {...others} /> : <MobileDateTimePicker {...commonProps} {...others} />;
-        } 
+        }
         else if (category === "time") {
             return isDesktop ? <DesktopTimePicker {...commonProps} {...others} /> : <MobileTimePicker {...commonProps} {...others} />;
-        } 
+        }
         else {
             return isDesktop ? <DesktopDatePicker {...commonProps} {...others} /> : <MobileDatePicker {...commonProps} {...others} />;
         }

@@ -50,6 +50,9 @@ const getColumns = (apiRef, onEdit, onActive) => {
         {
             field: 'title', headerName: 'Leave Type', width: 180, hideable: false
         },
+        {
+            field: 'entitled', headerName: 'Entitle', hideable: false
+        },
         { field: 'modifiedOn', headerName: 'Modified On', width: 180, hideable: false, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
         { field: 'createdOn', headerName: 'Created On', width: 180, hideable: false, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
         {

@@ -86,9 +86,9 @@ function MultiSelect(props) {
 
       ListboxComponent={ListboxComponent}
       {...(isMultiple && {
-        renderOption: (_props, option, { selected }) =>
+        renderOption: ({ key, ..._prop }, option, { selected }) =>
         (
-          <li {..._props}>
+          <li key={key} {..._prop}>
             <Checkbox
               icon={icon}
               checkedIcon={checkedIcon}
@@ -101,14 +101,17 @@ function MultiSelect(props) {
 
         renderTags: (value, getTagProps, _prop) => {
 
-          return value.slice(0, _prop.limitTags).map((option, index) => (
-            <Chip
-              key={`${option[dataName]}-${inputId}`}
-              label={option[dataName]}
-              size="small"
-              {...getTagProps({ index })}
-            />
-          ))
+          return value.slice(0, _prop.limitTags).map((option, index) => {
+            const { key, ...chipProp } = getTagProps({ index });
+            return (
+              <Chip
+                key={key}
+                label={option[dataName]}
+                size="small"
+                {...chipProp}
+              />
+            )
+          })
         }
 
 

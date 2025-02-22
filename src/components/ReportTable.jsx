@@ -3,7 +3,7 @@ import { TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Pagin
 
 //{ field: 'requestDate', headerName: 'Request Date', flex: 1 },
 const TblHead = ({ cols = [] }) => (
-    <TableHead>
+    <TableHead >
         <TableRow>
             {cols.map(c => <TableCell key={c.headerName}>{c.headerName}</TableCell>)}
         </TableRow>
@@ -15,8 +15,8 @@ const Row = ({ cols, row }) => (
         key={row.id}
         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
     >
-        {cols.map((_key, index) =>
-            <TableCell key={'cell-' + index} sx={{ paddingLeft: 4 }} >{typeof _key?.valueGetter === "function" ? _key?.valueGetter({ row }) : row[_key.field]}</TableCell>
+        {cols.map(({ valueGetter, field, renderCell }, index) =>
+            <TableCell key={'cell-' + index} sx={{ paddingLeft: 4 }} >{typeof valueGetter === "function" ? valueGetter({ row }) : renderCell ? renderCell({ row }) : row[field]}</TableCell>
         )
         }
     </TableRow>
@@ -73,12 +73,12 @@ const ReportTable = ({ pageBreak = false,
     const [resultCount, setResultCount] = useState(0)
     const [records, setRecords] = useState([])
     const isLastPage = useRef(false);
-    const grandTotalSum =  useRef(null);
+    const grandTotalSum = useRef(null);
     const handlePage = (event, value) => {
-        
+
         if (pageBreak) {
             setRecords(reportData.filter(e => e.pageIndex == value))
-        } else{
+        } else {
             isLastPage.current = false;
             setRecords(reportData.slice((value - 1) * ROW_PER_PAGE, value * ROW_PER_PAGE));
         }
@@ -103,7 +103,7 @@ const ReportTable = ({ pageBreak = false,
             setRecords(reportData.slice(0 * ROW_PER_PAGE, (0 + 1) * ROW_PER_PAGE));
             setResultCount(Math.ceil(reportData.length / ROW_PER_PAGE));
         }
-        
+
 
     }, [reportData])
 
@@ -122,7 +122,7 @@ const ReportTable = ({ pageBreak = false,
             return pre;
         }, {}) : null;
 
-       
+
         for (let rowsLength = 0; rowsLength < _count; rowsLength++) {
             const row = records[rowsLength];
             const isNew = String(row[pageBreakOn]) !== String(preValue);
@@ -149,7 +149,7 @@ const ReportTable = ({ pageBreak = false,
                 GrandTotal && elements.push(<GrandTotal key={`grand-${row._id}`} row={row} grandTotal={grandTotalSum.current} {...(grandTotalProps && { ...grandTotalProps })} />);
                 Summary && elements.push(<Summary key={`summary-${row._id}`} row={row} {...(summaryProps && { ...summaryProps })} />);
             }
-            
+
 
             preValue = row[pageBreakOn];
             groupValue = row[groupByField];
@@ -161,7 +161,7 @@ const ReportTable = ({ pageBreak = false,
 
 
     return <TableContainer>
-        <Table sx={Styles.table}>
+        <Table sx={Styles.table} >
             {generateReport()}
 
         </Table>

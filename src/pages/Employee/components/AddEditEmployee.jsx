@@ -38,7 +38,7 @@ const AddModal = ({ name }) => {
 
   const Modal = MapModel[name];
   return (
-    <Box  position="absolute" top={-15} right={0}>
+    <Box position="absolute" top={-15} right={0}>
       <IconButton size='small' onClick={() => {
         setOpenPopup(true);
       }}>
@@ -84,7 +84,8 @@ const bindObject = (obj) => {
 
 const emptyString = "";
 const breakpoints = { md: 4, sm: 6, xs: 6 }
-export default function EmployaaModal({ isEdit = false, formApi, editId, coldata, mapEmployeeData, setActiveStep, activeStep = 0, add_edit_API = API.Employee }) {
+const currentDate = new Date();
+export default function EmployaaModal({ isEdit = false, formApi, editId, currentEditRecord, coldata, mapEmployeeData, setActiveStep, activeStep = 0, add_edit_API = API.Employee }) {
 
   // const formApi = useRef(null);
   // const [activeStep, setActiveStep] = React.useState(0);
@@ -101,6 +102,7 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, coldata
     setLoader(true);
     GetEmpolyee({ url: add_edit_API, id: editId }).then(({ data: { result: values } }) => {
       const { setFormValue } = formApi.current;
+      currentEditRecord.current = values;
       setFormValue({
         emplyeeRefNo: values.emplyeeRefNo,
         punchCode: values.punchCode,
@@ -111,7 +113,7 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, coldata
         maritalstatus: values.generalInfo.maritalstatus,
         email: values.generalInfo.email,
         gender: values.generalInfo.gender,
-        dateofBirth: values.generalInfo.dateofBirth,
+        dateofBirth: new Date(values.generalInfo.dateofBirth),
         fkReligionId: values.generalInfo.fkReligionId,
         nic: values.generalInfo.nic,
         fkAreaId: areas.find(a => a._id === values.companyInfo.fkAreaId),
@@ -125,8 +127,8 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, coldata
         scheduleId: schedules.find(s => s._id === values.schedule?._id) ?? null,
         fkManagerId: employees.find(e => e._id === values.companyInfo?.fkManagerId) ?? null,
         fkRoleTemplateId: values.companyInfo?.fkRoleTemplateId ?? '',
-        joiningDate: values.companyInfo.joiningDate,
-        confirmationDate: values.companyInfo.confirmationDate,
+        joiningDate: new Date(values.companyInfo.joiningDate),
+        confirmationDate: values.companyInfo.confirmationDate ? new Date(values.companyInfo.confirmationDate) : null,
         address1: values?.contactDetial?.address1,
         address2: values?.contactDetial?.address2,
         zipCode: values?.contactDetial?.zipCode,
@@ -560,7 +562,7 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, coldata
           name: "joiningDate",
           breakpoints,
           label: "Joining Date",
-          defaultValue: new Date(),
+          defaultValue: currentDate,
           excel: {
             sampleData: emptyString
           }
@@ -570,7 +572,7 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, coldata
           name: "confirmationDate",
           breakpoints,
           label: "Confrimation Date",
-          defaultValue: null,
+          defaultValue: new Date().setMonth(currentDate.getMonth() + 2),
           excel: {
             sampleData: emptyString
           }

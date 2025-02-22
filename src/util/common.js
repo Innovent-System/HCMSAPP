@@ -16,7 +16,7 @@ export const MimeTypesMap = {
 export const monthNames = ["January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
 ];
-export const currencyFormat = new Intl.NumberFormat();
+
 
 export const getYears = (startYear = 2020) => {
     const currentYear = new Date().getFullYear(), years = [];
@@ -28,23 +28,40 @@ export const getYears = (startYear = 2020) => {
 }
 export const getMonths = () => monthNames.map((e, i) => ({ id: i, title: e }));
 
+const currentMonth = new Date().getMonth();
 
+export const getDefaultMonth = () => currentMonth === 0 ? 11 : currentMonth - 1;
+
+// export const AttendanceflagMap = {
+//     0: { tag: "Holiday", color: "green", short: "H" },
+//     1: { tag: "Late", color: "yellow", short: "Late" },
+//     2: { tag: "Half Day", color: "yellow", short: "HD" },
+//     3: { tag: "Short Day", color: "yellow", short: "SD" },
+//     7: { tag: "Absent", color: "black", short: "A" },
+//     8: { tag: "Full Leave", color: "#ddd", },
+//     9: { tag: "Half Leave", color: "#ddd" },
+//     10: { tag: "Gazetted Holiday", color: "ddd" },
+//     null: { tag: "Present", color: "blue" }
+// }
 
 export const AttendanceflagMap = {
-    0: { tag: "Holiday", color: "green" },
-    1: { tag: "Late", color: "yellow" },
-    2: { tag: "Half Day", color: "yellow" },
-    3: { tag: "Short Day", color: "yellow" },
-    7: { tag: "Absent", color: "black" },
-    8: { tag: "Full Leave", color: "#ddd" },
-    9: { tag: "Half Leave", color: "#ddd" },
-    10: { tag: "Gazetted Holiday", color: "ddd" },
-    null: { tag: "Present", color: "blue" }
+    0: { tag: "Holiday", short: "H", color: "info" },
+    1: { tag: "Late", short: "L", color: "warning" },
+    2: { tag: "Half Day", short: "HD", color: "warning" },
+    3: { tag: "Short Day", short: "SD", color: "warning" },
+    7: { tag: "Absent", short: "A", color: "error" },
+    31: { tag: "Full Leave", short: "FL", color: "secondary" },
+    32: { tag: "Half Leave", short: "HL", color: "secondary" },
+    10: { tag: "Gazetted Holiday", short: "GH", color: "info" },
+    null: { tag: "Present", short: "P", color: "success" }
 }
 
-export function numberWithCommas(x) {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+export const currencyFormat = new Intl.NumberFormat();
+
+export function formatNumber(x) {
+    return currencyFormat.format(x);
 }
+
 
 export const sort_by = (field, reverse, primer) => {
 

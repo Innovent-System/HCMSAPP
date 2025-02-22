@@ -5,7 +5,7 @@ import { API } from './_Service';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction, useLazySingleQuery } from '../../store/actions/httpactions';
 import { PeopleOutline, AccountBalanceWallet, Delete } from "../../deps/ui/icons";
 import { GridToolbarContainer } from "../../deps/ui";
-import DataGrid, { getActions, GridToolbar, useGridApi } from '../../components/useDataGrid';
+import DataGrid, { getActions, GridToolbar, GridToolbarQuickFilter, useGridApi } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { AutoForm } from '../../components/useForm'
@@ -16,6 +16,7 @@ import { useDropDownIds } from "../../components/useDropDown";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
 import Controls from "../../components/controls/Controls";
 import RunPayroll from "./components/RunPayroll";
+import { formatNumber } from "../../util/common";
 
 /**
  * @type {import('@react-awesome-query-builder/mui').Fields}
@@ -64,8 +65,8 @@ const getColumns = (onDelete) => [
     { field: 'salaryType', headerName: 'Type', hideable: false },
     { field: 'month', headerName: 'Month', hideable: false },
     { field: 'year', headerName: 'Year', hideable: false },
-    { field: 'monthlySalary', headerName: 'Monthly Salary', hideable: false },
-    { field: 'totalSalary', headerName: 'Net Salary', hideable: false },
+    { field: 'monthlySalary', headerName: 'Monthly Salary', hideable: false, valueGetter: ({ row }) => formatNumber(row.monthlySalary) },
+    { field: 'totalSalary', headerName: 'Net Salary', hideable: false, valueGetter: ({ row }) => formatNumber(row.totalSalary) },
     { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
     { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
     getActions(null, { onDelete })
@@ -132,7 +133,7 @@ const Payroll = () => {
         });
 
     }
-   
+
 
     const { socketData } = useSocketIo("changeInPayroll", refetch);
 
@@ -217,7 +218,7 @@ const Payroll = () => {
                 fullScreen={true}
                 footer={<></>}
                 setOpenPopup={setOpenPopup}>
-                <RunPayroll />
+                <RunPayroll setOpenPopup={setOpenPopup} />
             </Popup>
 
             <DataGrid apiRef={gridApiRef}
@@ -248,9 +249,12 @@ function PayrollToolbar(props) {
     const { onAdd, selectionModel, onMultipleDelete } = props;
 
     return (
-        <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
-            {selectionModel?.length ? <Controls.Button onClick={() => onMultipleDelete(selectionModel)} startIcon={<Delete />} text="Delete Payroll" /> : null}
-            <Controls.Button onClick={onAdd} startIcon={<AccountBalanceWallet />} text="Genearate" />
+        <GridToolbarContainer sx={{ justifyContent: "space-between" }}>
+            <GridToolbarQuickFilter />
+            <div>
+                {selectionModel?.length ? <Controls.Button onClick={() => onMultipleDelete(selectionModel)} startIcon={<Delete />} text="Delete Payroll" /> : null}
+                <Controls.Button onClick={onAdd} startIcon={<AccountBalanceWallet />} text="Genearate" />
+            </div>
         </GridToolbarContainer>
     );
 }

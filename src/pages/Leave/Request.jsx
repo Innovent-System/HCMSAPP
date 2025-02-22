@@ -55,27 +55,47 @@ const getColumns = (apiRef, onCancel) => [
     { field: 'fromDate', headerName: 'From', flex: 1, valueGetter: ({ row }) => formateISODate(row.fromDate) },
     { field: 'toDate', headerName: 'To', flex: 1, valueGetter: ({ row }) => formateISODate(row.toDate) },
     { field: 'leavetype', headerName: 'Leave Type', flex: 1, valueGetter: ({ row }) => row.leavetype.title },
+    { field: 'leaveDuration', headerName: 'Duration', flex: 1 },
     {
         field: 'status', headerName: 'Status', flex: 1, renderCell: renderStatusCell
     },
     { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
     { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
-    getActions(apiRef, { onCancel })
+    getActions(apiRef, { onCancel }, true)
 ];
 
-const AddLeaveRequest = ({ openPopup, setOpenPopup }) => {
+export const AddLeaveRequest = ({ requestedDate = null, requestedEmployee = null, openPopup, setOpenPopup }) => {
     const formApi = useRef(null);
     const [loader, setLoader] = useState(false);
     const [leaveTypes, setLeaveTypes] = useState([]);
     const { Employees } = useAppSelector(e => e.appdata.employeeData);
     const { addEntity } = useEntityAction();
     const [getLeaveDetail] = useLazySingleQuery();
+
     useEffect(() => {
         if (formApi.current && openPopup) {
             const { resetForm } = formApi.current;
             resetForm();
         }
     }, [openPopup, formApi])
+
+    useEffect(() => {
+
+        if (requestedEmployee && openPopup) {
+
+            const { setFormValue, getValue } = formApi.current;
+            getLeaveDetail({ url: API.GetLeaveDetail, params: { employeeId: requestedEmployee } }).then(c => {
+                if (c.data?.result) {
+                    setLeaveTypes(c.data.result);
+                }
+                setFormValue({
+                    fkEmployeeId: Employees.find(e => e._id === requestedEmployee)
+                })
+            })
+
+
+        }
+    }, [requestedEmployee, Employees, openPopup])
     const formData = [
         {
             elementType: "ad_dropdown",
@@ -91,13 +111,13 @@ const AddLeaveRequest = ({ openPopup, setOpenPopup }) => {
             options: Employees,
             onChange: (data) => {
                 if (!data) return;
-                setLoader(true);
+
                 const { setFormValue, getValue } = formApi.current;
                 getLeaveDetail({ url: API.GetLeaveDetail, params: { employeeId: data._id } }).then(c => {
                     if (c.data?.result) {
                         setLeaveTypes(c.data.result);
                     }
-                    setLoader(false);
+
                 })
             },
             defaultValue: null
@@ -124,7 +144,7 @@ const AddLeaveRequest = ({ openPopup, setOpenPopup }) => {
             validate: {
                 errorMessage: "Select Date please",
             },
-            defaultValue: [new Date(), new Date()]
+            defaultValue: requestedDate ? [new Date(requestedDate), new Date(requestedDate)] : [new Date(), new Date()]
         },
         {
             elementType: "dropdown",
@@ -162,8 +182,8 @@ const AddLeaveRequest = ({ openPopup, setOpenPopup }) => {
             let dataToInsert = { ...values };
             dataToInsert.fkEmployeeId = values.fkEmployeeId._id;
             dataToInsert.employeeCode = values.fkEmployeeId.punchCode;
-            dataToInsert.fromDate = values.leavesDate[0];
-            dataToInsert.toDate = values.leavesDate[1]
+            dataToInsert.fromDate = startOfDay(values.leavesDate[0]);
+            dataToInsert.toDate = startOfDay(values.leavesDate[1]);
             // ChangeType = [],
 
             addEntity({ url: DEFAULT_API, data: [dataToInsert] });

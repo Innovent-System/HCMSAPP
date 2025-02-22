@@ -100,7 +100,7 @@ const AddAdvanceSalary = ({ openPopup, setOpenPopup, colData = [] }) => {
             label: "Date",
             name: "salaryRequest",
             required: true,
-            disablePast: true,
+            // disablePast: true,
             validate: {
                 errorMessage: "Select Date please",
             },

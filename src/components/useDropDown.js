@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { useAppSelector } from '../store/storehook';
-import { getMonths, getYears } from '../util/common';
+import { getDefaultMonth, getMonths, getYears } from '../util/common';
 
 export const filterTypes = Object.freeze({
     DEFAULT: 'default',
@@ -433,7 +433,7 @@ export const DROPDOWN_PROPS = {
         isNone: false,
         dataId: "id",
         dataName: "title",
-        defaultValue: _months[new Date().getMonth()].id,
+        defaultValue: _months[getDefaultMonth()].id,
         // options: _months,
     }
 }

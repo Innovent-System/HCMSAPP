@@ -4,8 +4,8 @@ import Controls from '../../components/controls/Controls';
 import Popup from '../../components/Popup';
 import { API, alphabets } from './_Service';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction } from '../../store/actions/httpactions';
-import { Typography, Stack, ButtonGroup } from "../../deps/ui";
-import { PeopleOutline, Add as AddIcon } from "../../deps/ui/icons";
+import { Typography, Stack, ButtonGroup, InputAdornment, IconButton } from "../../deps/ui";
+import { PeopleOutline, Add as AddIcon, Search, Clear } from "../../deps/ui/icons";
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import EmpoyeeModal from './components/AddEditEmployee';
@@ -17,6 +17,8 @@ import { useAppDispatch, useAppSelector } from "../../store/storehook";
 import { downloadTextFIle } from "../../util/common";
 import ResponsiveEmployeeGrid from "./components/ResponsiveGrid";
 import { useTheme, useMediaQuery } from '@mui/material';
+import { debounce } from '../../util/common'
+import { useDebounce } from "../../hooks/useDebounce";
 
 /**
  * @type {import('@react-awesome-query-builder/mui').Fields}
@@ -131,6 +133,7 @@ const Employee = () => {
     const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
     const isEdit = React.useRef(false);
+    const currentEditRecord = useRef(null);
     const [selectionModel, setSelectionModel] = React.useState([]);
     const [word, setWord] = useState("");
     const [sort, setSort] = useState({ sort: { createdAt: -1 } });
@@ -139,9 +142,20 @@ const Employee = () => {
     const [record, setRecord] = useState([]);
     const excelColData = useRef([]);
     const [queryFilter, setQueryFilter] = useState({});
+    const [searchText, setSearchText] = useState("");
     const theme = useTheme();
     const isLarge = useMediaQuery(theme.breakpoints.up('xl'));
     const { Employees } = useAppSelector(e => e.appdata.employeeData);
+    const handleSearch = (e) => {
+
+
+        setSearchText(e.target.value)
+
+    }
+
+
+    // const debouncedClick = useRef(debounce(searchText, 300)).current;
+    const debounceSearchText = useDebounce(searchText, 300);
 
     const mapEmployee = (values, isExcel = true) => {
         if (!Object.keys(values).length) return;
@@ -173,7 +187,7 @@ const Employee = () => {
                 fkEmployeeStatusId: values.fkEmployeeStatusId._id,
                 fkStateId: values.fkStateId._id,
                 joiningDate: values.joiningDate,
-                confirmationDate: values.confirmationDate,
+                confirmationDate: values.confirmationDate ? values.confirmationDate : new Date(values.joiningDate).setMonth(values.joiningDate.getMonth() + 2),
                 fkManagerId: values.fkManagerId?._id ?? null
             },
             contactDetial: {
@@ -195,9 +209,11 @@ const Employee = () => {
         if (isExcel) {
 
             const refNo = values.emplyeeRefNo.toLowerCase();
+            const punchCode = values.punchCode;
             const updateEmp = Employees.find(e => e.emplyeeRefNo.toLowerCase() === refNo);
             if (updateEmp) {
                 employee._id = updateEmp._id;
+                employee.isChangePunchCode = employee.punchCode != punchCode;
             }
         }
 
@@ -230,22 +246,44 @@ const Employee = () => {
         const { countryIds, stateIds, cityIds, areaIds, departmentIds, groupIds, designationIds } = dropdownIds;
         const setquery = {
             ...query,
-            ...(word && { firstName: { "$regex": `^${word}`, "$options": "i" } }),
+            // ...(word && { firstName: { "$regex": `^${word}`, "$options": "i" } }),
             ...(countryIds && { "companyInfo.fkCountryId": { $in: countryIds.split(',') } }),
             ...(stateIds && { "companyInfo.fkStateId": { $in: stateIds.split(',') } }),
             ...(cityIds && { "companyInfo.fkCityId": { $in: cityIds.split(',') } }),
             ...(areaIds && { "companyInfo.fkAreaId": { $in: areaIds.split(',') } }),
             ...(groupIds && { "companyInfo.fkEmployeeGroupId": { $in: groupIds.split(',') } }),
             ...(departmentIds && { "companyInfo.fkDepartmentId": { $in: departmentIds.split(',') } }),
-            ...(designationIds && { "companyInfo.fkDesignationId": { $in: designationIds.split(',') } })
-        }
-        if (query || Object.keys(setquery).length) {
-            setRecord([]);
-            setGridFilter({ ...gridFilter, startIndex: 0, isFromScroll: false })
-            setQueryFilter(setquery)
-        }
+            ...(designationIds && { "companyInfo.fkDesignationId": { $in: designationIds.split(',') } }),
+            ...(debounceSearchText && {
+                $or: [
+                    { firstName: { $regex: debounceSearchText, $options: "i" } }, // Search in firstName
+                    { lastName: { $regex: debounceSearchText, $options: "i" } }, // Search in lastName
+                    {
+                        $expr: {
+                            $regexMatch: {
+                                input: { $concat: ["$firstName", " ", "$lastName"] }, // Combine first & last name
+                                regex: `^${debounceSearchText}$`,
+                                options: "i"
+                            }
+                        }
+                    },
+                    { email: { $regex: debounceSearchText, $options: "i" } },
+                    { emplyeeRefNo: { $regex: debounceSearchText, $options: "i" } },
+                    { punchCode: { $regex: debounceSearchText, $options: "i" } },
+                    { "area.areaName": { $regex: debounceSearchText, $options: "i" } },
+                    { "designation.name": { $regex: debounceSearchText, $options: "i" } },
+                    { "department.departmentName": { $regex: debounceSearchText, $options: "i" } }
+                ]
+            })
 
-    }, [query, dropdownIds])
+        }
+        // if (query || Object.keys(setquery).length) {
+        setGridFilter({ ...gridFilter, startIndex: 0, isFromScroll: false })
+        setQueryFilter(setquery)
+        setRecord([]);
+        // }
+
+    }, [query, dropdownIds, debounceSearchText])
 
     const { data = [], isLoading, refetch, totalRecord } = useEntitiesQuery({
         url: `${DEFAULT_API}/get`,
@@ -359,6 +397,7 @@ const Employee = () => {
 
     const showAddModal = () => {
         isEdit.current = false;
+        currentEditRecord.current = null;
         setOpenPopup(true);
     }
 
@@ -381,8 +420,10 @@ const Employee = () => {
 
             const values = getValue();
             const setEmployee = mapEmployee(values, false);
-            if (isEdit)
+            if (isEdit.current) {
                 setEmployee._id = editId
+                setEmployee.isChangePunchCode = setEmployee.punchCode != currentEditRecord.current.punchCode;
+            }
 
             addEntity({ url: DEFAULT_API, data: [setEmployee] });
 
@@ -415,6 +456,7 @@ const Employee = () => {
                 {/* <AddEmployee /> */}
                 <EmpoyeeModal coldata={excelColData} isEdit={isEdit.current}
                     mapEmployeeData={mapEmployee} editId={editId}
+                    currentEditRecord={currentEditRecord}
                     setOpenPopup={setOpenPopup}
                     formApi={formApi}
                     activeStep={activeStep}
@@ -429,6 +471,29 @@ const Employee = () => {
             </ButtonGroup>
             <Stack flexDirection="row" justifyContent="space-between">
                 <Typography pt={1} >Total Employees : {totalRecord}</Typography>
+                <Controls.Input size="small" autoComplete="off" name="searchTxt" variant="standard"
+                    sx={{
+                        width: 200, "&.MuiFormControl-root": {
+                            marginTop: 0
+                        }
+                    }} onChange={handleSearch} value={searchText} label=""
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <Search fontSize="small" />
+                            </InputAdornment>
+                        ),
+                        endAdornment: searchText && (
+                            <InputAdornment position="end">
+                                <IconButton size="small" onClick={() => setSearchText("")} edge="end">
+                                    <Clear fontSize="small" />
+                                </IconButton>
+                            </InputAdornment>
+                        ),
+                    }}
+
+                />
+
                 <Controls.Button
                     onClick={showAddModal}
                     startIcon={<AddIcon />}
@@ -440,6 +505,7 @@ const Employee = () => {
             <ResponsiveEmployeeGrid data={record} handleActive={handleActiveInActive} handleEdit={handleEdit}
                 totalRecord={totalRecord}
                 setGridFilter={setGridFilter}
+                loading={isLoading}
 
             />
             <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />

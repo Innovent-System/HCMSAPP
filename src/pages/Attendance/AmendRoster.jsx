@@ -148,7 +148,7 @@ const AmendRoster = () => {
     const [getShiftList] = useLazyPostQuery();
     const [shifts, setShift] = useState([]);
 
-    const [sort, setSort] = useState({ sort: { rosterDate: -1, "employees.fullName": 1 } });
+    const [sort, setSort] = useState({ sort: { createdAt: -1 } });
     const { Employees } = useAppSelector(e => e.appdata.employeeData);
     const [roster, setRoster] = useState([weekStart, weekEnd])
     const [filter, setFilter] = useState({

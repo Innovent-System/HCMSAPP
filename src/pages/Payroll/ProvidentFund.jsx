@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Popup from '../../components/Popup';
 import { API, CalculationType, PercentageOfBasicSalary } from './_Service';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction } from '../../store/actions/httpactions';
-import { PeopleOutline, Percent, Circle } from "../../deps/ui/icons";
+import { PeopleOutline, Percent, Circle, AttachMoney } from "../../deps/ui/icons";
 import { InputAdornment } from '../../deps/ui'
 import DataGrid, { getActions, GridToolbar, renderStatusCell, useGridApi } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
@@ -65,6 +65,8 @@ const getColumns = (apiRef, onEdit, onActive) => [
     getActions(apiRef, { onEdit, onActive })
 ];
 
+const fullWidthPoints = { md: 12, sm: 12, xs: 12 };
+
 
 const AddProvidentFund = ({ openPopup, setOpenPopup, colData = [], row = null, isEdit = false }) => {
     const formApi = useRef(null);
@@ -87,6 +89,8 @@ const AddProvidentFund = ({ openPopup, setOpenPopup, colData = [], row = null, i
                 type: row.type,
                 employeeShare: row.employeeShare,
                 employerShare: row.employerShare,
+                addOPBalance: row?.openingBalance ? true : false,
+                openingBalance: row?.openingBalance ? row?.openingBalance : 0
             });
         }
 
@@ -148,6 +152,9 @@ const AddProvidentFund = ({ openPopup, setOpenPopup, colData = [], row = null, i
                 )
             },
             defaultValue: "",
+            excel: {
+                sampleData: 8.33
+            }
         },
         {
             elementType: "inputfield",
@@ -172,7 +179,46 @@ const AddProvidentFund = ({ openPopup, setOpenPopup, colData = [], row = null, i
                 )
             },
             defaultValue: "",
-        }
+            excel: {
+                sampleData: 8.33
+            }
+        },
+        {
+            elementType: "checkbox",
+            name: "addOPBalance",
+            label: "Add Opening Balance",
+            title: "Add PF Opening",
+            breakpoints: fullWidthPoints,
+            defaultValue: false
+        },
+        {
+            elementType: "inputfield",
+            name: "openingBalance",
+            label: "Opening Balance",
+            inputMode: 'numeric',
+            isShow: (values) => values.addOPBalance,
+            required: true,
+            validate: {
+                errorMessage: "Opening Balance is required",
+            },
+            type: "number",
+            inputProps: {
+                min: 0,
+            },
+
+            InputProps: {
+                endAdornment: (
+                    <InputAdornment position="end">
+                        <AttachMoney />
+                    </InputAdornment>
+                )
+            },
+            defaultValue: "",
+            excel: {
+                sampleData: 0
+            }
+        },
+
 
     ];
     colData.current = formData;
@@ -183,7 +229,7 @@ const AddProvidentFund = ({ openPopup, setOpenPopup, colData = [], row = null, i
             let values = getValue();
             let dataToInsert = { ...values };
             dataToInsert.fkEmployeeId = values.fkEmployeeId._id;
-
+            dataToInsert.openingBalance = dataToInsert.addOPBalance ? dataToInsert.openingBalance : 0;
             if (isEdit)
                 dataToInsert._id = editId
 
@@ -213,7 +259,7 @@ const ProvidentFund = () => {
     const isEdit = React.useRef(false);
     const row = useRef(null);
     const [selectionModel, setSelectionModel] = React.useState([]);
-    
+
 
     const [gridFilter, setGridFilter] = useState({
         lastKey: null,

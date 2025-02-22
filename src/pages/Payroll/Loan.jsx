@@ -56,6 +56,7 @@ const getColumns = (onCancel) => [
     },
     { field: 'loanRequest', headerName: 'Date', flex: 1, valueGetter: ({ row }) => formateISODate(row.loanRequest) },
     { field: 'principleAmount', headerName: 'Principle' },
+    { field: 'type', headerName: 'Type' },
     { field: 'repayAmount', headerName: 'Repay' },
     {
         field: 'status', headerName: 'Status', flex: 1, renderCell: renderStatusCell

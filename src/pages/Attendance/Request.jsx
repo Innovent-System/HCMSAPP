@@ -55,7 +55,7 @@ const getColumns = (apiRef, onCancel) => [
     getActions(apiRef, { onCancel })
 ];
 
-const AddAttendanceRequest = ({ openPopup, setOpenPopup }) => {
+export const AddAttendanceRequest = ({ openPopup, setOpenPopup, reqEmployee = null, reqDate = null }) => {
     const formApi = useRef(null);
     const [loader, setLoader] = useState(false);
     const { Employees } = useAppSelector(e => e.appdata.employeeData);
@@ -69,6 +69,39 @@ const AddAttendanceRequest = ({ openPopup, setOpenPopup }) => {
             resetForm();
         }
     }, [openPopup, formApi])
+    const handleRequest = (employeeId, requestDate) => {
+        return getAttendanceRequest({ url: API.GetAttendanceDetail, params: { employeeId, requestDate } }).then(c => {
+            const { setFormValue } = formApi.current;
+            if (c.data?.result) {
+
+                changeTypeTrack.current = {
+                    start: new Date(c.data.result.startDateTime),
+                    end: c.data.result.endDateTime && new Date(c.data.result.endDateTime)
+                }
+                setFormValue({
+                    startDateTime: new Date(c.data.result.startDateTime),
+                    endDateTime: c.data.result.endDateTime && new Date(c.data.result.endDateTime)
+                });
+            }
+            else {
+
+                setFormValue({
+                    startDateTime: null,
+                    endDateTime: null
+                });
+            }
+
+        })
+
+    }
+    useEffect(() => {
+
+        if (reqEmployee && reqDate && openPopup) {
+            handleRequest(reqEmployee, reqDate)
+        }
+    }, [reqEmployee, reqDate, openPopup])
+
+
     const formData = [
         {
             elementType: "ad_dropdown",
@@ -84,30 +117,10 @@ const AddAttendanceRequest = ({ openPopup, setOpenPopup }) => {
             options: Employees,
             onChange: (data) => {
                 if (!data) return;
-                setLoader(true);
-                const { setFormValue, getValue } = formApi.current;
-                getAttendanceRequest({ url: API.GetAttendanceDetail, params: { employeeId: data._id, requestDate: getValue()?.requestDate } }).then(c => {
-                    if (c.data?.result) {
-                        changeTypeTrack.current = {
-                            start: new Date(c.data.result.startDateTime),
-                            end: new Date(c.data.result.endDateTime)
-                        }
-                        setFormValue({
-                            startDateTime: new Date(c.data.result.startDateTime),
-                            endDateTime: new Date(c.data.result.endDateTime)
-                        });
-                    }
-                    else {
-
-                        setFormValue({
-                            startDateTime: null,
-                            endDateTime: null
-                        });
-                    }
-                    setLoader(false);
-                })
+                const { getValue } = formApi.current;
+                handleRequest(data._id, getValue()?.requestDate);
             },
-            defaultValue: null
+            defaultValue: reqEmployee && Employees.find(e => e._id === reqEmployee)
         },
         {
             elementType: "datetimepicker",
@@ -120,32 +133,12 @@ const AddAttendanceRequest = ({ openPopup, setOpenPopup }) => {
             label: "Date",
             onChange: (data) => {
                 if (!data) return;
-                const { setFormValue, getValue } = formApi.current;
+                const { getValue } = formApi.current;
                 const { fkEmployeeId } = getValue();
                 if (!fkEmployeeId) return
-                setLoader(true);
-                getAttendanceRequest({ url: API.GetAttendanceDetail, params: { employeeId: fkEmployeeId._id, requestDate: data } }).then(c => {
-                    if (c.data?.result) {
-                        changeTypeTrack.current = {
-                            start: new Date(c.data.result.startDateTime),
-                            end: new Date(c.data.result.endDateTime)
-                        }
-                        setFormValue({
-                            startDateTime: new Date(c.data.result.startDateTime),
-                            endDateTime: new Date(c.data.result.endDateTime)
-                        });
-                    }
-                    else {
-
-                        setFormValue({
-                            startDateTime: null,
-                            endDateTime: null
-                        });
-                    }
-                    setLoader(false);
-                })
+                handleRequest(fkEmployeeId._id, data);
             },
-            defaultValue: new Date()
+            defaultValue: reqDate ? new Date(reqDate) : new Date()
         },
         {
             elementType: "datetimepicker",

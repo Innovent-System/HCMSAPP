@@ -7,7 +7,7 @@ import CommonDropDown from '../../../components/CommonDropDown';
 import { Grid, TableCell, TableHead, TableRow, Typography } from '../../../deps/ui'
 import { API } from '../_Service';
 import Controls from '../../../components/controls/Controls';
-import { AttendanceflagMap, currencyFormat } from '../../../util/common';
+import { formatNumber } from '../../../util/common';
 import ReportTable from '../../../components/ReportTable';
 
 const reportColumns = [
@@ -15,11 +15,11 @@ const reportColumns = [
     { field: 'fullName', headerName: 'Employee' },
     { field: 'department', headerName: 'Department' },
     { field: 'designation', headerName: 'Designation' },
-    { field: 'monthlySalary', headerName: 'Monthly Salary', valueGetter: ({ row }) => currencyFormat.format(row.payroll.monthlySalary) },
+    { field: 'monthlySalary', headerName: 'Monthly Salary', valueGetter: ({ row }) => formatNumber(row.payroll.monthlySalary) },
     { field: 'workingDays', headerName: 'Present Days', valueGetter: ({ row }) => row.payroll?.workingDays },
-    { field: 'totalEarning', headerName: 'Gross Pay', valueGetter: ({ row }) => currencyFormat.format(row.payroll.totalEarning) },
-    { field: 'totalDeduction', headerName: 'Deductions', valueGetter: ({ row }) => currencyFormat.format(row.payroll.totalDeduction) },
-    { field: 'totalSalary', headerName: 'Net Pay', valueGetter: ({ row }) => currencyFormat.format(row.payroll.totalSalary) },
+    { field: 'totalEarning', headerName: 'Gross Pay', valueGetter: ({ row }) => formatNumber(row.payroll.totalEarning) },
+    { field: 'totalDeduction', headerName: 'Deductions', valueGetter: ({ row }) => formatNumber(row.payroll.totalDeduction) },
+    { field: 'totalSalary', headerName: 'Net Pay', valueGetter: ({ row }) => formatNumber(row.payroll.totalSalary) },
 ];
 
 const HeadElement = ({ row }) => {

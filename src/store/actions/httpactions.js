@@ -3,6 +3,7 @@ import { domain, headerOption } from '../../config/appconfig';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { showFilterProps } from '../../components/useDropDown'
+import { getDefaultMonth } from '../../util/common';
 
 export const getApi = createApi({
   reducerPath: "resource",
@@ -233,7 +234,7 @@ const INITIAL_STATE = {
     departmentIds: '',
     designationIds: '',
     yearIds: new Date().getFullYear(),
-    monthIds: new Date().getMonth()
+    monthIds: getDefaultMonth()
   },
   isReset: false,
   fileConfig: {
@@ -271,7 +272,7 @@ export const appSlice = createSlice({
         departmentIds: '',
         designationIds: '',
         yearIds: new Date().getFullYear(),
-        monthIds: new Date().getMonth()
+        monthIds: getDefaultMonth()
       }
     },
     showDropDownFilterAction(state, action) {

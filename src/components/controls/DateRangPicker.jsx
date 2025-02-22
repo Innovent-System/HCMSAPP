@@ -4,17 +4,17 @@ import { LocalizationProvider } from '@mui/x-date-pickers-pro';
 import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
 import { AdapterDateFns } from '@mui/x-date-pickers-pro/AdapterDateFnsV3';
 
-export default function BasicDateRangePicker({ 
-    name, 
+export default function BasicDateRangePicker({
+    name,
     fromLabel = "From", // ✅ Updated: Properly named fromLabel
     toLabel = "To", // ✅ Updated: Properly named toLabel
-    value, 
-    onChange, 
-    size = "small", 
+    value,
+    onChange,
+    size = "small",
     error = null,
-    variant = "outlined", 
-    category = "date", 
-    ...others 
+    variant = "outlined",
+    category = "date",
+    ...others
 }) {
 
     const convertToDefEventPara = (name, value) => ({
@@ -42,6 +42,7 @@ export default function BasicDateRangePicker({
                         variant,
                         size,
                         fullWidth: true,
+                        autoComplete: "off",
                         error: !!error,
                         helperText: error,
                         ...(position === "start" ? others : {}) // Apply additional props

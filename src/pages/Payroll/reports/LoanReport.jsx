@@ -7,7 +7,7 @@ import CommonDropDown from '../../../components/CommonDropDown';
 import { Grid, TableCell, TableHead, Typography } from '../../../deps/ui'
 import { API } from '../_Service';
 import Controls from '../../../components/controls/Controls';
-import { AttendanceflagMap, currencyFormat } from '../../../util/common';
+import { formatNumber } from '../../../util/common';
 import ReportTable from '../../../components/ReportTable';
 
 const reportColumns = [
@@ -16,9 +16,9 @@ const reportColumns = [
     { field: 'department', headerName: 'Department' },
     { field: 'designation', headerName: 'Designation' },
     { field: 'type', headerName: 'Type' },
-    { field: 'principleAmount', headerName: 'Principle Amount', valueGetter: ({ row }) => currencyFormat.format(row.principleAmount) },
+    { field: 'principleAmount', headerName: 'Principle Amount', valueGetter: ({ row }) => formatNumber(row.principleAmount) },
     { field: 'distributedMonth', headerName: 'Installments' },
-    { field: 'repayAmount', headerName: 'Installment Amount', valueGetter: ({ row }) => currencyFormat.format(row.repayAmount) }
+    { field: 'repayAmount', headerName: 'Installment Amount', valueGetter: ({ row }) => formatNumber(row.repayAmount) }
 ];
 
 const HeadElement = ({ row }) => {

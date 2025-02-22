@@ -15,7 +15,7 @@ const reportMap = Object.freeze({
 
 const ReportToRoute = ({ reportId, loader, setLoader }) => {
     const Map = reportMap[reportId];
-    return <Suspense fallback={<CircularLoading open={true} />}>{Map ? <Map loader={loader} setLoader={setLoader} /> : <Comingsoon />}</Suspense>
+    return <Suspense key={reportId} fallback={<CircularLoading open={true} />}>{Map ? <Map loader={loader} setLoader={setLoader} /> : <Comingsoon />}</Suspense>
 }
 
 export const ReportPage = ({ formId, defaultReport }) => {

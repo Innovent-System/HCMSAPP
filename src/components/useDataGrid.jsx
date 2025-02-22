@@ -13,13 +13,14 @@ import {
   DataGridPro,
   gridClasses,
   GridToolbarContainer,
+  GridToolbarQuickFilter,
   GridActionsCellItem,
   LicenseInfo,
   GridOverlay,
   GridPagination,
 
 } from '@mui/x-data-grid-pro';
-export { GridRowModes, GridActionsCellItem, GridRowEditStopReasons } from '@mui/x-data-grid-pro'
+export { GridRowModes, GridActionsCellItem, GridRowEditStopReasons, GridToolbarQuickFilter } from '@mui/x-data-grid-pro'
 import LinearProgress from '@mui/material/LinearProgress';
 
 const Key = '0f94d8b65161817ca5d7f7af8ac2f042T1JERVI6TVVJLVN0b3J5Ym9vayxFWFBJUlk9MTY1NDg1ODc1MzU1MCxLRVlWRVJTSU9OPTE=';
@@ -149,7 +150,7 @@ const StripedDataGrid = styled(DataGridPro)(({ theme }) => ({
 
 export const renderStatusCell = ({ row }) => <Chip size="small" color={row.status === "Rejected" ? "error" : row.status === "Approved" ? "info" : row.status === "Cancel" ? 'warning' : "default"} label={row.status} />
 
-export const getActions = (apiRef, actionKit = { onActive: null, onApproval: null, onEdit: null, onDelete: null, onCancel: null }) => {
+export const getActions = (apiRef, actionKit = { onActive: null, onApproval: null, onEdit: null, onDelete: null, onCancel: null }, allowCancelAfterApprove = false) => {
 
   return {
     field: 'actions',
@@ -161,6 +162,7 @@ export const getActions = (apiRef, actionKit = { onActive: null, onApproval: nul
     cellClassName: 'actions',
     getActions: ({ id, row }) => {
       const toolKit = [];
+      
       const { onActive, onApproval, onEdit, onDelete, onCancel } = actionKit;
       if (typeof onActive === "function") {
         toolKit.push(<GridActionsCellItem
@@ -203,7 +205,7 @@ export const getActions = (apiRef, actionKit = { onActive: null, onApproval: nul
       }
 
       if (typeof onCancel === "function") {
-        toolKit.push(!["Pending"].includes(row.status) ? <GridActionsCellItem
+        toolKit.push(!["Pending", ...(allowCancelAfterApprove ? ["Approved"] : [])].includes(row.status) ? <GridActionsCellItem
           size='small'
           label="Action Taken"
           icon={<AdminPanelSettings fontSize="small" />}
@@ -290,7 +292,7 @@ export default function FeaturedCrudGrid(props) {
     checkboxSelection = true,
     rowHeight = null,
     totalCount = 0,
-    gridHeight = 220,
+    gridHeight = 175,
     gridToolBar: GridToolBar, toolbarProps, ...others
   } = props;
 
@@ -340,6 +342,7 @@ export default function FeaturedCrudGrid(props) {
         components={{
           LoadingOverlay: CustomLoadingOverlay,
           Toolbar: GridToolBar,
+
           Pagination: CustomPagination
         }}
         {...others}
@@ -380,7 +383,8 @@ export function GridToolbar(props) {
   const { apiRef, onAdd, onDelete, selectionModel } = props;
 
   return (
-    <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
+    <GridToolbarContainer sx={{ justifyContent: "space-between" }}>
+      <GridToolbarQuickFilter />
       {/* {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null} */}
       <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add Record" />
     </GridToolbarContainer>
