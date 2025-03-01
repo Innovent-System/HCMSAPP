@@ -21,7 +21,7 @@ const bindDataIds = (data, matchWith) => {
 
 const setDropDownIds = (data, type, matchWith) => ({ [type + "Ids"]: bindDataIds(data, matchWith) })
 
-const DEFAULT_BREAK_POINTS = { xs: 12, sm: 6, md: 6 };
+const DEFAULT_BREAK_POINTS = { size: { xs: 12, sm: 6, md: 6 } };
 
 function CommonDropDown({ isMultiple = false, children, flexDirection = "row", breakpoints = DEFAULT_BREAK_POINTS, showFilters, idset, setIdSet, setProps, ...others }) {
     const { filterType, setFilter, ...dropDown } = useDropDown();

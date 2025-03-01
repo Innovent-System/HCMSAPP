@@ -44,7 +44,7 @@ const itemStyle = {
         p: 1
     }
 }
-const breakpoints = { xs: 12, sm: 3, md: 3, lg: 3 }, fullWidthPoints = { sm: 12, md: 12, lg: 12 }
+const breakpoints = { size: { xs: 12, sm: 3, md: 3, lg: 3 } }, fullWidthPoints = { size: { sm: 12, md: 12, lg: 12 } }
 const DEFAULT_API = API.PayrollSetup;
 const selectFromResult = ({ data, isLoading }) => {
     if (!data?.result) return { basicSalaryType: "", percentage_or_amount: 0, allowances: [], deductions: [] };
@@ -207,14 +207,14 @@ const SalarySetup = () => {
         elementType: "checkbox",
         name: "enable",
         label: "Enable Over Time",
-        breakpoints: { xs: 12, sm: 12, md: 12 },
+        breakpoints: { size: { xs: 12, sm: 12, md: 12 } },
         defaultValue: false
     },
     {
         elementType: "dropdown",
         name: "wdType",
         label: "Working Day Rate",
-        breakpoints: { xs: 6, sm: 6, md: 2 },
+        breakpoints: { size: { xs: 6, sm: 6, md: 2 } },
         isShow: (value) => value.enable,
         dataId: "id",
         dataName: "title",
@@ -225,7 +225,7 @@ const SalarySetup = () => {
     {
         elementType: "inputfield",
         name: "wdAmount",
-        breakpoints: { xs: 6, sm: 6, md: 2 },
+        breakpoints: { size: { xs: 6, sm: 6, md: 2 } },
         isShow: (value) => value.enable && value.wdType === defaultOverTimeCalculation,
         label: "Amount",
         inputMode: 'numeric',
@@ -244,13 +244,13 @@ const SalarySetup = () => {
     },
     {
         elementType: "clearfix",
-        breakpoints: { md: 12, sm: 12, xs: 12 }
+        breakpoints: { size: { md: 12, sm: 12, xs: 12 } }
     },
     {
         elementType: "dropdown",
         name: "hdType",
         label: "Holiday Rate",
-        breakpoints: { xs: 6, sm: 6, md: 2 },
+        breakpoints: { size: { xs: 6, sm: 6, md: 2 } },
         isShow: (value) => value.enable,
         dataId: "id",
         dataName: "title",
@@ -261,7 +261,7 @@ const SalarySetup = () => {
     {
         elementType: "inputfield",
         name: "hdAmount",
-        breakpoints: { xs: 6, sm: 6, md: 2 },
+        breakpoints: { size: { xs: 6, sm: 6, md: 2 } },
         isShow: (value) => value.enable && value.hdType === defaultOverTimeCalculation,
         label: "Amount",
         inputMode: 'numeric',
@@ -280,13 +280,13 @@ const SalarySetup = () => {
     },
     {
         elementType: "clearfix",
-        breakpoints: { md: 12, sm: 12, xs: 12 }
+        breakpoints: { size: { md: 12, sm: 12, xs: 12 } }
     },
     {
         elementType: "dropdown",
         name: "ghType",
         label: "Gazetted Holiday Rate",
-        breakpoints: { xs: 6, sm: 6, md: 2 },
+        breakpoints: { size: { xs: 6, sm: 6, md: 2 } },
         isShow: (value) => value.enable,
         dataId: "id",
         dataName: "title",
@@ -297,7 +297,7 @@ const SalarySetup = () => {
     {
         elementType: "inputfield",
         name: "ghAmount",
-        breakpoints: { xs: 6, sm: 6, md: 2 },
+        breakpoints: { size: { xs: 6, sm: 6, md: 2 } },
         isShow: (value) => value.enable && value.ghType === defaultOverTimeCalculation,
         label: "Amount",
         inputMode: 'numeric',
@@ -316,7 +316,7 @@ const SalarySetup = () => {
     },
     {
         elementType: "clearfix",
-        breakpoints: { md: 12, sm: 12, xs: 12 }
+        breakpoints: { size: { md: 12, sm: 12, xs: 12 } }
     },
     {
         elementType: "inputfield",
@@ -366,16 +366,16 @@ const SalarySetup = () => {
         {/* <CircularLoading open={isLoading} /> */}
         <AutoForm ref={formApi} formData={formData} >
             {/* <Grid container flexDirection="column" spacing={2} pt={2}> */}
-            <Grid item sm={12} lg={12} md={12}>
+            <Grid item size={{ xs: 12, md: 12 }}>
                 {salaryItems.map((c, i) => (
                     <Grid container key={c.item + i} sx={itemStyle} gap={2}  >
-                        <Grid item sm={0.5} md={0.5} lg={0.5} textAlign='center' >{i + 1}</Grid>
-                        <Grid item xs={6} sm={4} md={4} lg={4}> <Typography>{c.item}</Typography> </Grid>
-                        <Grid item xs={3} sm={2} md={2} lg={2}><Typography>{c.amount}</Typography> </Grid>
+                        <Grid item size={{ xs: 0.5, md: 0.5 }} textAlign='center' >{i + 1}</Grid>
+                        <Grid item size={{ xs: 6, md: 4 }}> <Typography>{c.item}</Typography> </Grid>
+                        <Grid item size={{ xs: 3, md: 2 }}><Typography>{c.amount}</Typography> </Grid>
                     </Grid>
                 ))}
             </Grid>
-            <Grid item sx={12} lg={12} md={12}>
+            <Grid item size={{ xs: 12, md: 12 }}>
                 <FormHelperText
                     error={salaryError}
                     sx={{
@@ -390,10 +390,10 @@ const SalarySetup = () => {
                     Estimated Salary : {estimateSalary.current}
                 </Typography>
             </Grid>
-            <Grid item sx={3} md={3} >
+            <Grid item size={{ xs: 3, md: 3 }} >
                 <Controls.Button size='medium' onClick={updateSalary} fullWidth text='Save' />
             </Grid>
-        </AutoForm>
+        </AutoForm >
         {/* </Grid> */}
     </>)
 }

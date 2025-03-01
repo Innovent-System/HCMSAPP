@@ -86,7 +86,7 @@ export default function Manage() {
                 <AutoForm formData={tileFormData} ref={titleFormApi} isValidate={true} />
             </Popup>
             <Grid container justifyContent={{ sm: "flex-start", md: "flex-end" }}>
-                <Grid item sm={12} md={3} lg={2}>
+                <Grid item size={{ sm: 12, md: 3, lg: 2 }} >
                     <Controls.Select
                         options={PayrollSetups}
                         label='Payroll Setup'

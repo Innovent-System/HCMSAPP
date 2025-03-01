@@ -2,6 +2,7 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { getApi, appSlice, empSlice } from './actions/httpactions'
 import { moduleSettingSlice } from './slicer/modulesettings'
+import { reportSlice } from './slicer/report';
 
 
 export const store = configureStore({
@@ -9,7 +10,8 @@ export const store = configureStore({
     [appSlice.name]: appSlice.reducer,
     [getApi.reducerPath]: getApi.reducer,
     [empSlice.name]: empSlice.reducer,
-    [moduleSettingSlice.name]: moduleSettingSlice.reducer
+    [moduleSettingSlice.name]: moduleSettingSlice.reducer,
+    [reportSlice.name]: reportSlice.reducer,
   },
   middleware: (getDefaulMiddleWare) => getDefaulMiddleWare({ immutableCheck: false, serializableCheck: false }).concat(getApi.middleware)
 })

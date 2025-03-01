@@ -65,7 +65,7 @@ const getColumns = (apiRef, onEdit, onActive) => [
     getActions(apiRef, { onEdit, onActive })
 ];
 
-const fullWidthPoints = { md: 12, sm: 12, xs: 12 };
+const fullWidthPoints = { size: { md: 12, sm: 12, xs: 12 } };
 
 
 const AddProvidentFund = ({ openPopup, setOpenPopup, colData = [], row = null, isEdit = false }) => {

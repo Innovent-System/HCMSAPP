@@ -83,7 +83,8 @@ const bindObject = (obj) => {
 }
 
 const emptyString = "";
-const breakpoints = { md: 4, sm: 6, xs: 6 }
+const breakpoints = { size: { md: 4, xs: 6 } };
+const fullSizePont = { size: { md: 12, xs: 12 } };
 const currentDate = new Date();
 export default function EmployaaModal({ isEdit = false, formApi, editId, currentEditRecord, coldata, mapEmployeeData, setActiveStep, activeStep = 0, add_edit_API = API.Employee }) {
 
@@ -173,7 +174,7 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, current
         {
           elementType: "uploadavatar",
           name: "employeeImage",
-          breakpoints: { md: 12, sm: 12, xs: 12 },
+          breakpoints: fullSizePont,
           defaultValue: null
         },
         {
@@ -337,7 +338,7 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, current
         {
           elementType: "checkbox",
           name: "isAllowLogin",
-          breakpoints: { md: 12, sm: 12, xs: 12 },
+          breakpoints: fullSizePont,
           label: "Allow Login",
           defaultValue: false,
           excel: {
@@ -554,7 +555,7 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, current
         },
         {
           elementType: "custom",
-          breakpoints: { sm: 12, md: 12, xl: 12 },
+          breakpoints: fullSizePont,
           NodeElement: () => <Divider><Chip size='small' label="JCR Detail" icon={<Person />} /></Divider>
         },
         {
@@ -607,7 +608,7 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, current
         },
         {
           elementType: "custom",
-          breakpoints: { sm: 12, md: 12, xl: 12 },
+          breakpoints: fullSizePont,
           NodeElement: () => <Divider><Chip size='small' label="Contact Detail" icon={<Person />} /></Divider>
         },
         {
@@ -677,7 +678,7 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, current
         },
         {
           elementType: "custom",
-          breakpoints: { sm: 12, md: 12, xl: 12 },
+          breakpoints: fullSizePont,
           NodeElement: () => <Divider><Chip size='small' label="Telephone" icon={<Call />} /></Divider>
         },
         {

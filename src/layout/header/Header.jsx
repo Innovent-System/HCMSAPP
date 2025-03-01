@@ -228,8 +228,8 @@ export default function Header() {
         elevation={2}
         color="primary">
         <Toolbar disableGutters>
-          <Grid container alignItems="center">
-            <Grid item xs className="left">
+          <Grid container width="100%" justifyContent="space-between" alignItems="center">
+            <Grid item  className="left">
               <IconButton
                 onClick={toggleSidebar("left", true)}
                 color="secondary">
@@ -239,7 +239,7 @@ export default function Header() {
                 <img src={Logo} alt="Logo" />
               </Link>
             </Grid>
-            <Grid item xs className="center">
+            <Grid item  className="center">
               {/* <InputBase
                 placeholder="Search"
                 startAdornment={<SearchIcon fontSize="small" color="primary" />}
@@ -250,10 +250,10 @@ export default function Header() {
 
             </Grid>
 
-            <Grid item xs display={{ xs: "none", sm: "block" }}>
+            <Grid item display={{ xs: "none", sm: "block" }}>
               <DigitalTimer />
             </Grid>
-            <Grid item xs className="right">
+            <Grid item  className="right">
               <div className="btn-grid">
                 <IconButton>
                   <Badge badgeContent={4}>

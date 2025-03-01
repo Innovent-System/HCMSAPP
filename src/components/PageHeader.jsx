@@ -95,8 +95,8 @@ function trigger(eventType, data) {
   const event = new CustomEvent(eventType, { detail: data });
   document.dispatchEvent(event);
 }
-const breakPoints6 = { xs: 6, sm: 6, md: 6, lg: 6 }
-const breakPoints12 = { xs: 12, sm: 12, md: 12, lg: 12 }
+const breakPoints6 = { size: { xs: 6, md: 6 } }
+const breakPoints12 = { size: { xs: 12, md: 12 } }
 export default function PageHeader(props) {
   const classes = useStyles();
   const { title, subTitle, icon, handleUpload, handleApply, handleTemplate, enableFilter, showQueryFilter = true } = props;
@@ -210,14 +210,14 @@ export default function PageHeader(props) {
             //   </AccordionDetails>
             // </Accordion>
             <CommonDropDown key="common-drop-down">
-              <Grid item sm={12} md={12} lg={12}>
+              <Grid item size={{ xs: 12, md: 12 }} >
                 <Divider />
 
               </Grid>
-              <Grid item sm={12} md={12} lg={12}>
+              <Grid item size={{ xs: 12, md: 12 }}>
                 <QueryBuilder query={query} setQuery={setQuery} fields={fields} />
               </Grid>
-              {applyFunc && <Grid item sm={6} md={6} lg={6}>
+              {applyFunc && <Grid item size={{ xs: 6, md: 6 }}>
                 <Controls.Button
                   color="primary"
                   fullWidth={true}

@@ -1,23 +1,17 @@
 import React, { useState } from 'react'
-import { useLazyFileQuery } from '../../../store/actions/httpactions';
-import { useDropDownIds } from '../../../components/useDropDown';
-import { formateISODateTime, getMonthStartEnd } from '../../../services/dateTimeService';
-import { DetailPanelContent, ReportHeader } from '../../../components/ReportViewer';
-import CommonDropDown from '../../../components/CommonDropDown';
-import { Box, Grid, Stack, TableCell, TableRow, Typography, IconButton, ButtonGroup, TableBody, TableHead } from '../../../deps/ui'
-import { Launch, DirectionsWalk, AvTimer } from '../../../deps/ui/icons'
-import { API } from '../_Service';
-import Controls from '../../../components/controls/Controls';
-import { AttendanceflagMap } from '../../../util/common';
-import ReportTable from '../../../components/ReportTable';
-import { AddLeaveRequest } from '../../Leave/Request';
-import { AddAttendanceRequest } from '../Request';
+import { formateISODateTime, getMonthStartEnd } from '../../../../services/dateTimeService';
+import { BaseReportWrapper } from '../../../../components/ReportViewer';
+import { Box, Stack, TableCell, TableRow, Typography, IconButton, ButtonGroup, TableHead } from '../../../../deps/ui'
+import { DirectionsWalk, AvTimer } from '../../../../deps/ui/icons'
+import { AttendanceflagMap } from '../../../../util/common';
+import ReportTable from '../../../../components/ReportTable';
+import { AddLeaveRequest } from '../../../Leave/Request';
+import { AddAttendanceRequest } from '../../Request';
 
 const ActionModel = {
     leaveReq: { Element: AddLeaveRequest, Icon: DirectionsWalk, title: "Leave Request" },
     attendanceReq: { Element: AddAttendanceRequest, Icon: AvTimer, title: "Attendance Request" }
 }
-
 
 const AddAction = ({ name, ...others }) => {
     const [openPopup, setOpenPopup] = useState(false);
@@ -50,8 +44,8 @@ const reportColumns = [
     { field: 'status', disableSorting: false, headerName: 'Remarks', valueGetter: ({ row }) => AttendanceflagMap[row?.status]?.tag },
     {
         field: 'action', disableSorting: false, headerName: 'Actions', renderCell: ({ row }) => <ButtonGroup flexDirection="row">
-            {attendaceWillBeSHow.includes(row?.status) ? <AddAction key={`leave-${row.fkEmployeeId}-${row.scheduleStartDt}`} name="leaveReq" requestedDate={row.scheduleStartDt} requestedEmployee={row.fkEmployeeId} /> : null}
-            {attendaceWillBeSHow.includes(row?.status) || !row.scheduleEndDt ?
+            {attendaceWillBeSHow.includes(row?.status) || row.earlyOut ? <AddAction key={`leave-${row.fkEmployeeId}-${row.scheduleStartDt}`} name="leaveReq" requestedDate={row.scheduleStartDt} requestedEmployee={row.fkEmployeeId} /> : null}
+            {attendaceWillBeSHow.includes(row?.status) || !row.scheduleEndDt || row.earlyOut ?
                 <AddAction key={`attendance-${row.fkEmployeeId}-${row.scheduleStartDt}`} name="attendanceReq" reqDate={row.scheduleStartDt} reqEmployee={row.fkEmployeeId} /> : null}
         </ButtonGroup>
 
@@ -121,122 +115,58 @@ const HeadElement = ({ row, index }) => {
 const GrandTotal = ({ row, minutesDetail }) => {
     const detail = minutesDetail.find(m => m.fkEmployeeId === row.fkEmployeeId);
     return <><TableRow >
-        <TableCell colSpan={6}>
+        <TableCell colSpan={5}>
             Total
         </TableCell>
         <TableCell>{detail?.totalWorkHr}</TableCell>
         <TableCell>{detail?.totalLateHr}</TableCell>
         <TableCell>{detail?.totalEarly}</TableCell>
-        <TableCell colSpan={3}>{detail?.totalOverTime}</TableCell>
+        <TableCell colSpan={4}>{detail?.totalOverTime}</TableCell>
     </TableRow>
         <TableRow>
 
-            <TableCell colSpan={7}>
+            <TableCell colSpan={6}>
                 Total Overtime
             </TableCell>
-            <TableCell colSpan={3} align='center'>{detail?.reminingOTHr}</TableCell>
-            <TableCell colSpan={2}></TableCell>
+            <TableCell colSpan={2} align='center'>{detail?.reminingOTHr}</TableCell>
+            <TableCell colSpan={3}></TableCell>
 
         </TableRow>
     </>
 }
 
-const AttendanceReport = ({ loader, setLoader }) => {
+const AttendanceViewer = ({ API_NAME, fileName }) => {
+
     const [records, setRecords] = useState({
         attendanceList: [],
         summary: []
     });
-
-    const [dateRange, setDateRange] = useState([monthStart, monthEnd])
-    const [gridFilter, setGridFilter] = useState({
-        lastKey: null,
-        limit: 30,
-        page: 0,
-        totalRecord: 0
-    })
-    const [getAttendanceReport] = useLazyFileQuery();
-
-    const { countryIds, stateIds, cityIds, areaIds, departmentIds, groupIds, designationIds, employeeIds } = useDropDownIds();
-
-    const handleReport = (isDownload = false) => {
-        setLoader(!loader);
-        getAttendanceReport({
-            url: `${API.AttendanceReport}/${isDownload ? 'download' : 'view'}`,
-            fileName: "AttendanceReport",
-            data: {
-                page: gridFilter.page,
-                limit: gridFilter.limit,
-                searchParams: {
-                    ...(employeeIds && { "_id": { $in: employeeIds.split(',') } }),
-                    ...(countryIds && { "companyInfo.fkCountryId": { $in: countryIds.split(',') } }),
-                    ...(stateIds && { "companyInfo.fkStateId": { $in: stateIds.split(',') } }),
-                    ...(cityIds && { "companyInfo.fkCityId": { $in: cityIds.split(',') } }),
-                    ...(areaIds && { "companyInfo.fkAreaId": { $in: areaIds.split(',') } }),
-                    ...(groupIds && { "companyInfo.fkEmployeeGroupId": { $in: groupIds.split(',') } }),
-                    ...(departmentIds && { "companyInfo.fkDepartmentId": { $in: departmentIds.split(',') } }),
-                    ...(designationIds && { "companyInfo.fkDesignationId": { $in: designationIds.split(',') } }),
-                    scheduleStartDt: dateRange[0],
-                    scheduleEndDt: dateRange[1]
-                    // ...query
-                }
-            }
-        }).then(c => {
-            setLoader(false);
-            if (!isDownload)
-                setRecords(c.data.result)
-        })
-
+    const handleRecord = (data) => {
+        setRecords(data)
     }
+
     return (
-        <>
-            <Grid item sm={9} md={9} lg={9}>
-                <ReportHeader handleReport={handleReport} component={{
-                    pagination: null
-                }} />
-            </Grid>
-            <Grid item sm={3} md={3} lg={3}>
-                <CommonDropDown flexDirection='column' breakpoints={{ sm: 10, md: 10, lg: 10 }} showFilters={{
-                    country: true,
-                    state: true,
-                    city: true,
-                    area: true,
-                    department: true,
-                    group: true,
-                    employee: true
-                }}>
-                    <Grid item sm={10} md={10} lg={10}>
-                        <Controls.DateRangePicker onChange={({ target }) => { setDateRange(target.value) }} value={dateRange} />
-                    </Grid>
-                    <Grid item sm={10} md={10} lg={10} pr={1}>
-                        <Controls.Button text="Generate" onClick={() => handleReport()} fullWidth />
-                    </Grid>
-                </CommonDropDown>
-            </Grid>
-            <Grid item sm={9} md={9} lg={9}>
-                <ReportTable columnPrint={reportColumns}
-                    pageBreak={true}
-                    pageBreakOn='fkEmployeeId'
-                    reportData={records?.attendanceList}
-                    HeadElement={HeadElement}
-                    Summary={TableFooter}
-                    GrandTotal={GrandTotal}
-                    summaryProps={{
-                        summary: records?.summary
-                    }}
-                    grandTotalProps={{
-                        minutesDetail: records?.minutesDetail
-                    }}
-                />
-                {/* <DetailPanelContent row={records?.attendanceList} headCells={TableHead} Footer={{
-                    Element: TableFooter,
-                    data: records.summary
+
+        <BaseReportWrapper API_NAME={API_NAME} fileName={fileName}
+            handleRecord={handleRecord}
+            thunk={{ employee: true }}
+        >
+            <ReportTable columnPrint={reportColumns}
+                pageBreak={true}
+                pageBreakOn='fkEmployeeId'
+                reportData={records?.attendanceList}
+                HeadElement={HeadElement}
+                Summary={TableFooter}
+                GrandTotal={GrandTotal}
+                summaryProps={{
+                    summary: records?.summary
                 }}
-                    pagination={false}
-                    isSingleEmployee={true}
-                /> */}
-            </Grid>
-        </>
+                grandTotalProps={{
+                    minutesDetail: records?.minutesDetail
+                }}
+            />
+        </BaseReportWrapper>
     )
 }
 
-export default AttendanceReport
+export default AttendanceViewer

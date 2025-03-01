@@ -2,14 +2,16 @@ import { useEffect, useRef, useState } from 'react'
 import { AutoForm } from '../../../../components/useForm'
 import { DisplaySettings, Percent, AttachMoney, RemoveCircleOutline, AddCircleOutline, SaveTwoTone } from '../../../../deps/ui/icons'
 import { Divider, Chip, InputAdornment, IconButton, Fab, Grid } from '../../../../deps/ui'
-import { API, basicSalaryTypeList, PercentageBased, dayRange, defaultCaluation, payScheduleType, 
-    perDayCalulationsList, CalculationType, PercentageOfBasicSalary,FixedAmount } from '../../_Service'
+import {
+    API, basicSalaryTypeList, PercentageBased, dayRange, defaultCaluation, payScheduleType,
+    perDayCalulationsList, CalculationType, PercentageOfBasicSalary, FixedAmount
+} from '../../_Service'
 import { useAppDispatch, useAppSelector } from '../../../../store/storehook'
 import { PayrollDataThunk, useEntityAction, useLazyEntityByIdQuery } from '../../../../store/actions/httpactions'
 import Controls from '../../../../components/controls/Controls'
 
 
-const breakpoints = { md: 2, sm: 6, xs: 6 }, fullWidthPoints = { md: 12, sm: 12, xs: 12 };
+const breakpoints = { size: { md: 2, sm: 6, xs: 6 } }, fullWidthPoints = { size: { md: 12, sm: 12, xs: 12 } };
 /**
  * @type {import('@mui/material').SxProps}
  */
@@ -96,7 +98,7 @@ const PaySettings = ({ data }) => {
             calculationMethod,
             basicSalaryType,
             percentage_or_amount: basicSalaryType === PercentageBased ? percentage : amount,
-            allowances: allowances.map(c => ({ fkAllowanceId: c.fkAllowanceId, type: c.type, percentage_or_amount:  c.type !== FixedAmount ? c.percentage : c.amount })),
+            allowances: allowances.map(c => ({ fkAllowanceId: c.fkAllowanceId, type: c.type, percentage_or_amount: c.type !== FixedAmount ? c.percentage : c.amount })),
             deductions: deductions.map(c => ({ fkDeductionId: c.fkDeductionId, type: c.type, percentage_or_amount: c.type !== FixedAmount ? c.percentage : c.amount }))
         };
         if (isEdit.current) {
@@ -330,7 +332,7 @@ const PaySettings = ({ data }) => {
                 },
                 {
                     elementType: "custom",
-                    breakpoints: { xs: 6, lg: 6, md: 6 },
+                    breakpoints: { size: { xs: 6, lg: 6, md: 6 } },
                     NodeElement: ({ dataindex }) => <>
                         <IconButton onClick={() => handleRemoveItems(dataindex)}>
                             <RemoveCircleOutline color='warning' />
@@ -438,7 +440,7 @@ const PaySettings = ({ data }) => {
                 },
                 {
                     elementType: "custom",
-                    breakpoints: { xs: 6, lg: 6, md: 6 },
+                    breakpoints: { size: { xs: 6, lg: 6, md: 6 } },
                     NodeElement: ({ dataindex }) =>
                         <IconButton onClick={() => handleRemoveItems(dataindex, false)}>
                             <RemoveCircleOutline color='warning' />
@@ -489,7 +491,7 @@ const PaySettings = ({ data }) => {
     return (
         <>
             <AutoForm formData={formData} ref={formApi} isValidate={true} >
-                <Grid item sm={12} md={12} lg={12} textAlign="right">
+                <Grid item size={{ xs: 12, md: 12 }} textAlign="right">
                     <Divider variant='fullWidth' sx={{ mb: 1 }} />
                     <Controls.Button sx={{ width: 100 }} onClick={() => { { isEdit.current = true; handleSubmit() } }} startIcon={<SaveTwoTone />} text="Save" />
                 </Grid>

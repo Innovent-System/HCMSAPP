@@ -173,21 +173,21 @@ const AddDepartment = ({ openPopup, excelConfig, setOpenPopup, isEdit = false, r
         },
         {
             elementType: "custom",
-            breakpoints: { xs: 12, md: 12, lg: 12 },
+            breakpoints: { size: { xs: 12, md: 12, lg: 12 } },
             NodeElement: () => <Divider><Chip label="Map Designtaion" onClick={handleAdd} icon={<DisplaySettings />} /></Divider>
         },
         {
             elementType: "arrayForm",
             name: "designations",
             arrayFormRef: desgFormApi,
-            breakpoints: { md: 12, lg: 12, xs: 12 },
+            breakpoints: { size: { md: 12, lg: 12, xs: 12 } },
             defaultValue: mapDesignation,
             formData: [
                 {
                     elementType: "ad_dropdown",
                     name: "id",
                     label: "Designation",
-                    breakpoints: { xs: 6, lg: 5, md: 5 },
+                    breakpoints: { size: { xs: 6, lg: 5, md: 5 } },
                     dataId: "_id",
                     dataName: "name",
                     defaultValue: null,
@@ -198,7 +198,7 @@ const AddDepartment = ({ openPopup, excelConfig, setOpenPopup, isEdit = false, r
                     name: "noOfPositions",
                     label: "No Of Positions",
                     required: true,
-                    breakpoints: { xs: 6, lg: 5, md: 5 },
+                    breakpoints: { size: { xs: 6, lg: 5, md: 5 } },
                     type: 'number',
                     validate: {
                         errorMessage: "You have exceeded the employees limit",

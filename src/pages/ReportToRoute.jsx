@@ -7,10 +7,10 @@ import { useAppSelector } from "../store/storehook";
 
 
 const reportMap = Object.freeze({
-    1: lazy(() => import(`./Attendance/reports/AttendanceReport`)),
-    2: lazy(() => import(`./Payroll/reports/PayslipReport`)),
-    3: lazy(() => import(`./Payroll/reports/SalarySheetReport`)),
-    4: lazy(() => import(`./Payroll/reports/LoanReport`)),
+    1: lazy(() => import(`./Attendance/reports/filter/AttendanceFilter`)),
+    2: lazy(() => import(`./Payroll/reports/filter/PayslipFilter`)),
+    3: lazy(() => import(`./Payroll/reports/filter/SalarySheetFilter`)),
+    4: lazy(() => import(`./Payroll/reports/filter/LoanFilter`)),
 })
 
 const ReportToRoute = ({ reportId, loader, setLoader }) => {
@@ -27,8 +27,8 @@ export const ReportPage = ({ formId, defaultReport }) => {
 
     return (
         <>
-            <Grid container >
-                <Grid item sm={3} md={3} lg={3} pr={7.5}>
+            <Grid container flexDirection="column" spacing={1}>
+                <Grid item size={{ xs: 2.5, md: 2.5 }} >
                     <Controls.Select name="reportId" isNone={false} onChange={(e) => setReportId(e.target.value)} value={reportId}
                         label="Reports" options={reports} dataId="reportId" dataName="name" />
                 </Grid>

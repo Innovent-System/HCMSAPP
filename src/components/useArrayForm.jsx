@@ -83,7 +83,7 @@ const validateAllFields = (fieldValues, values) => {
 
     return errors;
 }
-const DEFAULT_BREAK_POINTS = { xs: 12, sm: 6, md: 6 };
+const DEFAULT_BREAK_POINTS = { size: { xs: 12, sm: 6, md: 6 } };
 
 /**
  * @type {React.FC<import('../types/fromstype').FormProps>}

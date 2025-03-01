@@ -154,7 +154,7 @@ export const AddLeaveType = ({ openPopup, setOpenPopup, isEdit = false, row = nu
             name: "fkleaveAccrualId",
             label: "LeaveAccural",
             dataId: "leaveAccrualId",
-            breakpoints: { md: 12, sm: 12, xs: 12 },
+            breakpoints: { size: { md: 12, xs: 12 } },
             dataName: "name",
             defaultValue: "",
             options: leaveAccural ?? []
@@ -269,7 +269,7 @@ const LeaveType = () => {
 
 
     useEffect(() => {
-        
+
         dispatch(enableFilterAction(false));
         dispatch(builderFieldsAction(fields));
     }, [dispatch])
@@ -300,7 +300,7 @@ const LeaveType = () => {
                 gridToolBar={GridToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
-                
+
             />
             <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
         </>

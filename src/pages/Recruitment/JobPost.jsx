@@ -95,7 +95,7 @@ const getColumns = () => [
     { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
     getActions(null)
 ];
-const breakpoints = { md: 3, sm: 6, xs: 12 }
+const breakpoints = { size: { md: 3, sm: 6, xs: 12 } }
 const AddJobPost = ({ openPopup, setOpenPopup, colData = [] }) => {
     const formApi = useRef(null);
     const [loader, setLoader] = useState(false);
@@ -256,7 +256,7 @@ const AddJobPost = ({ openPopup, setOpenPopup, colData = [] }) => {
             name: "skills",
             required: true,
             label: "Skills",
-            breakpoints: { md: 6, sm: 12, xs: 12 },
+            breakpoints: { size: { md: 6, sm: 12, xs: 12 } },
             validate: {
                 errorMessage: "Skills required",
             },
@@ -267,7 +267,7 @@ const AddJobPost = ({ openPopup, setOpenPopup, colData = [] }) => {
         },
         {
             elementType: "custom",
-            breakpoints: { sm: 12, md: 12, xl: 12 },
+            breakpoints: { size: { sm: 12, md: 12, xl: 12 } },
             NodeElement: () => <Divider variant="middle"><Chip size="small" label="Salary Range" icon={<AttachMoney />} /></Divider>
         },
         {
@@ -294,7 +294,7 @@ const AddJobPost = ({ openPopup, setOpenPopup, colData = [] }) => {
         },
         {
             elementType: "custom",
-            breakpoints: { sm: 12, md: 12, xl: 12 },
+            breakpoints: { size: { sm: 12, md: 12, xl: 12 } },
             NodeElement: () => <Divider variant="middle"><Chip size="small" label="Age" icon={<Person />} /></Divider>
         },
         {
@@ -333,7 +333,7 @@ const AddJobPost = ({ openPopup, setOpenPopup, colData = [] }) => {
             },
             minRows: 5,
             variant: "outlined",
-            breakpoints: { md: 6, sm: 12, xs: 12 },
+            breakpoints: { size: { md: 6, sm: 12, xs: 12 } },
             defaultValue: "",
             excel: {
                 sampleData: "Personl reson"

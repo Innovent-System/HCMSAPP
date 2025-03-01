@@ -91,12 +91,12 @@ export const AddRoster = ({ getTemplate, setFile, roster, setRoster, openPopup, 
         addOrEditFunc={handleSubmit}
         setOpenPopup={setOpenPopup}>
         <Grid container spacing={2}>
-            <Grid md={12} lg={12} item textAlign="center">
+            <Grid size={{ md: 12 }} item textAlign="center">
 
                 <Alert severity="info">Prior to uploading the Excel file, kindly adjust the date range as needed.</Alert>
 
             </Grid>
-            <Grid md={12} lg={12} textAlign="center" item>
+            <Grid size={{ md: 12 }} textAlign="center" item>
                 <ButtonGroup variant="contained" color="inherit">
                     <Button
                         endIcon={<FileCopy fontSize="small" />}
@@ -117,7 +117,7 @@ export const AddRoster = ({ getTemplate, setFile, roster, setRoster, openPopup, 
 
             </Grid>
 
-            <Grid md={12} lg={12} textAlign="center" item >
+            <Grid size={{ md: 12 }} textAlign="center" item >
                 <Controls.DateRangePicker onChange={({ target }) => setRoster(target.value)} value={roster} />
             </Grid>
         </Grid>

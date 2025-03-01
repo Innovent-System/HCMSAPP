@@ -1,39 +1,24 @@
-import React, { useState } from 'react'
-import { Toolbar, AppBar, Grid, IconButton } from '../deps/ui'
+import React, { useState, useEffect } from 'react'
+import { Toolbar, AppBar, Grid, IconButton, ButtonGroup, Paper } from '../deps/ui'
 import { LocalPrintshop, PictureAsPdf, Description, OpenInNew } from '../deps/ui/icons'
 import CommonDropDown from './CommonDropDown'
 import useTable from './useTable'
 import { showFilterProps } from './useDropDown'
 import Controls from './controls/Controls'
 import CircularLoading from './Circularloading'
-import { useAppSelector } from '../store/storehook'
+import { useAppDispatch, useAppSelector } from '../store/storehook'
+import { useLocation, useSearchParams } from 'react-router-dom'
+import { EmployeeDataThunk, useEntitiesQuery, useLazyFileQuery } from '../store/actions/httpactions'
+import { GET_EMPLOYEE_DATA } from '../services/UrlService'
+import { decompressQuery } from '../util/reporthelper'
 
-const BREAK_POINTS = { xs: 10, sm: 10, md: 10 };
-
-export const DetailPanelContent = ({ row, headCells, Footer = {
-    Element: null,
-    data: []
-}, isSingleEmployee = false, pagination = true }) => {
-
-    const { TblContainer, TblHead, TblBody, TblPagination } = useTable(row, headCells, Footer, {}, isSingleEmployee, pagination)
-    return (
-        <>
-            <TblContainer>
-                <TblHead />
-                <TblBody />
-            </TblContainer>
-            <TblPagination />
-        </>
-
-    )
-}
-
+const BREAK_POINTS = { xs: 12, md: 12 };
 
 export const ReportHeader = ({ handleReport, component: { pagination } }) => {
 
-    return <AppBar color='transparent' sx={{ borderRadius: 1, mb: 1 }} position='sticky'><Toolbar variant='dense'>
-        <Grid container justifyContent="space-between">
-            <Grid item sm={2} md={2} lg={2}>
+    return <AppBar color='default' sx={{ borderRadius: 1, mb: 1 }} position='sticky'><Toolbar variant='dense'>
+        <Grid container width="100%" justifyContent="space-between">
+            <Grid item size={{ xs: 2, md: 2 }} >
 
             </Grid>
             <Grid item >
@@ -41,46 +26,74 @@ export const ReportHeader = ({ handleReport, component: { pagination } }) => {
             </Grid>
 
             <Grid item>
-                <IconButton title='Print'>
-                    <LocalPrintshop />
-                </IconButton>
-                <IconButton title='Download Pdf' onClick={() => handleReport(true)}>
-                    <PictureAsPdf />
-                </IconButton>
-                <IconButton title='Download Excel'>
-                    <Description />
-                </IconButton>
-                <IconButton title='New Tab'>
-                    <OpenInNew />
-                </IconButton>
+                <ButtonGroup variant='text'>
+                    <IconButton title='Print'>
+                        <LocalPrintshop />
+                    </IconButton>
+                    <IconButton title='Download Pdf' onClick={() => handleReport(true)}>
+                        <PictureAsPdf />
+                    </IconButton>
+                    <IconButton title='Download Excel'>
+                        <Description />
+                    </IconButton>
+                </ButtonGroup>
+
             </Grid>
 
         </Grid>
     </Toolbar>
     </AppBar>
 }
-const ReportViewer = ({ records, TableHeaders, loader, showFilters = showFilterProps, handleReport, children, breakpoints = BREAK_POINTS }) => {
+
+export const BaseReportWrapper = ({ API_NAME, fileName, children, handleRecord, pagination = null, thunk = { employee: false } }) => {
+    const dispatch = useAppDispatch();
+    const [loader, setLoader] = useState(false);
+    const [searchParams] = useSearchParams();
+    const [repotFilter, setReportFilter] = useState({
+        limit: 30,
+        page: 0,
+        totalRecord: 0
+    })
+
+    const [getReport] = useLazyFileQuery();
+
+    useEffect(() => {
+        if (thunk?.employee)
+            dispatch(EmployeeDataThunk({ url: GET_EMPLOYEE_DATA }));
+        if (searchParams.get('data')) {
+            const queryData = decompressQuery(searchParams.get("data"));
+            handleReport(false, queryData);
+            setReportFilter(queryData);
+        }
+    }, [searchParams])
+
+    const handleReport = (isDownload = false, queryData = repotFilter) => {
+        setLoader(true);
+        getReport({
+            url: `${API_NAME}/${isDownload ? 'download' : 'view'}`,
+            fileName,
+            data: queryData
+        }).then(c => {
+
+            if (!isDownload)
+                handleRecord(c.data.result, queryData)
+        }).finally(() => setLoader(false))
+
+    }
     return (
-        <Grid container spacing={3}>
-            <Grid item sm={3} md={3} lg={3}>
-                <CommonDropDown isMultiple={true} breakpoints={breakpoints} flexDirection='column'
-                    showFilters={showFilters} >
+        <Paper sx={{ p: 3, height: "100vh", overflow: 'auto' }}>
+            <Grid container spacing={1}>
+                <Grid position='sticky' top={0} item size={BREAK_POINTS}>
+                    <ReportHeader handleReport={handleReport} component={{
+                        pagination
+                    }} />
+                </Grid>
+                <Grid item size={BREAK_POINTS}>
                     {children}
-                    <Grid item {...breakpoints} pr={1}>
-                        <Controls.Button text="Generate" onClick={() => handleReport()} fullWidth />
-                    </Grid>
-                </CommonDropDown>
-
+                </Grid>
             </Grid>
+            <CircularLoading open={loader} />
+        </Paper>
 
-            <Grid item sm={9} md={9} lg={9}>
-                <ReportHeader handleReport={handleReport} component={{ pagination: null }} />
-                <CircularLoading open={loader} />
-                <DetailPanelContent row={records} headCells={TableHeaders} />
-            </Grid>
-
-        </Grid>
     )
 }
-
-export default ReportViewer

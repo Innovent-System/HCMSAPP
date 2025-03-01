@@ -1,5 +1,5 @@
 export {
-    Grid, Button,
+    Grid2 as Grid, Button,
     Checkbox, Avatar, FormControl, FormControlLabel, TextField,
     FormLabel, InputLabel, Select, MenuItem, FormHelperText, Radio, RadioGroup,
     InputAdornment, IconButton, Box, Container, CircularProgress, Typography, Paper,

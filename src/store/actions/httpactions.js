@@ -90,7 +90,7 @@ export const AuthThunk = createAsyncThunk('auth/requestStatus', async ({ url, pa
       message
     })
   } catch (err) {
-    console.log(err)
+    
     const { response } = err;
     return rejectWithValue({
       msg: (response?.data?.message ? response.data?.message : response.statusText),

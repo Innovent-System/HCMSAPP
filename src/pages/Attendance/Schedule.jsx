@@ -349,11 +349,11 @@ const Schedule = () => {
                 isEdit={isEdit.current}
                 addOrEditFunc={handleSubmit}
                 setOpenPopup={setOpenPopup}>
-                <Grid container gap={2}>
-                    <Grid item sm={12} md={4}>
+                <Grid container spacing={2}>
+                    <Grid item size={{ sm: 12, md: 4 }} >
                         <Controls.Input name="code" error={error.code} onChange={handleTextField} value={textField.code} required label="Code" />
                     </Grid>
-                    <Grid item sm={12} md={4}>
+                    <Grid item size={{ sm: 12, md: 4 }}>
                         <Controls.Input name="scheduleName" error={error.scheduleName} onChange={handleTextField} value={textField.scheduleName} required label="Name" />
                     </Grid>
                     <Grid item width="100%">
@@ -362,7 +362,7 @@ const Schedule = () => {
                         </Typography>
 
                     </Grid>
-                    <Grid item sm={12} xs={12} md={12}>
+                    <Grid item size={{ xs: 12, md: 12 }}>
                         <ShiftCard index={0} handleCopy={handleCopy} handleChange={handleChange} shifts={shiftList.current} data={state} />
                     </Grid>
 

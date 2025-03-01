@@ -107,7 +107,7 @@ const AddExemptionRequest = ({ openPopup, setOpenPopup }) => {
             label: "Date",
             defaultValue: new Date(),
             onChange: (data) => {
-                console.log({ data });
+
                 if (!data) return;
                 const { setFormValue, getValue } = formApi.current;
                 const { fkEmployeeId } = getValue();
@@ -148,7 +148,7 @@ const AddExemptionRequest = ({ openPopup, setOpenPopup }) => {
             },
             minRows: 5,
             variant: "outlined",
-            breakpoints: { md: 12, sm: 12, xs: 12 },
+            breakpoints: { size: { md: 12, sm: 12, xs: 12 } },
             defaultValue: ""
         }
 
@@ -206,7 +206,7 @@ const ExemptionRequest = () => {
     const { countryIds, stateIds, cityIds, areaIds } = useDropDownIds();
 
     const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
-        url: `${API.ExemptionRequest}/get` ,
+        url: `${API.ExemptionRequest}/get`,
         data: {
             limit: gridFilter.limit,
             page: gridFilter.page + 1,

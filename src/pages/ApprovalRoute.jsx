@@ -114,7 +114,7 @@ const AddApprovalRoute = ({ openPopup, setOpenPopup, DEFAULT_API, selectionModel
             },
             minRows: 5,
             variant: "outlined",
-            breakpoints: { md: 12, sm: 12, xs: 12 },
+            breakpoints: { size: { md: 12, sm: 12, xs: 12 } },
             defaultValue: ""
         }
     ];

@@ -40,12 +40,12 @@ const Styles = {
             position: 'sticky',
             top: 0
         },
-        '& tbody tr': {
-            '&:hover': {
-                bgcolor: '#fffbf2',
-                cursor: 'pointer',
-            },
-            '&:nth-child(even)': {
+        '& tr': {
+            // '&:hover': {
+            //     bgcolor: '#fffbf2',
+            //     cursor: 'pointer',
+            // },
+            '&:nth-of-type(even)': {
                 bgcolor: '#f2f2f2'
             }
 
@@ -161,16 +161,18 @@ const ReportTable = ({ pageBreak = false,
 
 
     return <TableContainer>
+        {records.length ? <Pagination shape='rounded'
+            sx={{ display: 'flex', justifyContent: 'center' }}
+            page={page}
+            onChange={handlePage}
+            count={resultCount}
+        /> : null}
         <Table sx={Styles.table} >
             {generateReport()}
 
         </Table>
 
-        {records.length ? <Pagination
-            page={page}
-            onChange={handlePage}
-            count={resultCount}
-        /> : null}
+
     </TableContainer >
 }
 

@@ -69,7 +69,7 @@ const LoanType = [
     { id: "Personal", title: "Personal Loan" },
     { id: "PF", title: "PF Loan" }
 ]
-const breakpoints = { md: 12 }
+const breakpoints = { size: { md: 12 } }
 const AddLoanAdjustment = ({ openPopup, setOpenPopup, colData = [] }) => {
     const formApi = useRef(null);
     const loanAjApi = useRef(null);
@@ -283,7 +283,7 @@ const AddLoanAdjustment = ({ openPopup, setOpenPopup, colData = [] }) => {
                     validate: {
                         errorMessage: "Select Date please",
                     },
-                    breakpoints: { md: 5 },
+                    breakpoints: { size: { md: 5 } },
                     defaultValue: new Date(),
                     excel: {
                         sampleData: new Date().toLocaleDateString('en-US')
@@ -303,7 +303,7 @@ const AddLoanAdjustment = ({ openPopup, setOpenPopup, colData = [] }) => {
                     inputProps: {
                         min: 0,
                     },
-                    breakpoints: { md: 5 },
+                    breakpoints: { size: { md: 5 } },
                     InputProps: {
                         endAdornment: (
                             <InputAdornment position="end">
@@ -315,7 +315,7 @@ const AddLoanAdjustment = ({ openPopup, setOpenPopup, colData = [] }) => {
                 },
                 {
                     elementType: "custom",
-                    breakpoints: { md: 2 },
+                    breakpoints: { size: { md: 2 } },
                     NodeElement: ({ dataindex, datavalue }) =>
                         !datavalue?._id ?
                             <IconButton onClick={() => handleRemoveItems(dataindex, false)}>
@@ -368,7 +368,7 @@ const AddLoanAdjustment = ({ openPopup, setOpenPopup, colData = [] }) => {
             keepMounted={true}
             addOrEditFunc={handleSubmit}
             setOpenPopup={setOpenPopup}>
-            <AutoForm formData={formData} ref={formApi} breakpoints={{ md: 6 }} isValidate={true} />
+            <AutoForm formData={formData} ref={formApi} breakpoints={{ size: { md: 6 } }} isValidate={true} />
         </Popup>
     </>
 }

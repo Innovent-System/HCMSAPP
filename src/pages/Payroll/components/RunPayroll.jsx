@@ -85,7 +85,7 @@ const DetailPanelContent = ({ row }) => {
 
     return (
         <Grid container>
-            <Grid item xs={4} md={4} lg={4} p={2}>
+            <Grid item size={{ xs: 4, md: 4 }} p={2}>
                 <Divider><Chip label="Earnings" icon={<DisplaySettings fontSize='small' />} /></Divider>
                 <Box display='flex' justifyContent='space-between'>
                     <Box>
@@ -101,7 +101,7 @@ const DetailPanelContent = ({ row }) => {
                 </Box>
 
             </Grid>
-            <Grid item xs={4} md={4} lg={4} p={2}>
+            <Grid item size={{ xs: 4, md: 4 }} p={2}>
                 <Divider><Chip label="Deductions" icon={<DisplaySettings fontSize='small' />} /></Divider>
                 <Box display='flex' justifyContent='space-between'>
                     <Box>
@@ -116,7 +116,7 @@ const DetailPanelContent = ({ row }) => {
                     </Box>
                 </Box>
             </Grid>
-            <Grid item xs={4} md={4} lg={4} p={2}>
+            <Grid item size={{ xs: 4, md: 4 }} p={2}>
                 <Divider><Chip label="Others" icon={<DisplaySettings fontSize='small' />} /></Divider>
                 <Box display='flex' justifyContent='space-between'>
                     <Box>
@@ -131,19 +131,19 @@ const DetailPanelContent = ({ row }) => {
                     </Box>
                 </Box>
             </Grid>
-            <Grid container display='flex'>
-                <Grid item xs={4} md={4} lg={4} p={2}>
+            <Grid container width="100%" display='flex'>
+                <Grid item size={{ xs: 4, md: 4 }} p={2}>
                     <Divider>Total</Divider>
                     <Box textAlign='right'>
                         <Typography >{currFormat.format(row.totalEarning)}</Typography>
                     </Box>
                 </Grid>
-                <Grid item xs={4} md={4} lg={4} p={2}><Divider>Total</Divider>
+                <Grid item size={{ xs: 4, md: 4 }} p={2}><Divider>Total</Divider>
                     <Box textAlign='right'>
                         <Typography >{currFormat.format(row.totalDeduction)}</Typography>
                     </Box>
                 </Grid>
-                <Grid item xs={4} md={4} lg={4} p={2}><Divider>Total</Divider></Grid>
+                <Grid item size={{ xs: 4, md: 4 }} p={2}><Divider>Total</Divider></Grid>
             </Grid>
 
         </Grid>

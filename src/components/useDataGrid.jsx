@@ -69,7 +69,7 @@ export const getCrudActions = (apiRef, onSave, onDelete) => {
     width: 100,
     cellClassName: 'actions',
     getActions: ({ id, ...test }) => {
-      console.log({ test })
+      
       const isInEditMode = apiRef.current.getRowMode(id) === 'edit';
 
       if (isInEditMode) {

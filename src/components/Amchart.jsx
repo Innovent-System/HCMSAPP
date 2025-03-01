@@ -60,7 +60,7 @@ const Amchart = ({ chartId, type = ChartType.XY, data, dataId, dataName, yHeadin
   }, [data])
 
   return (
-    <Paper elevation={4} style={{ height: 'inherit', width: 'inherit', backgroundColor: 'transparent' }} >
+    <Paper elevation={4} style={{ height: 'inherit', width: '100%', backgroundColor: 'transparent' }} >
       <div id={chartId} style={{ height: "320px" }}></div>
     </Paper>
   )

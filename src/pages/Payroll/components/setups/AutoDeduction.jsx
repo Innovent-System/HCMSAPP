@@ -7,7 +7,7 @@ import { useEntitiesQuery, useEntityAction, useLazyPostQuery } from '../../../..
 import { API } from '../../_Service';
 import Controls from '../../../../components/controls/Controls';
 
-const breakpoints = { md: 2, sm: 6, xs: 6 }, fullWidthPoints = { md: 12, sm: 12, xs: 12 };
+const breakpoints = { size: { md: 2, sm: 6, xs: 6 } }, fullWidthPoints = { size: { md: 12, sm: 12, xs: 12 } };
 const frequencyType = [{ id: "Once", title: "Once" },
 { id: "EveryOccurance", title: "Every Occurance" }
 ]
@@ -126,7 +126,7 @@ export const AutoDeduction = ({ data }) => {
       elementType: "dropdown",
       name: "leaveDeductionOrder",
       label: "Leave Type",
-      breakpoints: { xs: 6, sm: 6, md: 2 },
+      breakpoints: { size: { xs: 6, sm: 6, md: 2 } },
       isMultiple: true,
       isShow: (value) => value.isLeaveDeductionFirst,
       required: true,
@@ -228,7 +228,7 @@ export const AutoDeduction = ({ data }) => {
         },
         {
           elementType: "custom",
-          breakpoints: { xs: 12, lg: 2, md: 2 },
+          breakpoints: { size: { xs: 12, lg: 2, md: 2 } },
           NodeElement: ({ dataindex }) => <>
             <IconButton onClick={() => handleRemoveItems(dataindex)}>
               <RemoveCircleOutline color='warning' />
@@ -262,7 +262,7 @@ export const AutoDeduction = ({ data }) => {
   return (
     <AutoForm formData={formData} ref={formApi} isValidate={true} >
 
-      <Grid item sm={12} md={12} lg={12} textAlign="right">
+      <Grid item size={{ xs: 12, md: 12 }} textAlign="right">
         <Divider variant='fullWidth' sx={{ mb: 1 }} />
         <Controls.Button sx={{ width: 100 }} onClick={handleSubmit} startIcon={<SaveTwoTone />} text="Save" />
       </Grid>

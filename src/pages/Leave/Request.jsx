@@ -140,7 +140,7 @@ export const AddLeaveRequest = ({ requestedDate = null, requestedEmployee = null
             name: "leavesDate",
             required: true,
             // disableFuture: true,
-            breakpoints: { md: 12, sm: 12, xs: 12 },
+            breakpoints: { size: { md: 12, xs: 12 } },
             validate: {
                 errorMessage: "Select Date please",
             },
@@ -170,7 +170,7 @@ export const AddLeaveRequest = ({ requestedDate = null, requestedEmployee = null
             },
             minRows: 5,
             variant: "outlined",
-            breakpoints: { md: 12, sm: 12, xs: 12 },
+            breakpoints: { size: { md: 12, xs: 12 } },
             defaultValue: ""
         }
     ];
@@ -186,7 +186,7 @@ export const AddLeaveRequest = ({ requestedDate = null, requestedEmployee = null
             dataToInsert.toDate = startOfDay(values.leavesDate[1]);
             // ChangeType = [],
 
-            addEntity({ url: DEFAULT_API, data: [dataToInsert] });
+            addEntity({ url: DEFAULT_API, data: [dataToInsert] }).finally(() => setOpenPopup(false));
 
         }
     }

@@ -110,9 +110,6 @@ function CustomNoRowsOverlay() {
 
 function TableGrid ({rows, columns,loader,paging,isCheckBox,...other}) {
 
- console.log("grid");
-
-
  const handleDoubleCellClick = React.useCallback(
   (params, event) => {
     event.stopPropagation();

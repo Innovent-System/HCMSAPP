@@ -142,7 +142,7 @@ export const AddShift = ({ openPopup, setOpenPopup, isEdit = false, row = null }
 
         if (validateFields()) {
             let values = getValue();
-            
+
             if (isEdit)
                 values._id = editId
 
@@ -219,14 +219,14 @@ export const AddShift = ({ openPopup, setOpenPopup, isEdit = false, row = null }
             elementType: "checkbox",
             name: "isNextDay",
             label: "Is Next Day",
-            breakpoints: { xs: 6, sm: 6, md: 5 },
+            breakpoints: { size: { xs: 6, sm: 6, md: 5 } },
             defaultValue: false,
         },
         {
             elementType: "checkbox",
             name: "isHoliday",
             label: "Is HoliDay",
-            breakpoints: { xs: 6, sm: 6, md: 5 },
+            breakpoints: { size: { xs: 6, sm: 6, md: 5 } },
             defaultValue: false,
         }
     ];

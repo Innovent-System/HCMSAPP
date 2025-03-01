@@ -108,7 +108,7 @@ const validateAllFields = (fieldValues, values) => {
 
     return temp;
 }
-const DEFAULT_BREAK_POINTS = { xs: 12, sm: 6, md: 6 };
+const DEFAULT_BREAK_POINTS = { size: { xs: 12, sm: 6, md: 6 } };
 
 /**
  * @type {React.FC<import('../types/fromstype').FormProps>}
@@ -279,7 +279,7 @@ export const AutoForm = forwardRef(function (props, ref) {
                         {Array.isArray(_children) ? _children.map(({ name, label, required, elementType, breakpoints = DEFAULT_BREAK_POINTS, classes, disabled, onChange, modal, defaultValue, nanoKey: childKey, ..._others }, innerIndex) => (
                             <Grid {...(modal && { style: { position: "relative" } })}  {...(breakpoints && { ...breakpoints })} key={`${elementType}-${innerIndex}-${name}`} item>
                                 {modal && modal.Component}
-                                {console.log({ innerIndex, elementType })}
+                                
                                 <Element key={`child-${elementType}-${innerIndex}-${name}`} elementType={elementType}
                                     name={name}
                                     label={label}
