@@ -9,10 +9,8 @@ import DataGrid, { getActions, GridToolbar, renderStatusCell, useGridApi } from 
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { AutoForm } from '../../components/useForm'
-
 import PageHeader from '../../components/PageHeader'
 import { formateISODateTime } from "../../services/dateTimeService";
-import Loader from '../../components/Circularloading'
 import { useDropDownIds } from "../../components/useDropDown";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
 
@@ -56,9 +54,8 @@ const getColumns = (apiRef, onCancel) => [
     getActions(apiRef, { onCancel })
 ];
 
-const AddExemptionRequest = ({ openPopup, setOpenPopup }) => {
+export const AddExemptionRequest = ({ openPopup, setOpenPopup, reqEmployee = null, reqDate = null }) => {
     const formApi = useRef(null);
-    const [loader, setLoader] = useState(false);
     const { Employees, AttendanceFlag } = useAppSelector(e => e.appdata.employeeData);
     const { addEntity } = useEntityAction();
     const [getExemptionRequest] = useLazySingleQuery();
@@ -68,6 +65,24 @@ const AddExemptionRequest = ({ openPopup, setOpenPopup }) => {
             resetForm();
         }
     }, [openPopup, formApi])
+
+    const handleExemption = (employeeId, exemptionDate) => {
+        const { setFormValue, getValue } = formApi.current;
+        return getExemptionRequest({ url: API.GetExemptionDetail, params: { employeeId, exemptionDate } }).then(c => {
+            if (c?.data?.result) {
+                setFormValue({ attendanceFlagId: AttendanceFlag.find(f => f.flagCode === c.data?.result.flagCode)._id });
+            }
+            else setFormValue({ attendanceFlagId: "" });
+        })
+
+    }
+
+    useEffect(() => {
+
+        if (reqEmployee && reqDate && openPopup) {
+            handleExemption(reqEmployee, reqDate)
+        }
+    }, [reqEmployee, reqDate, openPopup])
     const formData = [
         {
             elementType: "ad_dropdown",
@@ -83,18 +98,10 @@ const AddExemptionRequest = ({ openPopup, setOpenPopup }) => {
             options: Employees,
             onChange: (data) => {
                 if (!data) return;
-                setLoader(true);
-                const { setFormValue, getValue } = formApi.current;
-                getExemptionRequest({ url: API.GetExemptionDetail, params: { employeeId: data._id, exemptionDate: getValue()?.exemptionDate } }).then(c => {
-                    if (c?.data?.result) {
-                        setFormValue({ attendanceFlagId: AttendanceFlag.find(f => f.flagCode === c.data?.result.flagCode)._id });
-                    }
-                    else setFormValue({ attendanceFlagId: "" });
-
-                    setLoader(false);
-                })
+                const { getValue } = formApi.current;
+                handleExemption(data._id, getValue()?.exemptionDate)
             },
-            defaultValue: null
+            defaultValue: reqEmployee && Employees.find(e => e._id === reqEmployee)
         },
         {
             elementType: "datetimepicker",
@@ -105,23 +112,15 @@ const AddExemptionRequest = ({ openPopup, setOpenPopup }) => {
                 errorMessage: "Select Date please",
             },
             label: "Date",
-            defaultValue: new Date(),
+            defaultValue: reqDate ? new Date(reqDate) : new Date(),
             onChange: (data) => {
 
                 if (!data) return;
-                const { setFormValue, getValue } = formApi.current;
+                const { getValue } = formApi.current;
                 const { fkEmployeeId } = getValue();
                 if (!fkEmployeeId?._id) return;
-                setLoader(true);
-                getExemptionRequest({ url: API.GetExemptionDetail, params: { employeeId: fkEmployeeId?._id, exemptionDate: data } }).then(c => {
-
-                    if (c?.data?.result) {
-                        setFormValue({ attendanceFlagId: AttendanceFlag.find(f => f.flagCode === c.data?.result.flagCode)._id });
-                    }
-                    else setFormValue({ attendanceFlagId: "" });
-                    setLoader(false);
-                })
-            },
+                handleExemption(fkEmployeeId?._id, data)
+            }
         },
         {
             elementType: "dropdown",
@@ -160,13 +159,12 @@ const AddExemptionRequest = ({ openPopup, setOpenPopup }) => {
             let values = getValue();
             let dataToInsert = { ...values };
             dataToInsert.fkEmployeeId = values.fkEmployeeId._id;
-
+            dataToInsert.flagId = AttendanceFlag.find(f => f._id === dataToInsert.attendanceFlagId).flagCode;
             addEntity({ url: API.ExemptionRequest, data: [dataToInsert] });
 
         }
     }
     return <>
-        <Loader open={loader} />
         <Popup
             title="Exemption Request"
             openPopup={openPopup}

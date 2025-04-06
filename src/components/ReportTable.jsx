@@ -57,7 +57,7 @@ const ROW_PER_PAGE = 30;
 const ReportTable = ({ pageBreak = false,
     pageBreakOn = '',
     isGroupBy = false,
-    groupByField = '',
+    groupByField = null,// should function
     isPrintHeader = true,
     HeadElement,
     Summary = null,
@@ -113,7 +113,7 @@ const ReportTable = ({ pageBreak = false,
 
         let elements = [];
         let preValue = '';
-        let groupValue = '';
+        let groupValue = null;
         let isFirst = true;
 
         const _count = records.length;
@@ -126,7 +126,7 @@ const ReportTable = ({ pageBreak = false,
         for (let rowsLength = 0; rowsLength < _count; rowsLength++) {
             const row = records[rowsLength];
             const isNew = String(row[pageBreakOn]) !== String(preValue);
-            const isNewGroup = String(row[groupByField]) !== String(groupValue);
+            const isNewGroup = String(typeof groupByField == "function" ? groupByField(row) : null) !== String(groupValue);
 
             subTotal && Object.keys(subTotal).forEach(e => subTotal[e] += (subTotalpath ? row[subTotalpath][e] : row[e] ?? 0));
             subTotal && Object.keys(grandTotalSum.current).forEach(e => grandTotalSum.current[e] += (subTotalpath ? row[subTotalpath][e] : row[e] ?? 0));
@@ -138,10 +138,10 @@ const ReportTable = ({ pageBreak = false,
 
             elements.push(<Row key={`row-${row._id}`} row={row} cols={columnPrint} />)
 
-            if (groupByField && String(row[groupByField]) !== String(records[rowsLength == _count ? rowsLength : rowsLength + 1]?.[groupByField])) {
+            if (groupByField && String(groupByField(row)) !== String(groupByField(records[rowsLength == _count ? rowsLength : rowsLength + 1]))) {
                 // GrandTotal && elements.push(<GrandTotal key={`grand-${groupByField}-${row._id}`} row={row} {...(grandTotalProps && { ...grandTotalProps })} />);
                 // Summary && elements.push(<Summary key={`summary-${groupByField}-${row._id}`} row={row} {...(summaryProps && { ...summaryProps })} />);
-                SubTotal && elements.push(<SubTotal key={`subtotal-${groupByField}-${row._id}`} row={row} subTotal={{ ...subTotal }} />);
+                SubTotal && elements.push(<SubTotal key={`subtotal-${groupByField(row)}-${row._id}`} row={row} subTotal={{ ...subTotal }} />);
                 subTotal && Object.keys(subTotal).forEach(e => subTotal[e] = 0);
             }
 
@@ -152,7 +152,7 @@ const ReportTable = ({ pageBreak = false,
 
 
             preValue = row[pageBreakOn];
-            groupValue = row[groupByField];
+            groupValue = typeof groupByField == "function" ? groupByField(row) : null;
             isFirst = false;
         }
 

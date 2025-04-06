@@ -12,7 +12,6 @@ import { AutoForm } from '../../components/useForm'
 import PageHeader from '../../components/PageHeader'
 import { startOfDay, addDays, isEqual } from '../../services/dateTimeService'
 import { formateISODateTime } from "../../services/dateTimeService";
-import Loader from '../../components/Circularloading'
 import { useDropDownIds } from "../../components/useDropDown";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
 
@@ -57,7 +56,7 @@ const getColumns = (apiRef, onCancel) => [
 
 export const AddAttendanceRequest = ({ openPopup, setOpenPopup, reqEmployee = null, reqDate = null }) => {
     const formApi = useRef(null);
-    const [loader, setLoader] = useState(false);
+    
     const { Employees } = useAppSelector(e => e.appdata.employeeData);
     const { addEntity } = useEntityAction();
     const [getAttendanceRequest] = useLazySingleQuery();
@@ -203,7 +202,6 @@ export const AddAttendanceRequest = ({ openPopup, setOpenPopup, reqEmployee = nu
         }
     }
     return <>
-        <Loader open={loader} />
         <Popup
             title="Attendance Request"
             openPopup={openPopup}

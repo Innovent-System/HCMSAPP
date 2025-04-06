@@ -20,6 +20,7 @@ export const API = {
     ExtraAllowc: 'payroll/extraallowance',
     PayslipReport: "payroll/report/payslip",
     SalarySheetReport: 'payroll/report/salarysheet',
+    PayrollSummaryReport: 'payroll/report/payrollsummary',
     LoanReport: 'payroll/report/loandetail',
 
 }

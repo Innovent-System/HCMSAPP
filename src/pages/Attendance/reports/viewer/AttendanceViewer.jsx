@@ -2,15 +2,17 @@ import React, { useState } from 'react'
 import { formateISODateTime, getMonthStartEnd } from '../../../../services/dateTimeService';
 import { BaseReportWrapper } from '../../../../components/ReportViewer';
 import { Box, Stack, TableCell, TableRow, Typography, IconButton, ButtonGroup, TableHead } from '../../../../deps/ui'
-import { DirectionsWalk, AvTimer } from '../../../../deps/ui/icons'
+import { DirectionsWalk, AvTimer,Difference } from '../../../../deps/ui/icons'
 import { AttendanceflagMap } from '../../../../util/common';
 import ReportTable from '../../../../components/ReportTable';
 import { AddLeaveRequest } from '../../../Leave/Request';
 import { AddAttendanceRequest } from '../../Request';
+import { AddExemptionRequest } from '../../Exemption';
 
 const ActionModel = {
     leaveReq: { Element: AddLeaveRequest, Icon: DirectionsWalk, title: "Leave Request" },
-    attendanceReq: { Element: AddAttendanceRequest, Icon: AvTimer, title: "Attendance Request" }
+    attendanceReq: { Element: AddAttendanceRequest, Icon: AvTimer, title: "Attendance Request" },
+    exmptionReq: { Element: AddExemptionRequest, Icon: Difference, title: "Exemption Request" }
 }
 
 const AddAction = ({ name, ...others }) => {
@@ -44,7 +46,12 @@ const reportColumns = [
     { field: 'status', disableSorting: false, headerName: 'Remarks', valueGetter: ({ row }) => AttendanceflagMap[row?.status]?.tag },
     {
         field: 'action', disableSorting: false, headerName: 'Actions', renderCell: ({ row }) => <ButtonGroup flexDirection="row">
-            {attendaceWillBeSHow.includes(row?.status) || row.earlyOut ? <AddAction key={`leave-${row.fkEmployeeId}-${row.scheduleStartDt}`} name="leaveReq" requestedDate={row.scheduleStartDt} requestedEmployee={row.fkEmployeeId} /> : null}
+            {attendaceWillBeSHow.includes(row?.status) || row.earlyOut ?
+                <>
+                    <AddAction key={`leave-${row.fkEmployeeId}-${row.scheduleStartDt}`} name="leaveReq" requestedDate={row.scheduleStartDt} requestedEmployee={row.fkEmployeeId} />
+                    <AddAction key={`exemption-${row.fkEmployeeId}-${row.scheduleStartDt}`} name="exmptionReq" reqDate={row.scheduleStartDt} reqEmployee={row.fkEmployeeId} />
+                </>
+                : null}
             {attendaceWillBeSHow.includes(row?.status) || !row.scheduleEndDt || row.earlyOut ?
                 <AddAction key={`attendance-${row.fkEmployeeId}-${row.scheduleStartDt}`} name="attendanceReq" reqDate={row.scheduleStartDt} reqEmployee={row.fkEmployeeId} /> : null}
         </ButtonGroup>

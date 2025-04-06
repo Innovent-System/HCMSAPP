@@ -12,7 +12,6 @@ import { AutoForm } from '../../components/useForm'
 import PageHeader from '../../components/PageHeader'
 import { startOfDay, addDays, isEqual, formateISODate } from '../../services/dateTimeService'
 import { formateISODateTime } from "../../services/dateTimeService";
-import Loader from '../../components/Circularloading'
 import { useDropDownIds } from "../../components/useDropDown";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
 
@@ -66,7 +65,7 @@ const getColumns = (apiRef, onCancel) => [
 
 export const AddLeaveRequest = ({ requestedDate = null, requestedEmployee = null, openPopup, setOpenPopup }) => {
     const formApi = useRef(null);
-    const [loader, setLoader] = useState(false);
+    
     const [leaveTypes, setLeaveTypes] = useState([]);
     const { Employees } = useAppSelector(e => e.appdata.employeeData);
     const { addEntity } = useEntityAction();
@@ -191,7 +190,7 @@ export const AddLeaveRequest = ({ requestedDate = null, requestedEmployee = null
         }
     }
     return <>
-        <Loader open={loader} />
+        
         <Popup
             title="Leave Request"
             openPopup={openPopup}
