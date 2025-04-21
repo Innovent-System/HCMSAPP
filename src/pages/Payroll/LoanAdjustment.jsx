@@ -11,7 +11,7 @@ import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { AutoForm } from '../../components/useForm'
 import PageHeader from '../../components/PageHeader'
-import { startOfDay, addDays, isEqual, formateISODate } from '../../services/dateTimeService'
+import { formateISODate } from '../../services/dateTimeService'
 import { formateISODateTime } from "../../services/dateTimeService";
 import Loader from '../../components/Circularloading'
 import { useDropDownIds } from "../../components/useDropDown";
@@ -74,7 +74,6 @@ const AddLoanAdjustment = ({ openPopup, setOpenPopup, colData = [] }) => {
     const formApi = useRef(null);
     const loanAjApi = useRef(null);
     const loadId = useRef(null);
-    const [loader, setLoader] = useState(false);
     const initLoanDetail = useRef([{ _id: null, paidDate: new Date(), amount: 0 }]);
     const { Employees } = useAppSelector(e => e.appdata.employeeData);
     const { addEntity } = useEntityAction();
@@ -90,7 +89,7 @@ const AddLoanAdjustment = ({ openPopup, setOpenPopup, colData = [] }) => {
     const handleAddItems = (i) => {
         const { getValue, setFormValue } = formApi.current;
         if (getValue().distributedMonth === getValue().loanSchedule.length) return;
-        setFormValue({ loanSchedule: [...getValue().loanSchedule, { _id: null, paidDate: new Date(), amount: 0 }] })
+        setFormValue({ loanSchedule: [...getValue().loanSchedule, { _id: null, paidDate: new Date(), amount: 0, isNew: true }] })
 
 
     }
@@ -99,6 +98,34 @@ const AddLoanAdjustment = ({ openPopup, setOpenPopup, colData = [] }) => {
         const { loanSchedule } = getValue();
 
         setFormValue({ loanSchedule: loanSchedule.toSpliced(_index, 1) })
+    }
+    const handleLoanDetail = (employeeId, type) => {
+
+        const { setFormValue, getValue } = formApi.current;
+        getLoanDetail({ url: API.LoanDetail, params: { employeeId, type } }).then(c => {
+            if (c.data?.result) {
+                const { result } = c.data;
+                loadId.current = result._id;
+                setFormValue({
+                    title: result.title, loanRequest: new Date(result.loanRequest),
+                    repayAmount: result.repayAmount, principleAmount: result.principleAmount,
+                    loanStartDate: new Date(result.loanStartDate),
+                    distributedMonth: Math.ceil(result.principleAmount / result.repayAmount),
+                    loanSchedule: result.loanSchedule.map(e => ({ ...e, paidDate: new Date(e.paidDate) }))
+                });
+            }
+            else {
+                loadId.current = null;
+                setFormValue({
+                    title: "", loanRequest: new Date(),
+                    repayAmount: 0, principleAmount: 0,
+                    distributedMonth: 0,
+                    loanStartDate: new Date(),
+                    loanSchedule: [...initLoanDetail.current]
+                });
+            }
+
+        })
     }
 
     const formData = [
@@ -115,32 +142,8 @@ const AddLoanAdjustment = ({ openPopup, setOpenPopup, colData = [] }) => {
             dataId: "_id",
             onChange: (data) => {
                 if (!data) return;
-
-                const { setFormValue, getValue } = formApi.current;
-                getLoanDetail({ url: API.LoanDetail, params: { employeeId: data._id } }).then(c => {
-                    if (c.data?.result) {
-                        const { result } = c.data;
-                        loadId.current = result._id;
-                        setFormValue({
-                            title: result.title, loanRequest: new Date(result.loanRequest),
-                            repayAmount: result.repayAmount, principleAmount: result.principleAmount,
-                            loanStartDate: new Date(result.loanStartDate),
-                            distributedMonth: Math.ceil(result.principleAmount / result.repayAmount),
-                            loanSchedule: result.loanSchedule.map(e => ({ _id: e._id, paidDate: new Date(e.paidDate), amount: e.amount }))
-                        });
-                    }
-                    else {
-                        loadId.current = null;
-                        setFormValue({
-                            title: "", loanRequest: new Date(),
-                            repayAmount: 0, principleAmount: 0,
-                            distributedMonth: 0,
-                            loanStartDate: new Date(),
-                            loanSchedule: [...initLoanDetail.current]
-                        });
-                    }
-
-                })
+                const { getValue } = formApi.current;
+                handleLoanDetail(data._id, getValue().type);
             },
             options: Employees,
             defaultValue: null,
@@ -149,10 +152,28 @@ const AddLoanAdjustment = ({ openPopup, setOpenPopup, colData = [] }) => {
             }
         },
         {
+            elementType: "dropdown",
+            name: "type",
+            label: "Type",
+            onChange: (data) => {
+                if (!data) return;
+                const { getValue } = formApi.current;
+                handleLoanDetail(getValue().fkEmployeeId._id, data);
+            },
+            isNone: false,
+            dataId: "id",
+            dataName: "title",
+            defaultValue: "Personal",
+            options: LoanType,
+            excel: {
+                sampleData: "PF"
+            }
+        },
+        {
             elementType: "datetimepicker",
             label: "Date",
             disabled: true,
-            name: "loanDate",
+            name: "loanRequest",
             required: true,
             validate: {
                 errorMessage: "Select Date please",
@@ -193,20 +214,6 @@ const AddLoanAdjustment = ({ openPopup, setOpenPopup, colData = [] }) => {
             defaultValue: "",
             excel: {
                 sampleData: "Peronal Loan"
-            }
-        },
-        {
-            elementType: "dropdown",
-            name: "type",
-            label: "Type",
-            disabled: true,
-            isNone: false,
-            dataId: "id",
-            dataName: "title",
-            defaultValue: "Personal",
-            options: LoanType,
-            excel: {
-                sampleData: "PF Loan"
             }
         },
         {
@@ -346,19 +353,24 @@ const AddLoanAdjustment = ({ openPopup, setOpenPopup, colData = [] }) => {
             dataToInsert._id = loadId.current;
             dataToInsert.repayAmount = values.repayAmount;
             dataToInsert.isAdjust = true;
-            dataToInsert.loanSchedule = values.loanSchedule.map(({ _id, ...e }) => ({ ...e, ...(_id && { _id }), month: e.paidDate.getMonth(), year: e.paidDate.getFullYear() }));
+            dataToInsert.loanSchedule = values.loanSchedule.map(({ _id, ...e }) => ({
+                ...e,
+                isFromAdjust: e?.isNew ?? false, ...(_id && { _id }),
+                ...(!e?.month && e.month !== 0 && { month: e.paidDate.getMonth(), year: e.paidDate.getFullYear() })
+            }));
 
             const creditAmount = values.loanSchedule
                 .reduce((accumulator, currentValue) => accumulator + (+currentValue.amount), 0);
 
             dataToInsert.isPaid = creditAmount === values.principleAmount;
 
-            addEntity({ url: DEFAULT_API, data: [dataToInsert] });
+            addEntity({ url: DEFAULT_API, data: [dataToInsert] }).finally(() => {
+                setOpenPopup(false);
+            });
 
         }
     }
     return <>
-        <Loader open={loader} />
         <Popup
             title="Loan Adjustment"
             openPopup={openPopup}

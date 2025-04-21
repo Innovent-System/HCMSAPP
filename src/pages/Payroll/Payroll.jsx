@@ -115,7 +115,8 @@ const Payroll = () => {
                 ...(groupIds && { "companyInfo.fkEmployeeGroupId": { $in: groupIds.split(',') } }),
                 ...(departmentIds && { "companyInfo.fkDepartmentId": { $in: departmentIds.split(',') } }),
                 ...(designationIds && { "companyInfo.fkDesignationId": { $in: designationIds.split(',') } }),
-                ...query
+                ...query,
+                
             }
         }
     }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
@@ -226,6 +227,11 @@ const Payroll = () => {
                 page={gridFilter.page}
                 disableSelectionOnClick={true}
                 loading={isLoading} pageSize={gridFilter.limit}
+                // filterMode='server'
+                // onFilterModelChange={(model) => {
+                //     const quickFilter = model.quickFilterValues?.[0] || '';
+                //     console.log(model);
+                //   }}
                 setFilter={setGridFilter}
                 onSortModelChange={(s) => setSort({ sort: s.reduce((a, v) => ({ ...a, [v.field]: v.sort === 'asc' ? 1 : -1 }), {}) })}
                 totalCount={totalRecord}
@@ -250,7 +256,7 @@ function PayrollToolbar(props) {
 
     return (
         <GridToolbarContainer sx={{ justifyContent: "space-between" }}>
-            <GridToolbarQuickFilter />
+            <GridToolbarQuickFilter  debounceMs={500} />
             <div>
                 {selectionModel?.length ? <Controls.Button onClick={() => onMultipleDelete(selectionModel)} startIcon={<Delete />} text="Delete Payroll" /> : null}
                 <Controls.Button onClick={onAdd} startIcon={<AccountBalanceWallet />} text="Genearate" />

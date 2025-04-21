@@ -65,6 +65,10 @@ export const BaseReportWrapper = ({ API_NAME, fileName, children, handleRecord, 
             handleReport(false, queryData);
             setReportFilter(queryData);
         }
+
+        return () => {
+            document.cookie !== "is_Auth=true" && window.close();
+        }
     }, [searchParams])
 
     const handleReport = (isDownload = false, queryData = repotFilter) => {

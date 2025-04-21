@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { formateISODateTime, getMonthStartEnd } from '../../../../services/dateTimeService';
 import { BaseReportWrapper } from '../../../../components/ReportViewer';
 import { Box, Stack, TableCell, TableRow, Typography, IconButton, ButtonGroup, TableHead } from '../../../../deps/ui'
-import { DirectionsWalk, AvTimer,Difference } from '../../../../deps/ui/icons'
+import { DirectionsWalk, AvTimer, Difference } from '../../../../deps/ui/icons'
 import { AttendanceflagMap } from '../../../../util/common';
 import ReportTable from '../../../../components/ReportTable';
 import { AddLeaveRequest } from '../../../Leave/Request';
@@ -164,12 +164,15 @@ const AttendanceViewer = ({ API_NAME, fileName }) => {
                 reportData={records?.attendanceList}
                 HeadElement={HeadElement}
                 Summary={TableFooter}
-                GrandTotal={GrandTotal}
+                grandTotal={{
+                    Element: GrandTotal,
+                    isShow: true,
+                    props: {
+                        minutesDetail: records?.minutesDetail
+                    }
+                }}
                 summaryProps={{
                     summary: records?.summary
-                }}
-                grandTotalProps={{
-                    minutesDetail: records?.minutesDetail
                 }}
             />
         </BaseReportWrapper>

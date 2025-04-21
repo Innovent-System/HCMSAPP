@@ -147,7 +147,7 @@ const AddAdvanceSalary = ({ openPopup, setOpenPopup, colData = [] }) => {
             },
             minRows: 5,
             variant: "outlined",
-            breakpoints: { md: 12, sm: 12, xs: 12 },
+            breakpoints: { size: { md: 12, sm: 12, xs: 12 } },
             defaultValue: "",
             excel: {
                 sampleData: "Personl reson"
@@ -199,9 +199,9 @@ const AdvanceSalaryRequest = () => {
 
     const [sort, setSort] = useState({ sort: { createdAt: -1 } });
     const { inProcess, setFile, excelData, getTemplate } = useExcelReader({
-                                                                            formTemplate: excelColData.current,
-                                                                            transform: mapAdvSalary, fileName: "AdvSalary.xlsx"
-                                                                        });
+        formTemplate: excelColData.current,
+        transform: mapAdvSalary, fileName: "AdvSalary.xlsx"
+    });
 
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,

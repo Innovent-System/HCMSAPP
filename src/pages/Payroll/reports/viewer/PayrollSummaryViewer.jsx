@@ -9,10 +9,11 @@ const reportColumns = [
     { field: 'fullName', headerName: 'Employee', valueGetter: ({ row }) => row.employee.fullName },
     { field: 'department', headerName: 'Department', valueGetter: ({ row }) => row.employee.department },
     { field: 'designation', headerName: 'Designation', valueGetter: ({ row }) => row.employee.designation },
-    { field: 'workingDays', headerName: 'Present Days' },
+    { field: 'workingDays', headerName: 'P. Days' },
     { field: 'monthlySalary', headerName: 'Monthly Salary' },
+    { field: 'basicSalary', headerName: 'Basic Salary', valueGetter: ({ row }) => row.earnings["Basic Salary"] ?? 0 },
     { field: 'totalEarning', headerName: 'Gross Pay' },
-    { field: 'absentdeduction', headerName: 'Absent Deduction', valueGetter: ({ row }) => row.deductions["Absent Deduction"] ?? 0 },
+    { field: 'absentdeduction', headerName: 'Abs. Deduction', valueGetter: ({ row }) => row.deductions["Absent Deduction"] ?? 0 },
     { field: 'eobi', headerName: 'EOBI', valueGetter: ({ row }) => row.deductions["EOBI"] ?? 0 },
     { field: 'advSalary', headerName: 'Adv. Salary', valueGetter: ({ row }) => row.deductions["Advance Salary"] ?? 0 },
     { field: 'healthInc', headerName: 'Health Inc.', valueGetter: ({ row }) => row.deductions["Health Inc."] ?? 0 },
@@ -22,11 +23,11 @@ const reportColumns = [
     { field: 'loanPF', headerName: 'Loan (PF)', valueGetter: ({ row }) => row.deductions["Loan (PF)"] ?? 0 },
     { field: 'shortTime', headerName: 'ShortTime', valueGetter: ({ row }) => row.deductions["ShortTime"] ?? 0 },
     { field: 'totalDeduction', headerName: 'Deductions' },
-    { field: 'totalSalary', headerName: 'Net Pay' },
+    { field: 'totalSalary', headerName: 'Net Pay' }
 ];
 
 const HeadElement = ({ row }) => {
-    return <TableHead><TableCell colSpan={11}><Typography><b>Department</b>: {row?.employee.department} </Typography></TableCell> </TableHead>
+    return <TableHead><TableCell colSpan={12}><Typography><b>Department</b>: {row?.employee.department} </Typography></TableCell> </TableHead>
 }
 const subTotalBy = { "monthlySalary": 0, "totalEarning": 0, "totalDeduction": 0, "totalSalary": 0 };
 
@@ -34,7 +35,7 @@ const SubTotal = ({ row, subTotal }) => {
     return <TableRow >
         <TableCell colSpan={5}>Total</TableCell>
 
-        <TableCell >{formatNumber(subTotal.monthlySalary)}</TableCell>
+        <TableCell colSpan={2}>{formatNumber(subTotal.monthlySalary)}</TableCell>
         <TableCell colSpan={10}>{formatNumber(subTotal.totalEarning)}</TableCell>
         <TableCell >{formatNumber(subTotal.totalDeduction)}</TableCell>
         <TableCell>{formatNumber(subTotal.totalSalary)}</TableCell>
@@ -46,7 +47,7 @@ const GrandTotal = ({ row, grandTotal }) => {
     return grandTotal && <TableRow >
         <TableCell colSpan={5}>Grand Total</TableCell>
 
-        <TableCell >{formatNumber(grandTotal.monthlySalary)}</TableCell>
+        <TableCell colSpan={2} >{formatNumber(grandTotal.monthlySalary)}</TableCell>
         <TableCell colSpan={10}>{formatNumber(grandTotal.totalEarning)}</TableCell>
         <TableCell >{formatNumber(grandTotal.totalDeduction)}</TableCell>
         <TableCell>{formatNumber(grandTotal.totalSalary)}</TableCell>
@@ -77,9 +78,16 @@ const PayrollSummaryViewer = ({ API_NAME, fileName }) => {
                 columnPrint={reportColumns}
                 HeadElement={HeadElement}
                 groupByField={(row) => row?.employee[option.groupByField]}
-                subTotalBy={subTotalBy}
-                SubTotal={SubTotal}
-                GrandTotal={GrandTotal}
+                subTotal={{
+                    isShow: true,
+                    Element: SubTotal,
+                    fields: subTotalBy
+                }}
+                grandTotal={{
+                    isShow: true,
+                    Element: GrandTotal,
+                    fields: subTotalBy
+                }}
             />
         </BaseReportWrapper>
     )
