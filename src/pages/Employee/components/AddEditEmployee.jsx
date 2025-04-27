@@ -125,7 +125,7 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, current
         fkEmployeeGroupId: groups.find(g => g._id === values.companyInfo.fkEmployeeGroupId),
         fkEmployeeStatusId: employeeStatus.find(e => e._id === values.companyInfo.fkEmployeeStatusId) ?? null,
         fkStateId: states.find(s => s._id === values.companyInfo.fkStateId),
-        scheduleId: schedules.find(s => s._id === values.schedule?._id) ?? null,
+        scheduleId: schedules.find(s => s._id === values?.scheduleId) ?? null,
         fkManagerId: employees.find(e => e._id === values.companyInfo?.fkManagerId) ?? null,
         fkRoleTemplateId: values.companyInfo?.fkRoleTemplateId ?? '',
         joiningDate: new Date(values.companyInfo.joiningDate),

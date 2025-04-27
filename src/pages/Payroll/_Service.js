@@ -16,7 +16,7 @@ export const API = {
     LeaveType: "leave/type",
     Insurance: 'payroll/insurance',
     TaxIncome: 'payroll/taxincome',
-    PF: 'payroll/providentfund',
+    PFOpening: 'payroll/pfopening',
     ExtraAllowc: 'payroll/extraallowance',
     PayslipReport: "payroll/report/payslip",
     SalarySheetReport: 'payroll/report/salarysheet',

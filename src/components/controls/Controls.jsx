@@ -12,6 +12,7 @@ import PropTypes from 'prop-types'
 import { ArrayForm } from '../useArrayForm'
 import FileInput from "./FileInput";
 import TagInput from "./TagInput";
+import MultiDatePicker from "./MultiDatePicker";
 
 const Controls = {
     Input,
@@ -20,6 +21,7 @@ const Controls = {
     Checkbox,
     DatePicker,
     DateRangePicker,
+    MultiDatePicker,
     Button,
     ActionButton,
     MultiSelect,
@@ -31,7 +33,7 @@ const Controls = {
 export default Controls;
 
 
-export const ElementType = Object.freeze(["inputfield", "taginput", "radiogroup", "checkbox", "dropdown", "clearfix", "ad_dropdown", "datetimepicker", "daterangepicker", "uploadavatar", "arrayForm", "custom"]);
+export const ElementType = Object.freeze(["inputfield", "taginput", "radiogroup", "checkbox", "dropdown", "clearfix", "ad_dropdown", "datetimepicker", "daterangepicker","multidatepicker" ,"uploadavatar", "arrayForm", "custom"]);
 
 export function Element(props) {
 
@@ -43,6 +45,7 @@ export function Element(props) {
         case "radiogroup": return <RadioGroup {...others} />
         case "datetimepicker": return <DatePicker {...others} />
         case "daterangepicker": return <DateRangePicker {...others} />
+        case "multidatepicker": return <MultiDatePicker {...others} />
         case "dropdown": return <Select  {...others} />
         case "ad_dropdown": return <MultiSelect {...others} />
         case "uploadavatar": return <Avatar {...others} />

@@ -68,7 +68,7 @@ const getColumns = (apiRef, onEdit, onActive) => [
 const fullWidthPoints = { size: { md: 12, sm: 12, xs: 12 } };
 
 
-const AddProvidentFund = ({ openPopup, setOpenPopup, colData = [], row = null, isEdit = false }) => {
+const AddPFOpening = ({ openPopup, setOpenPopup, colData = [], row = null, isEdit = false }) => {
     const formApi = useRef(null);
 
 
@@ -116,87 +116,10 @@ const AddProvidentFund = ({ openPopup, setOpenPopup, colData = [], row = null, i
             }
         },
         {
-            elementType: "dropdown",
-            name: "type",
-            label: "Type",
-
-            dataId: "id",
-            dataName: "title",
-            isNone: false,
-            defaultValue: PercentageOfBasicSalary,
-            options: CalculationType,
-            excel: {
-                sampleData: "Percentage of Basic Salary"
-            }
-        },
-        {
-            elementType: "inputfield",
-            name: "employeeShare",
-            label: "Employee(s) Share",
-            inputMode: 'numeric',
-            required: true,
-            validate: {
-                errorMessage: "Employee(s) Share is required",
-            },
-            type: "number",
-            inputProps: {
-                min: 0,
-                max: 100
-            },
-
-            InputProps: {
-                endAdornment: (
-                    <InputAdornment position="end">
-                        <Percent />
-                    </InputAdornment>
-                )
-            },
-            defaultValue: "",
-            excel: {
-                sampleData: 8.33
-            }
-        },
-        {
-            elementType: "inputfield",
-            name: "employerShare",
-            label: "Employer(s) Share",
-            inputMode: 'numeric',
-            required: true,
-            validate: {
-                errorMessage: "Employer(s) Share is required",
-            },
-            type: "number",
-            inputProps: {
-                min: 0,
-                max: 100
-            },
-
-            InputProps: {
-                endAdornment: (
-                    <InputAdornment position="end">
-                        <Percent />
-                    </InputAdornment>
-                )
-            },
-            defaultValue: "",
-            excel: {
-                sampleData: 8.33
-            }
-        },
-        {
-            elementType: "checkbox",
-            name: "addOPBalance",
-            label: "Add Opening Balance",
-            title: "Add PF Opening",
-            breakpoints: fullWidthPoints,
-            defaultValue: false
-        },
-        {
             elementType: "inputfield",
             name: "openingBalance",
             label: "Opening Balance",
             inputMode: 'numeric',
-            isShow: (values) => values.addOPBalance,
             required: true,
             validate: {
                 errorMessage: "Opening Balance is required",
@@ -251,9 +174,9 @@ const AddProvidentFund = ({ openPopup, setOpenPopup, colData = [], row = null, i
         </Popup>
     </>
 }
-const DEFAULT_API = API.PF, DEFAULT_TITLE = "Provident Fund";
+const DEFAULT_API = API.PFOpening, DEFAULT_TITLE = "PF Opening";
 let editId = 0;
-const ProvidentFund = () => {
+const PFOpening = () => {
     const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
     const isEdit = React.useRef(false);
@@ -331,7 +254,7 @@ const ProvidentFund = () => {
 
     }, [excelData])
 
-    const { socketData } = useSocketIo("changeInPF", refetch);
+    const { socketData } = useSocketIo("changeInPFOpening", refetch);
 
     const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive);
 
@@ -377,7 +300,7 @@ const ProvidentFund = () => {
                 subTitle={`Manage ${DEFAULT_TITLE}`}
                 icon={<PeopleOutline fontSize="large" />}
             />
-            <AddProvidentFund colData={excelColData} openPopup={openPopup}
+            <AddPFOpening colData={excelColData} openPopup={openPopup}
                 isEdit={isEdit.current} row={row.current} setOpenPopup={setOpenPopup} />
 
             <DataGrid apiRef={gridApiRef}
@@ -405,4 +328,4 @@ const ProvidentFund = () => {
     );
 }
 
-export default ProvidentFund;
+export default PFOpening;

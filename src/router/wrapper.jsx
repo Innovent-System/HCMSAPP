@@ -1,17 +1,14 @@
-import { Navigate,Outlet,useLocation } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
 
 
 const RouterWrapper = () => {
-  //Manage with Globaly
-  let location = useLocation();
-  const signed = document.cookie === "is_Auth=true" || true;
+  const location = useLocation();
+  const isAuthenticated = document.cookie.includes("is_Auth=true");
 
-  if(!signed){
-    return <Navigate to="/" state={{ from: location }} />;
-  }
-  // if (!signed) return <Route element={<Navigate to='/' />}  />;
-   return <Outlet />;   
+  if (!isAuthenticated) return <Navigate to="/" state={{ from: location }} />;
+
+  return <Outlet />;
 };
 
 export default RouterWrapper;

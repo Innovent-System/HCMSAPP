@@ -13,6 +13,7 @@ import PageHeader from '../../components/PageHeader'
 import Popup from "../../components/Popup";
 import { dateRange, formateDate, getWeekStartEnd, formateISODateTime, formateISODate } from "../../services/dateTimeService";
 import { useExcelReader } from "../../hooks/useExcelReader";
+import { AutoForm } from '../../components/useForm'
 
 const fields = {
     name: {
@@ -74,53 +75,85 @@ const getColumns = (apiRef, onEdit, onActive) => {
 let editId = 0;
 const DEFAULT_API = API.AmendRoster;
 const { weekStart, weekEnd } = getWeekStartEnd();
-export const AddRoster = ({ getTemplate, setFile, roster, setRoster, openPopup, setOpenPopup, isEdit = false, row = null }) => {
-
+export const AddRoster = ({ getTemplate, setFile, roster, setRoster, openPopup, setOpenPopup, isEdit = false, row = null, shifts }) => {
+    const formApi = useRef(null);
     const { addEntity } = useEntityAction();
-
+    const { Employees } = useAppSelector(e => e.appdata.employeeData);
     const handleSubmit = (e) => {
+        const { getValue, validateFields } = formApi.current
+        const { fkEmployeeId, rosterDates, fkShiftId } = getValue();
+        const roasterData = [];
+        for (let index = 0; index < fkEmployeeId.length; index++) {
+
+            for (let r = 0; r < rosterDates.length; r++) {
+                const _date = rosterDates[r];
+                roasterData.push({
+                    fkEmployeeId: fkEmployeeId[index]._id,
+                    rosterDate: new Date(_date),
+                    fkShiftId: fkShiftId
+                })
+            }
+            
+        }
+        // console.log(roasterData);
+        addEntity({ url: `${DEFAULT_API}/insert`, data: { roster: roasterData } });
 
     }
+
+    const formData = [
+        {
+            elementType: "ad_dropdown",
+            name: "fkEmployeeId",
+            label: "Employee",
+            required: true,
+            validate: {
+                errorMessage: "Employee is required",
+            },
+            dataId: '_id',
+            dataName: "fullName",
+            options: Employees,
+            isMultiple: true,
+            defaultValue: []
+        },
+        {
+            elementType: "dropdown",
+            name: `fkShiftId`,
+            label: "Shift",
+            // variant: "outlined",
+            required: true,
+            validate: {
+                errorMessage: "Shift is required",
+            },
+            dataName: 'shiftName',
+            dataId: "_id",
+            options: shifts,
+            excel: {
+                sampleData: shifts.length ? shifts[0].shiftName : ""
+            }
+        },
+        {
+            elementType: "multidatepicker",
+            name: "rosterDates",
+            required: true,
+            validate: {
+                errorMessage: "Select Date please",
+            },
+            defaultValue: []
+        },
+
+
+
+    ]
 
     return <Popup
         title="Roster"
         openPopup={openPopup}
         maxWidth="sm"
-        footer={<></>}
+        // footer={<></>}
         isEdit={isEdit}
         addOrEditFunc={handleSubmit}
         setOpenPopup={setOpenPopup}>
-        <Grid container spacing={2}>
-            <Grid size={{ md: 12 }} item textAlign="center">
-
-                <Alert severity="info">Prior to uploading the Excel file, kindly adjust the date range as needed.</Alert>
-
-            </Grid>
-            <Grid size={{ md: 12 }} textAlign="center" item>
-                <ButtonGroup variant="contained" color="inherit">
-                    <Button
-                        endIcon={<FileCopy fontSize="small" />}
-                    >
-                        <label htmlFor="upload-btn">
-                            Upload
-                            <Input style={{ display: 'none' }} onClick={function (e) { e.target.value = null }} onChange={(e) => setFile(e.target.files[0])} accept="image/*" id={"upload-btn"} type="file" />
-                        </label>
-                    </Button>
-                    <Button
-                        endIcon={<FileCopy fontSize="small" />}
-                        onClick={getTemplate}
-                    >
-                        Template
-                    </Button>
-
-                </ButtonGroup>
-
-            </Grid>
-
-            <Grid size={{ md: 12 }} textAlign="center" item >
-                <Controls.DateRangePicker onChange={({ target }) => setRoster(target.value)} value={roster} />
-            </Grid>
-        </Grid>
+        <AutoForm formData={formData} ref={formApi} isValidate={true} />
 
     </Popup>
 }
@@ -301,7 +334,7 @@ const AmendRoster = () => {
                 subTitle="Manage Amend Roster"
                 icon={<PeopleOutline fontSize="large" />}
             />
-            <AddRoster openPopup={openPopup} setFile={setFile} roster={roster} setRoster={setRoster} getTemplate={getTemplate} setOpenPopup={setOpenPopup} row={row.current} isEdit={isEdit.current} />
+            <AddRoster shifts={shifts} openPopup={openPopup} setFile={setFile} roster={roster} setRoster={setRoster} getTemplate={getTemplate} setOpenPopup={setOpenPopup} row={row.current} isEdit={isEdit.current} />
 
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={data}

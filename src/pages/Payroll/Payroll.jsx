@@ -16,28 +16,34 @@ import { useDropDownIds } from "../../components/useDropDown";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
 import Controls from "../../components/controls/Controls";
 import RunPayroll from "./components/RunPayroll";
-import { formatNumber } from "../../util/common";
+import { formatNumber, getDefaultMonth, getYears, monthNames } from "../../util/common";
 
 /**
  * @type {import('@react-awesome-query-builder/mui').Fields}
  */
 const fields = {
 
-    status: {
-        label: "Status",
+    month: {
+        label: "Month",
         type: "select",
+        fieldName: "month",
         valueSources: ["value"],
-        fieldName: "status", //must taken to for query binding
-        defaultOperator: "select_equals", //must taken to for query binding
-        defaultValue: undefined, //must taken to for query binding
-        fieldSettings: {
-            listValues: [
-                { value: "", title: "" },
-                { value: "Pending", title: "Pending" },
-                { value: "Approved", title: "Approved" },
-                { value: "Rejected", title: "Rejected" }
-            ]
-        }
+        defaultOperator: "select_equals",
+        defaultValue: null,
+        hideForCompare: true,
+        operators: ["select_equals"],
+        listValues:  monthNames.map((e, i) => ({ value: i, title: e })),
+
+    },
+    year: {
+        label: 'Year',
+        type: 'select',
+        fieldName: "year",
+        valueSources: ['value'],
+        operators: ["select_equals"],
+        defaultOperator: "select_equals",
+        defaultValue: null,
+        listValues: getYears(2020).map(e => ({ title: e.title, value: e.id }))
     },
     createdAt: {
         label: 'Created Date',
@@ -116,7 +122,7 @@ const Payroll = () => {
                 ...(departmentIds && { "companyInfo.fkDepartmentId": { $in: departmentIds.split(',') } }),
                 ...(designationIds && { "companyInfo.fkDesignationId": { $in: designationIds.split(',') } }),
                 ...query,
-                
+
             }
         }
     }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
@@ -256,7 +262,7 @@ function PayrollToolbar(props) {
 
     return (
         <GridToolbarContainer sx={{ justifyContent: "space-between" }}>
-            <GridToolbarQuickFilter  debounceMs={500} />
+            <GridToolbarQuickFilter debounceMs={500} />
             <div>
                 {selectionModel?.length ? <Controls.Button onClick={() => onMultipleDelete(selectionModel)} startIcon={<Delete />} text="Delete Payroll" /> : null}
                 <Controls.Button onClick={onAdd} startIcon={<AccountBalanceWallet />} text="Genearate" />
