@@ -1,7 +1,7 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { API } from './_Service';
-import { useEntitiesQuery, useEntityAction, enableFilterAction, builderFieldsAction, useLazySingleQuery, useLazyPostQuery } from '../../store/actions/httpactions';
+import { useEntitiesQuery, useEntityAction, enableFilterAction, builderFieldsAction, useLazySingleQuery, useLazyPostQuery, showDropDownFilterAction } from '../../store/actions/httpactions';
 import { Circle, PeopleOutline, Add as AddIcon, FileCopy } from "../../deps/ui/icons";
 import { ButtonGroup, GridToolbarContainer, Tooltip, IconButton, Divider, Grid, Button, Input, Alert } from '../../deps/ui'
 import DataGrid, { useGridApi, getActions } from '../../components/useDataGrid';
@@ -14,6 +14,7 @@ import Popup from "../../components/Popup";
 import { dateRange, formateDate, getWeekStartEnd, formateISODateTime, formateISODate } from "../../services/dateTimeService";
 import { useExcelReader } from "../../hooks/useExcelReader";
 import { AutoForm } from '../../components/useForm'
+import { useDropDownIds } from "../../components/useDropDown";
 
 const fields = {
     name: {
@@ -93,7 +94,7 @@ export const AddRoster = ({ getTemplate, setFile, roster, setRoster, openPopup, 
                     fkShiftId: fkShiftId
                 })
             }
-            
+
         }
         // console.log(roasterData);
         addEntity({ url: `${DEFAULT_API}/insert`, data: { roster: roasterData } });
@@ -241,6 +242,8 @@ const AmendRoster = () => {
 
         return form;
     }, [roster, shifts])
+    const { countryIds, stateIds, cityIds, areaIds, departmentIds, groupIds, designationIds, employeeIds } = useDropDownIds();
+
     const { getTemplate, excelData, setFile } = useExcelReader({ formTemplate: rosterExcel, transform, fileName: "AmendRoster.xlsx" });
     const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
         url: `${DEFAULT_API}/get`,
@@ -249,7 +252,18 @@ const AmendRoster = () => {
             page: filter.page + 1,
             lastKeyId: filter.lastKey,
             ...sort,
-            searchParams: { ...query }
+            searchParams: {
+                ...(employeeIds && { "fkEmployeeId": { $in: employeeIds.split(',') } }),
+                // ...(countryIds && { "companyInfo.fkCountryId": { $in: countryIds.split(',') } }),
+                // ...(stateIds && { "companyInfo.fkStateId": { $in: stateIds.split(',') } }),
+                // ...(cityIds && { "companyInfo.fkCityId": { $in: cityIds.split(',') } }),
+                // ...(areaIds && { "companyInfo.fkAreaId": { $in: areaIds.split(',') } }),
+                // ...(groupIds && { "companyInfo.fkEmployeeGroupId": { $in: groupIds.split(',') } }),
+                // ...(departmentIds && { "companyInfo.fkDepartmentId": { $in: departmentIds.split(',') } }),
+                // ...(designationIds && { "companyInfo.fkDesignationId": { $in: designationIds.split(',') } }),
+                ...query
+
+            }
         }
     }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
 
@@ -303,7 +317,18 @@ const AmendRoster = () => {
 
 
     useEffect(() => {
-        dispatch(enableFilterAction(false));
+        dispatch(showDropDownFilterAction({
+            company: true,
+            country: true,
+            state: true,
+            city: true,
+            area: true,
+            department: true,
+            group: true,
+            designation: true,
+            employee: true
+        }));
+
         dispatch(builderFieldsAction(fields));
         getShiftList({
             url: `${API.Shift}/get`, data: {

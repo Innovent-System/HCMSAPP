@@ -16,6 +16,7 @@ import PaySlipViewer from '../pages/Payroll/reports/viewer/PayslipViewer';
 import SalarySheetViewer from '../pages/Payroll/reports/viewer/SalarySheetViewer';
 import LoanViewer from '../pages/Payroll/reports/viewer/LoanViewer';
 import PayrollSummaryViewer from '../pages/Payroll/reports/viewer/PayrollSummaryViewer';
+import AttendanceRegisterViewer from '../pages/Attendance/reports/viewer/AttendanceRegisterViewer';
 
 const LazySignIn = lazy(() => import(`../pages/General/SignIn`));
 const LazyDashboard = lazy(() => import(`../pages/General/Dashboard`));
@@ -45,6 +46,7 @@ const Routers = () => {
           <Route path="/" index element={<LazySignIn />} />
           <Route element={<PrivateRoute />}>
             <Route path="/attendancereport" element={<AttendanceReportViewer fileName="AttendanceReport" API_NAME={AttendanceAPI.AttendanceReport} />} />
+            <Route path="/attendanceregisterreport" element={<AttendanceRegisterViewer fileName="AttendanceRegisterReport" API_NAME={AttendanceAPI.AttendanceRegisterReport} />} />
             <Route path="/payslipreport" element={<PaySlipViewer fileName="PayslipReport" API_NAME={PayrollAPI.PayslipReport} />} />
             <Route path="/salarysheetreport" element={<SalarySheetViewer fileName="SalarySheetReport" API_NAME={PayrollAPI.SalarySheetReport} />} />
             <Route path="/payrollsummaryreport" element={<PayrollSummaryViewer fileName="PayrollSummaryReport" API_NAME={PayrollAPI.PayrollSummaryReport} />} />

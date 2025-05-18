@@ -1,6 +1,7 @@
 export const API = {
     Attendance: "attendance/amend",
     AttendanceReport: "attendance/report",
+    AttendanceRegisterReport: "attendance/report/register",
     AttendanceInsert: "attendance/amend/insert",
     AttendanceRequest: "attendance/request",
     GetAttendanceDetail: "attendance/request/detail",
@@ -13,6 +14,7 @@ export const API = {
     Approval: "attendance/approval",
     MarkAttendance: "attendance/mark",
     AmendRoster: "attendance/amendroster",
-    ApprovalAction: "attendance/approval/action"
+    ApprovalAction: "attendance/approval/action",
+    AttendanceRepost: "attendance/machine/repost"
     // Designation: "employee/designation",
 }

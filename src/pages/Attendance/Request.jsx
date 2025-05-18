@@ -10,7 +10,7 @@ import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { AutoForm } from '../../components/useForm'
 import PageHeader from '../../components/PageHeader'
-import { startOfDay, addDays, isEqual } from '../../services/dateTimeService'
+import { startOfDay, addDays, isEqual, formateDate } from '../../services/dateTimeService'
 import { formateISODateTime } from "../../services/dateTimeService";
 import { useDropDownIds } from "../../components/useDropDown";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
@@ -44,7 +44,7 @@ const getColumns = (apiRef, onCancel) => [
     {
         field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.employees.fullName
     },
-    { field: 'requestDate', headerName: 'Request Date', flex: 1 },
+    { field: 'requestDate', headerName: 'Request Date', flex: 1, valueGetter: ({ row }) => formateDate(row.requestDate) },
     { field: 'changeType', headerName: 'Change Type', flex: 1, valueGetter: ({ row }) => row.changeType.join(',') },
     {
         field: 'status', headerName: 'Status', flex: 1, renderCell: renderStatusCell
@@ -56,7 +56,7 @@ const getColumns = (apiRef, onCancel) => [
 
 export const AddAttendanceRequest = ({ openPopup, setOpenPopup, reqEmployee = null, reqDate = null }) => {
     const formApi = useRef(null);
-    
+
     const { Employees } = useAppSelector(e => e.appdata.employeeData);
     const { addEntity } = useEntityAction();
     const [getAttendanceRequest] = useLazySingleQuery();
@@ -189,6 +189,7 @@ export const AddAttendanceRequest = ({ openPopup, setOpenPopup, reqEmployee = nu
             let dataToInsert = { ...values };
             dataToInsert.fkEmployeeId = values.fkEmployeeId._id;
             dataToInsert.employeeCode = values.fkEmployeeId.punchCode;
+            dataToInsert.requestDate = startOfDay(values.requestDate);
             dataToInsert.changeType = [];
             if (changeTypeTrack.current.start?.getTime() !== dataToInsert.startDateTime.getTime()) {
                 dataToInsert.changeType.push("SignIn")

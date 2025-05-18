@@ -6,7 +6,7 @@ import { Circle, Add as AddIcon, PeopleOutline, Edit as EditIcon, Cancel as Canc
 import { GridToolbarContainer, Chip } from "../../deps/ui";
 import DataGrid, { getActions, useGridApi, GridRowModes, GridActionsCellItem, GridRowEditStopReasons } from '../../components/useDataGrid';
 import ConfirmDialog from '../../components/ConfirmDialog';
-import { formateISODateTime } from "../../services/dateTimeService";
+import { endOfDay, formateISODateTime } from "../../services/dateTimeService";
 import Controls from "../../components/controls/Controls";
 import PageHeader from '../../components/PageHeader'
 import { AttendanceflagMap, weekday } from "../../util/common";
@@ -14,6 +14,8 @@ import { useDropDownIds } from "../../components/useDropDown";
 import { addDays, startOfDay, isEqual } from '../../services/dateTimeService'
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
 import { useSocketIo } from "../../components/useSocketio";
+import { AutoForm } from '../../components/useForm'
+import Popup from "../../components/Popup";
 
 /**
  * @type {import('@react-awesome-query-builder/mui').Fields}
@@ -55,7 +57,6 @@ const fields = {
     },
 }
 
-
 const DateTimeCell = ({ apiRef, value, id, field, hasFocus, row, type = 'In' }) => {
     const [error, setError] = useState(null);
 
@@ -96,7 +97,6 @@ const DateTimeCell = ({ apiRef, value, id, field, hasFocus, row, type = 'In' }) 
         }
         key={id} onChange={hanldechange} category="datetime" value={value} />
 }
-
 
 /**
  * 
@@ -179,6 +179,78 @@ const getColumns = (apiRef, onEdit, onSave, onCancel) => {
             }
         }
     ]
+}
+
+export const CallAttendanceRepost = ({ openPopup, setOpenPopup }) => {
+    const formApi = useRef(null);
+
+    const [leaveTypes, setLeaveTypes] = useState([]);
+    const { Employees } = useAppSelector(e => e.appdata.employeeData);
+    const { addEntity } = useEntityAction();
+    // const [attendanceRespost] = useLazySingleQuery();
+
+    useEffect(() => {
+        if (formApi.current && openPopup) {
+            const { resetForm } = formApi.current;
+            resetForm();
+        }
+    }, [openPopup, formApi])
+
+
+    const formData = [
+        {
+            elementType: "ad_dropdown",
+            name: "fkEmployeeId",
+            label: "Employee",
+            required: true,
+            validate: {
+                errorMessage: "Employee is required",
+            },
+            dataId: '_id',
+            dataName: "fullName",
+            options: Employees,
+            isMultiple: true,
+            defaultValue: []
+        },
+
+        {
+            elementType: "daterangepicker",
+            name: "attendanceDate",
+            required: true,
+            // disableFuture: true,
+            breakpoints: { size: { md: 12, xs: 12 } },
+            validate: {
+                errorMessage: "Select Date please",
+            },
+            defaultValue: [new Date(), new Date()]
+        }
+    ];
+
+    const handleSubmit = (e) => {
+        const { getValue, validateFields } = formApi.current
+        if (validateFields()) {
+            let values = getValue();
+            let dataToInsert = {};
+
+            dataToInsert.employeeCodes = values.fkEmployeeId.map(e => e.punchCode);
+            dataToInsert.deviceFromDate = startOfDay(values.attendanceDate[0]);
+            dataToInsert.deviceToDate = endOfDay(values.attendanceDate[1]);
+
+            addEntity({ url: API.AttendanceRepost, data: dataToInsert }).finally(() => setOpenPopup(false));
+
+        }
+    }
+    return <>
+
+        <Popup
+            title="Attendance Repost"
+            openPopup={openPopup}
+            maxWidth="sm"
+            addOrEditFunc={handleSubmit}
+            setOpenPopup={setOpenPopup}>
+            <AutoForm formData={formData} ref={formApi} isValidate={true} />
+        </Popup>
+    </>
 }
 
 const DEFAULT_API = API.Attendance;
@@ -337,7 +409,7 @@ const Amend = () => {
     };
     const columns = getColumns(gridApiRef, handleEditClick, handleSaveClick, handleCancelClick);
 
-    const showAddModal = () => {
+    const showRepostModal = () => {
         isEdit.current = false;
         setOpenPopup(true);
     }
@@ -370,6 +442,7 @@ const Amend = () => {
                 subTitle="Manage Amend Attendance"
                 icon={<PeopleOutline fontSize="large" />}
             />
+            <CallAttendanceRepost openPopup={openPopup} setOpenPopup={setOpenPopup} />
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={records}
                 loading={false}
@@ -391,7 +464,7 @@ const Amend = () => {
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: handleSaveAttendance,
-                    // getAttendance: handleAmendAttendance,
+                    showRepostModal,
 
                     records,
                     editedRow
@@ -407,13 +480,13 @@ const Amend = () => {
 }
 
 export function AmendToolbar(props) {
-    const { onAdd, getAttendance, editedRow } = props;
+    const { onAdd, showRepostModal, editedRow } = props;
 
     return (
         <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
 
             {editedRow?.length ? <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Save" /> : null}
-            {/* <Controls.Button onClick={getAttendance} startIcon={<AddIcon />} text="Apply" /> */}
+            <Controls.Button onClick={showRepostModal} startIcon={<AddIcon />} text="Attendance Repost" />
         </GridToolbarContainer>
     );
 }
