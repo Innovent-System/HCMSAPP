@@ -24,7 +24,7 @@ const labelStyle = {
 const EmptyString = "";
 const PayslipView = ({
     companyName = EmptyString,
-    emplyeeRefNo = EmptyString,
+    employeeRefNo = EmptyString,
     fullName = EmptyString,
     nic = EmptyString,
     companyInfo = {
@@ -56,7 +56,7 @@ const PayslipView = ({
                 <Divider />
                 <Table size='small'>
                     <TableRow>
-                        <TableCell>Employee Code: <b>{emplyeeRefNo}</b></TableCell>
+                        <TableCell>Employee Code: <b>{employeeRefNo}</b></TableCell>
                         <TableCell>Employee Name: <b>{fullName}</b></TableCell>
                         <TableCell>Area:  <b>{area}</b></TableCell>
                     </TableRow>

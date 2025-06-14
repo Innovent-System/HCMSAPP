@@ -198,7 +198,9 @@ export const AddAttendanceRequest = ({ openPopup, setOpenPopup, reqEmployee = nu
                 dataToInsert.changeType.push("SignOut")
             }
 
-            addEntity({ url: DEFAULT_API, data: [dataToInsert] });
+            if (!dataToInsert.changeType?.length) return;
+
+            addEntity({ url: DEFAULT_API, data: [dataToInsert] }).finally(e => setOpenPopup(false));
 
         }
     }

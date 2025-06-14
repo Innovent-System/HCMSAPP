@@ -72,7 +72,7 @@ export const CompanyPolicy = ({ data }) => {
       label: "Employee(s) Share",
       breakpoints,
       inputMode: 'numeric',
-      required: true,
+      required: (value) => value.enable,
       validate: {
         errorMessage: "Employee(s) Share is required",
       },
@@ -98,7 +98,7 @@ export const CompanyPolicy = ({ data }) => {
       label: "Employer(s) Share",
       inputMode: 'numeric',
       breakpoints,
-      required: true,
+      required: (value) => value.enable,
       validate: {
         errorMessage: "Employer(s) Share is required",
       },

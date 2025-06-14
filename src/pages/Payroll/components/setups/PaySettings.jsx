@@ -79,12 +79,13 @@ const PaySettings = ({ data }) => {
             disabledAllowance.splice(disabledAllowance.indexOf(allowances[_index].fkAllowanceId), 1);
             setDisabledAllowance([...disabledAllowance]);
             setFormValue({ allowances: allowances.toSpliced(_index, 1) })
+            return;
         }
-        else if (!isAllowance && deductions.length !== 1) {
-            disabledDeduction.splice(disabledDeduction.indexOf(deductions[_index].fkDeductionId), 1);
-            setDisabledDeduct([...disabledDeduction])
-            setFormValue({ deductions: deductions.toSpliced(_index, 1) })
-        }
+
+        disabledDeduction.splice(disabledDeduction.indexOf(deductions[_index].fkDeductionId), 1);
+        setDisabledDeduct([...disabledDeduction])
+        setFormValue({ deductions: deductions.toSpliced(_index, 1) })
+
 
     }
 

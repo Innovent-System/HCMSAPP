@@ -105,7 +105,7 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, current
       const { setFormValue } = formApi.current;
       currentEditRecord.current = values;
       setFormValue({
-        emplyeeRefNo: values.emplyeeRefNo,
+        employeeRefNo: values.employeeRefNo,
         punchCode: values.punchCode,
         firstName: values.firstName,
         lastName: values.lastName,
@@ -189,7 +189,7 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, current
         },
         {
           elementType: "inputfield",
-          name: "emplyeeRefNo",
+          name: "employeeRefNo",
           label: "Employee Code",
           disabled: isEdit,
           required: true,

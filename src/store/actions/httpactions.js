@@ -388,7 +388,7 @@ export const appSlice = createSlice({
 
 const employeeInit = {
   generalTab: {
-    emplyeeRefNo: emptyString,
+    employeeRefNo: emptyString,
     punchCode: 0,
     firstName: emptyString,
     lastName: emptyString,

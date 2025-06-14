@@ -42,7 +42,7 @@ const General = ({ isEdit = false, setTab }) => {
         },
         {
             elementType: "inputfield",
-            name: "emplyeeRefNo",
+            name: "employeeRefNo",
             label: "Employee Code",
             required: true,
             type: 'number',
@@ -197,7 +197,7 @@ const General = ({ isEdit = false, setTab }) => {
             const values = getValue();
             dispatch(setGeneralAction(
                 {
-                    emplyeeRefNo: values.emplyeeRefNo,
+                    employeeRefNo: values.employeeRefNo,
                     punchCode: values.punchCode,
                     firstName: values.firstName,
                     lastName: values.lastName,

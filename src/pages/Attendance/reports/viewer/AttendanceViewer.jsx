@@ -20,7 +20,7 @@ const AddAction = ({ name, ...others }) => {
     const Action = ActionModel[name];
 
     return (
-        < >
+        <>
             <IconButton size='small' onClick={() => {
                 setOpenPopup(true);
             }}>
@@ -95,7 +95,7 @@ const HeadElement = ({ row, index }) => {
             <Typography component="legend">Detail</Typography>
             <Stack flexDirection="row" justifyContent="space-evenly">
                 <Stack>
-                    <Typography variant='caption' >EmployeeRef : {row.emplyeeRefNo}</Typography>
+                    <Typography variant='caption' >EmployeeRef : {row.employeeRefNo}</Typography>
                     <Typography variant='caption'>Name : {row.fullName}</Typography>
                     <Typography variant='caption'>Designation : {row.designation}</Typography>
                 </Stack>

@@ -102,7 +102,7 @@ const ProfileRequest = () => {
 
         const employee = {
             employeeImage: values.employeeImage,
-            emplyeeRefNo: values.emplyeeRefNo,
+            employeeRefNo: values.employeeRefNo,
             punchCode: values.punchCode,
             firstName: values.firstName,
             lastName: values.lastName,
@@ -147,8 +147,8 @@ const ProfileRequest = () => {
             employee.companyInfo.fkRoleTemplateId = values.fkRoleTemplateId;
 
         if (isExcel) {
-            const refNo = values.emplyeeRefNo.toLocaleLowerCase();
-            const updateEmp = Employees.find(e => e.emplyeeRefNo.toLocaleLowerCase() === refNo);
+            const refNo = values.employeeRefNo.toLocaleLowerCase();
+            const updateEmp = Employees.find(e => e.employeeRefNo.toLocaleLowerCase() === refNo);
             if (updateEmp) {
                 employee._id = updateEmp._id;
             }

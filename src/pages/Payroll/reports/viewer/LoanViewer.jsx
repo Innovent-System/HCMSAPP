@@ -5,7 +5,7 @@ import { formatNumber } from '../../../../util/common';
 import ReportTable from '../../../../components/ReportTable';
 
 const reportColumns = [
-    { field: 'emplyeeRefNo', headerName: 'Code' },
+    { field: 'employeeRefNo', headerName: 'Code' },
     { field: 'fullName', headerName: 'Employee' },
     { field: 'department', headerName: 'Department' },
     { field: 'designation', headerName: 'Designation' },

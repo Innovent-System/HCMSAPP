@@ -5,7 +5,7 @@ import { formatNumber } from '../../../../util/common';
 import ReportTable from '../../../../components/ReportTable';
 
 const reportColumns = [
-    { field: 'emplyeeRefNo', headerName: 'Code', valueGetter: ({ row }) => row.employee.emplyeeRefNo },
+    { field: 'employeeRefNo', headerName: 'Code', valueGetter: ({ row }) => row.employee.employeeRefNo },
     { field: 'fullName', headerName: 'Employee', valueGetter: ({ row }) => row.employee.fullName },
     { field: 'department', headerName: 'Department', valueGetter: ({ row }) => row.employee.department },
     { field: 'designation', headerName: 'Designation', valueGetter: ({ row }) => row.employee.designation },

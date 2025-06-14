@@ -234,7 +234,7 @@ const CompanyDetail = ({ isEdit = false, setTab }) => {
 
             })
             const employeeData = {
-                emplyeeRefNo: generalData.emplyeeRefNo,
+                employeeRefNo: generalData.employeeRefNo,
                 punchCode: generalData.punchCode,
                 firstName: generalData.firstName,
                 lastName: generalData.lastName,

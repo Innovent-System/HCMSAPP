@@ -120,10 +120,10 @@ const findDuplicatesIndividually = (array) => {
             seenEmployeeRefNo.add(item.employeeRefNo);
 
 
-        if (seenPunchcode.has(item.punchcode))
-            errors.push(`punchCode : ${item.punchcode} already exists`)
+        if (seenPunchcode.has(item.punchCode))
+            errors.push(`punchCode : ${item.punchCode} already exists`)
         else
-            seenPunchcode.add(item.punchcode);
+            seenPunchcode.add(item.punchCode);
 
     }
 
@@ -162,7 +162,7 @@ const Employee = () => {
 
         const employee = {
             employeeImage: values.employeeImage,
-            emplyeeRefNo: values.emplyeeRefNo,
+            employeeRefNo: values.employeeRefNo,
             punchCode: values.punchCode,
             firstName: values.firstName,
             lastName: values.lastName,
@@ -208,9 +208,9 @@ const Employee = () => {
 
         if (isExcel) {
 
-            const refNo = values.emplyeeRefNo.toLowerCase();
+            const refNo = values.employeeRefNo.toLowerCase();
             const punchCode = values.punchCode;
-            const updateEmp = Employees.find(e => e.emplyeeRefNo.toLowerCase() === refNo);
+            const updateEmp = Employees.find(e => e.employeeRefNo.toLowerCase() === refNo);
             if (updateEmp) {
                 employee._id = updateEmp._id;
                 employee.isChangePunchCode = employee.punchCode != punchCode;
@@ -268,7 +268,7 @@ const Employee = () => {
                         }
                     },
                     { email: { $regex: debounceSearchText, $options: "i" } },
-                    { emplyeeRefNo: { $regex: debounceSearchText, $options: "i" } },
+                    { employeeRefNo: { $regex: debounceSearchText, $options: "i" } },
                     { punchCode: { $regex: debounceSearchText, $options: "i" } },
                     { "area.areaName": { $regex: debounceSearchText, $options: "i" } },
                     { "designation.name": { $regex: debounceSearchText, $options: "i" } },
