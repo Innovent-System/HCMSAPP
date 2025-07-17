@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Popup from '../../components/Popup';
 import { API } from './_Service';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction } from '../../store/actions/httpactions';
-import { PeopleOutline } from "../../deps/ui/icons";
+import { PeopleOutline, Circle } from "../../deps/ui/icons";
 import DataGrid, { getActions, GridToolbar, renderStatusCell, useGridApi } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
@@ -40,7 +40,7 @@ const mapExcelData = (values) => {
     return map
 }
 
-const getColumns = (onCancel) => [
+const getColumns = (onCancel, onActive, onEdit) => [
     { field: '_id', headerName: 'Id', hide: true },
     {
         field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.employees.fullName
@@ -48,12 +48,19 @@ const getColumns = (onCancel) => [
     { field: 'startDate', headerName: 'Start Date', flex: 1, valueGetter: ({ row }) => formateISODate(row.startDate) },
     { field: 'endDate', headerName: 'End Date', flex: 1, valueGetter: ({ row }) => formateISODate(row.endDate) },
     { field: 'amount', headerName: 'Amount' },
+    {
+        field: 'isActive', headerName: 'Active', renderCell: (param) => (
+            param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
+        ),
+        // flex: '0 1 5%',
+        align: 'center',
+    },
     { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
     { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
-    getActions(null, { onCancel })
+    getActions(null, { onCancel, onActive, onEdit })
 ];
-
-const AddTaxIncome = ({ openPopup, setOpenPopup, colData = [] }) => {
+let editId = 0;
+const AddTaxIncome = ({ openPopup, setOpenPopup, colData = [], isEdit = false, row = null }) => {
     const formApi = useRef(null);
 
 
@@ -61,9 +68,18 @@ const AddTaxIncome = ({ openPopup, setOpenPopup, colData = [] }) => {
     const { addEntity } = useEntityAction();
 
     useEffect(() => {
-        if (formApi.current && openPopup) {
-            const { resetForm } = formApi.current;
+        if (!formApi.current || !openPopup) return;
+        const { resetForm, setFormValue } = formApi.current;
+        if (openPopup && !isEdit)
             resetForm();
+        else {
+            console.log(row);
+            setFormValue({
+                fkEmployeeId: Employees.find(e => e._id === row.fkEmployeeId),
+                startDate: new Date(row.startDate),
+                endDate: new Date(row.endDate),
+                amount: row.amount
+            });
         }
     }, [openPopup, formApi])
     const formData = [
@@ -135,6 +151,8 @@ const AddTaxIncome = ({ openPopup, setOpenPopup, colData = [] }) => {
             let dataToInsert = { ...values };
             dataToInsert.fkEmployeeId = values.fkEmployeeId._id;
             dataToInsert.endDate = endOfDay(values.endDate);
+             if (isEdit)
+                dataToInsert._id = editId
             addEntity({ url: DEFAULT_API, data: [dataToInsert] });
 
         }
@@ -145,7 +163,7 @@ const AddTaxIncome = ({ openPopup, setOpenPopup, colData = [] }) => {
             title="Add Tax Income"
             openPopup={openPopup}
             maxWidth="sm"
-            isEdit={false}
+            isEdit={isEdit}
             keepMounted={true}
             addOrEditFunc={handleSubmit}
             setOpenPopup={setOpenPopup}>
@@ -157,7 +175,8 @@ const DEFAULT_API = API.TaxIncome;
 const TaxIncome = () => {
     const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
-
+    const isEdit = React.useRef(false);
+    const row = useRef(null);
     const [selectionModel, setSelectionModel] = React.useState([]);
 
     const [gridFilter, setGridFilter] = useState({
@@ -211,6 +230,17 @@ const TaxIncome = () => {
         });
 
     }
+    const handleActiveInActive = (id) => {
+        updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
+    }
+
+    const handleEdit = (id) => {
+        isEdit.current = true;
+        editId = id;
+
+        row.current = data.find(a => a.id === id);
+        setOpenPopup(true);
+    }
 
     useEffect(() => {
         if (excelData)
@@ -220,7 +250,7 @@ const TaxIncome = () => {
 
     const { socketData } = useSocketIo("changeInTax", refetch);
 
-    const columns = getColumns(handleCancel);
+    const columns = getColumns(handleCancel, handleActiveInActive, handleEdit);
 
     const handelDeleteItems = (ids) => {
         let idTobeDelete = ids;
@@ -250,6 +280,7 @@ const TaxIncome = () => {
 
 
     const showAddModal = () => {
+        isEdit.current = false;
         setOpenPopup(true);
     }
 
@@ -263,7 +294,9 @@ const TaxIncome = () => {
                 subTitle="Manage Tax Income"
                 icon={<PeopleOutline fontSize="large" />}
             />
-            <AddTaxIncome colData={excelColData} openPopup={openPopup} setOpenPopup={setOpenPopup} />
+            <AddTaxIncome colData={excelColData} openPopup={openPopup} setOpenPopup={setOpenPopup}
+                row={row.current} isEdit={isEdit.current}
+            />
 
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={data}
