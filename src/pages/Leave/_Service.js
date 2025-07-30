@@ -9,5 +9,6 @@ export const API = {
     LeaveQuotaInsert: "leave/quota/insert",
     Approval: "leave/approval",
     ApprovalAction: "leave/approval/action",
+    LeaveBalanceReport: 'leave/report/leavebalance'
     // Designation: "employee/designation",
 }

@@ -12,11 +12,13 @@ import ReportTable from '../components/ReportTable';
 import AttendanceReportViewer from '../pages/Attendance/reports/viewer/AttendanceViewer';
 import { API as AttendanceAPI } from '../pages/Attendance/_Service';
 import { API as PayrollAPI } from '../pages/Payroll/_Service';
+import { API as LeaveAPI } from '../pages/Leave/_Service';
 import PaySlipViewer from '../pages/Payroll/reports/viewer/PayslipViewer';
 import SalarySheetViewer from '../pages/Payroll/reports/viewer/SalarySheetViewer';
 import LoanViewer from '../pages/Payroll/reports/viewer/LoanViewer';
 import PayrollSummaryViewer from '../pages/Payroll/reports/viewer/PayrollSummaryViewer';
 import AttendanceRegisterViewer from '../pages/Attendance/reports/viewer/AttendanceRegisterViewer';
+import LeaveBalanceViewer from '../pages/Leave/reports/viewer/LeaveBalanceViewer';
 
 const LazySignIn = lazy(() => import(`../pages/General/SignIn`));
 const LazyDashboard = lazy(() => import(`../pages/General/Dashboard`));
@@ -51,6 +53,7 @@ const Routers = () => {
             <Route path="/salarysheetreport" element={<SalarySheetViewer fileName="SalarySheetReport" API_NAME={PayrollAPI.SalarySheetReport} />} />
             <Route path="/payrollsummaryreport" element={<PayrollSummaryViewer fileName="PayrollSummaryReport" API_NAME={PayrollAPI.PayrollSummaryReport} />} />
             <Route path="/loanreport" element={<LoanViewer fileName="LoanReport" API_NAME={PayrollAPI.LoanReport} />} />
+            <Route path="/leavebalancereport" element={<LeaveBalanceViewer fileName="LeaveBalanceReport" API_NAME={LeaveAPI.LeaveBalanceReport} />} />
             <Route element={<Layout />}>
               <Route path="/dashboard" element={<LazyDashboard />} />
 

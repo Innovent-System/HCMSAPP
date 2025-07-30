@@ -25,6 +25,7 @@ export default Object.freeze({
     // 18: lazy(() => import(`../pages/Leave/Request`)),
     19: lazy(() => import(`../pages/Leave/Approval`)),
     20: lazy(() => import(`../pages/Leave/Settings`)),
+    42: lazy(() => import(`../pages/Leave/Reports`)),
     //organization
     9: lazy(() => import(`../pages/Organization/SystemLog`)),
     10: lazy(() => import(`../pages/Organization/ManageCompany`)),
