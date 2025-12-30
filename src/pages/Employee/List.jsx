@@ -147,12 +147,8 @@ const Employee = () => {
     const isLarge = useMediaQuery(theme.breakpoints.up('xl'));
     const { Employees } = useAppSelector(e => e.appdata.employeeData);
     const handleSearch = (e) => {
-
-
         setSearchText(e.target.value)
-
     }
-
 
     // const debouncedClick = useRef(debounce(searchText, 300)).current;
     const debounceSearchText = useDebounce(searchText, 300);
@@ -278,14 +274,14 @@ const Employee = () => {
 
         }
         // if (query || Object.keys(setquery).length) {
-        setGridFilter({ ...gridFilter, startIndex: 0, isFromScroll: false })
-        setQueryFilter(setquery)
-        setRecord([]);
+            setGridFilter({ ...gridFilter, startIndex: 0, isFromScroll: false })
+            setQueryFilter(setquery)
+            setRecord([]);
         // }
 
     }, [query, dropdownIds, debounceSearchText])
 
-    const { data = [], isLoading, refetch, totalRecord } = useEntitiesQuery({
+    const { data = [], isLoading, refetch, totalRecord = 0, status } = useEntitiesQuery({
         url: `${DEFAULT_API}/get`,
         data: {
             limit: gridFilter.limit,
@@ -295,11 +291,12 @@ const Employee = () => {
             ...sort,
             searchParams: queryFilter
         }
-    }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
+    }, { selectFromResult: ({ data, status, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading, status }) });
 
     const { updateOneEntity, addEntity, removeEntity } = useEntityAction();
 
     const { socketData } = useSocketIo("changeInEmployee", refetch);
+
 
     const handleEdit = (id) => {
         isEdit.current = true;
@@ -308,7 +305,7 @@ const Employee = () => {
     }
 
     useEffect(() => {
-        if (data) {
+        if (status === "fulfilled") {
             if (gridFilter.isFromScroll)
                 setRecord((prev) => [...prev, ...data]);
             else {
@@ -330,11 +327,13 @@ const Employee = () => {
 
 
         }
-    }, [data]);
+    }, [status, data]);
+
 
     const handleActiveInActive = (id) => {
         setGridFilter({ ...gridFilter, isFromScroll: false })
         updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
+
     }
 
     const handelDeleteItems = (ids) => {
@@ -429,6 +428,7 @@ const Employee = () => {
 
         }
     }
+
 
     return (
         <>

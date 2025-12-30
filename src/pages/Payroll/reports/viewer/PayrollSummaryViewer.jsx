@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { BaseReportWrapper } from '../../../../components/ReportViewer';
 import { Box, Stack, TableCell, TableRow, Typography, IconButton, ButtonGroup, TableHead } from '../../../../deps/ui'
-import { formatNumber } from '../../../../util/common';
+import { formatNumber, monthNames } from '../../../../util/common';
 import ReportTable from '../../../../components/ReportTable';
 
 const reportColumns = [
@@ -58,19 +58,23 @@ const PayrollSummaryViewer = ({ API_NAME, fileName }) => {
 
     const [records, setRecords] = useState([]);
     const [option, setOption] = useState({
-        groupByField: ""
+        groupByField: "",
+        month: "",
+        year: ""
     })
-    const handleRecord = (data, queryParams) => {
+    const handleRecord = (data, { searchParams, groupBy }) => {
         setRecords(data)
-        if (queryParams?.groupBy) {
-            setOption({ groupByField: queryParams?.groupBy })
-        }
+
+        setOption({ groupByField: groupBy, month: searchParams?.month, year: searchParams?.year })
+
     }
 
 
     return (
 
-        <BaseReportWrapper API_NAME={API_NAME} fileName={fileName}
+        <BaseReportWrapper API_NAME={API_NAME} header='Payroll Summary Report'
+            subHeader={`${monthNames[option.month]} ${option.year}`}
+            fileName={fileName}
             handleRecord={handleRecord}
         >
             <ReportTable

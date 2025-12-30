@@ -83,8 +83,10 @@ function MultiSelect(props) {
       onInputChange={handleInputeChange}
       disableCloseOnSelect={isMultiple}
       disableListWrap
-
-      ListboxComponent={ListboxComponent}
+      slotProps={{
+        listbox: { component: ListboxComponent }
+      }}
+      // ListboxComponent={ListboxComponent}
       {...(isMultiple && {
         renderOption: ({ key, ..._prop }, option, { selected }) =>
         (

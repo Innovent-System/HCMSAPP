@@ -1,8 +1,20 @@
 import React from 'react';
-import { FixedSizeGrid as Grid } from 'react-window';
+import { Grid } from 'react-window';
 import { useTheme, useMediaQuery } from '@mui/material';
 import EmployeeCard from './EmployeeCard';
 
+
+function Cell({ data, columnIndex, rowIndex, style, columnCount, handleEdit, handleActive, ...th }) {
+    const index = (rowIndex * columnCount) + columnIndex;
+    const employee = data[index];
+    return (
+        employee && (
+            <div style={style}>
+                <EmployeeCard handleEdit={handleEdit} handleActive={handleActive} employeeInfo={employee} />
+            </div>
+        )
+    );
+}
 const ResponsiveEmployeeGrid = ({ data, totalRecord = 0, handleEdit, handleActive, setGridFilter }) => {
     const theme = useTheme();
 
@@ -18,41 +30,39 @@ const ResponsiveEmployeeGrid = ({ data, totalRecord = 0, handleEdit, handleActiv
     const gridHeight = isMobile ? 550 : isLarge ? 700 : 500;
 
     const rowCount = Math.ceil(data.length / columnCount); // Calculate rows based on total items and columns
-    const handleScroll = ({ scrollTop }) => {
+    const handleScroll = ({ currentTarget }) => {
+
         const totalHeight = rowCount * 210; // Total content height
-        const bottomReached = (totalHeight - scrollTop) <= (isMobile ? gridHeight + 10 : gridHeight); // 100px threshold
-        
+        const bottomReached = Math.floor(totalHeight - currentTarget.scrollTop) <= (isMobile ? gridHeight + 10 : gridHeight); // 100px threshold
+
+
         if (bottomReached && data.length < totalRecord) {
             setGridFilter(prev => {
                 const rec = prev.startIndex + prev.limit;
                 return { ...prev, startIndex: rec, isFromScroll: true }
             })
         }
-    };
+    }
+
 
     return (
         <Grid
+
             columnCount={columnCount}
+            cellComponent={Cell}
+            cellProps={{ data, columnCount, handleEdit, handleActive }}
             rowCount={rowCount}
             columnWidth={columnWidth}
             rowHeight={210} // Fixed height for each row
-            width={isMobile ? 360 : columnCount * columnWidth} // Total grid width
-            height={gridHeight} // Total grid height
+            //width={isMobile ? 360 : columnCount * columnWidth} // Total grid width
+           // height={gridHeight} // Total grid height
+            style={{ height: gridHeight }}
             className='no-scroll-grid'
+            overscanCount={3}
             onScroll={handleScroll} // Handle scroll event
-        >
-            {({ columnIndex, rowIndex, style }) => {
-                const index = rowIndex * columnCount + columnIndex;
-                const employee = data[index];
-                return (
-                    employee && (
-                        <div style={style}>
-                            <EmployeeCard handleEdit={handleEdit} handleActive={handleActive} employeeInfo={employee} />
-                        </div>
-                    )
-                );
-            }}
-        </Grid>
+        />
+
+
     );
 };
 

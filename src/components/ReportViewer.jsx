@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Toolbar, AppBar, Grid, IconButton, ButtonGroup, Paper } from '../deps/ui'
+import { Toolbar, AppBar, Grid, IconButton, ButtonGroup, Paper, Typography } from '../deps/ui'
 import { LocalPrintshop, PictureAsPdf, Description, OpenInNew } from '../deps/ui/icons'
 import CommonDropDown from './CommonDropDown'
 import useTable from './useTable'
@@ -45,7 +45,7 @@ export const ReportHeader = ({ handleReport, component: { pagination } }) => {
     </AppBar>
 }
 
-export const BaseReportWrapper = ({ API_NAME, fileName, children, handleRecord, pagination = null, thunk = { employee: false } }) => {
+export const BaseReportWrapper = ({ API_NAME, header, subHeader, fileName, children, handleRecord, pagination = null, thunk = { employee: false } }) => {
     const dispatch = useAppDispatch();
     const [loader, setLoader] = useState(false);
     const [searchParams] = useSearchParams();
@@ -91,6 +91,10 @@ export const BaseReportWrapper = ({ API_NAME, fileName, children, handleRecord, 
                     <ReportHeader handleReport={handleReport} component={{
                         pagination
                     }} />
+                </Grid>
+                <Grid item>
+                    <Typography>{header}</Typography>
+                     {subHeader && <Typography variant='subtitle1'>{subHeader}</Typography>}
                 </Grid>
                 <Grid item size={BREAK_POINTS}>
                     {children}
