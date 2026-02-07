@@ -111,7 +111,13 @@ const validateAllFields = (fieldValues, values) => {
 const DEFAULT_BREAK_POINTS = { size: { xs: 12, sm: 6, md: 6 } };
 
 /**
- * @type {React.FC<import('../types/fromstype').FormProps>}
+ * AutoForm - Dynamic form generator with validation
+ * 
+ * @type {<T extends Record<string, any>>(
+ *   props: import('../types').AutoFormProps<T> & { 
+ *     ref?: import('react').Ref<import('../types').FormRef<T>> 
+ *   }
+ * ) => React.ReactElement}
  */
 export const AutoForm = forwardRef(function (props, ref) {
 
@@ -331,6 +337,8 @@ export const AutoForm = forwardRef(function (props, ref) {
         </Grid>
     )
 })
+
+AutoForm.displayName = "AutoForm";
 
 // AutoForm.propTypes = {
 //     formData: PropTypes.oneOfType([

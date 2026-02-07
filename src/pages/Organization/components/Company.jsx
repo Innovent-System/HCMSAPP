@@ -170,9 +170,7 @@ const Company = () => {
         }
         return isValid;
     }
-    /**
-    * @type {Array<import("../../../types/fromstype").FormType>}
-    */
+    /** @type {import('../../../types').FormData} */
     const formData = [
         {
             elementType: "inputfield",
@@ -199,13 +197,12 @@ const Company = () => {
             <Popup
                 title="Add Company"
                 openPopup={openPopup}
-
                 maxWidth="sm"
                 keepMounted={true}
                 isEdit={isEdit.current}
                 addOrEditFunc={handleSubmit}
                 setOpenPopup={setOpenPopup}>
-                <AutoForm formData={formData} ref={formApi} isValidate={true} />
+                <AutoForm  formData={formData} ref={formApi} isValidate={true} />
             </Popup>
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={data}

@@ -86,7 +86,7 @@ const validateAllFields = (fieldValues, values) => {
 const DEFAULT_BREAK_POINTS = { size: { xs: 12, sm: 6, md: 6 } };
 
 /**
- * @type {React.FC<import('../types/fromstype').FormProps>}
+ * @type {React.FC<import('../types').FormProps>}
  */
 export const ArrayForm = forwardRef(function (props, ref) {
 

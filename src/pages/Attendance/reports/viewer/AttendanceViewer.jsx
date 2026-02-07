@@ -90,7 +90,7 @@ const TableFooter = ({ row, summary = [], index }) => {
 }
 
 const HeadElement = ({ row, index }) => {
-    return <TableHead> <TableRow><TableCell sx={{ backgroundColor: '#fff' }} colSpan={reportColumns.length}>
+    return <TableHead><TableRow><TableCell sx={{ backgroundColor: '#fff' }} colSpan={reportColumns.length}>
         <Box pb={1} pl={1} borderRadius={1} borderColor="whitesmoke" component="fieldset">
             <Typography component="legend">Detail</Typography>
             <Stack flexDirection="row" justifyContent="space-evenly">

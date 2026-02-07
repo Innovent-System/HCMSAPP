@@ -135,7 +135,7 @@ let colInfo = [];
  *
  * @function useExcelReader
  * @param {Object} options - Configuration options for the Excel reader.
- * @param {Array<import("../types/fromstype").FormType>} options.formTemplate - The template object defining the structure of the Excel data.
+ * @param {Array<import("../types").FormType>} options.formTemplate - The template object defining the structure of the Excel data.
  * @param {Function|null} [options.transform=null] - An optional transformation function to apply to the data.
  *     The function receives the raw data as input and returns the transformed data.
  * @param {string} [options.fileName="Template.xlsx"] - The name of the Excel file to be read.

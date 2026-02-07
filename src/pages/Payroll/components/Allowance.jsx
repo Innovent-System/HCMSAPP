@@ -185,7 +185,7 @@ const Allowance = ({ DEFAULT_API = API.Allowance, DEFAULT_NAME = "Allowance", fo
         return isValid;
     }
     /**
-    * @type {Array<import("../../../types/fromstype").FormType>}
+    * @type {Array<import("../../../types").FormType>}
     */
     const formData = [
         {

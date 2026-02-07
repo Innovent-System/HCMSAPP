@@ -154,7 +154,7 @@ const SalarySetup = () => {
     }
 
     /**
-     * @type {import('../../types/fromstype').FormType}
+     * @type {import('../../types').FormType}
      */
     const formData = [{
         elementType: "ad_dropdown",
