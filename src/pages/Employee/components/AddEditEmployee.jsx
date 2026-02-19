@@ -115,7 +115,7 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, current
         email: values.generalInfo.email,
         gender: values.generalInfo.gender,
         dateofBirth: new Date(values.generalInfo.dateofBirth),
-        fkReligionId: values.generalInfo.fkReligionId,
+        fkReligionId: values.generalInfo?.fkReligionId ?? null,
         nic: values.generalInfo.nic,
         fkAreaId: areas.find(a => a._id === values.companyInfo.fkAreaId),
         fkCityId: cities.find(a => a._id === values.companyInfo.fkCityId),
@@ -350,7 +350,8 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, current
           name: "email",
           label: "Email",
           breakpoints,
-          required: (value) => value["isAllowLogin"],
+          // required: (value) => value["isAllowLogin"],
+          required: true,
           type: "email",
           validate: {
             when: 0,

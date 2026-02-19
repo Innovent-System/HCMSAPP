@@ -8,36 +8,13 @@ import PropTypes from 'prop-types'
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
-const MyPopper = function (props) {
-  const addAllClick = (e) => {
-    e.preventDefault();
-    console.log('Add All');
-  }
-  const clearClick = (e) => {
-    e.preventDefault();
-    console.log('Clear');
-  }
-  return (
-    <Popper {...props}>
-      <ButtonGroup color="primary" fullWidth aria-label="outlined primary button group">
-        <Button startIcon={<Check />} color="primary" onClick={addAllClick}>
-          Add All
-        </Button>
-        <Button startIcon={<Clear />} color="primary" onClick={clearClick}>
-          Clear
-        </Button>
-      </ButtonGroup>
-      {props.children}
-    </Popper>
-  );
-}
 //Multiple ki default value array hai
 
 function MultiSelect(props) {
-
   const { name, label, value, error = null, onChange, options = [], dataId = "", dataName = "", isMultiple = false, ...other } = props;
   const autoCompleteRef = useRef(null);
   const inputId = useId();
+
   const convertToDefEventPara = (name, value) => ({
     target: {
       name,
@@ -50,11 +27,15 @@ function MultiSelect(props) {
       const close = autoCompleteRef.current.getElementsByClassName(
         "MuiAutocomplete-clearIndicator"
       )[0];
-
-      close.click();
+      close?.click();
     }
   }, [options])
-  const getOptionLabel = (option) => option[dataName] ?? '';
+
+  const getOptionLabel = (option) => {
+    // Handle "Select All" option
+    if (option.isSelectAll) return 'Select All';
+    return option[dataName] ?? '';
+  };
 
   const handleInputeChange = (e, newValue) => {
     if (e === null && !newValue) {
@@ -65,44 +46,100 @@ function MultiSelect(props) {
     }
   }
 
+  const handleSelectAll = () => {
+    onChange(convertToDefEventPara(name, options));
+  };
+
+  const handleClearAll = () => {
+    onChange(convertToDefEventPara(name, []));
+  };
+
+  const allSelected = isMultiple && value.length === options.length && options.length > 0;
+  const someSelected = isMultiple && value.length > 0 && value.length < options.length;
+
+  // Add "Select All" option to the beginning of options list
+  const optionsWithSelectAll = isMultiple
+    ? [{ isSelectAll: true, [dataName]: 'Select All' }, ...options]
+    : options;
+
   return (
     <Autocomplete
       multiple={isMultiple}
       ref={autoCompleteRef}
-      // {...(isMultiple && { PopperComponent: MyPopper })}
       limitTags={1}
-      isOptionEqualToValue={(option, value) => option[dataName] === value[dataName]}
+      isOptionEqualToValue={(option, value) => {
+        if (option.isSelectAll) return false;
+        return option[dataName] === value[dataName];
+      }}
       {...other}
       value={value}
-      onChange={(event, value) => onChange(convertToDefEventPara(name, value))}
-      id={inputId}
+      onChange={(event, newValue, reason) => {
+        // Check if "Select All" was clicked
+        const selectAllClicked = isMultiple && newValue?.some(item => item.isSelectAll);
 
+        if (selectAllClicked) {
+          if (allSelected) {
+            handleClearAll();
+          } else {
+            handleSelectAll();
+          }
+        } else {
+          onChange(convertToDefEventPara(name, newValue));
+        }
+      }}
+      id={inputId}
       size="small"
-      options={options}
+      options={optionsWithSelectAll}
       getOptionLabel={getOptionLabel}
       onInputChange={handleInputeChange}
       disableCloseOnSelect={isMultiple}
       disableListWrap
       slotProps={{
-        listbox: { component: ListboxComponent }
+        listbox: { component: ListboxComponent },
+        popper: {
+          sx: {
+            minWidth: 250
+          }
+        }
       }}
-      // ListboxComponent={ListboxComponent}
       {...(isMultiple && {
-        renderOption: ({ key, ..._prop }, option, { selected }) =>
-        (
-          <li key={key} {..._prop}>
-            <Checkbox
-              icon={icon}
-              checkedIcon={checkedIcon}
-              // style={{ marginRight: 8 }}
-              checked={selected}
-            />
-            {option[dataName]}
-          </li>
-        ),
+        renderOption: ({ key, ..._prop }, option, { selected }) => {
+          // Render "Select All" option
+          if (option.isSelectAll) {
+            return (
+              <li
+                key={key}
+                {..._prop}
+                style={{
+                  borderBottom: '1px solid #e0e0e0',
+                  fontWeight: 'bold'
+                }}
+              >
+                <Checkbox
+                  icon={icon}
+                  checkedIcon={checkedIcon}
+                  indeterminate={someSelected}
+                  checked={allSelected}
+                />
+                All
+              </li>
+            );
+          }
+
+          // Render regular options
+          return (
+            <li key={key} {..._prop}>
+              <Checkbox
+                icon={icon}
+                checkedIcon={checkedIcon}
+                checked={selected}
+              />
+              {option[dataName]}
+            </li>
+          );
+        },
 
         renderTags: (value, getTagProps, _prop) => {
-
           return value.slice(0, _prop.limitTags).map((option, index) => {
             const { key, ...chipProp } = getTagProps({ index });
             return (
@@ -115,14 +152,15 @@ function MultiSelect(props) {
             )
           })
         }
-
-
       })}
 
       renderInput={(params) => (
-        <TextField {...params} {...(error && { error: true, helperText: error })}
-          variant="outlined" size='small' label={label}
-
+        <TextField
+          {...params}
+          {...(error && { error: true, helperText: error })}
+          variant="outlined"
+          size='small'
+          label={label}
         />
       )}
     />

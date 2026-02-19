@@ -30,10 +30,10 @@ export const ReportHeader = ({ handleReport, component: { pagination } }) => {
                     <IconButton title='Print'>
                         <LocalPrintshop />
                     </IconButton>
-                    <IconButton title='Download Pdf' onClick={() => handleReport(true)}>
+                    <IconButton title='Download Pdf' onClick={() => handleReport(true, 'pdf')}>
                         <PictureAsPdf />
                     </IconButton>
-                    <IconButton title='Download Excel'>
+                    <IconButton title='Download Excel' onClick={() => handleReport(true, 'excel')}>
                         <Description />
                     </IconButton>
                 </ButtonGroup>
@@ -62,7 +62,7 @@ export const BaseReportWrapper = ({ API_NAME, header, subHeader, fileName, child
             dispatch(EmployeeDataThunk({ url: GET_EMPLOYEE_DATA }));
         if (searchParams.get('data')) {
             const queryData = decompressQuery(searchParams.get("data"));
-            handleReport(false, queryData);
+            handleReport(false, 'pdf', queryData);
             setReportFilter(queryData);
         }
 
@@ -71,12 +71,12 @@ export const BaseReportWrapper = ({ API_NAME, header, subHeader, fileName, child
         }
     }, [searchParams])
 
-    const handleReport = (isDownload = false, queryData = repotFilter) => {
+    const handleReport = (isDownload = false, type = 'pdf', queryData = repotFilter) => {
         setLoader(true);
         getReport({
             url: `${API_NAME}/${isDownload ? 'download' : 'view'}`,
             fileName,
-            data: queryData
+            data: { ...queryData, type }
         }).then(c => {
 
             if (!isDownload)
@@ -94,7 +94,7 @@ export const BaseReportWrapper = ({ API_NAME, header, subHeader, fileName, child
                 </Grid>
                 <Grid item>
                     <Typography>{header}</Typography>
-                     {subHeader && <Typography variant='subtitle1'>{subHeader}</Typography>}
+                    {subHeader && <Typography variant='subtitle1'>{subHeader}</Typography>}
                 </Grid>
                 <Grid item size={BREAK_POINTS}>
                     {children}

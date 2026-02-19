@@ -35,6 +35,7 @@ const attendaceWillBeSHow = [1, 2, 3, 7];
 const reportColumns = [
     // { field: 'employeeCode', headerName: 'Code' },
     { field: 'shiftName', headerName: 'Shift' },
+    // { field: 'scheduleStartDt', headerName: 'Schedule Start', valueGetter: ({ row }) => `${formateISODateTime(row.scheduleStartDt)} ${row.isModified ? '*' : ''}` },
     { field: 'scheduleStartDt', headerName: 'Schedule Start', valueGetter: ({ row }) => formateISODateTime(row.scheduleStartDt) },
     { field: 'scheduleEndDt', headerName: 'Schedule End', valueGetter: ({ row }) => formateISODateTime(row.scheduleEndDt) },
     { field: 'startDateTime', headerName: 'Actual In', valueGetter: ({ row }) => formateISODateTime(row.startDateTime) },

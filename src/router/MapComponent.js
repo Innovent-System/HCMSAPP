@@ -2,7 +2,7 @@ import { lazy } from 'react'
 
 
 export default Object.freeze({
-    // 1: lazy(() => import(`../pages/Employee/Dashboard`)),
+    1: lazy(() => import(`../pages/Employee/Dashboard`)),
     2: lazy(() => import(`../pages/Employee/List`)),
     // 3: lazy(() => import(`../pages/Employee/Transfer`)),
     // 5: lazy(() => import(`../pages/Employee/Role`)),

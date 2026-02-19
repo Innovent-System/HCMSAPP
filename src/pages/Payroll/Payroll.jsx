@@ -113,7 +113,7 @@ const Payroll = () => {
             lastKeyId: gridFilter.lastKey,
             ...sort,
             searchParams: {
-                ...(employeeIds && { "_id": { $in: employeeIds.split(',') } }),
+                ...(employeeIds && { "fkEmployeeId": { $in: employeeIds.split(',') } }),
                 ...(countryIds && { "companyInfo.fkCountryId": { $in: countryIds.split(',') } }),
                 ...(stateIds && { "companyInfo.fkStateId": { $in: stateIds.split(',') } }),
                 ...(cityIds && { "companyInfo.fkCityId": { $in: cityIds.split(',') } }),

@@ -38,7 +38,7 @@ const ListboxComponent = ({ ref, children, ...other }) => {
 
   const getChildSize = (child) => {
     if (React.isValidElement(child) && child.type === ListSubheader) {
-      return 48;
+      return 36;
     }
     return itemSize;
   };
@@ -49,16 +49,18 @@ const ListboxComponent = ({ ref, children, ...other }) => {
       : itemData.map(getChildSize).reduce((a, b) => a + b, 0);
 
   return (
-    <div ref={ref}>
+    <div ref={ref} style={{
+      height: height + 2 * LISTBOX_PADDING,
+      width: '100%',
+      whiteSpace: "nowrap",
+      textOverflow: "ellipsis"
+    }}>
       <OuterElementContext.Provider value={other}>
         <List
-
           rowCount={itemData.length}
           rowHeight={(index) => getChildSize(itemData[index])}
           rowComponent={RowComponent}
           rowProps={{ data: itemData }}
-          height={height + 2 * LISTBOX_PADDING}
-          width="100%"
           overscanCount={5}
           tagName={OuterElementType}
         />
