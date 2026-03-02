@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { API } from './_Service';
 import { builderFieldsAction, useEntityAction, enableFilterAction, useLazyPostQuery, showDropDownFilterAction } from '../../store/actions/httpactions';
-import { Circle, Add as AddIcon, PeopleOutline, Edit as EditIcon, Cancel as CancelIcon, Save as SaveIcon } from "../../deps/ui/icons";
+import { Circle, Add as AddIcon, PeopleOutline, Edit as EditIcon, Cancel as CancelIcon, Save as SaveIcon, Check, Minimize } from "../../deps/ui/icons";
 import { GridToolbarContainer, Chip } from "../../deps/ui";
 import DataGrid, { getActions, useGridApi, GridRowModes, GridActionsCellItem, GridRowEditStopReasons } from '../../components/useDataGrid';
 import ConfirmDialog from '../../components/ConfirmDialog';
@@ -135,6 +135,11 @@ const getColumns = (apiRef, onEdit, onSave, onCancel) => {
             editable: true,
             valueGetter: ({ value }) => value ? new Date(value) : null,
             renderEditCell: (params) => <DateTimeCell type="Out" apiRef={apiRef} {...params} />
+        },
+        {
+            field: 'isMarkeabsent', headerName: 'Mark Absent', type: "boolean", editable: true,
+            renderCell: ({ row }) => (row["isMarkeabsent"] ? <Check color="success" /> : <Minimize />)
+
         },
         {
             field: 'status', headerName: 'Status', width: 180, hideable: false, renderCell: ({ row }) => <Chip color={AttendanceflagMap[row.status].color} label={AttendanceflagMap[row.status].short} />
@@ -457,10 +462,15 @@ const Amend = () => {
                 onRowEditStop={handleRowEditStop}
                 experimentalFeatures={{ newEditingApi: true }}
                 processRowUpdate={processRowUpdate}
-                onRowEditCommit={console.log}
                 onRowModesModelChange={setRowModesModel}
                 setFilter={setGridFilter}
-                // isCellEditable={console.log}
+                isCellEditable={(params) => {
+                    
+                    if (params.field === "isMarkeabsent") {
+                        return !!params.row.startDateTime;
+                    }
+                    return true;
+                }}
                 toolbarProps={{
                     apiRef: gridApiRef,
                     onAdd: handleSaveAttendance,

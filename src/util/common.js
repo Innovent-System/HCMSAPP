@@ -49,6 +49,7 @@ export const AttendanceflagMap = {
     1: { tag: "Late", short: "L", color: "warning" },
     2: { tag: "Half Day", short: "HD", color: "warning" },
     3: { tag: "Short Day", short: "SD", color: "warning" },
+    4: { tag: "Early Leave", short: "EL", color: "success" },
     7: { tag: "Absent", short: "A", color: "error" },
     31: { tag: "Full Leave", short: "FL", color: "secondary" },
     32: { tag: "Half Leave", short: "HL", color: "secondary" },

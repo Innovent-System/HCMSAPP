@@ -62,7 +62,7 @@ const getColumns = (onCancel) => [
     },
     { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
     { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
-    getActions(null, { onCancel })
+    // getActions(null, { onCancel })
 ];
 
 const LoanType = [

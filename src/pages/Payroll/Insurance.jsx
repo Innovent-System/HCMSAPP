@@ -69,7 +69,7 @@ const getColumns = (onCancel) => [
     },
     { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
     { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
-    getActions(null, { onCancel })
+    getActions(null, { onCancel }, true)
 ];
 
 const AddInsurance = ({ openPopup, setOpenPopup, colData = [] }) => {
@@ -185,6 +185,7 @@ const DEFAULT_API = API.Insurance;
 const Insurance = () => {
     const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
+    const [quickSearch, setQuickSearch] = useState("");
 
     const [selectionModel, setSelectionModel] = React.useState([]);
 
@@ -222,7 +223,23 @@ const Insurance = () => {
             page: gridFilter.page + 1,
             lastKeyId: gridFilter.lastKey,
             ...sort,
-            searchParams: { ...query }
+            searchParams: {
+                ...query,
+                // ...(quickSearch && {
+                //     $or: [
+                //         {
+                //             $expr: {
+                //                 $regexMatch: {
+                //                     input: { $toString: "$amount" },
+                //                     regex: quickSearch,
+                //                     options: "i"
+                //                 }
+                //             }
+                //         }
+                //     ]
+                // })
+
+            }
         }
     }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
 
@@ -300,6 +317,11 @@ const Insurance = () => {
                 disableSelectionOnClick={true}
                 getRowHeight={() => 40}
                 loading={isLoading} pageSize={gridFilter.limit}
+                // filterMode='server'
+                // onFilterModelChange={({ quickFilterValues }) => {
+                //     const quickFilter = quickFilterValues?.[0] || '';
+                //     setQuickSearch(quickFilter);
+                // }}
                 setFilter={setGridFilter}
                 onSortModelChange={(s) => setSort({ sort: s.reduce((a, v) => ({ ...a, [v.field]: v.sort === 'asc' ? 1 : -1 }), {}) })}
                 totalCount={totalRecord}
