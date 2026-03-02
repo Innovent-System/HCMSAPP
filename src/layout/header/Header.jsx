@@ -40,72 +40,177 @@ import {
 } from "../../store/actions/httpactions";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import Logo from "../../assets/images/Innovent-logo.png";
-// Drawer
 import { routeCommand } from "./routecommand";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
 import DigitalTimer from "../../components/DigitalTimer";
 
 const useStyles = makeStyles((theme) => ({
   Appbar: {
-    backgroundColor: theme.palette.gradients.primary,
+    /*
+     * ✅ FIX 1 — was: theme.palette.gradients.primary  →  old green gradient
+     * Now: frosted white using theme tokens directly
+     */
+    backgroundColor: `${theme.palette.background.paper} !important`,
+    backdropFilter: "blur(20px)",
+    WebkitBackdropFilter: "blur(20px)",
+    borderBottom: `1px solid ${theme.palette.divider} !important`,
+    boxShadow: `0 1px 0 ${theme.palette.divider}, 0 2px 8px rgba(0,0,0,0.04) !important`,
+    color: `${theme.palette.text.primary} !important`,
+
     "& button, & input": {
-      color: theme.palette.primary.contrastText,
-      borderColor: theme.palette.primary.contrastText,
+      // ✅ FIX 2 — was: contrastText (white on white = invisible)
+      // Now: secondary text from theme
+      color: theme.palette.text.secondary,
+      borderColor: theme.palette.divider,
     },
+
     '& img[alt="Logo"]': {
       width: 120,
       height: 48,
-      objectFit: "cover"
-      // filter: "brightness(0) invert(1)",
+      objectFit: "cover",
     },
+
     "& .left": {
       display: "inline-flex",
+      alignItems: "center",
+      gap: 8,
     },
+
     "& .right": {
       display: "inline-flex",
       justifyContent: "flex-end",
       "& .btn-grid": {
         display: "flex",
-        columnGap: 2,
+        alignItems: "center",
+        columnGap: 6,
+      },
+    },
+
+    // ✅ FIX 3 — Icon buttons: themed hover state
+    "& .MuiIconButton-root": {
+      borderRadius: 8,
+      border: `1px solid ${theme.palette.divider}`,
+      transition: "all 0.15s",
+      "&:hover": {
+        backgroundColor: theme.palette.custom.p100,
+        borderColor: "rgba(26,86,219,0.2)",
+        color: `${theme.palette.primary.main} !important`,
       },
     },
   },
+
   Drawer: {
+    /*
+     * ✅ FIX 4 — was: no paper override → MUI default white with yellow border bleed
+     * Now: explicit theme background + hairline border + elevation shadow
+     */
+    "& .MuiDrawer-paper": {
+      background: theme.palette.background.paper,
+      borderRight: `1px solid ${theme.palette.divider}`,
+      boxShadow: theme.shadows[8],
+    },
+
     "& .MuiAccordion-root": {
       boxShadow: "none",
+      background: "transparent",
+      margin: "1px 8px !important",
+      borderRadius: "9px !important",
+      "&::before": { display: "none" },
       "&.Mui-expanded": {
-        margin: 0,
+        margin: "2px 8px !important",
       },
+
       "& .MuiAccordionSummary-root": {
+        borderRadius: 9,
+        minHeight: "44px !important",
+        padding: "0 10px",
+        border: "1px solid transparent",
+        transition: "all 0.14s",
+
+        "&:hover": {
+          backgroundColor: theme.palette.custom.bg2,
+          borderColor: theme.palette.divider,
+        },
+
+        /*
+         * ✅ FIX 5 — was: theme.palette.secondary.main → dark grey/yellow bg
+         *            was: theme.palette.secondary.contrastText → white text on grey
+         * Now: primary blue tint from theme.palette.custom.p100
+         */
         "&.Mui-expanded": {
-          minHeight: 0,
-          color: theme.palette.secondary.contrastText,
-          backgroundColor: theme.palette.secondary.main,
+          minHeight: "44px !important",
+          backgroundColor: `${theme.palette.custom.p100} !important`,
+          color: `${theme.palette.primary.main} !important`,
+          borderColor: "rgba(26,86,219,0.18) !important",
+
           "& .MuiAccordionSummary-expandIconWrapper": {
-            color: theme.palette.secondary.contrastText,
+            color: `${theme.palette.primary.main} !important`,
           },
         },
+
         "& .MuiAccordionSummary-content": {
+          margin: "0 !important",
           "&.Mui-expanded": {
-            margin: "15px 0",
+            margin: "0 !important",
           },
           "& svg": {
             marginRight: "5px",
           },
         },
+
+        "& .MuiAccordionSummary-expandIconWrapper": {
+          color: theme.palette.text.secondary,
+        },
       },
+
       "& .MuiAccordionDetails-root": {
         padding: 0,
+        /*
+         * ✅ FIX 6 — was: plain white → no separation from parent
+         * Now: subtle bg2 fill + left accent border to show hierarchy
+         */
+        background: theme.palette.custom.bg2,
+        borderLeft: `1px solid rgba(26,86,219,0.12)`,
+        borderRight: `1px solid rgba(26,86,219,0.12)`,
+        borderBottom: `1px solid rgba(26,86,219,0.12)`,
+        borderRadius: "0 0 9px 9px",
+        overflow: "hidden",
+
         "& .MuiList-root": {
-          padding: theme.spacing(0, 0, 0, 3),
+          padding: theme.spacing(0, 0, 0.5, 0),
+
           "& .MuiListItemIcon-root": {
             minWidth: "30px",
           },
-          '& .MuiListItem-root': {
-            '&.active .MuiSvgIcon-root, &.active .MuiTypography-root': {
-              color: theme.palette.primary.main,
-            }
-          }
+
+          "& .MuiListItem-root": {
+            margin: "1px 6px",
+            borderRadius: 7,
+            border: "1px solid transparent",
+            transition: "all 0.13s",
+
+            "&:hover": {
+              backgroundColor: theme.palette.background.paper,
+              borderColor: theme.palette.divider,
+            },
+
+            /*
+             * ✅ FIX 7 — active item: was only color change on icon/text
+             * Now: full blue background pill, matches rest of theme
+             */
+            "&.active": {
+              backgroundColor: theme.palette.custom.p100,
+              borderColor: "rgba(26,86,219,0.18)",
+
+              "& .MuiSvgIcon-root": {
+                color: `${theme.palette.primary.main} !important`,
+              },
+              "& .MuiTypography-root": {
+                color: `${theme.palette.primary.main} !important`,
+                fontWeight: 600,
+              },
+            },
+          },
         },
       },
     },
@@ -118,8 +223,7 @@ export default function Header() {
   const navigate = useNavigate();
   const socket = useContext(SocketContext);
   const sideMenuData = useAppSelector(
-    (e) =>
-      e.appdata.routeData?.sideMenuData
+    (e) => e.appdata.routeData?.sideMenuData
   );
 
   const [userSignOut] = useLazySingleQuery();
@@ -129,14 +233,11 @@ export default function Header() {
       .unwrap()
       .then((res) => {
         const { data } = res;
-
         Auth.setItem("appConfigData", {
           appRoutes: data.appRoutes,
           sideMenuData: data.sideMenuData,
         });
-
         const command = routeCommand(data.appRoutes, navigate);
-
         dispatch(setCommand(command));
         dispatch(EmployeeDataThunk({ url: GET_EMPLOYEE_DATA }));
         dispatch(PayrollDataThunk({ url: GET_PAYROLL_DATA }));
@@ -156,16 +257,14 @@ export default function Header() {
     };
     const payrollHandle = () => {
       dispatch(PayrollDataThunk({ url: GET_PAYROLL_DATA }));
-    }
+    };
 
-    socket.on("changeInAllowance", payrollHandle)
-    socket.on("changeInDeduction", payrollHandle)
-
+    socket.on("changeInAllowance", payrollHandle);
+    socket.on("changeInDeduction", payrollHandle);
     socket.on("changeInArea", handler);
     socket.on("changeInCompany", handler);
     socket.on("changeInCountry", handler);
     socket.on("changeInDepartment", handler);
-
     socket.on("changeInEmployee", employeeHanlder);
     socket.on("changeInGroup", employeeHanlder);
     socket.on("changeInDesignation", employeeHanlder);
@@ -180,9 +279,8 @@ export default function Header() {
       socket.off("changeInCompany", handler);
       socket.off("changeInCountry", handler);
       socket.off("changeInDepartment", handler);
-
-      socket.off("changeInAllowance")
-      socket.off("changeInDeduction")
+      socket.off("changeInAllowance");
+      socket.off("changeInDeduction");
     };
   }, [socket]);
 
@@ -192,17 +290,14 @@ export default function Header() {
   });
 
   const handleLogout = () => {
-
     userSignOut({ url: API_USER_LOGOUT }).then((res) => {
       if (res.isSuccess) {
         const info = Auth.getitem("userInfo") || {};
         Auth.remove("appConfigData");
-
         socket.emit("leaveclient", info.clientId);
         socket.emit("leavecompany", info.companyId);
         socket.off("leaveclient");
         socket.off("leavecompany");
-
         sessionStorage.clear();
         navigate("/");
       }
@@ -216,7 +311,6 @@ export default function Header() {
     ) {
       return;
     }
-
     setState({ ...state, [anchor]: open });
   };
 
@@ -224,48 +318,46 @@ export default function Header() {
     <>
       <AppBar
         className={classes.Appbar}
-        position="static"
-        elevation={2}
-        color="primary">
+        position="sticky"
+        elevation={2}       
+        color="primary"     
+      >
         <Toolbar disableGutters>
-          <Grid container width="100%" justifyContent="space-between" alignItems="center">
-            <Grid item  className="left">
+          <Grid
+            container
+            width="100%"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Grid item className="left">
               <IconButton
                 onClick={toggleSidebar("left", true)}
-                color="secondary">
-                <FormatListBulletedIcon />
+                size="small"
+              >
+                <FormatListBulletedIcon fontSize="small" />
               </IconButton>
               <Link onClick={() => navigate("/dashboard")}>
                 <img src={Logo} alt="Logo" />
               </Link>
             </Grid>
-            <Grid item  className="center">
-              {/* <InputBase
-                placeholder="Search"
-                startAdornment={<SearchIcon fontSize="small" color="primary" />}
-                fullWidth
-                color="inherit"
-                variant="outlined"
-              /> */}
-
-            </Grid>
 
             <Grid item display={{ xs: "none", sm: "block" }}>
               <DigitalTimer />
             </Grid>
-            <Grid item  className="right">
+
+            <Grid item className="right">
               <div className="btn-grid">
-                <IconButton>
-                  <Badge badgeContent={4}>
+                <IconButton size="small">
+                  <Badge badgeContent={4} color="error">
                     <NotificationsNoneIcon fontSize="small" />
                   </Badge>
                 </IconButton>
-                <IconButton>
-                  <Badge badgeContent={3}>
+                <IconButton size="small">
+                  <Badge badgeContent={3} color="error">
                     <ChatBubbleOutlineIcon fontSize="small" />
                   </Badge>
                 </IconButton>
-                <IconButton onClick={handleLogout}>
+                <IconButton size="small" onClick={handleLogout}>
                   <PowerSettingsNewIcon fontSize="small" />
                 </IconButton>
               </div>
@@ -273,16 +365,19 @@ export default function Header() {
           </Grid>
         </Toolbar>
       </AppBar>
+
       <Drawer
         className={classes.Drawer}
         anchor={"left"}
         open={state.left}
         transitionDuration={{ exit: 800, enter: 500 }}
-        onClose={toggleSidebar("left", false)}>
+        onClose={toggleSidebar("left", false)}
+      >
         <Box
           sx={{ width: 250 }}
           role="presentation"
-          onKeyDown={toggleSidebar("left", false)}>
+          onKeyDown={toggleSidebar("left", false)}
+        >
           {sideMenuData.map((item) => (
             <NavItem
               key={item.title}
