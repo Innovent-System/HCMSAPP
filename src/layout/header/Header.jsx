@@ -320,7 +320,7 @@ export default function Header() {
         className={classes.Appbar}
         position="sticky"
         elevation={2}       
-        color="primary"     
+        color="default"     
       >
         <Toolbar disableGutters>
           <Grid

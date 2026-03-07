@@ -56,7 +56,10 @@ const useStyles = makeStyles((theme) => ({
   },
   Drawer: {
     '&.MuiDrawer-root': {
-      zIndex: theme.zIndex.modal
+      zIndex: theme.zIndex.modal,
+    },
+    "& .MuiDrawer-paper": {
+      background: theme.palette.background.paper,
     },
     "& .MuiAccordion-root": {
       margin: theme.spacing(0.5),
@@ -191,7 +194,6 @@ export default function PageHeader(props) {
         anchor={"right"}
         keepMounted
         open={drawer}
-
         onClose={() => setDrawer(!drawer)}>
         <Box role="presentation" p={1} width={400}>
           <IconButton size="small" onClick={() => setDrawer(!drawer)} sx={{ float: "right" }}>

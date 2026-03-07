@@ -8,8 +8,11 @@ import { Provider } from "react-redux";
 import { store } from "./store/store";
 import { SocketContext, appsocket } from './services/socketService';
 import { SnackbarProvider } from 'notistack';
-import { theme } from './config/theme';
+// import { theme } from './config/theme';
 import { WorkerContext, excelWorker } from './services/workerService'
+import { createAppTheme } from "./layout/theme/createAppTheme";
+
+const theme = createAppTheme('velocity');
 
 
 
