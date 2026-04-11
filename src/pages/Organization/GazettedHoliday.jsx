@@ -91,6 +91,7 @@ export const AddGazettedHoliday = ({ openPopup, setOpenPopup, isEdit = false, ro
                 fkAreaId: areas.filter(a => row.fkAreaId.includes(a._id)),
                 fkGroupId: groups.filter(g => row.fkGroupId.includes(g._id)),
                 exemptedEmployees: employees.filter(e => row.exemptedEmployees.includes(e._id)),
+                holidayDate: new Date(row.holidayDate),
                 title: row.title
             });
             // setFilter(countries.filter(c => row.fkCountryId.includes(c._id)), filterType.COUNTRY, "id", (data) => {

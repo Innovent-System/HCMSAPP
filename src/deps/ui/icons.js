@@ -11,6 +11,7 @@ export {
     North, South, KeyboardVoice, MicOff, CheckCircle, Cancel, Description, AdminPanelSettings, Groups, Article, Person2Rounded, PersonOffRounded,
     Beenhere, DisplaySettings, Update, RequestPage, Percent, AddCircleOutline, CancelScheduleSend, RestartAlt, LocalPrintshop,
     PictureAsPdf, OpenInNew, HourglassBottom, MoreVert, EmailOutlined, LocationOnOutlined, DomainOutlined, Save, AddCircle, RemoveCircle, Remove, PostAdd,
-    HealthAndSafety, PriceChange, DirectionsWalk, AvTimer, Difference, Minimize, Logout
+    HealthAndSafety, PriceChange, DirectionsWalk, AvTimer, Difference, Minimize, Logout,TrendingUp, TrendingDown, AccountBalance,CalendarToday, ArrowUpward, ArrowDownward,
+    Menu
 
 } from '@mui/icons-material';

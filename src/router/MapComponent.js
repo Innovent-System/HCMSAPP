@@ -20,6 +20,7 @@ export default Object.freeze({
     16: lazy(() => import(`../pages/Attendance/Settings`)),
     23: lazy(() => import(`../pages/Attendance/Reports`)),
     34: lazy(() => import(`../pages/Attendance/AmendRoster`)),
+    44: lazy(() => import(`../pages/Attendance/Dashboard`)),
     //Leave
     17: lazy(() => import(`../pages/Leave/Request`)),
     // 18: lazy(() => import(`../pages/Leave/Request`)),
@@ -47,6 +48,7 @@ export default Object.freeze({
     39: lazy(() => import("../pages/Payroll/PFOpening")),
     40: lazy(() => import("../pages/Payroll/ExtraAllowance")),
     41: lazy(() => import("../pages/Payroll/TaxIncome")),
+    45: lazy(() => import("../pages/Payroll/Dashboard")),
 
     //Recruitment
     36: lazy(() => import("../pages/Recruitment/JobPost"))

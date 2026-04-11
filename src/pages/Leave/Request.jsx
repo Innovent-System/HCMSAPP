@@ -28,6 +28,34 @@ const fields = {
             ]
         }
     },
+    fromDate: {
+        label: 'From',
+        fieldName: "fromDate",
+        defaultOperator: "greater_or_equal",
+        defaultValue: null,
+        operators: ['greater_or_equal'],
+        type: 'date',
+        fieldSettings: {
+            dateFormat: "D/M/YYYY",
+            mongoFormatValue: val => new Date(val).toISOString(),
+        },
+        valueSources: ['value'],
+        preferWidgets: ['date'],
+    },
+    toDate: {
+        label: 'To',
+        fieldName: "toDate",
+        defaultOperator: "less_or_equal",
+        defaultValue: null,
+        type: 'date',
+        operators: ['less_or_equal'],
+        fieldSettings: {
+            dateFormat: "D/M/YYYY",
+            mongoFormatValue: val => new Date(val).toISOString()
+        },
+        valueSources: ['value'],
+        preferWidgets: ['date'],
+    },
     createdAt: {
         label: 'Created Date',
         type: 'date',
@@ -65,7 +93,7 @@ const getColumns = (apiRef, onCancel) => [
 
 export const AddLeaveRequest = ({ requestedDate = null, requestedEmployee = null, openPopup, setOpenPopup }) => {
     const formApi = useRef(null);
-    
+
     const [leaveTypes, setLeaveTypes] = useState([]);
     const { Employees } = useAppSelector(e => e.appdata.employeeData);
     const { addEntity } = useEntityAction();
@@ -185,12 +213,13 @@ export const AddLeaveRequest = ({ requestedDate = null, requestedEmployee = null
             dataToInsert.toDate = startOfDay(values.leavesDate[1]);
             // ChangeType = [],
 
-            addEntity({ url: DEFAULT_API, data: [dataToInsert] }).finally(() => setOpenPopup(false));
+            addEntity({ url: DEFAULT_API, data: [dataToInsert] })
+            .finally(() => setOpenPopup(false));
 
         }
     }
     return <>
-        
+
         <Popup
             title="Leave Request"
             openPopup={openPopup}
@@ -264,7 +293,27 @@ const LeaveRequest = () => {
         dispatch(showDropDownFilterAction({
             employee: true,
         }));
-        dispatch(builderFieldsAction(fields));
+
+        const updatedFields = {
+            ...fields,
+            fkLeaveTypeId: {
+                label: "Leave Type",
+                fieldName: "fkLeaveTypeId",
+                type: "select",
+                defaultValue: "",
+                valueSources: ["value"],
+                fieldSettings: {
+                    listValues: [
+                        { value: "", title: "All" },
+                        { value: "Pending", title: "Pending" },
+                        { value: "Approved", title: "Approved" },
+                        { value: "Rejected", title: "Rejected" }
+                    ]
+                }
+            }
+        };
+
+        dispatch(builderFieldsAction(updatedFields));
     }, [dispatch])
 
 

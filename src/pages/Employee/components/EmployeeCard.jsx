@@ -76,7 +76,10 @@ export default function EmployeeCard({ employeeInfo, handleEdit, handleActive })
         <Card sx={style.card} elevation={5} >
             <CardHeader
                 avatar={
-                    <Avatar aria-label="recipe">
+                    <Avatar aria-label="recipe" sx={{
+                        bgcolor: `hsl(${(fullName.charCodeAt(0) * 37) % 360}, 45%, 88%)`,
+                        color: `hsl(${(fullName.charCodeAt(0) * 37) % 360}, 45%, 30%)`,
+                    }}>
                         {getInitials(fullName)}
                     </Avatar>
                 }

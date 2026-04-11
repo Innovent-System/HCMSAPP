@@ -250,6 +250,7 @@ export const CallAttendanceRepost = ({ openPopup, setOpenPopup }) => {
         <Popup
             title="Attendance Repost"
             openPopup={openPopup}
+            keepMounted={true}
             maxWidth="sm"
             addOrEditFunc={handleSubmit}
             setOpenPopup={setOpenPopup}>

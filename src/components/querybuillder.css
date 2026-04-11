@@ -1,8 +1,184 @@
-.query-builder {
-    margin: 0;
+/* ─── QueryBuilder Compact Overrides ────────────────────────────────────────── */
+
+.query-builder-container {
+  padding: 0 !important;
 }
 
-.query-builder .group {
-    background-color: transparent;
-    border: none;
+.query-builder {
+  margin : 0 !important;
+  padding: 0 !important;
 }
+
+/* ── Group wrapper ─────────────────────────────────────────────────────────── */
+.query-builder .group {
+  background   : rgba(0,0,0,0.02) !important;
+  border       : 1px solid rgba(0,0,0,0.08) !important;
+  border-radius: 8px !important;
+  padding      : 6px !important;
+  margin       : 0 !important;
+}
+
+.query-builder .group--header {
+  margin-bottom: 4px !important;
+  padding      : 0 !important;
+  min-height   : unset !important;
+}
+
+.query-builder .group--conjunctions {
+  margin-right: 6px !important;
+}
+
+/* ── Rules list — no extra gap ─────────────────────────────────────────────── */
+.query-builder .group--children {
+  padding-left: 0 !important;
+  margin-left : 0 !important;
+}
+
+/* ── Each rule card ────────────────────────────────────────────────────────── */
+.query-builder .rule {
+  background   : #ffffff !important;
+  border       : 1px solid rgba(0,0,0,0.09) !important;
+  border-radius: 6px !important;
+  padding      : 4px 6px !important;
+  margin-bottom: 4px !important;
+}
+
+.query-builder .rule:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* Rule body — the actual flex container library uses */
+.query-builder .rule--body,
+.query-builder .rule > .rule--body {
+  display        : flex !important;
+  flex-direction : row !important;
+  flex-wrap      : wrap !important;
+  align-items    : center !important;
+  gap            : 3px !important;
+  width          : 100% !important;
+}
+
+/* ── Field selector ────────────────────────────────────────────────────────── */
+.query-builder .rule--field {
+  flex    : 0 0 auto !important;
+  width   : 100% !important;
+  margin  : 0 0 3px 0 !important;
+  padding : 0 !important;
+}
+
+/* ── Operator selector ─────────────────────────────────────────────────────── */
+.query-builder .rule--operator {
+  flex   : 0 0 auto !important;
+  width  : auto !important;
+  margin : 0 !important;
+  padding: 0 !important;
+}
+
+/* ── Value input ───────────────────────────────────────────────────────────── */
+.query-builder .rule--value {
+  flex   : 1 1 auto !important;
+  min-width: 0 !important;
+  margin : 0 !important;
+  padding: 0 !important;
+}
+
+.query-builder .rule--value .widget--widget {
+  width: 100% !important;
+}
+
+/* ── Delete button ─────────────────────────────────────────────────────────── */
+.query-builder .rule--header {
+  flex        : 0 0 auto !important;
+  margin-left : auto !important;
+  padding     : 0 !important;
+  align-self  : flex-start !important;
+}
+
+/* ── All MUI inputs compact ────────────────────────────────────────────────── */
+.query-builder .MuiInputBase-root {
+  font-size  : 0.78rem !important;
+  min-height : 26px !important;
+}
+
+.query-builder .MuiSelect-select {
+  padding-top   : 3px !important;
+  padding-bottom: 3px !important;
+  font-size     : 0.78rem !important;
+}
+
+.query-builder input.MuiInputBase-input {
+  padding   : 3px 6px !important;
+  font-size : 0.78rem !important;
+}
+
+/* Full width selects inside field/operator */
+.query-builder .rule--field .MuiFormControl-root,
+.query-builder .rule--operator .MuiFormControl-root,
+.query-builder .rule--value .MuiFormControl-root {
+  width: 100% !important;
+}
+
+.query-builder .rule--field .MuiInputBase-root {
+  width: 100% !important;
+}
+
+/* Operator row — side by side */
+.query-builder .rule--operator .MuiInputBase-root {
+  min-width: 90px !important;
+}
+
+/* Date picker */
+.query-builder .MuiInputAdornment-root .MuiIconButton-root {
+  padding: 2px !important;
+}
+.query-builder .MuiInputAdornment-root svg {
+  font-size: 0.85rem !important;
+}
+
+/* ── Rule delete button ────────────────────────────────────────────────────── */
+.query-builder .rule--header .MuiIconButton-root {
+  width : 22px !important;
+  height: 22px !important;
+  padding: 2px !important;
+}
+.query-builder .rule--header svg {
+  font-size: 0.82rem !important;
+}
+
+/* ── Add filter button ─────────────────────────────────────────────────────── */
+.query-builder .group--actions {
+  margin-top: 4px !important;
+  padding   : 0 !important;
+}
+
+.query-builder .group--actions button {
+  font-size     : 0.75rem !important;
+  padding       : 3px 10px !important;
+  min-height    : 26px !important;
+  height        : 26px !important;
+  border-radius : 6px !important;
+  text-transform: none !important;
+}
+
+/* ── Hide unused ───────────────────────────────────────────────────────────── */
+.query-builder .group--drag-handler,
+.query-builder .rule--drag-handler,
+.query-builder .group--not {
+  display: none !important;
+}
+
+/* ── Typography ────────────────────────────────────────────────────────────── */
+.query-builder .MuiFormLabel-root,
+.query-builder .MuiFormHelperText-root {
+  font-size: 0.72rem !important;
+}
+
+/* ── Outermost group ───────────────────────────────────────────────────────── */
+.query-builder > .group {
+  margin-bottom: 0 !important;
+}
+
+/* ── Scrollbar ─────────────────────────────────────────────────────────────── */
+.query-builder-container::-webkit-scrollbar       { width: 4px; }
+.query-builder-container::-webkit-scrollbar-track { background: transparent; }
+.query-builder-container::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
