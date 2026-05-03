@@ -6,7 +6,7 @@ import { Circle, Add as AddIcon, PeopleOutline, Edit as EditIcon, Cancel as Canc
 import { GridToolbarContainer, Chip } from "../../deps/ui";
 import DataGrid, { getActions, useGridApi, GridRowModes, GridActionsCellItem, GridRowEditStopReasons } from '../../components/useDataGrid';
 import ConfirmDialog from '../../components/ConfirmDialog';
-import { endOfDay, formateISODateTime } from "../../services/dateTimeService";
+import { endOfDay, formateISODateTime, parseTime, systemFormatDate } from "../../services/dateTimeService";
 import Controls from "../../components/controls/Controls";
 import PageHeader from '../../components/PageHeader'
 import { AttendanceflagMap, weekday } from "../../util/common";
@@ -36,7 +36,7 @@ const fields = {
         type: 'date',
         fieldSettings: {
             dateFormat: "D/M/YYYY",
-            mongoFormatValue: val => new Date(val).toISOString(),
+            mongoFormatValue: val => systemFormatDate(val),
         },
         valueSources: ['value'],
         preferWidgets: ['date'],
@@ -50,7 +50,7 @@ const fields = {
         operators: ['less_or_equal'],
         fieldSettings: {
             dateFormat: "D/M/YYYY",
-            mongoFormatValue: val => new Date(val).toISOString()
+            mongoFormatValue: val => systemFormatDate(val)
         },
         valueSources: ['value'],
         preferWidgets: ['date'],
@@ -65,7 +65,7 @@ const DateTimeCell = ({ apiRef, value, id, field, hasFocus, row, type = 'In' }) 
     const hanldechange = (e) => {
         let { value: currentValue } = e.target;
 
-        const minDate = new Date(row.minTime), maxDate = new Date(row.maxTime);
+        const minDate = parseTime(row.minTime), maxDate = parseTime(row.maxTime);
         minDate.setDate(schDt.getDate());
         minDate.setMonth(schDt.getMonth());
         minDate.setFullYear(schDt.getFullYear());
@@ -238,8 +238,8 @@ export const CallAttendanceRepost = ({ openPopup, setOpenPopup }) => {
             let dataToInsert = {};
 
             dataToInsert.employeeCodes = values.fkEmployeeId.map(e => e.punchCode);
-            dataToInsert.deviceFromDate = startOfDay(values.attendanceDate[0]);
-            dataToInsert.deviceToDate = endOfDay(values.attendanceDate[1]);
+            dataToInsert.deviceFromDate = systemFormatDate(values.attendanceDate[0]);
+            dataToInsert.deviceToDate = systemFormatDate(values.attendanceDate[1]);
 
             addEntity({ url: API.AttendanceRepost, data: dataToInsert }).finally(() => setOpenPopup(false));
 
@@ -466,7 +466,7 @@ const Amend = () => {
                 onRowModesModelChange={setRowModesModel}
                 setFilter={setGridFilter}
                 isCellEditable={(params) => {
-                    
+
                     if (params.field === "isMarkeabsent") {
                         return !!params.row.startDateTime;
                     }

@@ -90,7 +90,7 @@ export const AddRoster = ({ getTemplate, setFile, roster, setRoster, openPopup, 
                 const _date = rosterDates[r];
                 roasterData.push({
                     fkEmployeeId: fkEmployeeId[index]._id,
-                    rosterDate: new Date(_date),
+                    rosterDate: _date,
                     fkShiftId: fkShiftId
                 })
             }

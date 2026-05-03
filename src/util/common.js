@@ -32,17 +32,6 @@ const currentMonth = new Date().getMonth();
 
 export const getDefaultMonth = () => currentMonth === 0 ? 11 : currentMonth - 1;
 
-// export const AttendanceflagMap = {
-//     0: { tag: "Holiday", color: "green", short: "H" },
-//     1: { tag: "Late", color: "yellow", short: "Late" },
-//     2: { tag: "Half Day", color: "yellow", short: "HD" },
-//     3: { tag: "Short Day", color: "yellow", short: "SD" },
-//     7: { tag: "Absent", color: "black", short: "A" },
-//     8: { tag: "Full Leave", color: "#ddd", },
-//     9: { tag: "Half Leave", color: "#ddd" },
-//     10: { tag: "Gazetted Holiday", color: "ddd" },
-//     null: { tag: "Present", color: "blue" }
-// }
 
 export const AttendanceflagMap = {
     0: { tag: "Holiday", short: "H", color: "info" },

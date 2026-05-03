@@ -8,16 +8,34 @@ export {
 
 export const formateISODateTime = (date) => {
     if (!date) return "";
-    return format(parseISO(date), "dd-MMM-yyyy 'at' h:mm:ss a");
+    return format(parseISO(date), "dd-MMM-yyyy 'at' hh:mm:ss a");
 }
+
+export const parseTime = (timeString) => timeString ? parse(timeString, "HH:mm:ss", new Date()) : timeString;
 
 export const formateISOTime = (date) => {
     if (!date) return "";
-    return format(parseISO(date), "h:mm:ss a");
+    return format(parse(date, "HH:mm:ss", new Date()), "hh:mm:ss a");
 }
+
 export const formateDate = (date) => {
     if (!date) return "";
     return format(date, "dd-MMM-yyyy");
+}
+
+export const systemFormatDate = (date) => {
+    if (!date) return date;
+    return format(date, "yyyy-MM-dd");
+}
+
+export const systemDateTime = (date) => {
+    if (!date) return date;
+    return format(date, "yyyy-MM-dd'T'HH:mm:ss");
+}
+
+export const systemTime = (date) => {
+    if (!date) return date;
+    return format(date, "HH:mm:ss");
 }
 
 export const formateISODate = (date) => {

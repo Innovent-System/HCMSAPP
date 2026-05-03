@@ -10,7 +10,7 @@ import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { AutoForm } from '../../components/useForm'
 import PageHeader from '../../components/PageHeader'
-import { startOfDay, addDays, isEqual, formateISODate } from '../../services/dateTimeService'
+import { startOfDay, addDays, isEqual, formateISODate, systemFormatDate } from '../../services/dateTimeService'
 import { formateISODateTime } from "../../services/dateTimeService";
 import Loader from '../../components/Circularloading'
 import { useDropDownIds } from "../../components/useDropDown";
@@ -109,7 +109,7 @@ const AddBonus = ({ openPopup, setOpenPopup, colData = [] }) => {
             },
             defaultValue: new Date(),
             excel: {
-                sampleData: new Date().toLocaleDateString('en-US')
+                sampleData: new Date().toLocaleDateString('en-CA')
             }
         },
         {
@@ -217,6 +217,7 @@ const AddBonus = ({ openPopup, setOpenPopup, colData = [] }) => {
             const { percentage, amount, ...values } = getValue();
             values.percentage_or_amount = values.type === FixedAmount ? amount : percentage
             values.employeeIds = values.employeeIds.map(e => e._id)
+            values.bonusRequest = systemFormatDate(values.bonusRequest);
             // dataToInsert.fkEmployeeId = values.fkEmployeeId._id;
 
             addEntity({ url: DEFAULT_API, data: [values] });

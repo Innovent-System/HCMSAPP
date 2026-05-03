@@ -44,7 +44,7 @@ const reportColumns = [
     { field: "lateArr", headerName: "Late" },
     { field: "earlyOut", headerName: "Early" },
     { field: "overTime", headerName: "O.T" },
-    { field: 'status', disableSorting: false, headerName: 'Remarks', valueGetter: ({ row }) => AttendanceflagMap[row?.status]?.tag },
+    { field: 'remarks', disableSorting: false, headerName: 'Remarks' },
     {
         field: 'action', disableSorting: false, headerName: 'Actions', renderCell: ({ row }) => <ButtonGroup flexDirection="row">
             {attendaceWillBeSHow.includes(row?.status) || row.earlyOut ?

@@ -11,7 +11,7 @@ import { useSocketIo } from '../../components/useSocketio';
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
 import PageHeader from '../../components/PageHeader'
 import ConfirmDialog from '../../components/ConfirmDialog';
-import { formateISODate, formateISODateTime } from "../../services/dateTimeService";
+import { formateISODate, formateISODateTime, systemFormatDate } from "../../services/dateTimeService";
 
 
 const fields = {
@@ -107,6 +107,7 @@ export const AddGazettedHoliday = ({ openPopup, setOpenPopup, isEdit = false, ro
             let values = getValue();
             let dataToInsert = { ...values };
 
+            dataToInsert.holidayDate = systemFormatDate(dataToInsert.holidayDate);
             dataToInsert.fkCountryId = dataToInsert.fkCountryId.map(c => c._id);
             dataToInsert.fkStateId = dataToInsert.fkStateId.map(c => c._id);
             dataToInsert.fkCityId = dataToInsert.fkCityId.map(c => c._id);

@@ -11,7 +11,7 @@ import DataGrid, { useGridApi, getActions, GridToolbar } from '../../../componen
 import { useSocketIo } from '../../../components/useSocketio';
 import ConfirmDialog from '../../../components/ConfirmDialog';
 import PropTypes from 'prop-types'
-import { formateISODateTime, formateISOTime } from '../../../services/dateTimeService'
+import { formateISODateTime, formateISOTime, parseTime, systemTime } from '../../../services/dateTimeService'
 import { useAppDispatch, useAppSelector } from "../../../store/storehook";
 
 
@@ -114,10 +114,10 @@ export const AddShift = ({ openPopup, setOpenPopup, isEdit = false, row = null }
         else {
             setFormValue({
                 ...row,
-                startTime: new Date(row.startTime),
-                endTime: new Date(row.endTime),
-                minTime: new Date(row.minTime),
-                maxTime: new Date(row.maxTime)
+                startTime: parseTime(row.startTime),
+                endTime: parseTime(row.endTime),
+                minTime: parseTime(row.minTime),
+                maxTime: parseTime(row.maxTime)
             });
             setFlagRow(row.attendanceflag.map(a => ({ ...a, name: attendanceFlag.find(c => c.flagCode === a.flagCode).name, id: a._id })));
         }
@@ -142,6 +142,10 @@ export const AddShift = ({ openPopup, setOpenPopup, isEdit = false, row = null }
 
         if (validateFields()) {
             let values = getValue();
+            values.startTime = systemTime(values.startTime);
+            values.endTime = systemTime(values.endTime);
+            values.minTime = systemTime(values.minTime);
+            values.maxTime = systemTime(values.maxTime);
 
             if (isEdit)
                 values._id = editId

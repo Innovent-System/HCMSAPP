@@ -11,7 +11,7 @@ import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { AutoForm } from '../../components/useForm'
 import PageHeader from '../../components/PageHeader'
-import { startOfDay, addDays, isEqual, formateISODate } from '../../services/dateTimeService'
+import { startOfDay, addDays, isEqual, formateISODate, systemFormatDate } from '../../services/dateTimeService'
 import { formateISODateTime } from "../../services/dateTimeService";
 import Loader from '../../components/Circularloading'
 import { useDropDownIds } from "../../components/useDropDown";
@@ -161,6 +161,7 @@ const AddAdvanceSalary = ({ openPopup, setOpenPopup, colData = [] }) => {
         if (validateFields()) {
             let values = getValue();
             let dataToInsert = { ...values };
+            dataToInsert.salaryRequest = systemFormatDate(values.salaryRequest);
             dataToInsert.fkEmployeeId = values.fkEmployeeId._id;
 
             addEntity({ url: DEFAULT_API, data: [dataToInsert] });

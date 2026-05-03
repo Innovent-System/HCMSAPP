@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useDropDownIds } from '../../../../components/useDropDown';
-import { getMonthStartEnd } from '../../../../services/dateTimeService';
+import { getMonthStartEnd, systemFormatDate } from '../../../../services/dateTimeService';
 import CommonDropDown from '../../../../components/CommonDropDown';
 import { Grid } from '../../../../deps/ui'
 import Controls from '../../../../components/controls/Controls';
@@ -29,8 +29,8 @@ const AttendanceFilter = () => {
                 ...(groupIds && { "companyInfo.fkEmployeeGroupId": { $in: groupIds.split(',') } }),
                 ...(departmentIds && { "companyInfo.fkDepartmentId": { $in: departmentIds.split(',') } }),
                 ...(designationIds && { "companyInfo.fkDesignationId": { $in: designationIds.split(',') } }),
-                scheduleStartDt: dateRange[0],
-                scheduleEndDt: dateRange[1]
+                scheduleStartDt: systemFormatDate(dateRange[0]),
+                scheduleEndDt: systemFormatDate(dateRange[1])
                 // ...query
             }
         }

@@ -10,7 +10,7 @@ import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { AutoForm } from '../../components/useForm'
 import PageHeader from '../../components/PageHeader'
-import { formateISODateTime } from "../../services/dateTimeService";
+import { formateDate, formateISODateTime, systemFormatDate } from "../../services/dateTimeService";
 import { useDropDownIds } from "../../components/useDropDown";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
 
@@ -44,7 +44,7 @@ const getColumns = (apiRef, onCancel) => [
     {
         field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.employees.fullName
     },
-    { field: 'exemptionDate', headerName: 'Exemption Date', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.exemptionDate) },
+    { field: 'exemptionDate', headerName: 'Exemption Date', flex: 1, valueGetter: ({ row }) => formateDate(row.exemptionDate) },
     { field: 'attendanceFlag', headerName: 'Attendance Flag', flex: 1, valueGetter: ({ row }) => row.att_flag.name },
     {
         field: 'status', headerName: 'Status', flex: 1, renderCell: renderStatusCell
@@ -68,7 +68,7 @@ export const AddExemptionRequest = ({ openPopup, setOpenPopup, reqEmployee = nul
 
     const handleExemption = (employeeId, exemptionDate) => {
         const { setFormValue, getValue } = formApi.current;
-        return getExemptionRequest({ url: API.GetExemptionDetail, params: { employeeId, exemptionDate } }).then(c => {
+        return getExemptionRequest({ url: API.GetExemptionDetail, params: { employeeId, exemptionDate: systemFormatDate(exemptionDate) } }).then(c => {
             if (c?.data?.result) {
                 setFormValue({ attendanceFlagId: AttendanceFlag.find(f => f.flagCode === c.data?.result.flagCode)._id });
             }
@@ -158,7 +158,9 @@ export const AddExemptionRequest = ({ openPopup, setOpenPopup, reqEmployee = nul
         if (validateFields()) {
             let values = getValue();
             let dataToInsert = { ...values };
+            
             dataToInsert.fkEmployeeId = values.fkEmployeeId._id;
+            dataToInsert.exemptionDate = systemFormatDate(values.exemptionDate);
             dataToInsert.flagId = AttendanceFlag.find(f => f._id === dataToInsert.attendanceFlagId).flagCode;
             addEntity({ url: API.ExemptionRequest, data: [dataToInsert] });
 

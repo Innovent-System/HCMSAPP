@@ -10,7 +10,7 @@ import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { AutoForm } from '../../components/useForm'
 import PageHeader from '../../components/PageHeader'
-import { startOfDay, addDays, isEqual, formateISODate } from '../../services/dateTimeService'
+import { startOfDay, addDays, isEqual, formateISODate, systemFormatDate } from '../../services/dateTimeService'
 import { formateISODateTime } from "../../services/dateTimeService";
 import { useDropDownIds } from "../../components/useDropDown";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
@@ -209,8 +209,8 @@ export const AddLeaveRequest = ({ requestedDate = null, requestedEmployee = null
             let dataToInsert = { ...values };
             dataToInsert.fkEmployeeId = values.fkEmployeeId._id;
             dataToInsert.employeeCode = values.fkEmployeeId.punchCode;
-            dataToInsert.fromDate = startOfDay(values.leavesDate[0]);
-            dataToInsert.toDate = startOfDay(values.leavesDate[1]);
+            dataToInsert.fromDate = systemFormatDate(values.leavesDate[0]);
+            dataToInsert.toDate = systemFormatDate(values.leavesDate[1]);
             // ChangeType = [],
 
             addEntity({ url: DEFAULT_API, data: [dataToInsert] })

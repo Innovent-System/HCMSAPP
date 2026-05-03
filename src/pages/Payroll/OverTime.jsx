@@ -10,7 +10,7 @@ import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { AutoForm } from '../../components/useForm'
 import PageHeader from '../../components/PageHeader'
-import { startOfDay, addDays, isEqual, formateISODate } from '../../services/dateTimeService'
+import { startOfDay, addDays, isEqual, formateISODate, systemDateTime } from '../../services/dateTimeService'
 import { formateISODateTime } from "../../services/dateTimeService";
 import Loader from '../../components/Circularloading'
 import { useDropDownIds } from "../../components/useDropDown";
@@ -210,6 +210,7 @@ const AddOverTime = ({ openPopup, setOpenPopup, colData = [] }) => {
             const values = { ...getValue() };
             // values.percentage_or_amount = values.type === FixedAmount ? amount : percentage
             values.fkEmployeeId = values.fkEmployeeId._id;
+            values.overTimeRequest = systemDateTime(values.overTimeRequest);
             // dataToInsert.fkEmployeeId = values.fkEmployeeId._id;
 
             addEntity({ url: DEFAULT_API, data: [values] });

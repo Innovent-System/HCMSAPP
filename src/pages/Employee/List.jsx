@@ -19,6 +19,7 @@ import ResponsiveEmployeeGrid from "./components/ResponsiveGrid";
 import { useTheme, useMediaQuery } from '@mui/material';
 import { debounce } from '../../util/common'
 import { useDebounce } from "../../hooks/useDebounce";
+import { systemFormatDate } from "../../services/dateTimeService";
 
 /**
  * @type {import('@react-awesome-query-builder/mui').Fields}
@@ -169,7 +170,7 @@ const Employee = () => {
                 maritalstatus: values.maritalstatus,
                 email: values.email,
                 gender: values.gender,
-                dateofBirth: values?.dateofBirth,
+                dateofBirth: systemFormatDate(values?.dateofBirth),
                 fkReligionId: values?.fkReligionId,
                 nic: values.nic
             },
@@ -182,8 +183,8 @@ const Employee = () => {
                 fkEmployeeGroupId: values.fkEmployeeGroupId._id,
                 fkEmployeeStatusId: values.fkEmployeeStatusId._id,
                 fkStateId: values.fkStateId._id,
-                joiningDate: values.joiningDate,
-                confirmationDate: values.confirmationDate ? values.confirmationDate : new Date(values.joiningDate).setMonth(values.joiningDate.getMonth() + 2),
+                joiningDate: systemFormatDate(values.joiningDate),
+                confirmationDate: values.confirmationDate ? systemFormatDate(values.confirmationDate)  : systemFormatDate(new Date(values.joiningDate).setMonth(values.joiningDate.getMonth() + 2)),
                 fkManagerId: values.fkManagerId?._id ?? null
             },
             contactDetial: {

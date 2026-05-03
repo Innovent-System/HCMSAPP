@@ -2,7 +2,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Popup from '../../components/Popup';
 import { API } from './_Service';
-
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction, useLazySingleQuery } from '../../store/actions/httpactions';
 import { PeopleOutline, Delete, AdminPanelSettings, AttachMoney, Person } from "../../deps/ui/icons";
 import { Chip, Divider } from "../../deps/ui";

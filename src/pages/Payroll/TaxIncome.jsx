@@ -9,7 +9,7 @@ import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { AutoForm } from '../../components/useForm'
 import PageHeader from '../../components/PageHeader'
-import { startOfDay, formateISODate, formateISODateTime, endOfDay } from '../../services/dateTimeService'
+import { startOfDay, formateISODate, formateISODateTime, endOfDay, systemFormatDate } from '../../services/dateTimeService'
 import { useDropDownIds } from "../../components/useDropDown";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
 import { useExcelReader } from "../../hooks/useExcelReader";
@@ -110,7 +110,7 @@ const AddTaxIncome = ({ openPopup, setOpenPopup, colData = [], isEdit = false, r
             },
             defaultValue: new Date(),
             excel: {
-                sampleData: new Date().toLocaleDateString('en-US')
+                sampleData: new Date().toLocaleDateString('en-CA')
             }
         },
         {
@@ -124,7 +124,7 @@ const AddTaxIncome = ({ openPopup, setOpenPopup, colData = [], isEdit = false, r
             },
             defaultValue: new Date(),
             excel: {
-                sampleData: new Date().toLocaleDateString('en-US')
+                sampleData: new Date().toLocaleDateString('en-CA')
             }
         },
         {
@@ -150,7 +150,8 @@ const AddTaxIncome = ({ openPopup, setOpenPopup, colData = [], isEdit = false, r
             let values = getValue();
             let dataToInsert = { ...values };
             dataToInsert.fkEmployeeId = values.fkEmployeeId._id;
-            dataToInsert.endDate = endOfDay(values.endDate);
+            dataToInsert.startDate = systemFormatDate(values.startDate);
+            dataToInsert.endDate = systemFormatDate(values.endDate);
              if (isEdit)
                 dataToInsert._id = editId
             addEntity({ url: DEFAULT_API, data: [dataToInsert] });

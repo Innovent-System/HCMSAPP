@@ -9,7 +9,7 @@ import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { AutoForm } from '../../components/useForm'
 import PageHeader from '../../components/PageHeader'
-import { startOfDay, formateISODate, formateISODateTime, endOfDay } from '../../services/dateTimeService'
+import { startOfDay, formateISODate, formateISODateTime, endOfDay, systemFormatDate } from '../../services/dateTimeService'
 import { useDropDownIds } from "../../components/useDropDown";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
 import { useExcelReader } from "../../hooks/useExcelReader";
@@ -113,7 +113,7 @@ const AddInsurance = ({ openPopup, setOpenPopup, colData = [] }) => {
             },
             defaultValue: new Date(),
             excel: {
-                sampleData: new Date().toLocaleDateString('en-US')
+                sampleData: new Date().toLocaleDateString('en-CA')
             }
         },
         {
@@ -127,7 +127,7 @@ const AddInsurance = ({ openPopup, setOpenPopup, colData = [] }) => {
             },
             defaultValue: new Date(),
             excel: {
-                sampleData: new Date().toLocaleDateString('en-US')
+                sampleData: new Date().toLocaleDateString('en-CA')
             }
         },
         {
@@ -162,7 +162,8 @@ const AddInsurance = ({ openPopup, setOpenPopup, colData = [] }) => {
             let values = getValue();
             let dataToInsert = { ...values };
             dataToInsert.fkEmployeeId = values.fkEmployeeId._id;
-            dataToInsert.endDate = endOfDay(values.endDate);
+            dataToInsert.startDate = systemFormatDate(values.startDate);
+            dataToInsert.endDate = systemFormatDate(values.endDate);
             addEntity({ url: DEFAULT_API, data: [dataToInsert] });
 
         }
