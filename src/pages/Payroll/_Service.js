@@ -6,11 +6,12 @@ export const API = {
     Process: 'payroll/process',
     PayrollDetail: 'payroll/process',
     AdvanceSalary: 'payroll/advancesalary',
+    SalaryChange: 'payroll/salarychange',
+    CancelAdvanceSalary: 'payroll/advancesalary/cancel',
     Bonus: 'payroll/bonus',
     OverTime: 'payroll/overtime',
     LoanRequest: 'payroll/loan',
     LoanDetail: 'payroll/loan/detail',
-    CancelAdvanceSalary: 'payroll/advancesalary/cancel',
     Approval: "payroll/approval",
     ApprovalAction: "payroll/approval/action",
     LeaveType: "leave/type",
@@ -28,6 +29,10 @@ export const API = {
 export const payScheduleType = [{ id: "Monthly", title: "Monthly" },
 { id: "Weekly", title: "Weekly" }
 ]
+export const salaryChangeType = [{ id: "Increment", title: "Increment" },
+{ id: "Decrement", title: "Decrement" }
+]
+
 export const dayRange = Array.from(Array(31)).map((e, i) => ({ id: i, title: `${i === 0 ? 'First Day of Month' : i}` }));
 export const perDayCalulationsList = [
     { id: "MonthlyGross_DivideBy_NumberOfDays_InMonth", title: "Monthly Gross Salary / No. of Days In Month" },

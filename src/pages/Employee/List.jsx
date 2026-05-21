@@ -3,9 +3,9 @@ import React, { useEffect, useRef, useState } from "react";
 import Controls from '../../components/controls/Controls';
 import Popup from '../../components/Popup';
 import { API, alphabets } from './_Service';
-import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction } from '../../store/actions/httpactions';
+import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction, useLazyFileQuery } from '../../store/actions/httpactions';
 import { Typography, Stack, ButtonGroup, InputAdornment, IconButton } from "../../deps/ui";
-import { PeopleOutline, Add as AddIcon, Search, Clear } from "../../deps/ui/icons";
+import { PeopleOutline, Add as AddIcon, Search, Clear, Description } from "../../deps/ui/icons";
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import EmpoyeeModal from './components/AddEditEmployee';
@@ -25,33 +25,12 @@ import { systemFormatDate } from "../../services/dateTimeService";
  * @type {import('@react-awesome-query-builder/mui').Fields}
  */
 const fields = {
-    fullName: {
-        label: 'Full Name',
-        type: 'text',
-        fieldName: "fullName",
-        defaultOperator: "like",
-        operators: ["like", "equal"],
-        defaultValue: undefined,
-        valueSources: ['value'],
-        preferWidgets: ['text'],
-    },
-    createdAt: {
-        label: 'Created Date',
-        defaultOperator: "equal",
-        fieldName: "createdAt",
-        defaultValue: null,
-        type: 'date',
-        fieldSettings: {
-            dateFormat: "D/M/YYYY",
-            // mongoFormatValue: val => ({ $date: new Date(val).toISOString() }),
-        },
-        valueSources: ['value'],
-        preferWidgets: ['date'],
-    },
     isActive: {
-        label: 'Status',
+        label: 'Active',
         type: 'boolean',
         fieldName: "isActive",
+        defaultValue: null,
+        defaultOperator: "equal",
         operators: ['equal'],
         valueSources: ['value'],
         preferWidgets: ['boolean']
@@ -143,6 +122,7 @@ const Employee = () => {
     const [record, setRecord] = useState([]);
     const excelColData = useRef([]);
     const [queryFilter, setQueryFilter] = useState({});
+    const [loader, setLoader] = useState(false);
     const [searchText, setSearchText] = useState("");
     const theme = useTheme();
     const isLarge = useMediaQuery(theme.breakpoints.up('xl'));
@@ -184,7 +164,7 @@ const Employee = () => {
                 fkEmployeeStatusId: values.fkEmployeeStatusId._id,
                 fkStateId: values.fkStateId._id,
                 joiningDate: systemFormatDate(values.joiningDate),
-                confirmationDate: values.confirmationDate ? systemFormatDate(values.confirmationDate)  : systemFormatDate(new Date(values.joiningDate).setMonth(values.joiningDate.getMonth() + 2)),
+                confirmationDate: values.confirmationDate ? systemFormatDate(values.confirmationDate) : systemFormatDate(new Date(values.joiningDate).setMonth(values.joiningDate.getMonth() + 2)),
                 fkManagerId: values.fkManagerId?._id ?? null
             },
             contactDetial: {
@@ -220,7 +200,7 @@ const Employee = () => {
     const { inProcess, setFile, excelData, getTemplate } = useExcelReader({
         formTemplate: excelColData.current,
         transform: mapEmployee,
-        fileName: "Employees.xlsx",
+        fileName: "EmployeesTemplate.xlsx",
     });
 
     const [gridFilter, setGridFilter] = useState({
@@ -235,6 +215,17 @@ const Employee = () => {
         subTitle: "",
     });
 
+    const [getEmployeeReport] = useLazyFileQuery();
+    const handleReport = (type = 'pdf') => {
+        setLoader(true);
+        getEmployeeReport({
+            url: `${API.EmployeeListReport}/download`,
+            fileName: "EmployeeListReport",
+            data: { searchParams: queryFilter, type }
+        }).then(c => {
+        }).finally(() => setLoader(false))
+
+    }
 
     const query = useAppSelector(e => e.appdata.query.builder);
 
@@ -275,9 +266,9 @@ const Employee = () => {
 
         }
         // if (query || Object.keys(setquery).length) {
-            setGridFilter({ ...gridFilter, startIndex: 0, isFromScroll: false })
-            setQueryFilter(setquery)
-            setRecord([]);
+        setGridFilter({ ...gridFilter, startIndex: 0, isFromScroll: false })
+        setQueryFilter(setquery)
+        setRecord([]);
         // }
 
     }, [query, dropdownIds, debounceSearchText])
@@ -433,7 +424,7 @@ const Employee = () => {
 
     return (
         <>
-            <Loader open={inProcess} />
+            <Loader open={inProcess || loader} />
 
             <PageHeader
                 title="Employee"
@@ -494,13 +485,18 @@ const Employee = () => {
                     }}
 
                 />
+                <Stack direction="row">
+                    <IconButton title='Download Excel' onClick={() => handleReport('excel')}>
+                        <Description />
+                    </IconButton>
+                    <Controls.Button
+                        onClick={showAddModal}
+                        startIcon={<AddIcon />}
+                        text="Add Record"
+                        sx={{ float: "right" }}
+                    />
+                </Stack>
 
-                <Controls.Button
-                    onClick={showAddModal}
-                    startIcon={<AddIcon />}
-                    text="Add Record"
-                    sx={{ float: "right" }}
-                />
             </Stack>
 
             <ResponsiveEmployeeGrid data={record} handleActive={handleActiveInActive} handleEdit={handleEdit}

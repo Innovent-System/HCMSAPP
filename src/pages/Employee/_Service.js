@@ -1,10 +1,11 @@
 export const API = {
     Employee: "employee/list",
+    EmployeeListReport: "employee/report/list",
     Approval: "employee/approval",
     ProfileRequest: "employee/profile",
     Group: "employee/group",
     Designation: "employee/designation",
-    EmployeeStatus: "employee/status",
+    EmployeeStatus: "employee/status"
 }
 
 

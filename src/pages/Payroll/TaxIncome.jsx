@@ -9,11 +9,12 @@ import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { AutoForm } from '../../components/useForm'
 import PageHeader from '../../components/PageHeader'
-import { startOfDay, formateISODate, formateISODateTime, endOfDay, systemFormatDate } from '../../services/dateTimeService'
+import { startOfDay, formateISODate, formateISODateTime, systemFormatDate } from '../../services/dateTimeService'
 import { useDropDownIds } from "../../components/useDropDown";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
 import { useExcelReader } from "../../hooks/useExcelReader";
 import { uniqueData } from "../../util/common";
+
 
 /**
  * @type {import('@react-awesome-query-builder/mui').Fields}
@@ -36,28 +37,27 @@ const fields = {
 const mapExcelData = (values) => {
     const map = { ...values };
     map.fkEmployeeId = values.fkEmployeeId._id;
-    map.endDate = endOfDay(values.endDate)
     return map
 }
 
-const getColumns = (onCancel, onActive, onEdit) => [
+const getColumns = (onCancel, onEdit) => [
     { field: '_id', headerName: 'Id', hide: true },
     {
-        field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.employees.fullName
+        field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.fullName
     },
     { field: 'startDate', headerName: 'Start Date', flex: 1, valueGetter: ({ row }) => formateISODate(row.startDate) },
     { field: 'endDate', headerName: 'End Date', flex: 1, valueGetter: ({ row }) => formateISODate(row.endDate) },
     { field: 'amount', headerName: 'Amount' },
-    {
-        field: 'isActive', headerName: 'Active', renderCell: (param) => (
-            param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
-        ),
-        // flex: '0 1 5%',
-        align: 'center',
-    },
+    // {
+    //     field: 'isActive', headerName: 'Active', renderCell: (param) => (
+    //         param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
+    //     ),
+    //     // flex: '0 1 5%',
+    //     align: 'center',
+    // },
     { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
     { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
-    getActions(null, { onCancel, onActive, onEdit })
+    getActions(null, { onCancel, onEdit })
 ];
 let editId = 0;
 const AddTaxIncome = ({ openPopup, setOpenPopup, colData = [], isEdit = false, row = null }) => {
@@ -73,7 +73,6 @@ const AddTaxIncome = ({ openPopup, setOpenPopup, colData = [], isEdit = false, r
         if (openPopup && !isEdit)
             resetForm();
         else {
-            console.log(row);
             setFormValue({
                 fkEmployeeId: Employees.find(e => e._id === row.fkEmployeeId),
                 startDate: new Date(row.startDate),
@@ -88,6 +87,7 @@ const AddTaxIncome = ({ openPopup, setOpenPopup, colData = [], isEdit = false, r
             name: "fkEmployeeId",
             label: "Employee",
             variant: "outlined",
+            disabled: () => isEdit,
             required: true,
             validate: {
                 errorMessage: "Select Employee",
@@ -152,9 +152,11 @@ const AddTaxIncome = ({ openPopup, setOpenPopup, colData = [], isEdit = false, r
             dataToInsert.fkEmployeeId = values.fkEmployeeId._id;
             dataToInsert.startDate = systemFormatDate(values.startDate);
             dataToInsert.endDate = systemFormatDate(values.endDate);
-             if (isEdit)
+            if (isEdit)
                 dataToInsert._id = editId
-            addEntity({ url: DEFAULT_API, data: [dataToInsert] });
+            addEntity({ url: DEFAULT_API, data: [dataToInsert] }).finally(() => {
+                setOpenPopup(false);
+            });
 
         }
     }
@@ -193,7 +195,7 @@ const TaxIncome = () => {
     const { inProcess, setFile, excelData, getTemplate } = useExcelReader({
         formTemplate: excelColData.current,
         transform: mapExcelData,
-        fileName: "TaxIncome.xlsx",
+        fileName: "TaxIncomeTemplate.xlsx",
         uniqueBy: ["fkEmployeeId"]
     });
 
@@ -251,7 +253,7 @@ const TaxIncome = () => {
 
     const { socketData } = useSocketIo("changeInTax", refetch);
 
-    const columns = getColumns(handleCancel, handleActiveInActive, handleEdit);
+    const columns = getColumns(handleCancel, handleEdit);
 
     const handelDeleteItems = (ids) => {
         let idTobeDelete = ids;

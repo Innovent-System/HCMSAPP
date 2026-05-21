@@ -11,8 +11,7 @@ import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { AutoForm } from '../../components/useForm'
 import PageHeader from '../../components/PageHeader'
-import { startOfDay, addDays, isEqual, formateISODate, systemFormatDate } from '../../services/dateTimeService'
-import { formateISODateTime } from "../../services/dateTimeService";
+import { formateISODate, systemFormatDate,formateISODateTime } from '../../services/dateTimeService'
 import Loader from '../../components/Circularloading'
 import { useDropDownIds } from "../../components/useDropDown";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
@@ -52,7 +51,7 @@ const mapAdvSalary = (values) => {
 const getColumns = (onCancel) => [
     { field: '_id', headerName: 'Id', hide: true },
     {
-        field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.employees.fullName
+        field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.fullName
     },
     { field: 'salaryRequest', headerName: 'Date', flex: 1, valueGetter: ({ row }) => formateISODate(row.salaryRequest) },
     { field: 'amount', headerName: 'Amount' },

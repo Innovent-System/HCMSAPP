@@ -6,7 +6,7 @@ import { Circle, Add as AddIcon, PeopleOutline, Edit as EditIcon, Cancel as Canc
 import { GridToolbarContainer, Chip } from "../../deps/ui";
 import DataGrid, { getActions, useGridApi, GridRowModes, GridActionsCellItem, GridRowEditStopReasons } from '../../components/useDataGrid';
 import ConfirmDialog from '../../components/ConfirmDialog';
-import { endOfDay, formateISODateTime, parseTime, systemFormatDate } from "../../services/dateTimeService";
+import { formateISODateTime, parseTime, systemFormatDate } from "../../services/dateTimeService";
 import Controls from "../../components/controls/Controls";
 import PageHeader from '../../components/PageHeader'
 import { AttendanceflagMap, weekday } from "../../util/common";

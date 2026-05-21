@@ -1,31 +1,27 @@
 // eslint-disable-next-line react-hooks/exhaustive-deps
 import React, { useEffect, useRef, useState } from "react";
 import Popup from '../../components/Popup';
-import { API } from './_Service';
-import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction } from '../../store/actions/httpactions';
-import { PeopleOutline } from "../../deps/ui/icons";
+import { API, salaryChangeType } from './_Service';
+
+import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction, useLazySingleQuery } from '../../store/actions/httpactions';
+import { PeopleOutline, Delete, AdminPanelSettings, Cancel } from "../../deps/ui/icons";
+import { GridActionsCellItem } from "../../deps/ui";
 import DataGrid, { getActions, GridToolbar, renderStatusCell, useGridApi } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { AutoForm } from '../../components/useForm'
 import PageHeader from '../../components/PageHeader'
-import { startOfDay, formateISODate, formateISODateTime, systemFormatDate } from '../../services/dateTimeService'
+import { formateISODateTime, formateISODate, systemFormatDate } from '../../services/dateTimeService'
+import Loader from '../../components/Circularloading'
 import { useDropDownIds } from "../../components/useDropDown";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
 import { useExcelReader } from "../../hooks/useExcelReader";
-import { uniqueData } from "../../util/common";
 
-/**
- * @type {import('@react-awesome-query-builder/mui').Fields}
- */
 const fields = {
     status: {
         label: "Status",
         type: "select",
         valueSources: ["value"],
-        fieldName: "status", //must taken to for query binding
-        defaultOperator: "select_equals", //must taken to for query binding
-        defaultValue: undefined, //must taken to for query binding
         fieldSettings: {
             listValues: [
                 { value: "Pending", title: "Pending" },
@@ -37,18 +33,16 @@ const fields = {
     createdAt: {
         label: 'Created Date',
         type: 'date',
-        fieldName: "createdAt", //must taken to for query binding
-        defaultOperator: "equal", //must taken to for query binding
-        defaultValue: null, //must taken to for query binding
         fieldSettings: {
             dateFormat: "D/M/YYYY",
+            mongoFormatValue: val => ({ $date: new Date(val).toISOString() }),
         },
         valueSources: ['value'],
         preferWidgets: ['date'],
     }
 }
 
-const mapExcelData = (values) => {
+const mapSalaryChange = (values) => {
     const map = { ...values };
     map.fkEmployeeId = values.fkEmployeeId._id;
     return map
@@ -59,21 +53,23 @@ const getColumns = (onCancel) => [
     {
         field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.fullName
     },
-    { field: 'startDate', headerName: 'Start Date', flex: 1, valueGetter: ({ row }) => formateISODate(row.startDate) },
-    { field: 'endDate', headerName: 'End Date', flex: 1, valueGetter: ({ row }) => formateISODate(row.endDate) },
+    { field: 'salaryChangeDate', headerName: 'Date', flex: 1, valueGetter: ({ row }) => formateISODate(row.salaryChangeDate) },
+    { field: 'type', headerName: 'Type' },
     { field: 'amount', headerName: 'Amount' },
-    { field: 'policyNumber', headerName: 'Policy' },
     {
         field: 'status', headerName: 'Status', flex: 1, renderCell: renderStatusCell
     },
     { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
     { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
-    getActions(null, { onCancel }, true)
+    getActions(null, { onCancel })
 ];
 
-const AddInsurance = ({ openPopup, setOpenPopup, colData = [] }) => {
-    const formApi = useRef(null);
+const DEFAULT_API = API.SalaryChange;
+const DEFAULT_NAME = "Salary Change";
 
+const AddSalaryChange = ({ openPopup, setOpenPopup, colData = [] }) => {
+    const formApi = useRef(null);
+    const [loader, setLoader] = useState(false);
 
     const { Employees } = useAppSelector(e => e.appdata.employeeData);
     const { addEntity } = useEntityAction();
@@ -104,11 +100,12 @@ const AddInsurance = ({ openPopup, setOpenPopup, colData = [] }) => {
         },
         {
             elementType: "datetimepicker",
-            label: "Start",
-            name: "startDate",
+            label: "Date",
+            name: "salaryChangeDate",
             required: true,
+            // disablePast: true,
             validate: {
-                errorMessage: "Select Start Date please",
+                errorMessage: "Select Date please",
             },
             defaultValue: new Date(),
             excel: {
@@ -116,17 +113,30 @@ const AddInsurance = ({ openPopup, setOpenPopup, colData = [] }) => {
             }
         },
         {
-            elementType: "datetimepicker",
-            label: "End",
-            name: "endDate",
-            shouldDisableDate: (date) => date < startOfDay(formApi.current?.getValue()?.startDate),
+            elementType: "inputfield",
+            name: "title",
             required: true,
+            label: "Title",
             validate: {
-                errorMessage: "Select End Date please",
+                errorMessage: "Title required",
             },
-            defaultValue: new Date(),
+            defaultValue: "",
             excel: {
-                sampleData: new Date().toLocaleDateString('en-CA')
+                sampleData: "Appraisal"
+            }
+        },
+        {
+            elementType: "dropdown",
+            name: "type",
+            label: "Type",
+
+            dataId: "id",
+            dataName: "title",
+            isNone: false,
+            defaultValue: "Increment",
+            options: salaryChangeType,
+            excel: {
+                sampleData: "Increment"
             }
         },
         {
@@ -145,13 +155,21 @@ const AddInsurance = ({ openPopup, setOpenPopup, colData = [] }) => {
         },
         {
             elementType: "inputfield",
-            name: "policyNumber",
-            label: "Policy Number",
+            name: "description",
+            required: true,
+            label: "Description",
+            multiline: true,
+            validate: {
+                errorMessage: "Description required",
+            },
+            minRows: 5,
+            variant: "outlined",
+            breakpoints: { size: { md: 12, sm: 12, xs: 12 } },
             defaultValue: "",
             excel: {
-                sampleData: ""
+                sampleData: "Yearly appraisal based on performance"
             }
-        },
+        }
     ];
     colData.current = formData;
 
@@ -160,17 +178,17 @@ const AddInsurance = ({ openPopup, setOpenPopup, colData = [] }) => {
         if (validateFields()) {
             let values = getValue();
             let dataToInsert = { ...values };
+            dataToInsert.salaryChangeDate = systemFormatDate(values.salaryChangeDate);
             dataToInsert.fkEmployeeId = values.fkEmployeeId._id;
-            dataToInsert.startDate = systemFormatDate(values.startDate);
-            dataToInsert.endDate = systemFormatDate(values.endDate);
+
             addEntity({ url: DEFAULT_API, data: [dataToInsert] });
 
         }
     }
     return <>
-
+        <Loader open={loader} />
         <Popup
-            title="Add Insurance"
+            title={`${DEFAULT_NAME} Request`}
             openPopup={openPopup}
             maxWidth="sm"
             isEdit={false}
@@ -181,11 +199,10 @@ const AddInsurance = ({ openPopup, setOpenPopup, colData = [] }) => {
         </Popup>
     </>
 }
-const DEFAULT_API = API.Insurance;
-const Insurance = () => {
+
+const SalaryChangeRequest = () => {
     const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
-    const [quickSearch, setQuickSearch] = useState("");
 
     const [selectionModel, setSelectionModel] = React.useState([]);
 
@@ -201,9 +218,7 @@ const Insurance = () => {
     const [sort, setSort] = useState({ sort: { createdAt: -1 } });
     const { inProcess, setFile, excelData, getTemplate } = useExcelReader({
         formTemplate: excelColData.current,
-        transform: mapExcelData,
-        fileName: "Insurance.xlsx",
-        uniqueBy: ["fkEmployeeId"]
+        transform: mapSalaryChange, fileName: `${DEFAULT_NAME}.xlsx`
     });
 
     const [confirmDialog, setConfirmDialog] = useState({
@@ -223,23 +238,7 @@ const Insurance = () => {
             page: gridFilter.page + 1,
             lastKeyId: gridFilter.lastKey,
             ...sort,
-            searchParams: {
-                ...query,
-                // ...(quickSearch && {
-                //     $or: [
-                //         {
-                //             $expr: {
-                //                 $regexMatch: {
-                //                     input: { $toString: "$amount" },
-                //                     regex: quickSearch,
-                //                     options: "i"
-                //                 }
-                //             }
-                //         }
-                //     ]
-                // })
-
-            }
+            searchParams: { ...query }
         }
     }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
 
@@ -259,11 +258,11 @@ const Insurance = () => {
 
     useEffect(() => {
         if (excelData)
-            addEntity({ url: DEFAULT_API, data: uniqueData(excelData, "fkEmployeeId", "startDate", "endDate") });
+            addEntity({ url: DEFAULT_API, data: excelData });
 
     }, [excelData])
 
-    const { socketData } = useSocketIo("changeInInc", refetch);
+    const { socketData } = useSocketIo("changeInSalaryChange", refetch);
 
     const columns = getColumns(handleCancel);
 
@@ -301,14 +300,14 @@ const Insurance = () => {
     return (
         <>
             <PageHeader
-                title="Insurance"
+                title={`${DEFAULT_NAME} Request`}
                 enableFilter={true}
                 handleUpload={(e) => setFile(e.target.files[0])}
                 handleTemplate={getTemplate}
-                subTitle="Manage Insurance"
+                subTitle={`Manage ${DEFAULT_NAME} Request`}
                 icon={<PeopleOutline fontSize="large" />}
             />
-            <AddInsurance colData={excelColData} openPopup={openPopup} setOpenPopup={setOpenPopup} />
+            <AddSalaryChange colData={excelColData} openPopup={openPopup} setOpenPopup={setOpenPopup} />
 
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={data}
@@ -317,11 +316,6 @@ const Insurance = () => {
                 disableSelectionOnClick={true}
                 getRowHeight={() => 40}
                 loading={isLoading} pageSize={gridFilter.limit}
-                // filterMode='server'
-                // onFilterModelChange={({ quickFilterValues }) => {
-                //     const quickFilter = quickFilterValues?.[0] || '';
-                //     setQuickSearch(quickFilter);
-                // }}
                 setFilter={setGridFilter}
                 onSortModelChange={(s) => setSort({ sort: s.reduce((a, v) => ({ ...a, [v.field]: v.sort === 'asc' ? 1 : -1 }), {}) })}
                 totalCount={totalRecord}
@@ -340,4 +334,4 @@ const Insurance = () => {
     );
 }
 
-export default Insurance;
+export default SalaryChangeRequest;

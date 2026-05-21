@@ -2,6 +2,7 @@ import { useEffect, useState, useContext, useRef } from "react";
 import { WorkerContext } from '../services/workerService';
 import { parse } from 'date-fns'
 import { downloadTextFIle, uniqueData } from "../util/common";
+import { systemFormatDate } from "../services/dateTimeService";
 
 const notValid = [null, undefined, "", "N/A", "-", "undefined", "null"];
 function isValidDate(date) {
@@ -36,7 +37,7 @@ function isMatchEmployee(employeeName = "", searchTerm = "") {
 const excelDateToJSDate = (serial) => {
     const utc_days = Math.floor(serial - 25569); // Subtract 25569 to account for Excel's epoch
     const utc_value = utc_days * 86400; // Convert days to seconds
-    return new Date(utc_value * 1000); // Convert seconds to milliseconds and create a Date object
+    return systemFormatDate(new Date(utc_value * 1000)); // Convert seconds to milliseconds and create a Date object
 };
 
 /**
@@ -94,10 +95,10 @@ const processAndVerifyData = ({ colInfo, excelData, transformData, uniqueBy = []
                     objectData[prop.name] = null;
                 else if (typeof value === "number")
                     objectData[prop.name] = excelDateToJSDate(value);
-                else if (parse(value, "dd/MM/yyyy", new Date()).toString() !== "Invalid Date")
-                    objectData[prop.name] = parse(value, "dd/MM/yyyy", new Date());
+                else if (parse(value, "yyyy-MM-dd", new Date()).toString() !== "Invalid Date")
+                    objectData[prop.name] = systemFormatDate(parse(value, "yyyy-MM-dd", new Date()));
                 else
-                    errorMsg = `${errorPrefix}${i + 1} ${prop.label} is not valid ,date should be in dd/MM/yyyy format`;
+                    errorMsg = `${errorPrefix}${i + 1} ${prop.label} is not valid ,date should be in yyyy-MM-dd format`;
             }
             else {
                 objectData[prop.name] = value;
