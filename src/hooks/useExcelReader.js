@@ -34,6 +34,13 @@ function isMatchEmployee(employeeName = "", searchTerm = "") {
     return matches?.length > 0;
 }
 
+const isRequired = (prop, value, objectData) => {
+    const required = typeof prop?.required === "function" 
+        ? prop.required(objectData) 
+        : prop?.required;
+    return required && notValid.includes(value);
+}
+
 const excelDateToJSDate = (serial) => {
     const utc_days = Math.floor(serial - 25569); // Subtract 25569 to account for Excel's epoch
     const utc_value = utc_days * 86400; // Convert days to seconds
@@ -69,7 +76,7 @@ const processAndVerifyData = ({ colInfo, excelData, transformData, uniqueBy = []
             if (typeof value === "string")
                 value = value.trim()
 
-            if (prop?.required && notValid.includes(value)) { errors.push(`${errorPrefix}${i + 1}${prop.label} is required`); continue };
+            if (isRequired(prop, value, objectData)) { errors.push(`${errorPrefix}${i + 1}${prop.label} is required`); continue };
             if (prop?.options) {
                 value = String(value)?.toLowerCase() ?? "";
                 if (notValid.includes(value)) {
@@ -98,7 +105,7 @@ const processAndVerifyData = ({ colInfo, excelData, transformData, uniqueBy = []
                 else if (parse(value, "yyyy-MM-dd", new Date()).toString() !== "Invalid Date")
                     objectData[prop.name] = systemFormatDate(parse(value, "yyyy-MM-dd", new Date()));
                 else
-                    errorMsg = `${errorPrefix}${i + 1} ${prop.label} is not valid ,date should be in yyyy-MM-dd format`;
+                    errorMsg = `${errorPrefix}${i + 1} ${prop.label} is not valid, date should be in yyyy-MM-dd format (e.g. 2026-01-15)`;
             }
             else {
                 objectData[prop.name] = value;
@@ -191,7 +198,7 @@ export const useExcelReader = ({ formTemplate, transform = null, fileName = "Tem
                     uniqueBy
                 })
                 if (error.length)
-                    downloadTextFIle(error.join(" "))
+                    downloadTextFIle(error.join("\n"))
                 else
                     setExcelData(resultData);
             }

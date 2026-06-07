@@ -339,7 +339,7 @@ export const DROPDOWN_PROPS = {
         elementType: "ad_dropdown",
         name: "company",
         label: "Company",
-        isMultiple: true,
+        isMultiple: false,
         dataId: '_id',
         dataName: 'companyName',
         defaultValue: []

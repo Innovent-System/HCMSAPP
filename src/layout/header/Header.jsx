@@ -126,6 +126,7 @@ export default function Header() {
     const employeeHandler = () => dispatch(EmployeeDataThunk({ url: GET_EMPLOYEE_DATA }));
     const payrollHandler = () => dispatch(PayrollDataThunk({ url: GET_PAYROLL_DATA }));
 
+    socket.on("changeInPayrollSetup", payrollHandler);
     socket.on("changeInAllowance", payrollHandler);
     socket.on("changeInDeduction", payrollHandler);
     socket.on("changeInArea", handler);
@@ -138,6 +139,7 @@ export default function Header() {
     socket.on("changeInSchedule", employeeHandler);
 
     return () => {
+      socket.off("changeInPayrollSetup", payrollHandler);
       socket.off("changeInAllowance", payrollHandler);
       socket.off("changeInDeduction", payrollHandler);
       socket.off("changeInArea", handler);

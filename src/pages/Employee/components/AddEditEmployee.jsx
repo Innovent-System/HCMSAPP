@@ -12,6 +12,7 @@ import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { AddCountry } from '../../Organization/components/Country';
 import { AddArea } from '../../Organization/components/Area';
+import SalarySetup from '../../Payroll/SalarySetup';
 
 const Styles = {
   root: {
@@ -67,11 +68,12 @@ const Maritalstatus = [
   { id: "Married", title: "Married" },
   { id: "Widowed", title: "Widowed" },
   { id: "Divorced", title: "Divorced" },
+  { id: "Other", title: "Other" },
 ]
 
 // 'Work & Educational'
 const getSteps = () => {
-  return ['General', 'Company'];
+  return ['General', 'Company', 'Salary'];
 }
 const bindObject = (obj) => {
   const result = {};
@@ -350,8 +352,8 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, current
           name: "email",
           label: "Email",
           breakpoints,
-          // required: (value) => value["isAllowLogin"],
-          required: true,
+          required: (value) => value["isAllowLogin"],
+          // required: true,
           type: "email",
           validate: {
             when: 0,
@@ -616,12 +618,12 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, current
           elementType: "inputfield",
           name: "address1",
           label: "Street 1",
-          required: true,
+          // required: true,
           breakpoints,
-          validate: {
-            when: 1,
-            errorMessage: "Street 1 is required",
-          },
+          // validate: {
+          //   when: 1,
+          //   errorMessage: "Street 1 is required",
+          // },
           defaultValue: emptyString,
           excel: {
             sampleData: emptyString
@@ -686,11 +688,11 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, current
           elementType: "inputfield",
           name: "mobileNo",
           label: "Mobile",
-          required: true,
-          validate: {
-            when: 1,
-            errorMessage: "Mobile No is required",
-          },
+          // required: true,
+          // validate: {
+          //   when: 1,
+          //   errorMessage: "Mobile No is required",
+          // },
           breakpoints,
           defaultValue: emptyString,
           excel: {
@@ -719,6 +721,17 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, current
         },
       ]
     },
+    {
+      Component: Collapse,
+      in: activeStep === 2,
+      _children: [
+        {
+          elementType: "custom",
+          breakpoints: fullSizePont,
+          NodeElement: () => <SalarySetup />
+        }
+      ]
+    }
   ];
 
   coldata.current = formData;

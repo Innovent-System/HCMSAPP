@@ -10,7 +10,7 @@ import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { AutoForm } from '../../components/useForm'
 import PageHeader from '../../components/PageHeader'
-import { formateISODateTime,formateISODate, systemDateTime } from '../../services/dateTimeService'
+import { formateISODateTime,formateISODate, systemFormatDate } from '../../services/dateTimeService'
 import Loader from '../../components/Circularloading'
 import { useDropDownIds } from "../../components/useDropDown";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
@@ -60,7 +60,7 @@ const getColumns = (onCancel) => [
     },
     { field: 'overTimeRequest', headerName: 'Date', flex: 1, valueGetter: ({ row }) => formateISODate(row.overTimeRequest) },
     { field: 'type', headerName: 'Type', flex: 1 },
-    // { field: 'amount', headerName: 'Amount' },
+    { field: 'OTHours', headerName: 'Hours' },
     {
         field: 'status', headerName: 'Status', flex: 1, renderCell: renderStatusCell
     },
@@ -109,13 +109,13 @@ const AddOverTime = ({ openPopup, setOpenPopup, colData = [] }) => {
             label: "Date",
             name: "overTimeRequest",
             required: true,
-            disablePast: true,
+            disableFuture: true,
             validate: {
                 errorMessage: "Select Date please",
             },
             defaultValue: new Date(),
             excel: {
-                sampleData: new Date().toLocaleDateString('en-US')
+                sampleData: new Date().toLocaleDateString('en-CA')
             }
         },
         {
@@ -180,7 +180,7 @@ const AddOverTime = ({ openPopup, setOpenPopup, colData = [] }) => {
             },
             defaultValue: "",
             excel: {
-                sampleData: 12
+                sampleData: 8
             }
         },
         {
@@ -209,7 +209,7 @@ const AddOverTime = ({ openPopup, setOpenPopup, colData = [] }) => {
             const values = { ...getValue() };
             // values.percentage_or_amount = values.type === FixedAmount ? amount : percentage
             values.fkEmployeeId = values.fkEmployeeId._id;
-            values.overTimeRequest = systemDateTime(values.overTimeRequest);
+            values.overTimeRequest = systemFormatDate(values.overTimeRequest);
             // dataToInsert.fkEmployeeId = values.fkEmployeeId._id;
 
             addEntity({ url: DEFAULT_API, data: [values] });

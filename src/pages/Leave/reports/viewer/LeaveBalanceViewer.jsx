@@ -12,6 +12,7 @@ const reportColumns = [
     { field: 'title', headerName: 'Type' },
     { field: 'entitled', headerName: 'Entitle' },
     { field: 'taken', headerName: 'Taken' },
+    { field: 'leavePenalty', headerName: 'Leave Penalty' },
     { field: 'pending', headerName: 'Pending' },
     { field: 'remaining', headerName: 'Remaining' }
 ];
@@ -19,31 +20,7 @@ const reportColumns = [
 const HeadElement = ({ row }) => {
     return <TableHead><TableCell colSpan={12}><Typography><b>Department</b>: {row?.employee.department} </Typography></TableCell> </TableHead>
 }
-const subTotalBy = { "monthlySalary": 0, "totalEarning": 0, "totalDeduction": 0, "totalSalary": 0 };
 
-const SubTotal = ({ row, subTotal }) => {
-    return <TableRow >
-        <TableCell colSpan={5}>Total</TableCell>
-
-        <TableCell colSpan={2}>{formatNumber(subTotal.monthlySalary)}</TableCell>
-        <TableCell colSpan={10}>{formatNumber(subTotal.totalEarning)}</TableCell>
-        <TableCell >{formatNumber(subTotal.totalDeduction)}</TableCell>
-        <TableCell>{formatNumber(subTotal.totalSalary)}</TableCell>
-
-    </TableRow>
-}
-
-const GrandTotal = ({ row, grandTotal }) => {
-    return grandTotal && <TableRow >
-        <TableCell colSpan={5}>Grand Total</TableCell>
-
-        <TableCell colSpan={2} >{formatNumber(grandTotal.monthlySalary)}</TableCell>
-        <TableCell colSpan={10}>{formatNumber(grandTotal.totalEarning)}</TableCell>
-        <TableCell >{formatNumber(grandTotal.totalDeduction)}</TableCell>
-        <TableCell>{formatNumber(grandTotal.totalSalary)}</TableCell>
-
-    </TableRow>
-}
 const LeaveBalanceViewer = ({ API_NAME, fileName }) => {
 
     const [records, setRecords] = useState([]);
@@ -68,16 +45,7 @@ const LeaveBalanceViewer = ({ API_NAME, fileName }) => {
                 columnPrint={reportColumns}
                 HeadElement={HeadElement}
                 groupByField={(row) => row?.employee[option.groupByField]}
-            // subTotal={{
-            //     isShow: true,
-            //     Element: SubTotal,
-            //     fields: subTotalBy
-            // }}
-            // grandTotal={{
-            //     isShow: true,
-            //     Element: GrandTotal,
-            //     fields: subTotalBy
-            // }}
+            
             />
         </BaseReportWrapper>
     )

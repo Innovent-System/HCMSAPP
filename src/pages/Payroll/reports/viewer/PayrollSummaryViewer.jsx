@@ -5,10 +5,10 @@ import { formatNumber, monthNames } from '../../../../util/common';
 import ReportTable from '../../../../components/ReportTable';
 
 const reportColumns = [
-    { field: 'employeeRefNo', headerName: 'Code', valueGetter: ({ row }) => row.employee.employeeRefNo },
-    { field: 'fullName', headerName: 'Employee', valueGetter: ({ row }) => row.employee.fullName },
-    { field: 'department', headerName: 'Department', valueGetter: ({ row }) => row.employee.department },
-    { field: 'designation', headerName: 'Designation', valueGetter: ({ row }) => row.employee.designation },
+    { field: 'employeeRefNo', headerName: 'Code', valueGetter: ({ row }) => row.employeeRefNo },
+    { field: 'fullName', headerName: 'Employee', valueGetter: ({ row }) => row.fullName },
+    { field: 'department', headerName: 'Department', valueGetter: ({ row }) => row.department },
+    { field: 'designation', headerName: 'Designation', valueGetter: ({ row }) => row.designation },
     { field: 'workingDays', headerName: 'P. Days' },
     { field: 'monthlySalary', headerName: 'Monthly Salary' },
     { field: 'basicSalary', headerName: 'Basic Salary', valueGetter: ({ row }) => row.earnings["Basic Salary"] ?? 0 },
@@ -22,12 +22,13 @@ const reportColumns = [
     { field: 'loanPersonal', headerName: 'Loan (Personal)', valueGetter: ({ row }) => row.deductions["Loan (Personal)"] ?? 0 },
     { field: 'loanPF', headerName: 'Loan (PF)', valueGetter: ({ row }) => row.deductions["Loan (PF)"] ?? 0 },
     { field: 'shortTime', headerName: 'ShortTime', valueGetter: ({ row }) => row.deductions["ShortTime"] ?? 0 },
+    { field: 'late', headerName: 'Late', valueGetter: ({ row }) => row.deductions["Late Deduction"] ?? 0 },
     { field: 'totalDeduction', headerName: 'Deductions' },
     { field: 'totalSalary', headerName: 'Net Pay' }
 ];
 
 const HeadElement = ({ row }) => {
-    return <TableHead><TableCell colSpan={12}><Typography><b>Department</b>: {row?.employee.department} </Typography></TableCell> </TableHead>
+    return <TableHead><TableCell colSpan={12}><Typography><b>Department</b>: {row?.department} </Typography></TableCell> </TableHead>
 }
 const subTotalBy = { "monthlySalary": 0, "totalEarning": 0, "totalDeduction": 0, "totalSalary": 0 };
 
@@ -81,7 +82,7 @@ const PayrollSummaryViewer = ({ API_NAME, fileName }) => {
                 reportData={records}
                 columnPrint={reportColumns}
                 HeadElement={HeadElement}
-                groupByField={(row) => row?.employee[option.groupByField]}
+                groupByField={(row) => row?.[option.groupByField]}
                 subTotal={{
                     isShow: true,
                     Element: SubTotal,

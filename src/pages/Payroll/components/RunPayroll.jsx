@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import PageHeader from '../../../components/PageHeader'
-import { PeopleOutline, Add as AddIcon, TrendingUp, TrendingDown, AccountBalance, ExpandMore } from "../../../deps/ui/icons";
+import { PeopleOutline, Add as AddIcon, TrendingUp, TrendingDown, AccountBalance, ExpandMore, Description } from "../../../deps/ui/icons";
 import { GridToolbarContainer, Grid, Typography, Divider, Chip, Box, Paper, Avatar, Collapse, IconButton, Stack } from "../../../deps/ui";
 import { useAppDispatch, useAppSelector } from '../../../store/storehook';
-import { builderFieldsAction, showDropDownFilterAction, useEntityAction, useLazyPostQuery } from '../../../store/actions/httpactions';
+import { builderFieldsAction, setGlobalLoader, showDropDownFilterAction, useEntityAction, useLazyFileQuery, useLazyPostQuery } from '../../../store/actions/httpactions';
 import { useDropDownIds } from '../../../components/useDropDown';
 import DataGrid, { GridToolbarQuickFilter, useGridApi } from '../../../components/useDataGrid';
 import Controls from "../../../components/controls/Controls";
 import { API } from '../_Service';
 import { getDefaultMonth, getYears, monthNames } from '../../../util/common';
+
 
 /**
  * @type {import('@react-awesome-query-builder/mui').Fields}
@@ -457,7 +458,31 @@ const RunPayroll = ({ setOpenPopup }) => {
 
     const columns = getColumns(gridApiRef);
 
+    const [getPayrollSummaryReport] = useLazyFileQuery();
+    const handleReport = (type = 'pdf') => {
+        dispatch(setGlobalLoader(true));
+        getPayrollSummaryReport({
+            url: `${API.PayrollSummaryReport}/download`,
+            fileName: "TempPayrollSummaryReport",
+            data: {
+                searchParams: {
+                    ...(employeeIds && { "_id": { $in: employeeIds.split(',') } }),
+                    ...(countryIds && { "companyInfo.fkCountryId": { $in: countryIds.split(',') } }),
+                    ...(stateIds && { "companyInfo.fkStateId": { $in: stateIds.split(',') } }),
+                    ...(cityIds && { "companyInfo.fkCityId": { $in: cityIds.split(',') } }),
+                    ...(areaIds && { "companyInfo.fkAreaId": { $in: areaIds.split(',') } }),
+                    ...(groupIds && { "companyInfo.fkEmployeeGroupId": { $in: groupIds.split(',') } }),
+                    ...(departmentIds && { "companyInfo.fkDepartmentId": { $in: departmentIds.split(',') } }),
+                    ...(designationIds && { "companyInfo.fkDesignationId": { $in: designationIds.split(',') } }),
+                    ...query
+                }, type, isCallFromRunPayroll: true
+            }
+        }).then(c => {
+        }).finally(() => dispatch(setGlobalLoader(false)))
+    }
+
     const handleProcessPayroll = () => {
+        dispatch(setGlobalLoader(true));
         getEmployeePayroll({
             url: DEFAULT_API,
             data: {
@@ -477,7 +502,7 @@ const RunPayroll = ({ setOpenPopup }) => {
             setRecords(payrollDetails);
             setExtraData(extra);
             setDetailPanelExpandedRowIds(payrollDetails.filter(c => c.isProcess).map(e => e.fkEmployeeId));
-        });
+        }).finally(() => dispatch(setGlobalLoader(false)));
     };
 
     const handleSavePayroll = () => {
@@ -496,6 +521,7 @@ const RunPayroll = ({ setOpenPopup }) => {
 
     return (
         <Box sx={{ bgcolor: 'grey.50', minHeight: '100%' }}>
+
             <PageHeader
                 title="Run Payroll"
                 enableFilter={true}
@@ -537,6 +563,7 @@ const RunPayroll = ({ setOpenPopup }) => {
                             onAdd: handleSavePayroll,
                             records,
                             selectionModel,
+                            handleReport
                         }}
                         checkboxSelection={false}
                         getRowId={(r) => r.fkEmployeeId}
@@ -557,7 +584,7 @@ const RunPayroll = ({ setOpenPopup }) => {
 // ─── Toolbar ─────────────────────────────────────────────────────────────────
 
 export function RunPayrollToolbar(props) {
-    const { onAdd, records } = props;
+    const { onAdd, records, handleReport } = props;
 
     return (
         <GridToolbarContainer
@@ -583,23 +610,29 @@ export function RunPayrollToolbar(props) {
             />
 
             {records?.length > 0 && (
-                <Controls.Button
-                    onClick={onAdd}
-                    startIcon={<AddIcon />}
-                    text="Save Payroll"
-                // sx={{
-                //     borderRadius: 2,
-                //     textTransform: 'none',
-                //     fontWeight: 600,
-                //     px: 2.5,
-                //     py: 0.75,
-                //     fontSize: '0.85rem',
-                //     boxShadow: '0 2px 8px rgba(25,118,210,0.25)',
-                //     '&:hover': {
-                //         boxShadow: '0 4px 12px rgba(25,118,210,0.35)',
-                //     },
-                // }}
-                />
+                <Stack direction="row">
+                    <IconButton title='Download Summary' onClick={() => handleReport()}>
+                        <Description />
+                    </IconButton>
+                    <Controls.Button
+                        onClick={onAdd}
+                        startIcon={<AddIcon />}
+                        text="Save Payroll"
+                    // sx={{
+                    //     borderRadius: 2,
+                    //     textTransform: 'none',
+                    //     fontWeight: 600,
+                    //     px: 2.5,
+                    //     py: 0.75,
+                    //     fontSize: '0.85rem',
+                    //     boxShadow: '0 2px 8px rgba(25,118,210,0.25)',
+                    //     '&:hover': {
+                    //         boxShadow: '0 4px 12px rgba(25,118,210,0.35)',
+                    //     },
+                    // }}
+                    />
+                </Stack>
+
             )}
         </GridToolbarContainer>
     );

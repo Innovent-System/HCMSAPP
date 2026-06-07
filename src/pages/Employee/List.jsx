@@ -4,7 +4,7 @@ import Controls from '../../components/controls/Controls';
 import Popup from '../../components/Popup';
 import { API, alphabets } from './_Service';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction, useLazyFileQuery } from '../../store/actions/httpactions';
-import { Typography, Stack, ButtonGroup, InputAdornment, IconButton } from "../../deps/ui";
+import { Typography, Stack, ButtonGroup, InputAdornment, IconButton, CircularProgress } from "../../deps/ui";
 import { PeopleOutline, Add as AddIcon, Search, Clear, Description } from "../../deps/ui/icons";
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
@@ -77,7 +77,8 @@ const fields = {
 // }
 let editId = 0;
 const DEFAULT_API = API.Employee;
-const StepperCount = 2;
+const StepperCount = 3;
+let newEmployee = null;
 
 const findDuplicatesIndividually = (array) => {
     const seenEmail = new Set();
@@ -88,11 +89,12 @@ const findDuplicatesIndividually = (array) => {
 
     for (const item of array) {
 
-        if (seenEmail.has(item.generalInfo?.email))
-            errors.push(`Email : ${item.generalInfo?.email} already exists`)
-        else
-            seenEmail.add(item.generalInfo?.email);
-
+        if (item.generalInfo?.email) {
+            if (seenEmail.has(item.generalInfo?.email))
+                errors.push(`Email : ${item.generalInfo?.email} already exists`)
+            else
+                seenEmail.add(item.generalInfo?.email);
+        }
 
         if (seenEmployeeRefNo.has(item.employeeRefNo))
             errors.push(`employeeRefNo : ${item.employeeRefNo} already exists`)
@@ -244,17 +246,7 @@ const Employee = () => {
             ...(designationIds && { "companyInfo.fkDesignationId": { $in: designationIds.split(',') } }),
             ...(debounceSearchText && {
                 $or: [
-                    { firstName: { $regex: debounceSearchText, $options: "i" } }, // Search in firstName
-                    { lastName: { $regex: debounceSearchText, $options: "i" } }, // Search in lastName
-                    {
-                        $expr: {
-                            $regexMatch: {
-                                input: { $concat: ["$firstName", " ", "$lastName"] }, // Combine first & last name
-                                regex: `^${debounceSearchText}$`,
-                                options: "i"
-                            }
-                        }
-                    },
+                    { fullName: { $regex: debounceSearchText, $options: "i" } }, // Search in firstName
                     { email: { $regex: debounceSearchText, $options: "i" } },
                     { employeeRefNo: { $regex: debounceSearchText, $options: "i" } },
                     { punchCode: { $regex: debounceSearchText, $options: "i" } },
@@ -273,7 +265,7 @@ const Employee = () => {
 
     }, [query, dropdownIds, debounceSearchText])
 
-    const { data = [], isLoading, refetch, totalRecord = 0, status } = useEntitiesQuery({
+    const { data = [], isFetching, refetch, totalRecord = 0, status } = useEntitiesQuery({
         url: `${DEFAULT_API}/get`,
         data: {
             limit: gridFilter.limit,
@@ -283,7 +275,7 @@ const Employee = () => {
             ...sort,
             searchParams: queryFilter
         }
-    }, { selectFromResult: ({ data, status, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading, status }) });
+    }, { selectFromResult: ({ data, status, isFetching }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isFetching, status }) });
 
     const { updateOneEntity, addEntity, removeEntity } = useEntityAction();
 
@@ -388,6 +380,7 @@ const Employee = () => {
 
     const showAddModal = () => {
         isEdit.current = false;
+        newEmployee = null;
         currentEditRecord.current = null;
         setOpenPopup(true);
     }
@@ -462,7 +455,8 @@ const Employee = () => {
                 ))}
             </ButtonGroup>
             <Stack flexDirection="row" justifyContent="space-between">
-                <Typography pt={1} >Total Employees : {totalRecord}</Typography>
+                <Typography pt={1} >Records: {record.length} / {totalRecord}</Typography>
+
                 <Controls.Input size="small" autoComplete="off" name="searchTxt" variant="standard"
                     sx={{
                         width: 200, "&.MuiFormControl-root": {
@@ -472,7 +466,7 @@ const Employee = () => {
                     InputProps={{
                         startAdornment: (
                             <InputAdornment position="start">
-                                <Search fontSize="small" />
+                                {isFetching ? <CircularProgress size={15} /> : <Search fontSize="small" />}
                             </InputAdornment>
                         ),
                         endAdornment: searchText && (
@@ -502,8 +496,7 @@ const Employee = () => {
             <ResponsiveEmployeeGrid data={record} handleActive={handleActiveInActive} handleEdit={handleEdit}
                 totalRecord={totalRecord}
                 setGridFilter={setGridFilter}
-                loading={isLoading}
-
+                loading={isFetching}
             />
             <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
         </>

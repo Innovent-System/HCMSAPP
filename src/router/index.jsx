@@ -10,6 +10,7 @@ import { useAppSelector } from '../store/storehook';
 import ComingSoon from '../components/Comingsoon'
 import ReportTable from '../components/ReportTable';
 import AttendanceReportViewer from '../pages/Attendance/reports/viewer/AttendanceViewer';
+import { API as EmployeeAPI } from '../pages/Employee/_Service';
 import { API as AttendanceAPI } from '../pages/Attendance/_Service';
 import { API as PayrollAPI } from '../pages/Payroll/_Service';
 import { API as LeaveAPI } from '../pages/Leave/_Service';
@@ -19,6 +20,7 @@ import LoanViewer from '../pages/Payroll/reports/viewer/LoanViewer';
 import PayrollSummaryViewer from '../pages/Payroll/reports/viewer/PayrollSummaryViewer';
 import AttendanceRegisterViewer from '../pages/Attendance/reports/viewer/AttendanceRegisterViewer';
 import LeaveBalanceViewer from '../pages/Leave/reports/viewer/LeaveBalanceViewer';
+import EmployeeListViewer from '../pages/Employee/reports/viewer/EmployeeListViewer';
 
 const LazySignIn = lazy(() => import(`../pages/General/SignIn`));
 const LazyDashboard = lazy(() => import(`../pages/General/Dashboard`));
@@ -47,6 +49,7 @@ const Routers = () => {
         <Routes>
           <Route path="/" index element={<LazySignIn />} />
           <Route element={<PrivateRoute />}>
+            <Route path="/employeelistreport" element={<EmployeeListViewer fileName="EmployeeListReport" API_NAME={EmployeeAPI.EmployeeListReport} />} />
             <Route path="/attendancereport" element={<AttendanceReportViewer fileName="AttendanceReport" API_NAME={AttendanceAPI.AttendanceReport} />} />
             <Route path="/attendanceregisterreport" element={<AttendanceRegisterViewer fileName="AttendanceRegisterReport" API_NAME={AttendanceAPI.AttendanceRegisterReport} />} />
             <Route path="/payslipreport" element={<PaySlipViewer fileName="PayslipReport" API_NAME={PayrollAPI.PayslipReport} />} />

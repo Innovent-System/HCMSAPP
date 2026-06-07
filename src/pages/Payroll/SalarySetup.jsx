@@ -54,7 +54,7 @@ const selectFromResult = ({ data, isLoading }) => {
 
 const intFormat = new Intl.NumberFormat();
 
-const SalarySetup = () => {
+const SalarySetup = ({ isCallFromEmployee = false }) => {
     const formApi = useRef(null);
     const { employees } = useDropDown();
     const payrollSetups = useAppSelector(e => e.appdata.payrollData.PayrollSetups);
@@ -131,8 +131,9 @@ const SalarySetup = () => {
         getPayroll({ url: API.Salary, id: employee?._id }).then(info => {
             if (info?.data?.result) {
                 const { setFormValue } = formApi.current;
-                const { monthlySalary = 0, annualSalary = 0, salaryType = _salaryType[0].id, fkPayrollSetupId = payrollSetups[0]._id } = info.data.result?.salaryInfo;
-                setFormValue({ monthlySalary, annualSalary, salaryType, fkPayrollSetupId });
+                const { salaryInfo, overTime } = info.data.result;
+                const { monthlySalary = 0, annualSalary = 0, salaryType = _salaryType[0].id, fkPayrollSetupId = payrollSetups[0]._id } = salaryInfo;
+                setFormValue({ monthlySalary, annualSalary, salaryType, fkPayrollSetupId, ...overTime });
                 handleSalarySetup(fkPayrollSetupId)
             }
         })

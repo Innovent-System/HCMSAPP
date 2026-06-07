@@ -28,7 +28,7 @@ LicenseInfo.setLicenseKey(Key);
 // ─── CRUD Actions (logic unchanged) ──────────────────────────────────────────
 
 export const getCrudActions = (apiRef, onSave, onDelete) => {
-  const handleEditClick   = (id) => () => apiRef.current.startRowEditMode(id);
+  const handleEditClick = (id) => () => apiRef.current.startRowEditMode(id);
   const handleCancelClick = (id) => () => apiRef.current.stopRowEditMode({ id });
 
   const handleSaveClick = (id) => async (event) => {
@@ -58,12 +58,12 @@ export const getCrudActions = (apiRef, onSave, onDelete) => {
       const isInEditMode = apiRef.current.getRowMode(id) === 'edit';
       if (isInEditMode) {
         return [
-          <GridActionsCellItem icon={<SaveIcon />}   label="Save"   size="small" onClick={handleSaveClick(id)}   color="primary" />,
+          <GridActionsCellItem icon={<SaveIcon />} label="Save" size="small" onClick={handleSaveClick(id)} color="primary" />,
           <GridActionsCellItem icon={<CancelIcon />} label="Cancel" size="small" onClick={handleCancelClick(id)} color="inherit" />,
         ];
       }
       return [
-        <GridActionsCellItem icon={<EditIcon />}   label="Edit"   size="small" onClick={handleEditClick(id)}   color="inherit" />,
+        <GridActionsCellItem icon={<EditIcon />} label="Edit" size="small" onClick={handleEditClick(id)} color="inherit" />,
         <GridActionsCellItem icon={<DeleteIcon />} label="Delete" size="small" onClick={handleDeleteClick(id)} color="inherit" />,
       ];
     },
@@ -74,10 +74,10 @@ export const getCrudActions = (apiRef, onSave, onDelete) => {
 
 export const renderStatusCell = ({ row }) => {
   const config = {
-    Rejected : { color: '#fef2f2', text: '#c62828', dot: '#ef4444' },
-    Approved : { color: '#eff6ff', text: '#1565c0', dot: '#3b82f6' },
-    Cancel   : { color: '#fff8e1', text: '#e65100', dot: '#f59e0b' },
-    Pending  : { color: '#f0fdf4', text: '#166534', dot: '#22c55e' },
+    Rejected: { color: '#fef2f2', text: '#c62828', dot: '#ef4444' },
+    Approved: { color: '#eff6ff', text: '#1565c0', dot: '#3b82f6' },
+    Cancel: { color: '#fff8e1', text: '#e65100', dot: '#f59e0b' },
+    Pending: { color: '#f0fdf4', text: '#166534', dot: '#22c55e' },
   };
   const c = config[row.status] ?? { color: '#f3f4f6', text: '#374151', dot: '#9ca3af' };
   return (
@@ -99,7 +99,8 @@ export const renderStatusCell = ({ row }) => {
 export const getActions = (
   apiRef,
   actionKit = { onActive: null, onApproval: null, onEdit: null, onDelete: null, onCancel: null },
-  allowCancelAfterApprove = false
+  allowCancelAfterApprove = false,
+  addActions = null,
 ) => ({
   field: 'actions',
   type: 'actions',
@@ -155,6 +156,8 @@ export const getActions = (
           : <GridActionsCellItem icon={<Cancel color="warning" fontSize="small" />} size="small" label="Cancel" onClick={() => onCancel(id)} color="primary" />
       );
 
+    if (typeof addActions === 'function') toolKit.push(...addActions(id, row));
+
     return toolKit;
   },
 });
@@ -189,9 +192,9 @@ function CustomNoRowsOverlay() {
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
           <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-            <rect x="2" y="5" width="18" height="14" rx="2" stroke="#9ca3af" strokeWidth="1.5"/>
-            <path d="M2 9h18" stroke="#9ca3af" strokeWidth="1.5"/>
-            <path d="M7 2v3M15 2v3" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round"/>
+            <rect x="2" y="5" width="18" height="14" rx="2" stroke="#9ca3af" strokeWidth="1.5" />
+            <path d="M2 9h18" stroke="#9ca3af" strokeWidth="1.5" />
+            <path d="M7 2v3M15 2v3" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round" />
           </svg>
         </Box>
         <Box sx={{ fontSize: '0.82rem', fontWeight: 600, color: 'text.secondary' }}>No records found</Box>
@@ -215,11 +218,11 @@ function Pagination({ page, onPageChange, className, count, rowsPerPage }) {
       onChange={(event, newPage) => onPageChange(newPage - 1)}
       sx={{
         '& .MuiPaginationItem-root': {
-          fontSize    : '0.78rem',
-          fontWeight  : 600,
+          fontSize: '0.78rem',
+          fontWeight: 600,
           borderRadius: 1.5,
-          minWidth    : 30,
-          height      : 30,
+          minWidth: 30,
+          height: 30,
         },
         '& .Mui-selected': {
           fontWeight: 700,
@@ -237,23 +240,23 @@ function CustomPagination(props) {
 
 const StripedDataGrid = styled(DataGridPro)(({ theme }) => ({
 
-  border      : 'none',
+  border: 'none',
   borderRadius: 0,
-  fontSize    : '0.82rem',
-  fontFamily  : theme.typography.fontFamily,
+  fontSize: '0.82rem',
+  fontFamily: theme.typography.fontFamily,
 
   // ── Column Headers
   [`& .MuiDataGrid-columnHeaders`]: {
     backgroundColor: theme.palette.grey[50],
-    borderBottom   : `2px solid ${theme.palette.divider}`,
-    borderRadius   : 0,
+    borderBottom: `2px solid ${theme.palette.divider}`,
+    borderRadius: 0,
   },
   [`& .MuiDataGrid-columnHeaderTitle`]: {
-    fontSize     : '0.72rem',
-    fontWeight   : 700,
+    fontSize: '0.72rem',
+    fontWeight: 700,
     textTransform: 'uppercase',
     letterSpacing: '0.06em',
-    color        : theme.palette.text.secondary,
+    color: theme.palette.text.secondary,
   },
   [`& .MuiDataGrid-columnSeparator`]: {
     color: theme.palette.divider,
@@ -286,8 +289,8 @@ const StripedDataGrid = styled(DataGridPro)(({ theme }) => ({
 
   // ── Cells
   [`& .MuiDataGrid-cell`]: {
-    borderBottom : `1px solid ${theme.palette.grey[100]}`,
-    color        : theme.palette.text.primary,
+    borderBottom: `1px solid ${theme.palette.grey[100]}`,
+    color: theme.palette.text.primary,
     '&:focus, &:focus-within': {
       outline: 'none',
     },
@@ -295,9 +298,9 @@ const StripedDataGrid = styled(DataGridPro)(({ theme }) => ({
 
   // ── Footer / Pagination
   [`& .MuiDataGrid-footerContainer`]: {
-    borderTop      : `1px solid ${theme.palette.divider}`,
+    borderTop: `1px solid ${theme.palette.divider}`,
     backgroundColor: theme.palette.grey[50],
-    minHeight      : 48,
+    minHeight: 48,
   },
 
   // ── Detail Panel
@@ -321,9 +324,9 @@ const StripedDataGrid = styled(DataGridPro)(({ theme }) => ({
     background: 'transparent',
   },
   '& ::-webkit-scrollbar-thumb': {
-    background    : theme.palette.grey[300],
-    borderRadius  : 3,
-    '&:hover'     : { background: theme.palette.grey[400] },
+    background: theme.palette.grey[300],
+    borderRadius: 3,
+    '&:hover': { background: theme.palette.grey[400] },
   },
 
   // ── Error cell (remarks etc)
@@ -343,21 +346,21 @@ export default function FeaturedCrudGrid(props) {
     apiRef,
     columns,
     rows,
-    loading        = false,
-    pageSize       = 10,
+    loading = false,
+    pageSize = 10,
     onRowsScrollEnd,
-    page           = 0,
+    page = 0,
     setSelectionModel,
     setFilter,
-    editable       = false,
-    density        = 'compact',
-    sortingMode    = 'server',
+    editable = false,
+    density = 'compact',
+    sortingMode = 'server',
     paginationMode = 'server',
     checkboxSelection = true,
-    rowHeight      = null,
-    totalCount     = 0,
-    gridHeight     = 175,
-    sx             = {},
+    rowHeight = null,
+    totalCount = 0,
+    gridHeight = 175,
+    sx = {},
     gridToolBar: GridToolBar,
     toolbarProps,
     ...others
@@ -389,13 +392,13 @@ export default function FeaturedCrudGrid(props) {
         })}
         {...(onRowsScrollEnd && { onRowsScrollEnd })}
         components={{
-          LoadingOverlay : CustomLoadingOverlay,
-          NoRowsOverlay  : CustomNoRowsOverlay,
-          Toolbar        : GridToolBar,
-          Pagination     : CustomPagination,
+          LoadingOverlay: CustomLoadingOverlay,
+          NoRowsOverlay: CustomNoRowsOverlay,
+          Toolbar: GridToolBar,
+          Pagination: CustomPagination,
         }}
         componentsProps={{
-          toolbar   : toolbarProps,
+          toolbar: toolbarProps,
           pagination: {
             onPageChange: (n) => setFilter?.((pre) => ({ ...pre, page: n })),
             page,
@@ -412,22 +415,22 @@ export default function FeaturedCrudGrid(props) {
 }
 
 FeaturedCrudGrid.propTypes = {
-  columns          : PropTypes.array.isRequired,
-  rows             : PropTypes.array,
-  totalCount       : PropTypes.number,
-  apiRef           : PropTypes.shape({ current: PropTypes.object.isRequired }),
-  density          : PropTypes.oneOf(['compact', 'standard', 'comfortable']),
-  pageSize         : PropTypes.number,
-  page             : PropTypes.number,
+  columns: PropTypes.array.isRequired,
+  rows: PropTypes.array,
+  totalCount: PropTypes.number,
+  apiRef: PropTypes.shape({ current: PropTypes.object.isRequired }),
+  density: PropTypes.oneOf(['compact', 'standard', 'comfortable']),
+  pageSize: PropTypes.number,
+  page: PropTypes.number,
   checkboxSelection: PropTypes.bool,
-  onRowsScrollEnd  : PropTypes.func,
-  loading          : PropTypes.bool,
-  selectionModel   : PropTypes.array,
+  onRowsScrollEnd: PropTypes.func,
+  loading: PropTypes.bool,
+  selectionModel: PropTypes.array,
   setSelectionModel: PropTypes.func,
-  setFilter        : PropTypes.func,
-  gridToolBar      : PropTypes.elementType,
-  toolbarProps     : PropTypes.object,
-  sx               : PropTypes.object,
+  setFilter: PropTypes.func,
+  gridToolBar: PropTypes.elementType,
+  toolbarProps: PropTypes.object,
+  sx: PropTypes.object,
 };
 
 // ─── Default Toolbar ──────────────────────────────────────────────────────────
@@ -438,22 +441,22 @@ export function GridToolbar(props) {
   return (
     <GridToolbarContainer sx={{
       justifyContent: 'space-between',
-      alignItems    : 'center',
-      px            : 1.5,
-      py            : 1,
-      borderBottom  : '1px solid',
-      borderColor   : 'divider',
-      bgcolor       : 'grey.50',
-      gap           : 1,
+      alignItems: 'center',
+      px: 1.5,
+      py: 1,
+      borderBottom: '1px solid',
+      borderColor: 'divider',
+      bgcolor: 'grey.50',
+      gap: 1,
     }}>
       <GridToolbarQuickFilter
         sx={{
           '& .MuiInputBase-root': {
             borderRadius: 2,
-            bgcolor     : 'white',
-            fontSize    : '0.82rem',
-            px          : 1,
-            boxShadow   : '0 1px 3px rgba(0,0,0,0.06)',
+            bgcolor: 'white',
+            fontSize: '0.82rem',
+            px: 1,
+            boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
           },
           '& .MuiInputBase-root:before, & .MuiInputBase-root:after': {
             display: 'none',
@@ -464,23 +467,23 @@ export function GridToolbar(props) {
         onClick={onAdd}
         startIcon={<AddIcon />}
         text="Add Record"
-        // sx={{
-        //   borderRadius: 2,
-        //   textTransform: 'none',
-        //   fontWeight  : 600,
-        //   fontSize    : '0.82rem',
-        //   px          : 2,
-        //   boxShadow   : '0 2px 6px rgba(25,118,210,0.2)',
-        //   '&:hover'   : { boxShadow: '0 3px 10px rgba(25,118,210,0.3)' },
-        // }}
+      // sx={{
+      //   borderRadius: 2,
+      //   textTransform: 'none',
+      //   fontWeight  : 600,
+      //   fontSize    : '0.82rem',
+      //   px          : 2,
+      //   boxShadow   : '0 2px 6px rgba(25,118,210,0.2)',
+      //   '&:hover'   : { boxShadow: '0 3px 10px rgba(25,118,210,0.3)' },
+      // }}
       />
     </GridToolbarContainer>
   );
 }
 
 GridToolbar.propTypes = {
-  apiRef        : PropTypes.shape({ current: PropTypes.object }),
-  onAdd         : PropTypes.func,
-  onDelete      : PropTypes.func,
+  apiRef: PropTypes.shape({ current: PropTypes.object }),
+  onAdd: PropTypes.func,
+  onDelete: PropTypes.func,
   selectionModel: PropTypes.array,
 };

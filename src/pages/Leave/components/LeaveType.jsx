@@ -99,7 +99,7 @@ export const AddLeaveType = ({ openPopup, setOpenPopup, isEdit = false, row = nu
             if (isEdit)
                 dataToInsert._id = editId
 
-            addEntity({ url: DEFAULT_API, data: [dataToInsert] });
+            addEntity({ url: DEFAULT_API, data: [dataToInsert] }).finally(() => setOpenPopup(false));
 
         }
     }
@@ -161,6 +161,12 @@ export const AddLeaveType = ({ openPopup, setOpenPopup, isEdit = false, row = nu
         },
         {
             elementType: "checkbox",
+            name: "isLeaveWithoutPay",
+            label: "Leave Without Pay",
+            defaultValue: false,
+        },
+        {
+            elementType: "checkbox",
             name: "isProRata",
             label: "ProRata Base",
             defaultValue: false,
@@ -183,6 +189,7 @@ export const AddLeaveType = ({ openPopup, setOpenPopup, isEdit = false, row = nu
             label: "Leave Encashment",
             defaultValue: false,
         }
+
 
     ];
     return <Popup

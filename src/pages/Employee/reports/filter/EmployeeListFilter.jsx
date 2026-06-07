@@ -7,9 +7,9 @@ import { compressQuery } from '../../../../util/reporthelper';
 
 const DefaultLimit = 30, DefaultPage = 0;
 
-const LeaveBalanceFilter = () => {
+const EmployeeListFilter = () => {
 
-    const { countryIds, stateIds, cityIds, areaIds, departmentIds, groupIds, designationIds, employeeIds, yearIds } = useDropDownIds();
+    const { countryIds, stateIds, cityIds, areaIds, departmentIds, groupIds, designationIds, employeeIds } = useDropDownIds();
     const [groupByField, setGoupByField] = useState("");
     const handleViewer = () => {
         const query = {
@@ -17,20 +17,18 @@ const LeaveBalanceFilter = () => {
             limit: DefaultLimit,
             groupBy: groupByField,
             searchParams: {
-                ...(employeeIds && { "fkEmployeeId": { $in: employeeIds.split(',') } }),
+                ...(employeeIds && { "_id": { $in: employeeIds.split(',') } }),
                 ...(countryIds && { "companyInfo.fkCountryId": { $in: countryIds.split(',') } }),
                 ...(stateIds && { "companyInfo.fkStateId": { $in: stateIds.split(',') } }),
                 ...(cityIds && { "companyInfo.fkCityId": { $in: cityIds.split(',') } }),
                 ...(areaIds && { "companyInfo.fkAreaId": { $in: areaIds.split(',') } }),
                 ...(groupIds && { "companyInfo.fkEmployeeGroupId": { $in: groupIds.split(',') } }),
                 ...(departmentIds && { "companyInfo.fkDepartmentId": { $in: departmentIds.split(',') } }),
-                ...(designationIds && { "companyInfo.fkDesignationId": { $in: designationIds.split(',') } }),
-                year: yearIds
-
+                ...(designationIds && { "companyInfo.fkDesignationId": { $in: designationIds.split(',') } })
             }
         }
 
-        const url = `/leavebalancereport?data=${compressQuery(query)}`;
+        const url = `/employeelistreport?data=${compressQuery(query)}`;
         window.open(url, "_blank", "width=1200,height=800,scrollbars=yes");
     }
 
@@ -39,12 +37,14 @@ const LeaveBalanceFilter = () => {
         <>
             <Grid item size={{ xs: 3, md: 3 }}>
                 <CommonDropDown flexDirection='column' breakpoints={{ size: { sm: 10, md: 10, lg: 10 } }} showFilters={{
+                    company: true,
+                    country: true,
+                    state: true,
+                    city: true,
                     area: true,
                     department: true,
                     group: true,
-                    employee: true,
-                    // month: true,
-                    year: true
+                    employee: true
                 }}>
 
                     <Grid item size={{ xs: 10, md: 10 }} pr={1}>
@@ -52,6 +52,10 @@ const LeaveBalanceFilter = () => {
                             value={Boolean(groupByField)}
                             onChange={e => e.target.value ? setGoupByField(e.target.name) : setGoupByField("")}
                             fullWidth />
+                             {/* <Controls.Checkbox label="Area Wise Group" name="area"
+                            value={Boolean(groupByField)}
+                            onChange={e => e.target.value ? setGoupByField(e.target.name) : setGoupByField("")}
+                            fullWidth /> */}
                     </Grid>
                     <Grid item size={{ xs: 10, md: 10 }} pr={1}>
                         <Controls.Button text="Generate Report" onClick={() => handleViewer()} fullWidth />
@@ -64,4 +68,4 @@ const LeaveBalanceFilter = () => {
     )
 }
 
-export default LeaveBalanceFilter
+export default EmployeeListFilter

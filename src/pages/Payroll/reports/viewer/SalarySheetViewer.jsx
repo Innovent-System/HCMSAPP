@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { BaseReportWrapper } from '../../../../components/ReportViewer';
 import { Box, Stack, TableCell, TableRow, Typography, IconButton, ButtonGroup, TableHead } from '../../../../deps/ui'
-import {  formatNumber } from '../../../../util/common';
+import { formatNumber } from '../../../../util/common';
 import ReportTable from '../../../../components/ReportTable';
 
 const reportColumns = [
@@ -67,7 +67,7 @@ const SalarySheetViewer = ({ API_NAME, fileName }) => {
                 reportData={records}
                 columnPrint={reportColumns}
                 HeadElement={HeadElement}
-                groupByField={option.groupByField}
+                groupByField={(row) => row?.[option.groupByField]}
                 subTotalBy={subTotalBy}
                 SubTotal={SubTotal}
                 GrandTotal={GrandTotal}

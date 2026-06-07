@@ -7,7 +7,7 @@ import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAct
 import {
     GridActionsCellItem, Badge, Grid, Typography
 } from "../../deps/ui";
-import { Circle, People, PeopleOutline } from "../../deps/ui/icons";
+import { Circle, People, PeopleOutline, FileCopy } from "../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions, GridToolbar } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
@@ -43,7 +43,7 @@ const fields = {
     },
 }
 
-const getColumns = (apiRef, onEdit, onActive, setOpenShift) => {
+const getColumns = (apiRef, onEdit, onActive, setOpenShift, addActions) => {
     const actionKit = {
         onActive: onActive,
         onEdit: onEdit
@@ -79,9 +79,10 @@ const getColumns = (apiRef, onEdit, onActive, setOpenShift) => {
             hideable: false,
             align: 'center',
         },
-        getActions(apiRef, actionKit)
+        getActions(apiRef, actionKit, false, addActions)
     ]
 }
+
 
 
 const initialState = [{ name: "Sunday", isNextDay: false, isHoliday: false, fkShiftId: "", startTime: "-:-:-", endTime: "-:-:-", minTime: "-:-:-", maxTime: "-:-:-" },
@@ -195,6 +196,43 @@ const Schedule = () => {
         setOpenPopup(true);
     }
 
+    const handleClone = (id) => {
+
+        const { weeks } = data.find(c => c.id === id);
+
+        setTextField({
+            code: "",
+            scheduleName: ""
+        });
+
+        setState(weeks.map(w => {
+            const sourceData = shiftList.current.find(s => s.id === w.fkShiftId);
+
+            return {
+                fkShiftId: w.fkShiftId,
+                name: w.name,
+                startTime: sourceData ? formateISOTime(sourceData.startTime) : "--:--:-",
+                endTime: sourceData ? formateISOTime(sourceData.endTime) : "--:--:-",
+                minTime: sourceData ? formateISOTime(sourceData.minTime) : '--:--:-',
+                maxTime: sourceData ? formateISOTime(sourceData.maxTime) : '--:--:-',
+                isHoliday: sourceData?.isHoliday ? sourceData.isHoliday : false,
+                isNextDay: sourceData ? sourceData.isNextDay : false
+            }
+        }))
+
+
+        setOpenPopup(true);
+    }
+
+    const addActions = (id, row) =>
+        [<GridActionsCellItem
+            icon={<FileCopy />}
+            label="Clone"
+            className="textPrimary"
+            onClick={(e) => handleClone(id)}
+            color="inherit"
+        />]
+
     const handleActiveInActive = (id) => {
         updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
     }
@@ -240,7 +278,7 @@ const Schedule = () => {
         scheduleId.current = id;
         setTab('0');
         setOpenShift(true);
-    });
+    }, addActions);
 
     const handleSubmit = (e) => {
         if (!textField.code) return setError({ ...error, code: "Code is required" })
@@ -304,6 +342,7 @@ const Schedule = () => {
         setState([...state])
         return state[index];
     }
+
     const handleCopy = (e, source) => {
         const target = e.currentTarget.firstChild.innerText;
         const targetData = state.find(c => c.name === target);
@@ -315,6 +354,7 @@ const Schedule = () => {
 
         setState([...state]);
     }
+
     const showAddModal = () => {
         isEdit.current = false;
         setTextField({

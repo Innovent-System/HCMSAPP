@@ -11,7 +11,7 @@ import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { AutoForm } from '../../components/useForm'
 import PageHeader from '../../components/PageHeader'
-import { formateISODate } from '../../services/dateTimeService'
+import { formateISODate, systemFormatDate } from '../../services/dateTimeService'
 import { formateISODateTime } from "../../services/dateTimeService";
 import Loader from '../../components/Circularloading'
 import { useDropDownIds } from "../../components/useDropDown";
@@ -356,6 +356,7 @@ const AddLoanAdjustment = ({ openPopup, setOpenPopup, colData = [] }) => {
             dataToInsert.loanSchedule = values.loanSchedule.map(({ _id, ...e }) => ({
                 ...e,
                 isFromAdjust: e?.isNew ?? false, ...(_id && { _id }),
+                paidDate: systemFormatDate(e.paidDate),
                 ...(!e?.month && e.month !== 0 && { month: e.paidDate.getMonth(), year: e.paidDate.getFullYear() })
             }));
 

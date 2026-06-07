@@ -70,7 +70,7 @@ const label = { inputProps: { 'aria-label': 'Color switch demo' } };
 //linear-gradient(135deg, #009688, #1976d2)
 export default function EmployeeCard({ employeeInfo, handleEdit, handleActive }) {
 
-    const { _id, fullName, designation, city, tenure, generalInfo, department, employementstatus, companyInfo, isActive } = employeeInfo;
+    const { _id, fullName, designation, city, tenure, email, department, employementstatus, joiningDate, isActive } = employeeInfo;
 
     return (
         <Card sx={style.card} elevation={5} >
@@ -97,7 +97,7 @@ export default function EmployeeCard({ employeeInfo, handleEdit, handleActive })
 
                 titleTypographyProps={{ maxWidth: 195, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
                 title={fullName}
-                subheader={designation?.name}
+                subheader={designation}
 
             />
             {/* <CardMedia
@@ -112,25 +112,30 @@ export default function EmployeeCard({ employeeInfo, handleEdit, handleActive })
                         <ListItemIcon sx={{ minWidth: 30 }}>
                             <EmailOutlined fontSize='small' />
                         </ListItemIcon>
-                        <ListItemText sx={{ '&::first-letter': { textTransform: "capitalize" } }} primary={generalInfo?.email ? generalInfo?.email : "--"} />
+                        <ListItemText sx={{ '&::first-letter': { textTransform: "capitalize" } }} primary={email ?? "--"} />
                     </ListItem>
                     <ListItem disablePadding>
                         <ListItemIcon sx={{ minWidth: 30 }}>
                             <DomainOutlined fontSize='small' />
                         </ListItemIcon>
-                        <ListItemText primary={department.departmentName} />
+                        <ListItemText sx={{ minWidth: 0 }}
+                            primary={department}
+                            title={department}
+                            primaryTypographyProps={{
+                                noWrap: true
+                            }} />
                     </ListItem>
                     <ListItem disablePadding>
                         <ListItemIcon sx={{ minWidth: 30 }}>
                             <LocationOnOutlined fontSize='small' />
                         </ListItemIcon>
-                        <ListItemText primary={city.name} />
+                        <ListItemText primary={city} />
                     </ListItem>
                     <Divider />
                     <ListItem disablePadding>
                         <ListItemText primary="Tenure" secondary={`${tenure.years}${tenure.months == 0 ? "" : "." + tenure.months} Yrs`} />
-                        <ListItemText primary="Status" secondary={employementstatus?.name} />
-                        <ListItemText primary="Joining Date" secondary={formateISODate(companyInfo?.joiningDate)} />
+                        <ListItemText primary="Status" secondary={employementstatus} />
+                        <ListItemText primary="Joining Date" secondary={formateISODate(joiningDate)} />
                     </ListItem>
                 </List>
                 {/* <Typography variant="body2" sx={{ color: 'text.secondary' }}>
