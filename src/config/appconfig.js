@@ -19,7 +19,6 @@ export const headerOption = () => {
     'Content-Type': 'application/json;charset=UTF-8',
     'formid': window.location.pathname.substr(window.location.pathname.lastIndexOf("/") + 1),
     'clientid': info.clientId,
-    "authorization": "Bearer " + info?.token,
-    withCredentials: true
+    "authorization": "Bearer " + info?.token
   }
 };
