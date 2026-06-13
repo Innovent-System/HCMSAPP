@@ -73,7 +73,7 @@ const Maritalstatus = [
 
 // 'Work & Educational'
 const getSteps = () => {
-  return ['General', 'Company', 'Salary'];
+  return ['General', 'Company'];
 }
 const bindObject = (obj) => {
   const result = {};
@@ -721,17 +721,17 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, current
         },
       ]
     },
-    {
-      Component: Collapse,
-      in: activeStep === 2,
-      _children: [
-        {
-          elementType: "custom",
-          breakpoints: fullSizePont,
-          NodeElement: () => <SalarySetup />
-        }
-      ]
-    }
+    // {
+    //   Component: Collapse,
+    //   in: activeStep === 2,
+    //   _children: [
+    //     {
+    //       elementType: "custom",
+    //       breakpoints: fullSizePont,
+    //       NodeElement: () => <SalarySetup />
+    //     }
+    //   ]
+    // }
   ];
 
   coldata.current = formData;

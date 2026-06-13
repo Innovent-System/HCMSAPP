@@ -9,6 +9,7 @@ import { PeopleOutline, Add as AddIcon, Search, Clear, Description } from "../..
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import EmpoyeeModal from './components/AddEditEmployee';
+import AddEmployee from "./components/AddEmployee";
 import PageHeader from '../../components/PageHeader'
 import { useExcelReader } from "../../hooks/useExcelReader";
 import Loader from '../../components/Circularloading'
@@ -77,7 +78,7 @@ const fields = {
 // }
 let editId = 0;
 const DEFAULT_API = API.Employee;
-const StepperCount = 3;
+const StepperCount = 2;
 let newEmployee = null;
 
 const findDuplicatesIndividually = (array) => {
