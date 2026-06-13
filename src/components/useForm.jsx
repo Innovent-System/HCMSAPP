@@ -5,12 +5,25 @@ import { Element, ElementType } from './controls/Controls';
 import Loader from './Circularloading';
 import { nanoid } from 'nanoid'
 import PropTypes from 'prop-types';
+import { useAppDispatch, useAppSelector } from '../store/storehook';
+import { setFormData } from '../store/slicer/form';
 
-export function useForm(initialFValues, validateOnChange = false, validate) {
+export function useForm(initialFValues, validateOnChange = false, validate, reduxKey = null) {
 
     const [values, setValues] = useState(initialFValues);
     const changeErrors = useRef({});
     const [errors, setErrors] = useState({});
+    const dispatch = useAppDispatch();
+
+    const handleFormData = (newValues) => {
+        setValues(newValues);
+        if (reduxKey)
+            dispatch(setFormData({ key: reduxKey, values: newValues }));
+    }
+
+    useEffect(() => {
+        if (initialFValues && reduxKey) dispatch(setFormData({ key: reduxKey, values: initialFValues }));
+    }, [initialFValues])
 
     const handleInputChange = (e, exec) => {
         const { name, value } = e.target
@@ -22,7 +35,7 @@ export function useForm(initialFValues, validateOnChange = false, validate) {
 
         if (name.includes(".")) {
             const childe = name.split(".");
-            setValues({
+            handleFormData({
                 ...values,
                 [childe[0]]: { [childe[1]]: _value }
             })
@@ -30,7 +43,7 @@ export function useForm(initialFValues, validateOnChange = false, validate) {
                 changeErrors.current = { ...changeErrors.current, ...validate({ [childe[0]]: { [childe[1]]: _value } }) }
         }
         else {
-            setValues({
+            handleFormData({
                 ...values,
                 [name]: _value
             })
@@ -47,12 +60,12 @@ export function useForm(initialFValues, validateOnChange = false, validate) {
     }
     const resetForm = () => {
         resetError();
-        setValues(structuredClone(initialFValues));
+        handleFormData(structuredClone(initialFValues));
     }
 
     return {
         values,
-        setValues,
+        setValues: handleFormData,
         changeErrors: changeErrors.current,
         errors,
         setErrors,
@@ -122,7 +135,7 @@ const DEFAULT_BREAK_POINTS = { size: { xs: 12, sm: 6, md: 6 } };
 export const AutoForm = forwardRef(function (props, ref) {
 
 
-    const { formData, breakpoints, children, isValidate = false, isEdit = false, flexDirection = "row", as = "form", ...other } = props;
+    const { formData, breakpoints, children, reduxKey = null, isValidate = false, isEdit = false, flexDirection = "row", as = "form", ...other } = props;
     const formStates = useRef({
         initialValues: {},
         errorProps: [],
@@ -168,7 +181,7 @@ export const AutoForm = forwardRef(function (props, ref) {
         changeErrors,
         resetError,
         resetForm
-    } = useForm(initialValues, isValidate, validateField);
+    } = useForm(initialValues, isValidate, validateField, reduxKey);
 
 
     useEffect(() => {
@@ -285,7 +298,7 @@ export const AutoForm = forwardRef(function (props, ref) {
                         {Array.isArray(_children) ? _children.map(({ name, label, required, elementType, breakpoints = DEFAULT_BREAK_POINTS, classes, disabled, onChange, modal, defaultValue, nanoKey: childKey, ..._others }, innerIndex) => (
                             <Grid {...(modal && { style: { position: "relative" } })}  {...(breakpoints && { ...breakpoints })} key={`${elementType}-${innerIndex}-${name}`} item>
                                 {modal && modal.Component}
-                                
+
                                 <Element key={`child-${elementType}-${innerIndex}-${name}`} elementType={elementType}
                                     name={name}
                                     label={label}

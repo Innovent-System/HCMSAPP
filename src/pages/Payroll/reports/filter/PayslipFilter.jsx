@@ -33,7 +33,7 @@ const PaySlipFilter = () => {
 
     return (
         <>
-            <Grid item size={{ xs: 3, md: 3 }}>
+            <Grid item size={{ xs: 10, md: 3 }}>
                 <CommonDropDown flexDirection='column' breakpoints={{ size: { xs: 10, md: 10 } }} showFilters={{
                     country: true,
                     state: true,

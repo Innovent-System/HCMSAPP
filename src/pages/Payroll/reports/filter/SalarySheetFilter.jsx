@@ -38,8 +38,8 @@ const SalarySheetFilter = () => {
 
     return (
         <>
-            <Grid item size={{ xs: 3, md: 3 }}>
-                <CommonDropDown flexDirection='column' breakpoints={{ size: { sm: 10, md: 10, lg: 10 } }} showFilters={{
+            <Grid item size={{ xs: 10, md: 3 }}>
+                <CommonDropDown flexDirection='column' breakpoints={{ size: { xs: 10, md: 10 } }} showFilters={{
                     area: true,
                     department: true,
                     group: true,

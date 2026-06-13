@@ -4,12 +4,14 @@ export const formSlice = createSlice({
     name: 'forms',
     initialState: {} as Record<string, any>,
     reducers: {
-        setFormValues: (state, action) => {
+        setFormData: (state, action) => {
             const { key, values } = action.payload;
             state[key] = { ...state[key], ...values };
         },
-        resetFormValues: (state, action) => {
+        resetFormData: (state, action) => {
             delete state[action.payload];
         }
     }
 });
+
+export const { setFormData, resetFormData } = formSlice.actions;

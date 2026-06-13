@@ -365,7 +365,7 @@ const SalarySetup = ({ isCallFromEmployee = false }) => {
 
     return (<>
         {/* <CircularLoading open={isLoading} /> */}
-        <AutoForm ref={formApi} formData={formData} >
+        <AutoForm ref={formApi} formData={formData} reduxKey="salarySetup" >
             {/* <Grid container flexDirection="column" spacing={2} pt={2}> */}
             <Grid item size={{ xs: 12, md: 12 }}>
                 {salaryItems.map((c, i) => (

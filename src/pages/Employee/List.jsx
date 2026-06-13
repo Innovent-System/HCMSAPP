@@ -129,6 +129,7 @@ const Employee = () => {
     const [searchText, setSearchText] = useState("");
     const theme = useTheme();
     const isLarge = useMediaQuery(theme.breakpoints.up('xl'));
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const { Employees } = useAppSelector(e => e.appdata.employeeData);
     const handleSearch = (e) => {
         setSearchText(e.target.value)
@@ -484,12 +485,16 @@ const Employee = () => {
                     <IconButton title='Download Excel' onClick={() => handleReport('excel')}>
                         <Description />
                     </IconButton>
-                    <Controls.Button
-                        onClick={showAddModal}
-                        startIcon={<AddIcon />}
-                        text="Add Record"
-                        sx={{ float: "right" }}
-                    />
+                   {isMobile ? <IconButton title='Add Employee' onClick={showAddModal}>
+                        <AddIcon />
+                    </IconButton> :
+                        <Controls.Button
+                            onClick={showAddModal}
+                            startIcon={<AddIcon />}
+                            text="Add Record"
+                            sx={{ float: "right" }}
+                        />
+                    }
                 </Stack>
 
             </Stack>

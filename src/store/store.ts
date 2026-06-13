@@ -3,6 +3,7 @@ import { configureStore } from '@reduxjs/toolkit'
 import { getApi, appSlice, empSlice } from './actions/httpactions'
 import { moduleSettingSlice } from './slicer/modulesettings'
 import { reportSlice } from './slicer/report';
+import { formSlice } from './slicer/form';
 
 
 export const store = configureStore({
@@ -12,6 +13,7 @@ export const store = configureStore({
     [empSlice.name]: empSlice.reducer,
     [moduleSettingSlice.name]: moduleSettingSlice.reducer,
     [reportSlice.name]: reportSlice.reducer,
+    [formSlice.name]: formSlice.reducer
   },
   middleware: (getDefaulMiddleWare) => getDefaulMiddleWare({ immutableCheck: false, serializableCheck: false }).concat(getApi.middleware)
 })

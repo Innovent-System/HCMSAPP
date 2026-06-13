@@ -35,7 +35,7 @@ const EmployeeListFilter = () => {
 
     return (
         <>
-            <Grid item size={{ xs: 3, md: 3 }}>
+            <Grid item size={{ xs: 10, md: 3 }}>
                 <CommonDropDown flexDirection='column' breakpoints={{ size: { sm: 10, md: 10, lg: 10 } }} showFilters={{
                     company: true,
                     country: true,

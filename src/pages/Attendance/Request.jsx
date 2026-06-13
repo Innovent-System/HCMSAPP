@@ -56,7 +56,7 @@ const getColumns = (apiRef, onCancel) => [
 
 export const AddAttendanceRequest = ({ openPopup, setOpenPopup, reqEmployee = null, reqDate = null }) => {
     const formApi = useRef(null);
-    console.log({ reqEmployee, reqDate });
+    
     const { Employees } = useAppSelector(e => e.appdata.employeeData);
     const { addEntity } = useEntityAction();
     const [getAttendanceRequest] = useLazySingleQuery();

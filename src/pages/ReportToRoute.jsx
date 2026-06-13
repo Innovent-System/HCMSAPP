@@ -32,7 +32,7 @@ export const ReportPage = ({ formId, defaultReport }) => {
     return (
         <>
             <Grid container flexDirection="column" spacing={1}>
-                <Grid item size={{ xs: 2.5, md: 2.5 }} >
+                <Grid item size={{ xs: 8.3, md: 2.5 }} >
                     <Controls.Select name="reportId" isNone={false} onChange={(e) => setReportId(e.target.value)} value={reportId}
                         label="Reports" options={reports} dataId="reportId" dataName="name" />
                 </Grid>
