@@ -15,7 +15,7 @@ function Cell({ data, columnIndex, rowIndex, style, columnCount, handleEdit, han
         )
     );
 }
-const ResponsiveEmployeeGrid = ({ data, totalRecord = 0, handleEdit, handleActive, setGridFilter }) => {
+const ResponsiveEmployeeGrid = ({ data, totalRecord = 0,loading, handleEdit, handleActive, setGridFilter }) => {
     const theme = useTheme();
 
     // Use Media Queries to determine screen size
@@ -27,23 +27,58 @@ const ResponsiveEmployeeGrid = ({ data, totalRecord = 0, handleEdit, handleActiv
     // Calculate column count and column width based on screen size
     const columnCount = isMobile ? 1 : isTablet ? 2 : isLarge ? 5 : 4; // 1 for mobile, 2 for tablet, 4 for laptop+
     const columnWidth = isMobile ? 360 : isTablet ? 400 : 375; // Adjust widths for each screen size
-    const gridHeight = isMobile ? 550 : isLarge ? 700 : 500;
+    const gridHeight = isMobile ? '70vh' : isLarge ? '75vh' : '70vh';
 
     const rowCount = Math.ceil(data.length / columnCount); // Calculate rows based on total items and columns
-    const handleScroll = ({ currentTarget }) => {
+    // const handleScroll = ({ currentTarget }) => {
 
-        const totalHeight = rowCount * 210; // Total content height
-        const bottomReached = Math.floor(totalHeight - currentTarget.scrollTop) <= (isMobile ? gridHeight + 10 : gridHeight); // 100px threshold
+    //     const totalHeight = rowCount * 210; // Total content height
+    //     const bottomReached = Math.floor(totalHeight - currentTarget.scrollTop) <= (isMobile ? gridHeight + 10 : gridHeight); // 100px threshold
 
 
-        if (bottomReached && data.length < totalRecord) {
-            setGridFilter(prev => {
-                const rec = prev.startIndex + prev.limit;
-                return { ...prev, startIndex: rec, isFromScroll: true }
-            })
-        }
-    }
+    //     if (bottomReached && data.length < totalRecord) {
+    //         setGridFilter(prev => {
+    //             const rec = prev.startIndex + prev.limit;
+    //             return { ...prev, startIndex: rec, isFromScroll: true }
+    //         })
+    //     }
+    // }
 
+//     const handleScroll = ({ currentTarget }) => {
+//   const totalHeight = rowCount * 210;
+
+//   const visibleHeight = currentTarget.clientHeight;
+
+//   const bottomReached =
+//     totalHeight - currentTarget.scrollTop <= visibleHeight + 20;
+
+//   if (bottomReached && data.length < totalRecord) {
+//     setGridFilter(prev => ({
+//       ...prev,
+//       startIndex: prev.startIndex + prev.limit,
+//       isFromScroll: true,
+//     }));
+//   }
+// };
+
+const handleScroll = ({ currentTarget }) => {
+  const { scrollTop, clientHeight, scrollHeight } = currentTarget;
+
+  const bottomReached =
+    scrollTop + clientHeight >= scrollHeight - 50; // 50px buffer
+
+  if (
+    bottomReached &&
+    !loading &&
+    data.length < totalRecord
+  )  {
+    setGridFilter(prev => ({
+      ...prev,
+      startIndex: prev.startIndex + prev.limit,
+      isFromScroll: true,
+    }));
+  }
+};
 
     return (
         <Grid
