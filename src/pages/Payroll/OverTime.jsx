@@ -52,6 +52,7 @@ const mapOverTime = (values) => {
 
 const getColumns = (onCancel) => [
     { field: '_id', headerName: 'Id', hide: true },
+    { field: 'rowNo', headerName: 'Sr#', width:8,sortable:false,filterable:false },
     {
         field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.employees.fullName
     },
@@ -263,7 +264,7 @@ const OverTimeRequest = () => {
     const gridApiRef = useGridApi();
     const query = useAppSelector(e => e.appdata.query.builder);
     const { countryIds, stateIds, cityIds, areaIds } = useDropDownIds();
-    const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
+    const { data, isFetching, refetch, totalRecord } = useEntitiesQuery({
         url: `${DEFAULT_API}/get`,
         data: {
             limit: gridFilter.limit,
@@ -272,7 +273,7 @@ const OverTimeRequest = () => {
             ...sort,
             searchParams: { ...query }
         }
-    }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
+    }, { selectFromResult: ({ data, isFetching }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isFetching }) });
 
     const { removeEntity, updateOneEntity, addEntity } = useEntityAction();
 
@@ -348,7 +349,7 @@ const OverTimeRequest = () => {
                 checkboxSelection={false}
                 disableSelectionOnClick={true}
                 getRowHeight={() => 40}
-                loading={isLoading} pageSize={gridFilter.limit}
+                loading={isFetching} pageSize={gridFilter.limit}
                 setFilter={setGridFilter}
                 onSortModelChange={(s) => setSort({ sort: s.reduce((a, v) => ({ ...a, [v.field]: v.sort === 'asc' ? 1 : -1 }), {}) })}
                 totalCount={totalRecord}

@@ -41,6 +41,7 @@ const fields = {
 }
 const getColumns = (apiRef, onCancel) => [
     { field: '_id', headerName: 'Id', hide: true },
+    { field: 'rowNo', headerName: 'Sr#', width:8,sortable:false,filterable:false },
     {
         field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.employees.fullName
     },
@@ -205,7 +206,7 @@ const ExemptionRequest = () => {
     const query = useAppSelector(e => e.appdata.query.builder);
     const { countryIds, stateIds, cityIds, areaIds } = useDropDownIds();
 
-    const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
+    const { data, isFetching, totalRecord, refetch} = useEntitiesQuery({
         url: `${API.ExemptionRequest}/get`,
         data: {
             limit: gridFilter.limit,
@@ -213,7 +214,7 @@ const ExemptionRequest = () => {
             ...sort,
             searchParams: { ...query }
         }
-    }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
+    }, { selectFromResult: ({ data, isFetching }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isFetching }) });
     const { updateOneEntity } = useEntityAction();
 
 
@@ -256,7 +257,7 @@ const ExemptionRequest = () => {
             <AddExemptionRequest openPopup={openPopup} setOpenPopup={setOpenPopup} />
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={data}
-                loading={isLoading} pageSize={gridFilter.limit}
+                loading={isFetching} pageSize={gridFilter.limit}
                 page={gridFilter.page}
                 totalCount={totalRecord}
                 setFilter={setGridFilter}

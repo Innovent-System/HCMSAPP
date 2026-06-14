@@ -359,7 +359,7 @@ export default function FeaturedCrudGrid(props) {
     checkboxSelection = true,
     rowHeight = null,
     totalCount = 0,
-    gridHeight = 175,
+    gridHeight = 190,
     sx = {},
     gridToolBar: GridToolBar,
     toolbarProps,

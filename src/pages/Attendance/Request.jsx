@@ -41,6 +41,7 @@ const fields = {
 }
 const getColumns = (apiRef, onCancel) => [
     { field: '_id', headerName: 'Id', hide: true },
+    { field: 'rowNo', headerName: 'Sr#', width:8,sortable:false,filterable:false },
     {
         field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.employees.fullName
     },
@@ -248,7 +249,7 @@ const AttendanceRequest = () => {
     const gridApiRef = useGridApi();
     const query = useAppSelector(e => e.appdata.query.builder);
     const { countryIds, stateIds, cityIds, areaIds } = useDropDownIds();
-    const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
+    const { data,isFetching, refetch, totalRecord } = useEntitiesQuery({
         url: `${DEFAULT_API}/get`,
         data: {
             limit: gridFilter.limit,
@@ -256,7 +257,7 @@ const AttendanceRequest = () => {
             ...sort,
             searchParams: { ...query }
         }
-    }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
+    }, { selectFromResult: ({ data,isFetching }) => ({ data: data?.entityData, totalRecord: data?.totalRecord,isFetching }) });
     const { updateOneEntity } = useEntityAction();
 
     const { socketData } = useSocketIo("changeInAttendanceRequest", refetch);
@@ -296,9 +297,10 @@ const AttendanceRequest = () => {
             <AddAttendanceRequest openPopup={openPopup} setOpenPopup={setOpenPopup} />
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={data}
-                loading={isLoading} pageSize={gridFilter.limit}
+                loading={isFetching} pageSize={gridFilter.limit}
                 page={gridFilter.page}
-                totalCount={gridFilter.totalRecord}
+                totalCount={totalRecord}
+                gridHeight={165}
                 setFilter={setGridFilter}
                 onSortModelChange={(s) => setSort({ sort: s.reduce((a, v) => ({ ...a, [v.field]: v.sort === 'asc' ? 1 : -1 }), {}) })}
                 toolbarProps={{

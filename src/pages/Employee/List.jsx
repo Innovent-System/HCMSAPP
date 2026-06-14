@@ -4,7 +4,7 @@ import Controls from '../../components/controls/Controls';
 import Popup from '../../components/Popup';
 import { API, alphabets } from './_Service';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction, useLazyFileQuery } from '../../store/actions/httpactions';
-import { Typography, Stack, ButtonGroup, InputAdornment, IconButton, CircularProgress } from "../../deps/ui";
+import { Typography, Stack, ButtonGroup, InputAdornment, IconButton, CircularProgress,Box } from "../../deps/ui";
 import { PeopleOutline, Add as AddIcon, Search, Clear, Description } from "../../deps/ui/icons";
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
@@ -450,12 +450,21 @@ const Employee = () => {
                     setActiveStep={setActiveStep}
                 />
             </Popup>
-
+                    <Box sx={{
+    overflowX: 'auto',
+    whiteSpace: 'nowrap',
+    '&::-webkit-scrollbar': {
+      height: 3,
+      display:'none'
+    },
+  }}>
             <ButtonGroup size="small" fullWidth >
                 {alphabets.map(alpha => (
                     <Controls.Button key={`word-${alpha}`} onClick={handleAlphabetSearch} color={word === alpha ? 'info' : 'inherit'} text={alpha} />
                 ))}
             </ButtonGroup>
+            </Box>
+            
             <Stack flexDirection="row" justifyContent="space-between">
                 <Typography pt={1} >Records: {record.length} / {totalRecord}</Typography>
 
