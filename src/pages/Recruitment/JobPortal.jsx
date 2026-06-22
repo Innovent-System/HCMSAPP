@@ -22,7 +22,6 @@ import {
 import { Search, Business, People, Language } from '../../deps/ui/icons';
 
 import JobCard from './components/JobCard';
-import ApplyModal from './components/ApplyModal';
 import { DUMMY_JOBS, DUMMY_COMPANY } from './components/constants';
 import BodyBG from '../../assets/images/bg-0.jpg'
 import { useAppSelector } from '@/store/storehook';
