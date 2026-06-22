@@ -82,7 +82,8 @@ const ModuleSetting = {
     "ATTENDANCE": [12, 13],
     "EMPLOYEE": [4],
     "LEAVE": [17],
-    "PAYROLL": [26, 28, 29, 30, 31]
+    "PAYROLL": [26, 28, 29, 30, 31],
+    "RECRUITMENT":[]
 }
 export const AddApprovalStages = ({ openPopup, setOpenPopup, isEdit = false, formId, row = null }) => {
     const formApi = useRef(null);

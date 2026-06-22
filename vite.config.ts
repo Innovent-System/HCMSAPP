@@ -1,50 +1,57 @@
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import react, { reactCompilerPreset } from '@vitejs/plugin-react';
+import babel from '@rolldown/plugin-babel'
+import path from 'node:path'
 
-
-function viteIgnoreStaticImport(importKeys) {
-  return {
-    name: "vite-plugin-ignore-static-import",
-    enforce: "pre",
-    // 1. insert to optimizeDeps.exclude to prevent pre-transform
-    config(config) {
-      config.optimizeDeps = {
-        ...(config.optimizeDeps ?? {}),
-        exclude: [...(config.optimizeDeps?.exclude ?? []), ...importKeys],
-      };
-    },
-    // 2. push a plugin to rewrite the 'vite:import-analysis' prefix
-    configResolved(resolvedConfig) {
-      const VALID_ID_PREFIX = `/@id/`;
-      const reg = new RegExp(
-        `${VALID_ID_PREFIX}(${importKeys.join("|")})`,
-        "g"
-      );
-      resolvedConfig.plugins.push({
-        name: "vite-plugin-ignore-static-import-replace-idprefix",
-        transform: (code) =>
-          reg.test(code) ? code.replace(reg, (m, s1) => s1) : code,
-      });
-    },
-    // 3. rewrite the id before 'vite:resolve' plugin transform to 'node_modules/...'
-    resolveId: (id) => {
-      if (importKeys.includes(id)) {
-        return { id, external: true };
-      }
-    },
-  };
-}
+// function viteIgnoreStaticImport(importKeys) {
+//   return {
+//     name: "vite-plugin-ignore-static-import",
+//     enforce: "pre",
+//     // 1. insert to optimizeDeps.exclude to prevent pre-transform
+//     config(config) {
+//       config.optimizeDeps = {
+//         ...(config.optimizeDeps ?? {}),
+//         exclude: [...(config.optimizeDeps?.exclude ?? []), ...importKeys],
+//       };
+//     },
+//     // 2. push a plugin to rewrite the 'vite:import-analysis' prefix
+//     configResolved(resolvedConfig) {
+//       const VALID_ID_PREFIX = `/@id/`;
+//       const reg = new RegExp(
+//         `${VALID_ID_PREFIX}(${importKeys.join("|")})`,
+//         "g"
+//       );
+//       resolvedConfig.plugins.push({
+//         name: "vite-plugin-ignore-static-import-replace-idprefix",
+//         transform: (code) =>
+//           reg.test(code) ? code.replace(reg, (m, s1) => s1) : code,
+//       });
+//     },
+//     // 3. rewrite the id before 'vite:resolve' plugin transform to 'node_modules/...'
+//     resolveId: (id) => {
+//       if (importKeys.includes(id)) {
+//         return { id, external: true };
+//       }
+//     },
+//   };
+// }
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react({
-      babel: {
-        plugins: [['babel-plugin-react-compiler']],
-      },
-    })],
-  build:{
-    rollupOptions:{
-      external:["./node_modules/@mui/base/ModalUnstyled", "./node_modules/@mui/base/PopperUnstyled"]
+  plugins: [
+    react(), // Handles Fast Refresh via Oxc natively
+    babel({
+      presets: [reactCompilerPreset()] // Explicitly hooks the compiler into Rolldown
+    })
+  ],
+  build: {
+    rollupOptions: {
+      external: ["./node_modules/@mui/base/ModalUnstyled", "./node_modules/@mui/base/PopperUnstyled"]
     }
+  },
+  resolve:{
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
   }
 
 })

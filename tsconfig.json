@@ -16,7 +16,8 @@
     "strictNullChecks": true,
     "checkJs": false,
     "strict": false,
-    "baseUrl": ".",
+    "baseUrl": "./",
+    "ignoreDeprecations":"6.0",
     "paths": {
       "@/*": ["src/*"]
     }

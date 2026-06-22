@@ -36,7 +36,7 @@ const useStyles = makeStyles(() => createStyles({
       },
       "&::-webkit-scrollbar-thumb, & div::-webkit-scrollbar-thumb": {
         "borderRadius": "5px",
-        "background": "#FFC107",
+        "background": "#a2a19d",
         "maxHeight": "100px",
       },
       '& .MuiTabPanel-root': {

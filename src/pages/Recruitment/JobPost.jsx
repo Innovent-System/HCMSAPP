@@ -2,15 +2,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import Popup from '../../components/Popup';
 import { API } from './_Service';
-import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction, useLazySingleQuery } from '../../store/actions/httpactions';
-import { PeopleOutline, Delete, AdminPanelSettings, AttachMoney, Person } from "../../deps/ui/icons";
+import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction, useLazyEntityByIdQuery } from '../../store/actions/httpactions';
+import { PeopleOutline, Delete, AdminPanelSettings, AttachMoney, Person, Circle } from "../../deps/ui/icons";
 import { Chip, Divider } from "../../deps/ui";
 import DataGrid, { getActions, GridToolbar, renderStatusCell, useGridApi } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { AutoForm } from '../../components/useForm'
 import PageHeader from '../../components/PageHeader'
-import { formateISODate, formateISODateTime } from '../../services/dateTimeService'
+import { formateDate, formateISODate, formateISODateTime, systemFormatDate } from '../../services/dateTimeService'
 import Loader from '../../components/Circularloading'
 import { useDropDown, useDropDownIds } from "../../components/useDropDown";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
@@ -47,11 +47,12 @@ const mapJobPost = (values) => {
     return {
         title: map.title,
         employmentType: map.employmentType,
-        closingDate: map.closingDate,
+        closingDate: systemFormatDate(map.closingDate),
         skills: map.skills,
         experience: "",
         description: map?.description,
         numberOfPositions: map.numberOfPositions,
+        fkPipelineTemplateId: map.fkPipelineTemplateId._id,
         fkDepartmentId: map.fkDepartmentId._id,
         fkCountryId: map.fkCountryId._id,
         fkStateId: map.fkStateId._id,
@@ -74,37 +75,85 @@ const EmployeementType = [
     { id: "Internship", title: "Internship" },
 ]
 
-const getColumns = () => [
+const getColumns = (onActive, onEdit) => [
     { field: '_id', headerName: 'Id', hide: true },
+    { field: 'rowNo', headerName: 'Sr#', width: 8, sortable: false, filterable: false },
     {
         field: 'title', headerName: 'Title', flex: 1
     },
     {
         field: 'employmentType', headerName: 'Type', flex: 1
     },
-
+    { field: 'closingDate', headerName: 'Closed On', flex: 1, valueGetter: ({ row }) => formateDate(row.closingDate) },
     {
         field: 'salaryRange', headerName: 'Salary Range', flex: 1
     },
     {
         field: 'age', headerName: 'Age', flex: 1
     },
+    {
+        field: 'isActive', headerName: 'Status', renderCell: (param) => (
+            param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
+        ),
+        // flex: '0 1 5%',
+        align: 'center',
+    },
     { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
     { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
-    getActions(null)
+    getActions(null, { onActive, onEdit })
 ];
 const breakpoints = { size: { md: 3, sm: 6, xs: 12 } }
-const AddJobPost = ({ openPopup, setOpenPopup, colData = [] }) => {
+const AddJobPost = ({ openPopup, setOpenPopup, isEdit, editId, colData = [] }) => {
     const formApi = useRef(null);
     const [loader, setLoader] = useState(false);
+    const [filterTemplate, setFilterTemplate] = useState([]);
     const { countries, states, cities, departments, filterType, setFilter } = useDropDown();
+
     const { addEntity } = useEntityAction();
+    const { data: template, isFetching, refetch: fetchTemplate } = useEntitiesQuery({
+        url: `${API.PipelineTemplate}/get`,
+        data: { limit: 100, page: 1, sort: { createdAt: -1 } },
+    }, { selectFromResult: ({ data, isFetching }) => ({ data: data?.entityData, isFetching }) });
+
+    const [getJobPostById] = useLazyEntityByIdQuery();
+
+    const getJobPost = () => {
+        setLoader(true);
+        getJobPostById({ url: DEFAULT_API, id: editId }).then(({ data }) => {
+            const { result: map } = data;
+            const { setFormValue } = formApi.current;
+            setFormValue({
+                title: map.title,
+                employmentType: map.employmentType,
+                closingDate: new Date(map.closingDate),
+                skills: map?.skills ?? [],
+                experience: "",
+                description: map?.description,
+                numberOfPositions: map.numberOfPositions,
+                fkPipelineTemplateId: template.find(t => t._id === map.fkPipelineTemplateId),
+                fkDepartmentId: departments.find(d => d._id === map.fkDepartmentId),
+                fkCountryId: countries.find(c => c._id === map.fkCountryId),
+                fkStateId: states.find(s => s._id === map.fkStateId),
+                fkCityId: cities.find(c => c._id === map.fkCityId),
+                minSalary: map.salary.min,
+                maxSalary: map.salary.max,
+                minAge: map.age.min,
+                maxAge: map.age.max
+            })
+
+        }).finally(() => setLoader(false))
+    }
 
     useEffect(() => {
-        if (formApi.current && openPopup) {
-            const { resetForm } = formApi.current;
+        if (!formApi.current || !openPopup) return;
+        const { resetForm, setFormValue } = formApi.current;
+        if (openPopup && !isEdit)
             resetForm();
+        else {
+            getJobPost()
         }
+
+
     }, [openPopup, formApi])
     const formData = [
         {
@@ -131,7 +180,7 @@ const AddJobPost = ({ openPopup, setOpenPopup, colData = [] }) => {
             validate: {
                 errorMessage: "No. of Position required",
             },
-            defaultValue: 0,
+            defaultValue: 1,
             excel: {
                 sampleData: 1
             }
@@ -146,7 +195,6 @@ const AddJobPost = ({ openPopup, setOpenPopup, colData = [] }) => {
             breakpoints,
             required: true,
             validate: {
-                when: 1,
                 errorMessage: "Country is required",
             },
             dataName: 'name',
@@ -167,7 +215,6 @@ const AddJobPost = ({ openPopup, setOpenPopup, colData = [] }) => {
             dataName: "name",
             dataId: '_id',
             validate: {
-                when: 1,
                 errorMessage: "State is required",
             },
             options: states,
@@ -188,7 +235,6 @@ const AddJobPost = ({ openPopup, setOpenPopup, colData = [] }) => {
             dataName: "name",
             onChange: (data) => setFilter(data, filterType.CITY, "_id"),
             validate: {
-                when: 1,
                 errorMessage: "City is required",
             },
             options: cities,
@@ -197,20 +243,23 @@ const AddJobPost = ({ openPopup, setOpenPopup, colData = [] }) => {
                 sampleData: "City"
             }
         },
-
         {
             elementType: "ad_dropdown",
             name: "fkDepartmentId",
             label: "Department",
             breakpoints,
             required: true,
+            onChange: (data) => {
+                const { setFormValue, getValue } = formApi.current;
+                const match = template.filter(e => e.fkDepartmentId === data._id);
+                setFilterTemplate(match);
+                if (!match.length && getValue().fkPipelineTemplateId)
+                    setFormValue({ fkPipelineTemplateId: null });
+
+            },
             dataName: "departmentName",
             dataId: '_id',
-            // modal: {
-            //   Component: <AddModal name="country" />,
-            // },
             validate: {
-                when: 1,
                 errorMessage: "Department is required",
             },
             options: departments,
@@ -221,16 +270,22 @@ const AddJobPost = ({ openPopup, setOpenPopup, colData = [] }) => {
         },
         { elementType: "clearfix" },
         {
-            elementType: "datetimepicker",
-            name: "closingDate",
-            breakpoints: breakpoints,
+            elementType: "ad_dropdown",
+            name: "fkPipelineTemplateId",
+            label: "Pipeline Template",
+            breakpoints,
             required: true,
-            disablePast: true,
+            dataName: "name",
+            dataId: '_id',
             validate: {
-                errorMessage: "Select Closing Date please",
+                when: 1,
+                errorMessage: "Template is required",
             },
-            label: "Closing Date",
-            defaultValue: new Date()
+            options: filterTemplate,
+            defaultValue: null,
+            excel: {
+                sampleData: "Template"
+            }
         },
         {
             elementType: "dropdown",
@@ -245,6 +300,21 @@ const AddJobPost = ({ openPopup, setOpenPopup, colData = [] }) => {
             excel: {
                 sampleData: "Contract"
             }
+        },
+        {
+            elementType: "clearfix"
+        },
+        {
+            elementType: "datetimepicker",
+            name: "closingDate",
+            breakpoints: breakpoints,
+            required: true,
+            disablePast: true,
+            validate: {
+                errorMessage: "Select Closing Date please",
+            },
+            label: "Closing Date",
+            defaultValue: new Date()
         },
         {
             elementType: "clearfix"
@@ -345,6 +415,8 @@ const AddJobPost = ({ openPopup, setOpenPopup, colData = [] }) => {
         if (validateFields()) {
             let values = getValue();
             let dataToInsert = mapJobPost(values);
+            if(isEdit)
+                dataToInsert._id = editId;
 
             addEntity({ url: DEFAULT_API, data: [dataToInsert] });
         }
@@ -356,7 +428,7 @@ const AddJobPost = ({ openPopup, setOpenPopup, colData = [] }) => {
             openPopup={openPopup}
             // maxWidth="lg"
             fullScreen={true}
-            isEdit={false}
+            isEdit={isEdit}
             keepMounted={true}
             addOrEditFunc={handleSubmit}
             setOpenPopup={setOpenPopup}>
@@ -366,10 +438,11 @@ const AddJobPost = ({ openPopup, setOpenPopup, colData = [] }) => {
     </>
 }
 const DEFAULT_API = API.JobPost;
+let editId = null;
 const JobPost = () => {
     const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
-
+    const isEdit = useRef(false);
     const [selectionModel, setSelectionModel] = React.useState([]);
 
     const [gridFilter, setGridFilter] = useState({
@@ -420,7 +493,16 @@ const JobPost = () => {
 
     const { socketData } = useSocketIo("changeInJobPost", refetch);
 
-    const columns = getColumns();
+    const handleActiveInActive = (id) => {
+        updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
+    }
+    const handleEdit = (id) => {
+        isEdit.current = true;
+        editId = id;
+        setOpenPopup(true);
+    }
+
+    const columns = getColumns(handleActiveInActive, handleEdit);
 
     const handelDeleteItems = (ids) => {
         let idTobeDelete = ids;
@@ -450,6 +532,7 @@ const JobPost = () => {
 
 
     const showAddModal = () => {
+        isEdit.current = false;
         setOpenPopup(true);
     }
 
@@ -463,7 +546,7 @@ const JobPost = () => {
                 subTitle="Manage Job Post"
                 icon={<PeopleOutline fontSize="large" />}
             />
-            <AddJobPost colData={excelColData} openPopup={openPopup} setOpenPopup={setOpenPopup} />
+            <AddJobPost colData={excelColData} openPopup={openPopup} isEdit={isEdit.current} editId={editId} setOpenPopup={setOpenPopup} />
 
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={data}

@@ -13,6 +13,7 @@ import { ArrayForm } from '../useArrayForm'
 import FileInput from "./FileInput";
 import TagInput from "./TagInput";
 import MultiDatePicker from "./MultiDatePicker";
+import FileDrop from "./FileDrop";
 
 const Controls = {
     Input,
@@ -27,13 +28,14 @@ const Controls = {
     MultiSelect,
     Avatar,
     FileInput,
+    FileDrop,
     TagInput
 };
 
 export default Controls;
 
 
-export const ElementType = Object.freeze(["inputfield", "taginput", "radiogroup", "checkbox", "dropdown", "clearfix", "ad_dropdown", "datetimepicker", "daterangepicker","multidatepicker" ,"uploadavatar", "arrayForm", "custom"]);
+export const ElementType = Object.freeze(["inputfield", "taginput", "radiogroup", "checkbox", "dropdown", "clearfix", "ad_dropdown", "datetimepicker", "daterangepicker", "multidatepicker", "uploadavatar", "arrayForm", "filedrop", "custom"]);
 
 export function Element(props) {
 
@@ -49,6 +51,7 @@ export function Element(props) {
         case "dropdown": return <Select  {...others} />
         case "ad_dropdown": return <MultiSelect {...others} />
         case "uploadavatar": return <Avatar {...others} />
+        case "filedrop": return <FileDrop {...others} />
         case "clearfix": return <div className="clearfix"></div>
         case "arrayForm": return <ArrayForm ref={arrayFormRef} {...others} />
         default: return <NodeElement {...others} />

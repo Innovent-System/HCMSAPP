@@ -24,6 +24,7 @@ import EmployeeListViewer from '../pages/Employee/reports/viewer/EmployeeListVie
 
 const LazySignIn = lazy(() => import(`../pages/General/SignIn`));
 const LazyDashboard = lazy(() => import(`../pages/General/Dashboard`));
+const LazyJobPortal = lazy(() => import(`../pages/Recruitment/JobPortal`));
 
 // const LazyCus = lazy(() => new Promise((resolve) => {    
 //   setTimeout(() => {      
@@ -48,6 +49,8 @@ const Routers = () => {
       <Suspense fallback={<CircularLoading open={true} />}>
         <Routes>
           <Route path="/" index element={<LazySignIn />} />
+          <Route path="/careers" element={<LazyJobPortal />} />
+          
           <Route element={<PrivateRoute />}>
             <Route path="/employeelistreport" element={<EmployeeListViewer fileName="EmployeeListReport" API_NAME={EmployeeAPI.EmployeeListReport} />} />
             <Route path="/attendancereport" element={<AttendanceReportViewer fileName="AttendanceReport" API_NAME={AttendanceAPI.AttendanceReport} />} />

@@ -22,10 +22,11 @@ const Styles = {
 
 }
 
-export default function Popup(props) {
-
-    const { title, children,
-        openPopup, setOpenPopup, buttonName = "", fullScreen = false, maxWidth = "md", isEdit = false, addOrEditFunc = () => { }, footer, keepMounted = false } = props;
+export default function Popup({
+    title, children,
+    openPopup, setOpenPopup, buttonName = "", loader = false, fullScreen = false,
+    maxWidth = "md", isEdit = false, addOrEditFunc = () => { }, footer, keepMounted = false
+}) {
 
 
     return (
@@ -44,7 +45,7 @@ export default function Popup(props) {
                 {children}
             </DialogContent>
             <DialogActions>
-                {footer ? footer : <Controls.Button text={buttonName ? buttonName : isEdit ? "Update" : "Submit"} onClick={addOrEditFunc} />}
+                {footer ? footer : <Controls.Button disabled={loader} text={buttonName ? buttonName : isEdit ? "Update" : "Submit"} onClick={addOrEditFunc} />}
             </DialogActions>
         </Dialog>
     )
