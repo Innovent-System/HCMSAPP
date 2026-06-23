@@ -9,7 +9,7 @@ export {
     TableContainer, TableBody, Table, TableHead, TableRow, TableCell, TablePagination, TableSortLabel, Autocomplete, createFilterOptions,
     DialogActions, Stack, Tab, Tabs, Accordion, AccordionSummary, AccordionDetails, Backdrop, CardActionArea, CardContent, CardActions, CardHeader, MenuList
     , SpeedDial, SpeedDialAction, SpeedDialIcon, Chip, Fab, Grow, Pagination, CardMedia, Switch, LinearProgress, Breadcrumbs, Menu, ListItemButton
-    , TabScrollButton, FormGroup
+    , TabScrollButton, FormGroup, Skeleton
 } from '@mui/material';
 
 export {
@@ -26,7 +26,7 @@ export { makeStyles } from '@mui/styles'
 
 export {
     ToggleButton, ToggleButtonGroup,
-    Alert, Skeleton, TabList, TabContext, TabPanel
+    Alert, TabList, TabContext, TabPanel
 } from '@mui/lab';
 
 export { LocalizationProvider, DateTimePicker, DesktopDateTimePicker, MobileDateTimePicker, DesktopDatePicker, MobileDatePicker, DesktopTimePicker, MobileTimePicker } from '@mui/x-date-pickers-pro'

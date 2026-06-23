@@ -13,10 +13,10 @@ import {
     Chip,
     IconButton,
 } from "../../../deps/ui";
-import { MoreVert, Person } from "../../../deps/ui/icons";
+import { MoreVert, Person,Check } from "../../../deps/ui/icons";
 import { getInitials, scoreColor } from "./constants";
 
-const CandidateCard = ({ card, stageColor, isDragging, onDragStart, onDragEnd, onAssigneeClick }) => {
+const CandidateCard = ({ card, stageColor, isDragging, isSelected, onDragStart, onDragEnd, onAssigneeClick, onCardSelect }) => {
     const { candidate, application, score, assignedTo, source } = card;
 
     return (
@@ -24,6 +24,7 @@ const CandidateCard = ({ card, stageColor, isDragging, onDragStart, onDragEnd, o
             variant="outlined"
             draggable
             data-card-id={application._id}
+            onClick={(e) => onCardSelect(e, card)}
             onDragStart={(e) => onDragStart(e, card)}
             onDragEnd={onDragEnd}
             sx={{
@@ -31,6 +32,9 @@ const CandidateCard = ({ card, stageColor, isDragging, onDragStart, onDragEnd, o
                 cursor: 'grab',
                 borderRadius: 2,
                 userSelect: 'none',
+                outline: isSelected ? '2px solid #1976d2' : 'none',         // ← selected border
+                outlineOffset: '-2px',
+                bgcolor: isSelected ? 'action.selected' : 'background.paper',
                 flexShrink: 0,
                 borderLeft: `3px solid ${stageColor.mid}`,
                 transition: 'opacity 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease',
@@ -40,6 +44,16 @@ const CandidateCard = ({ card, stageColor, isDragging, onDragStart, onDragEnd, o
                 '&:active': { cursor: 'grabbing' },
             }}
         >
+            {isSelected && (
+                <Box sx={{
+                    position: 'absolute', top: 6, right: 6,
+                    width: 16, height: 16, borderRadius: '50%',
+                    bgcolor: 'primary.main', display: 'flex',
+                    alignItems: 'center', justifyContent: 'center',
+                }}>
+                    <Check sx={{ fontSize: 11, color: 'white' }} />
+                </Box>
+            )}
             <Stack direction="row" spacing={1} alignItems="flex-start">
                 <Avatar
                     sx={{

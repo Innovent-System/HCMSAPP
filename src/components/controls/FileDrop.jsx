@@ -60,6 +60,7 @@ const FileDrop = (props) => {
             )}
             <input
                 ref={fileInputRef}
+                onClick={function (e) { e.target.value = null }}
                 type="file"
                 name={name}
                 accept=".pdf,.docx"

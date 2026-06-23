@@ -152,11 +152,15 @@ const AddCandidate = ({ job, openPopup, setOpenPopup }) => {
     const handleSubmit = (e) => {
         const { getValue, validateFields } = formApi.current
         if (validateFields()) {
+            setLoader(true);
             let values = getValue();
             let dataToInsert = { ...values };
             dataToInsert.fkJobPostId = job._id;
             dataToInsert.uploadFileName = values.resumeFile.name;
-            addEntity({ url: `${DEFAULT_API}/apply`, data: [dataToInsert] });
+            addEntity({ url: `${DEFAULT_API}/apply`, data: [dataToInsert] }).finally(() => {
+                setOpenPopup(false);
+                setLoader(false);
+            });
 
         }
     }

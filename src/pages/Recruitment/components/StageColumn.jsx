@@ -39,6 +39,8 @@ const StageColumn = ({
     onColumnDragOver,
     onColumnDrop,
     onAssigneeClick,
+    selectedCards,
+    onCardSelect
 }) => {
     return (
         <Box
@@ -136,6 +138,8 @@ const StageColumn = ({
                             <CandidateCard
                                 card={card}
                                 stageColor={color}
+                                isSelected={selectedCards?.has(card.application._id)}  // ← new
+                                onCardSelect={onCardSelect}
                                 isDragging={isDragging}
                                 onDragStart={onCardDragStart}
                                 onDragEnd={onCardDragEnd}

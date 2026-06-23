@@ -59,7 +59,51 @@ const HiringBoard = () => {
     const [dropIndex, setDropIndex] = useState(null);
     const draggedCardRef = useRef(null);
 
+    // ── Multi-select state ────────────────────────────────────────────
+    const [selectedCards, setSelectedCards] = useState(new Set());
 
+    // Card click — toggle selection
+    const handleCardSelect = (e, card) => {
+        e.stopPropagation();
+
+        const currentStageId = findCardStageId(boardData.columns, card.application._id);
+
+        setSelectedCards(prev => {
+            // Empty → add this card
+            if (prev.size === 0) {
+                return new Set([card.application._id]);
+            }
+
+            // Check if all selected are same stage as current
+            const firstSelectedId = [...prev][0];
+            const firstSelectedStageId = findCardStageId(boardData.columns, firstSelectedId);
+
+            // Different stage → reset and select only this card
+            if (firstSelectedStageId !== currentStageId) {
+                return new Set([card.application._id]);
+            }
+
+            // Same stage → toggle
+            const next = new Set(prev);
+            if (next.has(card.application._id)) {
+                next.delete(card.application._id);
+            } else {
+                next.add(card.application._id);
+            }
+            return next;
+        });
+    }
+
+
+
+    // Escape se selection clear
+    useEffect(() => {
+        const handler = (e) => { if (e.key === 'Escape') setSelectedCards(new Set()); };
+        window.addEventListener('keydown', handler);
+        return () => window.removeEventListener('keydown', handler);
+    }, []);
+
+    // Multi Drop End
     const [fetchData] = useLazySingleQuery();
     const { updateEntity } = useEntityAction();
     const { Employees } = useAppSelector(e => e.appdata.employeeData);
@@ -107,20 +151,164 @@ const HiringBoard = () => {
     // ════════════════════════════════════════════════════════════════════
 
     const handleCardDragStart = (e, card) => {
-        draggedCardRef.current = card;
+        const isMultiDrag = selectedCards.size > 1 && selectedCards.has(card.application._id);
+        const dragIds = isMultiDrag ? [...selectedCards] : [card.application._id];
+
+        const draggedCards = [];
+        for (const cards of Object.values(boardData.columns)) {
+            for (const c of cards) {
+                if (dragIds.includes(c.application._id)) draggedCards.push(c);
+            }
+        }
+
+        draggedCardRef.current = draggedCards;
         setDraggedCardId(card.application._id);
         e.dataTransfer.effectAllowed = 'move';
 
-        // Reduce default browser ghost opacity for a cleaner look
         try {
-            const ghost = e.target.cloneNode(true);
-            ghost.style.opacity = '0.8';
-            ghost.style.position = 'absolute';
-            ghost.style.top = '-9999px';
+            let ghost = null;
+
+            if (draggedCards.length > 1) {
+                // === MULTI-DRAG: SOLID CARD STACK ===
+                const container = document.createElement('div');
+                container.style.cssText = `
+                position: fixed;
+                top: -2000px;
+                left: -2000px;
+                pointer-events: none;
+                z-index: 99999;
+            `;
+
+                // Background cards (peeche) — dark grey stack
+                const stackCount = Math.min(draggedCards.length, 3);
+                for (let i = stackCount - 1; i >= 1; i--) {
+                    const backCard = document.createElement('div');
+                    backCard.style.cssText = `
+                    position: absolute;
+                    top: ${i * 8}px;
+                    left: ${i * 6}px;
+                    width: 200px;
+                    height: 60px;
+                    background: #37474f;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+                    z-index: ${-i};
+                `;
+                    container.appendChild(backCard);
+                }
+
+                // Main card — solid white
+                const mainCard = document.createElement('div');
+                const cardData = draggedCards[0];
+
+                // ✅ Direct candidate access — name field hai
+                const candidateName = cardData.candidate || 'Candidate';
+                const nameParts = candidateName.split(' ');
+                const initials = (nameParts[0]?.[0] || '') + (nameParts[1]?.[0] || '');
+                const jobTitle = cardData.jobTitle || '.Net Developer';
+
+                mainCard.style.cssText = `
+                position: relative;
+                width: 200px;
+                background: #ffffff;
+                border-radius: 8px;
+                padding: 12px 14px;
+                box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+                border: 2px solid #1976d2;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                z-index: 1;
+            `;
+
+                mainCard.innerHTML = `
+                <div style="
+                    width: 36px; 
+                    height: 36px;
+                    background: #1976d2;
+                    color: #ffffff;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 13px;
+                    font-weight: 700;
+                    flex-shrink: 0;
+                ">${initials}</div>
+                <div style="min-width: 0; flex: 1;">
+                    <div style="
+                        font-size: 13px;
+                        font-weight: 600;
+                        color: #212121;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    ">${candidateName}</div>
+                    <div style="
+                        font-size: 11px;
+                        color: #616161;
+                        margin-top: 2px;
+                    ">${jobTitle}</div>
+                </div>
+            `;
+                container.appendChild(mainCard);
+
+                // Red count badge
+                const badge = document.createElement('div');
+                badge.textContent = draggedCards.length;
+                badge.style.cssText = `
+                position: absolute;
+                top: -10px;
+                right: -10px;
+                background: #d32f2f;
+                color: white;
+                width: 28px;
+                height: 28px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 13px;
+                font-weight: 700;
+                box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+                border: 2px solid white;
+                z-index: 10;
+            `;
+                mainCard.appendChild(badge);
+
+                ghost = container;
+            } else {
+                // === SINGLE DRAG ===
+                const cardEl = e.target.closest('[data-card-id]');
+                ghost = cardEl?.cloneNode(true) || e.target.cloneNode(true);
+                ghost.style.cssText = `
+                position: fixed;
+                top: -2000px;
+                left: -2000px;
+                opacity: 0.8;
+                pointer-events: none;
+                z-index: 99999;
+                box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+                width: ${cardEl?.offsetWidth || 260}px;
+            `;
+            }
+
             document.body.appendChild(ghost);
-            e.dataTransfer.setDragImage(ghost, 0, 0);
-            setTimeout(() => document.body.removeChild(ghost), 0);
-        } catch (_) { /* no-op fallback */ }
+
+            // Offset: Mouse ke bilkul neeche
+            const rect = e.target.getBoundingClientRect();
+            const offsetX = e.clientX - rect.left;
+            const offsetY = e.clientY - rect.top;
+
+            e.dataTransfer.setDragImage(ghost, offsetX, offsetY);
+
+            setTimeout(() => {
+                if (ghost.parentNode) ghost.remove();
+            }, 100);
+
+        } catch (err) {
+            console.error('Drag ghost error:', err);
+        }
     };
 
     const handleCardDragEnd = () => {
@@ -128,6 +316,7 @@ const HiringBoard = () => {
         setDragOverStageId(null);
         setDropIndex(null);
         draggedCardRef.current = null;
+        //setSelectedCards(new Set()); // drag ke baad selection clear
     };
 
     // Compute insertion index based on mouse Y position vs card midpoints
@@ -154,47 +343,53 @@ const HiringBoard = () => {
 
     const handleColumnDrop = async (e, stage) => {
         e.preventDefault();
-        const card = draggedCardRef.current;
+        const cards = draggedCardRef.current;  // ab array hai
         const insertIndex = dropIndex ?? 0;
 
         setDragOverStageId(null);
         setDropIndex(null);
         setDraggedCardId(null);
+        setSelectedCards(new Set());
 
-        if (!card || !boardData) return;
+        if (!cards?.length || !boardData) return;
 
-        const fromStageId = findCardStageId(boardData.columns, card.application._id);
-        if (!fromStageId) return;
+        // Same stage check — saare cards same stage mein hain?
+        const allSameStage = cards.every(card => {
+            const fromStageId = findCardStageId(boardData.columns, card.application._id);
+            return fromStageId === stage._id;
+        });
+        if (allSameStage) return;
 
-        // Optimistic update — remove from source, insert at target index
-        setBoardData((prev) => {
+        // Optimistic update — saare cards move karo
+        setBoardData(prev => {
             const columns = { ...prev.columns };
-            columns[fromStageId] = columns[fromStageId].filter(
-                c => c.application._id !== card.application._id
-            );
+            const cardIds = new Set(cards.map(c => c.application._id));
 
+            // Sab source columns se remove karo
+            for (const stageId of Object.keys(columns)) {
+                columns[stageId] = columns[stageId].filter(c => !cardIds.has(c.application._id));
+            }
+
+            // Target column mein insert karo
             const targetCol = [...(columns[stage._id] || [])];
-            const safeIndex = Math.min(insertIndex, targetCol.length);
-            targetCol.splice(safeIndex, 0, card);
+            targetCol.splice(Math.min(insertIndex, targetCol.length), 0, ...cards);
             columns[stage._id] = targetCol;
 
             return { ...prev, columns };
         });
 
-        // if (USE_DUMMY_DATA) return; // nothing else to do in test mode
-
+        // API call — saare cards ke liye
         try {
             await updateEntity({
                 url: `${API.PipelineStage}/move`,
                 data: {
-                    applicationId: card.application._id,
+                    applicationIds: cards.map(c => c.application._id),
                     toStageId: stage._id,
-                    toIndex: insertIndex,
                 },
             });
         } catch (err) {
-            console.error('Move failed', err);
-            loadBoard(selectedJobPost); // revert on failure
+            console.error('Bulk move failed', err);
+            loadBoard(selectedJobPost);
         }
     };
 
@@ -319,6 +514,8 @@ const HiringBoard = () => {
                             draggedCardId={draggedCardId}
                             isDragOver={dragOverStageId === stage._id}
                             dropIndex={dragOverStageId === stage._id ? dropIndex : null}
+                            selectedCards={selectedCards}
+                            onCardSelect={handleCardSelect}
                             onCardDragStart={handleCardDragStart}
                             onCardDragEnd={handleCardDragEnd}
                             onColumnDragOver={handleColumnDragOver}
