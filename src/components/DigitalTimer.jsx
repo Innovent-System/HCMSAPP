@@ -10,6 +10,19 @@ const isGreaterNine = (_value) => {
     return _value > 9 ? _value : '0' + _value
 }
 
+function getTimerDisplay(timer) {
+    const duration = intervalToDuration({
+        start: timer.start,
+        end: timer.end ?? new Date()
+    });
+    // Hamesha 2 digits mein format karo
+    const h = String(duration.hours ?? 0).padStart(2, '0');
+    const m = String(duration.minutes ?? 0).padStart(2, '0');
+    const s = String(duration.seconds ?? 0).padStart(2, '0');
+
+    return `${h}:${m}:${s}`; // "00:05:30"
+}
+
 const labelSx = {
     '& .MuiFormControlLabel-label': { fontFamily: 'Calculator', fontSize: "xx-large", pb: 1 }
 }
@@ -24,8 +37,7 @@ const DigitalTimer = () => {
     useEffect(() => {
         if (!timer.start) return
         interval.current = setInterval(() => {
-            const { hours, minutes, seconds } = intervalToDuration({ start: timer.start, end: timer.end ?? new Date() });
-            spanRef.current.lastChild.innerText = `${isGreaterNine(hours)}:${isGreaterNine(minutes)}:${isGreaterNine(seconds)}`;
+            spanRef.current.lastChild.innerText = getTimerDisplay(timer);
             if (timer.start && timer.end) clearInterval(interval.current);
         }, 1000);
 
@@ -44,7 +56,7 @@ const DigitalTimer = () => {
     const handleMarkAttendance = ({ target }) => {
 
         addEntity({ url: DEFAULT_API, data: { Mode: target.checked ? "IN" : "OUT" } }).then(({ data }) => {
-            if (data){
+            if (data) {
                 isCheck.current = !data.result.end;
                 setTimer({ start: new Date(data.result.start), end: data.result.end ? new Date(data.result.end) : null });
             }
