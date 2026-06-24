@@ -19,7 +19,8 @@ export const emptyStage = (order, colorIdx = 0) => ({
     color: STAGE_COLORS[colorIdx % STAGE_COLORS.length].mid,
     minScore: 0,
     fkDefaultAssigneeId: null,
-    isLocked:false
+    isLocked: false,
+    emailConfigs: null, 
 });
 
 export const getDefaultStages = () => [
@@ -58,11 +59,11 @@ export const DUMMY_BOARDS = {
         template: {
             name: 'Engineering pipeline',
             stages: [
-                { _id: 's1', order: 1, name: 'Applied',   type: 'Auto',   minScore: 0 },
-                { _id: 's2', order: 2, name: 'Screening', type: 'Auto',   minScore: 70 },
+                { _id: 's1', order: 1, name: 'Applied', type: 'Auto', minScore: 0 },
+                { _id: 's2', order: 2, name: 'Screening', type: 'Auto', minScore: 70 },
                 { _id: 's3', order: 3, name: 'Technical', type: 'Manual', minScore: 0 },
-                { _id: 's4', order: 4, name: 'HR Round',  type: 'Manual', minScore: 0 },
-                { _id: 's5', order: 5, name: 'Offer',     type: 'Manual', minScore: 0 },
+                { _id: 's4', order: 4, name: 'HR Round', type: 'Manual', minScore: 0 },
+                { _id: 's5', order: 5, name: 'Offer', type: 'Manual', minScore: 0 },
             ],
         },
         columns: {
@@ -92,12 +93,12 @@ export const DUMMY_BOARDS = {
         template: {
             name: 'Lead role pipeline',
             stages: [
-                { _id: 't1', order: 1, name: 'Applied',      type: 'Auto',   minScore: 0 },
-                { _id: 't2', order: 2, name: 'Screening',    type: 'Auto',   minScore: 75 },
+                { _id: 't1', order: 1, name: 'Applied', type: 'Auto', minScore: 0 },
+                { _id: 't2', order: 2, name: 'Screening', type: 'Auto', minScore: 75 },
                 { _id: 't3', order: 3, name: 'Tech Round 1', type: 'Manual', minScore: 0 },
                 { _id: 't4', order: 4, name: 'Tech Round 2', type: 'Manual', minScore: 0 },
-                { _id: 't5', order: 5, name: 'Panel',        type: 'Manual', minScore: 0 },
-                { _id: 't6', order: 6, name: 'Offer',        type: 'Manual', minScore: 0 },
+                { _id: 't5', order: 5, name: 'Panel', type: 'Manual', minScore: 0 },
+                { _id: 't6', order: 6, name: 'Offer', type: 'Manual', minScore: 0 },
             ],
         },
         columns: {
@@ -114,10 +115,10 @@ export const DUMMY_BOARDS = {
         template: {
             name: 'Sales pipeline',
             stages: [
-                { _id: 'x1', order: 1, name: 'Applied',   type: 'Auto',   minScore: 0 },
-                { _id: 'x2', order: 2, name: 'Screening', type: 'Auto',   minScore: 60 },
+                { _id: 'x1', order: 1, name: 'Applied', type: 'Auto', minScore: 0 },
+                { _id: 'x2', order: 2, name: 'Screening', type: 'Auto', minScore: 60 },
                 { _id: 'x3', order: 3, name: 'Interview', type: 'Manual', minScore: 0 },
-                { _id: 'x4', order: 4, name: 'Offer',     type: 'Manual', minScore: 0 },
+                { _id: 'x4', order: 4, name: 'Offer', type: 'Manual', minScore: 0 },
             ],
         },
         columns: {
@@ -141,9 +142,9 @@ function mkCard(appId, firstName, lastName, score, source, assigneeName) {
 
 export const DUMMY_EMPLOYEES = [
     { _id: 'ali_hassan', fullName: 'Ali Hassan' },
-    { _id: 'sara_khan',  fullName: 'Sara Khan' },
+    { _id: 'sara_khan', fullName: 'Sara Khan' },
     { _id: 'ahmed_raza', fullName: 'Ahmed Raza' },
-    { _id: 'maham_rizvi',fullName: 'Maham Rizvi' },
+    { _id: 'maham_rizvi', fullName: 'Maham Rizvi' },
 ];
 
 
@@ -152,18 +153,18 @@ export const DUMMY_EMPLOYEES = [
 // ════════════════════════════════════════════════════════════════════
 
 export const TYPE_COLORS = {
-    'Full-time':  { bg: '#E1F5EE', color: '#085041' },
-    'Part-time':  { bg: '#E6F1FB', color: '#0C447C' },
-    'Contract':   { bg: '#FAEEDA', color: '#633806' },
+    'Full-time': { bg: '#E1F5EE', color: '#085041' },
+    'Part-time': { bg: '#E6F1FB', color: '#0C447C' },
+    'Contract': { bg: '#FAEEDA', color: '#633806' },
     'Internship': { bg: '#EEEDFE', color: '#26215C' },
 };
 
 export const DUMMY_COMPANY = {
-    name:        'HCMS Technologies',
-    initials:    'H',
-    location:    'Karachi, Pakistan',
-    website:     'hcms.com.pk',
-    about:       'We build modern HR software for Pakistani enterprises. Join a growing team of engineers, analysts and sales professionals working to transform how companies manage their people.',
+    name: 'HCMS Technologies',
+    initials: 'H',
+    location: 'Karachi, Pakistan',
+    website: 'hcms.com.pk',
+    about: 'We build modern HR software for Pakistani enterprises. Join a growing team of engineers, analysts and sales professionals working to transform how companies manage their people.',
     employeeCount: 150,
 };
 
@@ -234,3 +235,38 @@ export const postedLabel = (createdAt) => {
 
 export const salaryLabel = (salary) =>
     `PKR ${(salary.min / 1000).toFixed(0)}k–${(salary.max / 1000).toFixed(0)}k`;
+
+// constants.ts
+export const EMAIL_TRIGGERS = [
+    { value: 'onEnter', label: 'On Enter Stage', icon: 'Login' },
+    { value: 'onExit', label: 'On Exit Stage', icon: 'Logout' },
+    { value: 'onAssign', label: 'On Assign Interviewer', icon: 'PersonAdd' },
+    { value: 'manual', label: 'Manual Send', icon: 'Send' },
+    { value: 'reminder', label: 'Reminder', icon: 'Schedule' },
+] as const;
+
+export const EMAIL_VARIABLES = [
+    { key: 'candidateName', label: 'Candidate Name', example: 'Mannan Siddiqui' },
+    { key: 'candidateEmail', label: 'Candidate Email', example: 'mannan@email.com' },
+    { key: 'jobTitle', label: 'Job Title', example: '.Net Developer' },
+    { key: 'stageName', label: 'Stage Name', example: 'Technical Interview' },
+    { key: 'assigneeName', label: 'Assignee Name', example: 'Faizan Siddiqui' },
+    { key: 'assigneeEmail', label: 'Assignee Email', example: 'faizan@company.com' },
+    { key: 'companyName', label: 'Company Name', example: 'ABC Corp' },
+    { key: 'portalLink', label: 'Portal Link', example: 'https://portal.com/apply/123' },
+    { key: 'currentDate', label: 'Current Date', example: 'June 23, 2025' },
+    { key: 'interviewDate', label: 'Interview Date', example: 'June 30, 2025' },
+] as const;
+
+export const emptyEmailConfig = () => ({
+    recipients: {
+        candidate: true,
+        assignee: false,
+        hr: false,
+        customEmails: [],
+    },
+    subject: '',
+    body: '',
+    isActive: true,
+    sendReminderAfter: undefined,
+});

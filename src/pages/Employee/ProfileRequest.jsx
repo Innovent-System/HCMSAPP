@@ -91,6 +91,7 @@ const ProfileRequest = () => {
     const isEdit = React.useRef(false);
     const [selectionModel, setSelectionModel] = React.useState([]);
     const [word, setWord] = useState("");
+    const formApi = useRef(null);
     const [sort, setSort] = useState({ sort: { createdAt: -1 } });
 
     const excelColData = useRef([]);
@@ -285,7 +286,7 @@ const ProfileRequest = () => {
                 fullScreen={true} isEdit={isEdit.current}
                 footer={<></>} keepMounted={true}
                 setOpenPopup={setOpenPopup}>
-                <EmpoyeeModal coldata={excelColData} isEdit={isEdit.current} mapEmployeeData={mapEmployee} add_edit_API={DEFAULT_API} editId={editId} setOpenPopup={setOpenPopup} />
+                {/* <EmpoyeeModal coldata={excelColData} isEdit={isEdit.current} formApi={formApi} mapEmployeeData={mapEmployee} add_edit_API={DEFAULT_API} editId={editId} setOpenPopup={setOpenPopup} /> */}
             </Popup>
 
             <ButtonGroup fullWidth >

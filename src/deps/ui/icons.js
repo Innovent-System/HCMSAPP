@@ -12,6 +12,7 @@ export {
     Beenhere, DisplaySettings, Update, RequestPage, Percent, AddCircleOutlined as AddCircleOutline, CancelScheduleSend, RestartAlt, LocalPrintshop,
     PictureAsPdf, OpenInNew, HourglassBottom, MoreVert, EmailOutlined, LocationOnOutlined, DomainOutlined, Save, AddCircle, RemoveCircle, Remove, PostAdd,
     HealthAndSafety, PriceChange, DirectionsWalk, AvTimer, Difference, Minimize, Logout, TrendingUp, TrendingDown, AccountBalance, CalendarToday, ArrowUpward, ArrowDownward,
-    Menu, DragIndicator, AutoAwesome, Lock, Bolt, LocationOn, WorkOutline, FilePresent, CheckCircleOutline, Language, Email
+    Menu, DragIndicator, AutoAwesome, Lock, Bolt, LocationOn, WorkOutline, FilePresent, CheckCircleOutline, Language, Email,
+    ContentCopy
 
 } from '@mui/icons-material';

@@ -50,7 +50,7 @@ const Layout = () => {
         {/* <BreadCrumbs /> */}
         <Outlet />
       </Paper>
-      {/* <Speech mode='obey'/> */}
+      <Speech mode='command'/>
     </>
   )
 }

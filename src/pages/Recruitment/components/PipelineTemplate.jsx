@@ -4,7 +4,7 @@ import Popup from '../../../components/Popup';
 import { API } from '../_Service';
 
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction, useLazySingleQuery, useLazyEntityByIdQuery } from '../../../store/actions/httpactions';
-import { PeopleOutline, Delete, AdminPanelSettings, Cancel,Circle,Check } from "../../../deps/ui/icons";
+import { PeopleOutline, Delete, AdminPanelSettings, Cancel, Circle, Check } from "../../../deps/ui/icons";
 import { GridActionsCellItem } from "../../../deps/ui";
 import DataGrid, { getActions, GridToolbar, renderStatusCell, useGridApi } from '../../../components/useDataGrid';
 import { useSocketIo } from '../../../components/useSocketio';
@@ -17,7 +17,7 @@ import { useDropDownIds } from "../../../components/useDropDown";
 import { useAppDispatch, useAppSelector } from "../../../store/storehook";
 import { useExcelReader } from "../../../hooks/useExcelReader";
 import PipelineTemplateBuilder from "./PipelineBuilder";
-import { STAGE_COLORS,emptyStage, getDefaultStages } from "./constants";
+import { STAGE_COLORS, emptyStage, getDefaultStages } from "./constants";
 
 const fields = {
     status: {
@@ -45,73 +45,73 @@ const fields = {
 }
 
 
-const getColumns = (onEdit,onActive) => [
+const getColumns = (onEdit, onActive) => [
     { field: '_id', headerName: 'Id', hide: true },
-    { field: 'rowNo', headerName: 'Sr#', width:8,sortable:false,filterable:false },
+    { field: 'rowNo', headerName: 'Sr#', width: 8, sortable: false, filterable: false },
     {
         field: 'name', headerName: 'Template', flex: 1,
     },
-    { field: 'department', headerName: 'Department',valueGetter :({row}) => row.department.departmentName },
-    { field: 'isDefault', headerName: 'Default',renderCell: ({ row }) => (row["isDefault"] ? <Check color="success" /> : "--") },
-   {
-         field: 'isActive', headerName: 'Status', renderCell: (param) => (
-           param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
-         ),
-         // flex: '0 1 5%',
-         align: 'center',
-       },
+    { field: 'department', headerName: 'Department', valueGetter: ({ row }) => row.department.departmentName },
+    { field: 'isDefault', headerName: 'Default', renderCell: ({ row }) => (row["isDefault"] ? <Check color="success" /> : "--") },
+    {
+        field: 'isActive', headerName: 'Status', renderCell: (param) => (
+            param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
+        ),
+        // flex: '0 1 5%',
+        align: 'center',
+    },
     { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
     { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
-    getActions(null, { onEdit,onActive })
+    getActions(null, { onEdit, onActive })
 ];
 
 const DEFAULT_API = API.PipelineTemplate;
 const DEFAULT_NAME = "Pipeline Template";
 
-const AddPipelineTemplate = ({ isEdit = false,editId, openPopup, setOpenPopup }) => {
+const AddPipelineTemplate = ({ isEdit = false, editId, openPopup, setOpenPopup }) => {
     const formApi = useRef(null);
     const [loader, setLoader] = useState(false);
-    const [values,setValues] = useState({
-        name:"",
-        fkDepartmentId:null,
-        isDefault:false
+    const [values, setValues] = useState({
+        name: "",
+        fkDepartmentId: null,
+        isDefault: false
     })
-    const [errors,setErrors] = useState({});
+    const [errors, setErrors] = useState({});
     const [stages, setStages] = useState([getDefaultStages()]);
     const { Employees } = useAppSelector(e => e.appdata.employeeData);
     const { addEntity } = useEntityAction();
     const [getTemplateById] = useLazyEntityByIdQuery();
-    
+
     const handleEdit = () => {
-        getTemplateById({url:DEFAULT_API,id: editId}).then(({data})=>{
-            const {result} = data;
+        getTemplateById({ url: DEFAULT_API, id: editId }).then(({ data }) => {
+            const { result } = data;
             setValues({
-                name:result.name,
-                fkDepartmentId:result.fkDepartmentId,
-                isDefault:result.isDefault
+                name: result.name,
+                fkDepartmentId: result.fkDepartmentId,
+                isDefault: result.isDefault
             })
             setStages(result.stages);
         })
     }
-    const handleInputChange = (e)=> {
+    const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setValues({...values,[name]:value})
+        setValues({ ...values, [name]: value })
     }
     const resetState = () => {
-            setValues({name:'',fkDepartmentId:null,isDefault:false});
-            setStages(getDefaultStages())
-            setErrors({});
+        setValues({ name: '', fkDepartmentId: null, isDefault: false });
+        setStages(getDefaultStages())
+        setErrors({});
     }
     useEffect(() => {
-        if(!openPopup) return;
-        if (openPopup && !isEdit){
-           resetState();
+        if (!openPopup) return;
+        if (openPopup && !isEdit) {
+            resetState();
         }
         else {
             handleEdit()
         }
-            
-        
+
+
     }, [openPopup])
 
     const validate = () => {
@@ -124,22 +124,22 @@ const AddPipelineTemplate = ({ isEdit = false,editId, openPopup, setOpenPopup })
     };
 
     const handleSubmit = (e) => {
-        
+
         if (validate()) {
             const orderedStages = stages.map((s, i) => ({
-            ...s,
-            order: i + 1,
-            color: STAGE_COLORS[i % STAGE_COLORS.length].mid,
-        }));
-        const payload = {
+                ...s,
+                order: i + 1,
+                color: STAGE_COLORS[i % STAGE_COLORS.length].mid,
+            }));
+            const payload = {
                 ...values,
-                stages:orderedStages
-        }
+                stages: orderedStages
+            }
 
-        if (isEdit)
-        payload._id = editId
+            if (isEdit)
+                payload._id = editId
 
-        addEntity({ url: DEFAULT_API, data: [payload] });
+            addEntity({ url: DEFAULT_API, data: [payload] });
 
         }
     }
@@ -150,13 +150,13 @@ const AddPipelineTemplate = ({ isEdit = false,editId, openPopup, setOpenPopup })
             openPopup={openPopup}
             maxWidth="xl"
             isEdit={isEdit}
-            // keepMounted={true}
+            fullScreen={true}
             addOrEditFunc={handleSubmit}
             setOpenPopup={setOpenPopup}>
-            <PipelineTemplateBuilder setValues={setValues} values={values} 
-              setStages={setStages} stages={stages} 
-              handleInputChange={handleInputChange} 
-              errors={errors} setErrors={setErrors}
+            <PipelineTemplateBuilder setValues={setValues} values={values}
+                setStages={setStages} stages={stages}
+                handleInputChange={handleInputChange}
+                errors={errors} setErrors={setErrors}
             />
         </Popup>
     </>
@@ -209,13 +209,13 @@ const PipelineTemplate = () => {
     }
 
     const handleActiveInActive = (id) => {
-    updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
-  }
+        updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
+    }
 
 
     const { socketData } = useSocketIo("changeInPipeline", refetch);
 
-    const columns = getColumns(handleEdit,handleActiveInActive);
+    const columns = getColumns(handleEdit, handleActiveInActive);
 
     const handelDeleteItems = (ids) => {
         let idTobeDelete = ids;
@@ -251,8 +251,8 @@ const PipelineTemplate = () => {
 
     return (
         <>
-            <AddPipelineTemplate openPopup={openPopup} isEdit={isEdit.current} editId={editId} 
-            setOpenPopup={setOpenPopup} />
+            <AddPipelineTemplate openPopup={openPopup} isEdit={isEdit.current} editId={editId}
+                setOpenPopup={setOpenPopup} />
 
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={data}
