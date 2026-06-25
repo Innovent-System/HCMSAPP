@@ -169,6 +169,7 @@ const Speech = ({ mode = "write" }) => {
             } else if (e.error === "no-speech") {
                 // Normal — user ne kuch nahi bola, ignore karo
             }
+            alert(e.error);
             setListening(false);
             setInterimText("");
         };
