@@ -4,6 +4,7 @@ import { getApi, appSlice, empSlice } from './actions/httpactions'
 import { moduleSettingSlice } from './slicer/modulesettings'
 import { reportSlice } from './slicer/report';
 import { formSlice } from './slicer/form';
+import { attendanceSlice } from './slicer/attendance';
 
 
 export const store = configureStore({
@@ -13,7 +14,8 @@ export const store = configureStore({
     [empSlice.name]: empSlice.reducer,
     [moduleSettingSlice.name]: moduleSettingSlice.reducer,
     [reportSlice.name]: reportSlice.reducer,
-    [formSlice.name]: formSlice.reducer
+    [formSlice.name]: formSlice.reducer,
+    [attendanceSlice.name]: attendanceSlice.reducer
   },
   middleware: (getDefaulMiddleWare) => getDefaulMiddleWare({ immutableCheck: false, serializableCheck: false }).concat(getApi.middleware)
 })

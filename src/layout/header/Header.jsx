@@ -3,7 +3,7 @@ import { styled, alpha } from "@mui/material/styles";
 import {
   AppBar, Toolbar, Grid, IconButton,
   Badge, Box, Drawer, Link, Tooltip,
-  Stack, Divider, Typography,
+  Stack, Divider, Typography, ListItem, ListItemText, ListItemIcon
 } from "../../deps/ui";
 import * as iconMapping from "../../assets/icons";
 import NavItem from "./NavItem";
@@ -11,7 +11,7 @@ import {
   NotificationsNone as NotificationsNoneIcon,
   ChatBubbleOutline as ChatBubbleOutlineIcon,
   PowerSettingsNew as PowerSettingsNewIcon,
-  Menu as MenuIcon,
+  Menu as MenuIcon, Dashboard
 } from "../../deps/ui/icons";
 import Auth from "../../services/AuthenticationService";
 import { SocketContext } from "../../services/socketService";
@@ -22,12 +22,14 @@ import {
 } from "../../services/UrlService";
 import {
   AppRoutesThunk, CommonDropDownThunk, EmployeeDataThunk,
-  PayrollDataThunk, setCommand, useLazySingleQuery,
+  PayrollDataThunk, setCommand, useEntityAction, useLazySingleQuery,
 } from "../../store/actions/httpactions";
 import Logo from "../../assets/images/Innovent-logo.png";
-import { routeCommand } from "./routecommand";
+import { attendanceCommand, routeCommand } from "./routecommand";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
 import DigitalTimer from "../../components/DigitalTimer";
+import { NavLink as RouterLink } from 'react-router-dom';
+import { setMarkDetail } from "@/store/slicer/attendance";
 
 // ─── Styled AppBar ────────────────────────────────────────────────────────────
 
@@ -103,6 +105,10 @@ export default function Header() {
   const [userSignOut] = useLazySingleQuery();
   const [drawerOpen, setDrawerOpen] = React.useState(false);
 
+  const { addEntity } = useEntityAction();
+  const handleMarkAttendance = (data) => {
+    dispatch(setMarkDetail({ start: new Date(data.start), end: data.end ? new Date(data.end) : null }))
+  }
   // ── Init ──
   useEffect(() => {
     dispatch(AppRoutesThunk({ url: GET_ROUTES }))
@@ -112,7 +118,11 @@ export default function Header() {
           appRoutes: data.appRoutes,
           sideMenuData: data.sideMenuData,
         });
-        dispatch(setCommand(routeCommand(data.appRoutes, navigate)));
+        const command = [
+          ...routeCommand(data.appRoutes, navigate),
+          ...attendanceCommand({ addEntity, onSuccess: handleMarkAttendance })
+        ]
+        dispatch(setCommand(command));
         dispatch(EmployeeDataThunk({ url: GET_EMPLOYEE_DATA }));
         dispatch(PayrollDataThunk({ url: GET_PAYROLL_DATA }));
         dispatch(CommonDropDownThunk({ url: GET_REGULAR_DROPDOWN }));
@@ -301,7 +311,24 @@ export default function Header() {
           onKeyDown={() => setDrawerOpen(false)}
           sx={{ overflowY: 'auto', flex: 1 }}
         >
-          {sideMenuData?.map((item) => (
+          <ListItem
+            component={RouterLink}
+            to={`/dashboard`}
+            onClick={() => setDrawerOpen(false)}
+          >
+            <ListItemIcon sx={{ minWidth: 28 }}>
+              <Dashboard sx={{ fontSize: '0.9rem', color: 'text.secondary' }} />
+            </ListItemIcon>
+            <ListItemText
+              secondary="Dashboard"
+              secondaryTypographyProps={{
+                fontSize: '0.78rem',
+                fontWeight: 500,
+                color: 'inherit',
+              }}
+            />
+          </ListItem>
+          {sideMenuData?.filter(s => s.routeTo !== "/dashboard")?.map((item) => (
             <NavItem
               key={item.title}
               title={item.title}
