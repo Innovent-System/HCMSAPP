@@ -122,7 +122,7 @@ const Speech = ({ mode = "write" }) => {
     const getRecognition = () => {
         if (!recognitionRef.current) {
             recognitionRef.current = new window.SpeechRecognition();
-            recognitionRef.current.continuous = false;
+            recognitionRef.current.continuous = true;
             recognitionRef.current.interimResults = true;
             recognitionRef.current.lang = "en-US";
         }
