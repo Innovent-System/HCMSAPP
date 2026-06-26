@@ -118,12 +118,23 @@ const Speech = ({ mode = "write" }) => {
     const recognitionRef = useRef(null);
     const { speak, lastCommand, isReady } = useSpeechSynthesis();
 
-    // Init recognition once
+    // Mode aur speak functions ko mutable refs me rakhein taake useEffect trigger na ho
+    const modeRef = useRef(mode);
+    const speakRef = useRef(speak);
+
+    useEffect(() => {
+        modeRef.current = mode;
+        speakRef.current = speak;
+    }, [mode, speak]);
+
+    // Init recognition once with mobile specific flags
     const getRecognition = () => {
-        if (!recognitionRef.current) {
+        if (!recognitionRef.current && SUPPORTED) {
             recognitionRef.current = new window.SpeechRecognition();
-            recognitionRef.current.continuous = false;
-            recognitionRef.current.interimResults = true;
+            
+            // Mobile Optimization: continuous true aur interim false karne se stability aati h
+            recognitionRef.current.continuous = true; 
+            recognitionRef.current.interimResults = false; 
             recognitionRef.current.lang = "en-US";
         }
         return recognitionRef.current;
@@ -135,22 +146,31 @@ const Speech = ({ mode = "write" }) => {
         const recognition = getRecognition();
 
         const onResult = (event) => {
-            const result = event.results[event.results.length - 1];
-            const transcript = result[0].transcript;
+            // Mobile Chrome compatibility fix for result extraction
+            const currentResultIndex = event.resultIndex;
+            const result = event.results[currentResultIndex];
+            if (!result) return;
+            
+            const transcript = result[0].transcript.trim();
+            
+            // UI update karein text ke sath
             setInterimText(transcript);
 
             if (result.isFinal) {
-                // Write mode — fill active input / textarea
-                if (mode === "write") {
+                if (modeRef.current === "write") {
                     const tag = document.activeElement?.nodeName;
                     if (tag === "INPUT" || tag === "TEXTAREA") {
-                        document.activeElement.value += transcript;
+                        document.activeElement.value += (document.activeElement.value ? " " : "") + transcript;
                     }
                 }
 
-                setInterimText("");
-                setListening(false);
-                speak(transcript);
+                // Choti si delay taake user ko status pill me text dikhe
+                setTimeout(() => {
+                    setInterimText("");
+                    setListening(false);
+                    recognition.stop(); 
+                    speakRef.current(transcript);
+                }, 800);
             }
         };
 
@@ -164,11 +184,8 @@ const Speech = ({ mode = "write" }) => {
             if (e.error === "not-allowed") {
                 alert("Mic permission denied. Please allow microphone access.");
             } else if (e.error === "network") {
-                alert("Network error. Speech recognition needs internet connection.");
-            } else if (e.error === "no-speech") {
-                // Normal — user ne kuch nahi bola, ignore karo
+                alert("Network error. Mobile Speech API needs a stable internet connection.");
             }
-            alert(e.error);
             setListening(false);
             setInterimText("");
         };
@@ -181,25 +198,31 @@ const Speech = ({ mode = "write" }) => {
             recognition.removeEventListener("result", onResult);
             recognition.removeEventListener("end", onEnd);
             recognition.removeEventListener("error", onError);
-            recognition.stop();
+            try { recognition.stop(); } catch (err) {}
         };
-    }, [mode, speak]);
+    }, []); // Dependency array empty rakha h taake component level par event re-attach na ho
 
     const handleClick = async () => {
-        try {
-            await navigator.mediaDevices.getUserMedia({ audio: true });
-        } catch {
-            console.warn("Mic permission denied");
-            return;
-        }
-
         const recognition = getRecognition();
+        if (!recognition) return;
+
         if (listening) {
             recognition.stop();
             setListening(false);
         } else {
-            recognition.start();
-            setListening(true);
+            try {
+                // Mobile Chrome stream conflict fix:
+                // Pehle check karein permission h ya nahi, stream khuli na chodein
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                stream.getTracks().forEach(track => track.stop()); // Stream foran close karein taake recognition lock na ho
+                
+                setInterimText("Listening..."); // Mobile par user feedback zaroori h
+                setListening(true);
+                recognition.start();
+            } catch (err) {
+                console.warn("Mic permission denied or busy device", err);
+                alert("Microphone permission required.");
+            }
         }
     };
 
