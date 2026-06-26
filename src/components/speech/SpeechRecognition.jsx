@@ -157,8 +157,12 @@ const Speech = ({ mode = "write" }) => {
         };
 
         const onEnd = () => {
-            setListening(false);
-            setInterimText("");
+            if (listening) {
+                recognition.start(); // auto restart
+            } else {
+                setListening(false);
+                setInterimText("");
+            }
         };
 
         const onError = (e) => {
