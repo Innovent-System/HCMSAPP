@@ -137,7 +137,7 @@ const Speech = ({ mode = "write" }) => {
         const onResult = (event) => {
             const result = event.results[event.results.length - 1];
             const transcript = result[0].transcript;
-
+            console.log("result", { result, transcript });
             setInterimText(transcript);
 
             if (result.isFinal) {
@@ -151,6 +151,7 @@ const Speech = ({ mode = "write" }) => {
 
                 setInterimText("");
                 setListening(false);
+                console.log("Start Speak");
                 speak(transcript);
             }
         };

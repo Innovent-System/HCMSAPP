@@ -50,7 +50,7 @@ export const useSpeechSynthesis = () => {
   // ─── Core speak ─────────────────────────────────────────────────────────────
   const speak = (text, { pitch = 1, rate = 1, lang = "en-US" } = {}) => {
     if (!synthRef.current) return;
-
+    console.log(synthRef)
     // Cancel any ongoing speech first
     synthRef.current.cancel();
     const normalized = text.trim().replace(/\.+$/, "") + ".";
@@ -58,7 +58,7 @@ export const useSpeechSynthesis = () => {
     const instruction = appstate?.find((c) =>
       c.matchText?.some((regex) => regex.exec(normalized))
     );
-
+    console.log({ instruction });
     let responseText;
 
     if (instruction) {
