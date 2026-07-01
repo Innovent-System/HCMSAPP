@@ -119,11 +119,9 @@ const Speech = ({ mode = "write" }) => {
     const { speak, lastCommand, isReady } = useSpeechSynthesis();
 
     // Mode aur speak functions ko mutable refs me rakhein taake useEffect trigger na ho
-    const modeRef = useRef(mode);
     const speakRef = useRef(speak);
 
     useEffect(() => {
-        modeRef.current = mode;
         speakRef.current = speak;
     }, [mode, speak]);
 
@@ -157,10 +155,10 @@ const Speech = ({ mode = "write" }) => {
             setInterimText(transcript);
 
             if (result.isFinal) {
-                if (modeRef.current === "write") {
+                if (mode === "write") {
                     const tag = document.activeElement?.nodeName;
                     if (tag === "INPUT" || tag === "TEXTAREA") {
-                        document.activeElement.value += (document.activeElement.value ? " " : "") + transcript;
+                        document.activeElement.value += transcript;
                     }
                 }
 
