@@ -121,7 +121,7 @@ const NavItem = ({ title, routes, routeTo, icon: Icon, tabClick, isChildren = tr
                 <List disablePadding>
                     {routes?.map((route) => {
                         const InsideIcon = iconMapping[route.icon];
-                        const path = `${route?.path.substring(5).toLowerCase()}/${encodeURIComponent(route._id)}`;
+                        const path = `${route?.path.substring(5).toLowerCase()}/${encodeURIComponent(route.formId)}`;
 
                         return (
                             <StyledListItem

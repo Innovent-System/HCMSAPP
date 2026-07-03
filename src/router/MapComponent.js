@@ -7,8 +7,8 @@ export default Object.freeze({
     // 3: lazy(() => import(`../pages/Employee/Transfer`)),
     // 5: lazy(() => import(`../pages/Employee/Role`)),
     // 6: lazy(() => import(`../pages/Employee/InfoRequest`)),
-    7: lazy(() => import(`../pages/Employee/Approval`)),
     4: lazy(() => import(`../pages/Employee/ProfileRequest`)),
+    7: lazy(() => import(`../pages/Employee/Approval`)),
     8: lazy(() => import(`../pages/Employee/Settings`)),
     22: lazy(() => import(`../pages/Employee/Reports`)),
     //Attendance

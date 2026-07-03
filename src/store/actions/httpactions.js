@@ -7,7 +7,7 @@ import { getDefaultMonth } from '../../util/common';
 
 export const getApi = createApi({
   reducerPath: "resource",
-  baseQuery: fetchBaseQuery({ baseUrl: domain, credentials: "include" }),
+  baseQuery: fetchBaseQuery({ baseUrl: domain }),
   // global configuration for the api
   keepUnusedDataFor: 30,
   endpoints: (builder) => ({
@@ -79,8 +79,8 @@ export const useEntityAction = () => {
 export const AuthThunk = createAsyncThunk('auth/requestStatus', async ({ url, params }, { fulfillWithValue, rejectWithValue }) => {
   try {
 
-    const response = await axios.get(domain.concat(url), {
-      params: params,
+    const response = await axios.post(domain.concat(url), {
+      body: params,
       headers: headerOption()
     });
     const { result, message } = response.data;
@@ -90,7 +90,7 @@ export const AuthThunk = createAsyncThunk('auth/requestStatus', async ({ url, pa
       message
     })
   } catch (err) {
-    
+
     const { response } = err;
     return rejectWithValue({
       msg: (response?.data?.message ? response.data?.message : response.statusText),

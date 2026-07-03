@@ -97,17 +97,21 @@ function StatusHanlder() {
       // else if (queryNotify[keyName].status === 'fulfilled') dispatch(setGlobalLoader(false))
       if (queryNotify[keyName].status === 'rejected') {
         // dispatch(setGlobalLoader(false))
-        const { status, data: { message, result } } = queryNotify[keyName].error;
-        if (Array.isArray(result)) {
-          setErrors(result);
-          setOpenPopup(true);
+        const { status, data } = queryNotify[keyName]?.error;
+        if (data) {
+          const { message, result } = data;
+          if (Array.isArray(result)) {
+            setErrors(result);
+            setOpenPopup(true);
+          }
+          else if (message) {
+            enqueueSnackbar(message, {
+              variant: "error",
+              action
+            });
+          }
         }
-        else if (message) {
-          enqueueSnackbar(message, {
-            variant: "error",
-            action
-          });
-        }
+
 
         if (status === 401) {
 
