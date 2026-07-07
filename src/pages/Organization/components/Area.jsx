@@ -77,7 +77,7 @@ const getColumns = (apiRef, onEdit, onActive) => {
     {
       field: 'detail',
       headerName: 'Detail',
-      flex:1,
+      flex: 1,
       renderCell: CombineDetail
     },
     getActions(apiRef, actionKit)
@@ -99,9 +99,9 @@ export const AddArea = ({ openPopup, setOpenPopup, isEdit = false, row = null })
       setFilter(countries.find(c => c._id === row.country_id), filterType.COUNTRY, "id", (data) => {
         const { states, cities } = data;
         setFormValue({
-          fkCountryId: countries.find(c => c._id === row.country_id),
-          fkStateId: states.find(s => s._id === row.state_id),
-          fkCityId: cities.find(ct => ct._id === row.city_id),
+          fkCountryId: countries.find(c => c.id === row.countryId),
+          fkStateId: states.find(s => s.id === row.stateId),
+          fkCityId: cities.find(ct => ct.id === row.cityId),
           areaName: row.areaName
         });
       });
@@ -112,13 +112,14 @@ export const AddArea = ({ openPopup, setOpenPopup, isEdit = false, row = null })
     const { getValue, validateFields } = formApi.current
     if (validateFields()) {
       let values = getValue();
-      let dataToInsert = { ...values };
-      dataToInsert.areaHead = dataToInsert.areaHead?._id ?? null;
-      dataToInsert.country = { country_id: values.fkCountryId._id, countryName: values.fkCountryId.name, intId: values.fkCountryId.id };
-      dataToInsert.state = { state_id: values.fkStateId._id, stateName: values.fkStateId.name, intId: values.fkStateId.id };
-      dataToInsert.city = { city_id: values.fkCityId._id, cityName: values.fkCityId.name, intId: values.fkCityId.id };
+      let dataToInsert = { name: values.areaName };
+
+      dataToInsert.areaHead = dataToInsert.areaHead?.id ?? null;
+      dataToInsert.countryId = values.fkCountryId.id;
+      dataToInsert.stateId = values.fkStateId.id;
+      dataToInsert.cityId = values.fkCityId.id;
       if (isEdit)
-        dataToInsert._id = editId
+        dataToInsert.id = editId
 
       addEntity({ url: DEFAULT_API, data: [dataToInsert] }).then(r => {
         if (r?.data) setOpenPopup(false);
@@ -257,7 +258,7 @@ const Area = () => {
   }
 
   const handleActiveInActive = (id) => {
-    updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
+    updateOneEntity({ url: DEFAULT_API, data: { id } });
   }
 
   const handelDeleteItems = (ids) => {

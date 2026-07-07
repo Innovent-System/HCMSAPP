@@ -9,6 +9,7 @@ import DataGrid, { useGridApi, getActions, GridToolbar } from '../../../../compo
 import { useSocketIo } from '../../../../components/useSocketio';
 import ConfirmDialog from '../../../../components/ConfirmDialog';
 import { useAppDispatch, useAppSelector } from "../../../../store/storehook";
+import { formateISODateTime } from "@/services/dateTimeService";
 
 
 const fields = {
@@ -45,10 +46,11 @@ const getColumns = (apiRef, onEdit, onActive) => {
     return [
         { field: '_id', headerName: 'Id', hide: true, hideable: false },
         {
-            field: 'groupName', headerName: 'Group', width: 180, hideable: false
+            field: 'name', headerName: 'Group', width: 180, hideable: false
         },
-        { field: 'modifiedOn', headerName: 'Modified On', hideable: false },
-        { field: 'createdOn', headerName: 'Created On', hideable: false },
+        { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedAt) },
+        { field: 'createdOn', sortingOrder: ["desc"], headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdAt) },
+
         {
             field: 'isActive', headerName: 'Status', renderCell: (param) => (
                 param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
@@ -73,7 +75,7 @@ export const AddGroup = ({ openPopup, setOpenPopup, isEdit = false, row = null }
             resetForm();
         else {
             setFormValue({
-                groupName: row.groupName
+                name: row.name
             });
         }
     }, [openPopup, formApi])
@@ -83,9 +85,9 @@ export const AddGroup = ({ openPopup, setOpenPopup, isEdit = false, row = null }
         if (validateFields()) {
             let values = getValue();
             let dataToInsert = {};
-            dataToInsert.groupName = values.groupName;
+            dataToInsert.name = values.name;
             if (isEdit)
-                dataToInsert._id = editId
+                dataToInsert.id = editId
 
             addEntity({ url: DEFAULT_API, data: [dataToInsert] });
 
@@ -95,7 +97,7 @@ export const AddGroup = ({ openPopup, setOpenPopup, isEdit = false, row = null }
     const formData = [
         {
             elementType: "inputfield",
-            name: "groupName",
+            name: "name",
             label: "Group",
             required: true,
             validate: {
@@ -168,7 +170,7 @@ const Group = () => {
     }
 
     const handleActiveInActive = (id) => {
-        updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
+        updateOneEntity({ url: DEFAULT_API, data: { id } });
     }
 
     const handelDeleteItems = (ids) => {
@@ -222,7 +224,7 @@ const Group = () => {
                 gridToolBar={GridToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
-                
+
             />
             <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
         </>

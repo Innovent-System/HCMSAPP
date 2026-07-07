@@ -13,6 +13,7 @@ import { useAppDispatch, useAppSelector } from "../../../../store/storehook";
 import { useExcelReader } from "../../../../hooks/useExcelReader";
 import { useFileConfig } from "../../../../hooks/useFileConfig";
 import Loader from '../../../../components/Circularloading'
+import { formateISODateTime } from "@/services/dateTimeService";
 
 
 const fields = {
@@ -51,8 +52,9 @@ const getColumns = (apiRef, onEdit, onActive) => {
         {
             field: 'name', headerName: 'Designation', width: 220, hideable: false
         },
-        { field: 'modifiedOn', headerName: 'Modified On', hideable: false },
-        { field: 'createdOn', headerName: 'Created On', hideable: false },
+        { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedAt) },
+        { field: 'createdOn', sortingOrder: ["desc"], headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdAt) },
+
         {
             field: 'isActive', headerName: 'Status', renderCell: (param) => (
                 param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
@@ -103,7 +105,7 @@ export const AddDesignation = ({ openPopup, setOpenPopup, isEdit = false, row = 
             let dataToInsert = {};
             dataToInsert.name = values.name;
             if (isEdit)
-                dataToInsert._id = editId
+                dataToInsert.id = editId
 
             addEntity({ url: DEFAULT_API, data: [dataToInsert] });
 
@@ -177,7 +179,7 @@ const Designation = () => {
     }
 
     const handleActiveInActive = (id) => {
-        updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
+        updateOneEntity({ url: DEFAULT_API, data: { id } });
     }
 
     const handelDeleteItems = (ids) => {

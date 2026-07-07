@@ -9,6 +9,7 @@ import DataGrid, { useGridApi, getActions, GridToolbar } from '../../../componen
 import { useSocketIo } from '../../../components/useSocketio';
 import ConfirmDialog from '../../../components/ConfirmDialog';
 import { useAppDispatch, useAppSelector } from "../../../store/storehook";
+import { formateISODateTime } from "@/services/dateTimeService";
 
 const fields = {
     name: {
@@ -53,10 +54,11 @@ const getColumns = (apiRef, onEdit, onActive) => {
             field: 'name', headerName: 'Name', width: 180
         },
         {
-            field: 'company', headerName: 'Company', width: 180, valueGetter: ({ row }) => row.company.companyName
+            field: 'companyName', headerName: 'Company', width: 180
         },
-        { field: 'modifiedOn', headerName: 'Modified On' },
-        { field: 'createdOn', headerName: 'Created On', sortingOrder: ["desc"] },
+        { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedAt) },
+        { field: 'createdOn', sortingOrder: ["desc"], headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdAt) },
+
         {
             field: 'isActive', headerName: 'Status', renderCell: (param) => (
                 param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
@@ -71,7 +73,7 @@ let editId = 0;
 const DEFAULT_API = API.COUNTRY;
 export const AddCountry = ({ openPopup, setOpenPopup, isEdit = false, row = null }) => {
     const formApi = useRef(null);
-    const Companies = useAppSelector(e => e.appdata.DropDownData?.Companies);
+    const Companies = useAppSelector(e => e.appdata.DropDownData?.companies);
     const dispatch = useAppDispatch();
     const [getAllCountry] = useLazySingleQuery()
     const [countryData, setCountryData] = useState([]);
@@ -87,10 +89,10 @@ export const AddCountry = ({ openPopup, setOpenPopup, isEdit = false, row = null
         if (openPopup && !isEdit)
             resetForm();
         else {
-            const { fkCompanyId, intId } = row;
+            const { companyId, masterCountryId } = row;
             setFormValue({
-                company: Companies.find(c => c._id === fkCompanyId),
-                country: countryData.find(c => c.id === intId)
+                company: Companies.find(c => c.id === companyId),
+                country: countryData.find(c => c.id === masterCountryId)
             });
         }
     }, [openPopup, formApi])
@@ -130,11 +132,12 @@ export const AddCountry = ({ openPopup, setOpenPopup, isEdit = false, row = null
         const { getValue, validateFields } = formApi.current
         if (validateFields()) {
             let values = getValue();
-            const { _id, ...country } = values.country;
-            let dataToInsert = country;
-            dataToInsert.fkCompanyId = values.company._id;
+            const { id, ...country } = values.country;
+            let dataToInsert = {};
+            dataToInsert.companyId = values.company.id;
+            dataToInsert.masterCountryId = id
             if (isEdit)
-                dataToInsert._id = editId
+                dataToInsert.id = editId
 
             addEntity({ url: DEFAULT_API, data: [dataToInsert] }).then(r => {
                 if (r?.data) setOpenPopup(false);
@@ -201,7 +204,7 @@ const Country = () => {
     }
 
     const handleActiveInActive = (id) => {
-        updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
+        updateOneEntity({ url: DEFAULT_API, data: { id } });
     }
 
     const handelDeleteItems = (ids) => {

@@ -145,8 +145,7 @@ const Speech = ({ mode = "write" }) => {
 
         const onResult = (event) => {
             // Mobile Chrome compatibility fix for result extraction
-            const currentResultIndex = event.resultIndex;
-            const result = event.results[currentResultIndex];
+            const result =   event.results[event.results.length - 1];
             if (!result) return;
             
             const transcript = result[0].transcript.trim();
@@ -212,7 +211,7 @@ const Speech = ({ mode = "write" }) => {
                 // Mobile Chrome stream conflict fix:
                 // Pehle check karein permission h ya nahi, stream khuli na chodein
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                stream.getTracks().forEach(track => track.stop()); // Stream foran close karein taake recognition lock na ho
+                //stream.getTracks().forEach(track => track.stop()); // Stream foran close karein taake recognition lock na ho
                 
                 setInterimText("Listening..."); // Mobile par user feedback zaroori h
                 setListening(true);

@@ -115,9 +115,12 @@ export const AppRoutesThunk = createAsyncThunk('approute/requestStatus', async (
   } catch (err) {
     const { response } = err;
     return rejectWithValue({
-      msg: (response.data?.message ? response.data?.message : response.message),
-      code: response.status
-    })
+      status: response.status,
+      data: {
+        message: response.data?.message || response.message,
+        result: response.data?.result
+      }
+    });
   }
 })
 
@@ -190,22 +193,22 @@ const INITIAL_STATE = {
   status: false,
   isLoading: false,
   DropDownData: {
-    Countries: [],
-    States: [],
-    Cities: [],
-    Companies: [],
-    Areas: [],
-    Departments: []
+    countries: [],
+    states: [],
+    cities: [],
+    companies: [],
+    areas: [],
+    departments: []
   },
   employeeData: {
-    Employees: [],
-    Designations: [], Groups: [], RoleTemplates: [], Schedules: [], AttendanceFlag: [], Religion: [],
-    EmployeeStatus: [], LeaveAccural: []
+    employees: [],
+    designations: [], groups: [], roleTemplates: [], schedules: [], attendanceFlags: [], religions: [],
+    employeeStatus: [], leaveAccurals: []
   },
   payrollData: {
-    AllowancesTitle: [],
-    DeductionsTitle: [],
-    PayrollSetups: []
+    allowancesTitle: [],
+    deductionsTitle: [],
+    payrollSetups: []
   },
   routeData: {
     sideMenuData: [],

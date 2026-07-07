@@ -57,8 +57,8 @@ const getColumns = (apiRef, onEdit, onActive) => {
         {
             field: 'shiftTime', headerName: 'Shift Time', width: 180, hideable: false, valueGetter: ({ row }) => formateISOTime(row.startTime) + " - " + formateISOTime(row.endTime)
         },
-        { field: 'modifiedOn', headerName: 'Modified On', hideable: false, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
-        { field: 'createdOn', headerName: 'Created On', hideable: false, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
+        { field: 'modifiedOn', headerName: 'Modified On', hideable: false, valueGetter: ({ row }) => formateISODateTime(row.modifiedAt) },
+        { field: 'createdOn', headerName: 'Created On', hideable: false, valueGetter: ({ row }) => formateISODateTime(row.createdAt) },
         {
             field: 'isActive', headerName: 'Active', renderCell: (param) => (
                 param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
@@ -98,7 +98,7 @@ let editId = 0;
 export const AddShift = ({ openPopup, setOpenPopup, isEdit = false, row = null }) => {
     const { addEntity } = useEntityAction();
 
-    const attendanceFlag = useAppSelector(e => e.appdata.employeeData?.AttendanceFlag)
+    const attendanceFlag = useAppSelector(e => e.appdata.employeeData?.attendanceFlags)
 
 
     const [flagRows, setFlagRow] = useState([...attendanceFlag]);
@@ -119,7 +119,7 @@ export const AddShift = ({ openPopup, setOpenPopup, isEdit = false, row = null }
                 minTime: parseTime(row.minTime),
                 maxTime: parseTime(row.maxTime)
             });
-            setFlagRow(row.attendanceflag.map(a => ({ ...a, name: attendanceFlag.find(c => c.flagCode === a.flagCode).name, id: a._id })));
+            setFlagRow(row.attendanceFlag?.length ? row.attendanceFlag : attendanceFlag);
         }
     }, [openPopup, formApi])
 
@@ -148,9 +148,9 @@ export const AddShift = ({ openPopup, setOpenPopup, isEdit = false, row = null }
             values.maxTime = systemTime(values.maxTime);
 
             if (isEdit)
-                values._id = editId
+                values.id = editId
 
-            addEntity({ url: DEFAULT_API, data: [{ ...values, attendanceflag: flagRows }] });
+            addEntity({ url: DEFAULT_API, data: [{ ...values, shiftDetail: flagRows.map((e, index) => ({ ...e, shiftMasterId: values?.id ?? 0, order: index + 1, attendanceFlagId: e.id })) }] });
         }
     }
 
@@ -298,11 +298,7 @@ const Shift = () => {
 
     const { updateOneEntity, removeEntity } = useEntityAction();
 
-
-
     const { socketData } = useSocketIo("changeInShift", refetch);
-
-
 
     const handleEdit = (id) => {
         isEdit.current = true;
@@ -312,7 +308,7 @@ const Shift = () => {
     }
 
     const handleActiveInActive = (id) => {
-        updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
+        updateOneEntity({ url: DEFAULT_API, data: { id } });
     }
 
     const handelDeleteItems = (ids) => {

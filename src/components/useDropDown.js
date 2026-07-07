@@ -98,12 +98,12 @@ export const useDropDown = () => {
     }
 
     const getDefaultState = () => {
-        setCompanies(DropDownData.Companies);
-        setCountries(DropDownData.Countries);
-        setStates(DropDownData.States);
-        setCities(DropDownData.Cities);
-        setAreas(DropDownData.Areas);
-        setEmployees(employeeData.Employees);
+        setCompanies(DropDownData.companies);
+        setCountries(DropDownData.countries);
+        setStates(DropDownData.states);
+        setCities(DropDownData.cities);
+        setAreas(DropDownData.areas);
+        setEmployees(employeeData.employees);
     }
 
     useMemo(() => {
@@ -126,34 +126,34 @@ export const useDropDown = () => {
         switch (filter.type) {
             case filterTypes.COMPANY:
                 if (ids.length) {
-                    ids = DropDownData.Countries.filter(f => ids.indexOf(f.fkCompanyId) !== -1).map(c => c.id);
-                    count = DropDownData.Countries.length;
+                    ids = DropDownData.countries.filter(f => ids.indexOf(f.companyId) !== -1).map(c => c.id);
+                    count = DropDownData.countries.length;
                     while (count--) {
-                        const element = DropDownData.Countries[count];
+                        const element = DropDownData.countries[count];
                         if (ids.indexOf(element.id) !== -1) {
                             _countries.push(element);
                         }
                     }
-                    count = DropDownData.States.length;
+                    count = DropDownData.states.length;
                     while (count--) {
-                        const element = DropDownData.States[count];
-                        if (ids.indexOf(element.country_id) !== -1) {
+                        const element = DropDownData.states[count];
+                        if (ids.indexOf(element.countryId) !== -1) {
                             _states.push(element);
                         }
                     }
-                    count = DropDownData.Cities.length;
+                    count = DropDownData.cities.length;
                     while (count--) {
-                        const element = DropDownData.Cities[count];
-                        if (ids.indexOf(element.country_id) !== -1) {
+                        const element = DropDownData.cities[count];
+                        if (ids.indexOf(element.countryId) !== -1) {
                             _cities.push(element);
                         }
                     }
-                    count = DropDownData.Areas.length;
+                    count = DropDownData.areas.length;
                     while (count--) {
-                        const element = DropDownData.Areas[count];
-                        if (ids.indexOf(element.country.intId) !== -1) {
+                        const element = DropDownData.areas[count];
+                        if (ids.indexOf(element.countryId) !== -1) {
                             _areas.push(element);
-                            _areaIds[element._id] = element._id;
+                            _areaIds[element.id] = element.id;
                         }
                     }
                 }
@@ -164,20 +164,20 @@ export const useDropDown = () => {
                 break;
             case filterTypes.COUNTRY:
                 if (ids.length) {
-                    count = DropDownData.States.length;
+                    count = DropDownData.states.length;
                     while (count--) {
-                        const element = DropDownData.States[count];
-                        if (ids.indexOf(element.country_id) !== -1) _states.push(element);
+                        const element = DropDownData.states[count];
+                        if (ids.indexOf(element.countryId) !== -1) _states.push(element);
                     }
-                    count = DropDownData.Cities.length;
+                    count = DropDownData.cities.length;
                     while (count--) {
-                        const element = DropDownData.Cities[count];
-                        if (ids.indexOf(element.country_id) !== -1) _cities.push(element);
+                        const element = DropDownData.cities[count];
+                        if (ids.indexOf(element.countryId) !== -1) _cities.push(element);
                     }
-                    count = DropDownData.Areas.length;
+                    count = DropDownData.areas.length;
                     while (count--) {
-                        const element = DropDownData.Areas[count];
-                        if (ids.indexOf(element.country.intId) !== -1) { _areas.push(element); _areaIds[element._id] = element._id; }
+                        const element = DropDownData.areas[count];
+                        if (ids.indexOf(element.countryId) !== -1) { _areas.push(element); _areaIds[element.id] = element.id; }
                     }
                 }
                 setStates(_states);
@@ -186,15 +186,15 @@ export const useDropDown = () => {
                 break;
             case filterTypes.STATE:
                 if (ids.length) {
-                    count = DropDownData.Cities.length;
+                    count = DropDownData.cities.length;
                     while (count--) {
-                        const element = DropDownData.Cities[count];
-                        if (ids.indexOf(element.state_id) !== -1) _cities.push(element);
+                        const element = DropDownData.cities[count];
+                        if (ids.indexOf(element.stateId) !== -1) _cities.push(element);
                     }
-                    count = DropDownData.Areas.length;
+                    count = DropDownData.areas.length;
                     while (count--) {
-                        const element = DropDownData.Areas[count];
-                        if (ids.indexOf(element.state.intId) !== -1) { _areas.push(element); _areaIds[element._id] = element._id };
+                        const element = DropDownData.areas[count];
+                        if (ids.indexOf(element.stateId) !== -1) { _areas.push(element); _areaIds[element.id] = element.id };
                     }
                 }
                 setCities(_cities);
@@ -202,11 +202,11 @@ export const useDropDown = () => {
                 break;
             case filterTypes.CITY:
                 if (ids.length) {
-                    count = DropDownData.Areas.length;
-                    ids = filter.data.map(d => d._id);
+                    count = DropDownData.areas.length;
+                    ids = filter.data.map(d => d.id);
                     while (count--) {
-                        const element = DropDownData.Areas[count];
-                        if (ids.indexOf(element.city.city_id) !== -1) { _areas.push(element); _areaIds[element._id] = element._id; };
+                        const element = DropDownData.areas[count];
+                        if (ids.indexOf(element.cityId) !== -1) { _areas.push(element); _areaIds[element.id] = element.id; };
                     }
                 }
                 setAreas(_areas);
@@ -227,18 +227,18 @@ export const useDropDown = () => {
         };
 
         if (!["employee", "year", "month"].includes(filter.type)) {
-            count = employeeData.Employees.length;
+            count = employeeData.employees.length;
             while (count--) {
-                const element = employeeData.Employees[count];
+                const element = employeeData.employees[count];
 
-                if ((!hasFilters.company || _companyIds[element.fkCompanyId]) &&
-                    (!hasFilters.country || _countryIds[element.companyInfo.fkCountryId]) &&
-                    (!hasFilters.state || _stateIds[element.companyInfo.fkStateId]) &&
-                    (!hasFilters.city || _cityIds[element.companyInfo.fkCityId]) &&
-                    (!hasFilters.area || _areaIds[element.companyInfo.fkAreaId]) &&
-                    (!hasFilters.department || _departmentIds[element.companyInfo.fkDepartmentId]) &&
-                    (!hasFilters.group || _groupIds[element.companyInfo.fkEmployeeGroupId]) &&
-                    (!hasFilters.designation || _designationIds[element.companyInfo.fkDesignationId])
+                if ((!hasFilters.company || _companyIds[element.companyId]) &&
+                    (!hasFilters.country || _countryIds[element.countryId]) &&
+                    (!hasFilters.state || _stateIds[element.stateId]) &&
+                    (!hasFilters.city || _cityIds[element.cityId]) &&
+                    (!hasFilters.area || _areaIds[element.areaId]) &&
+                    (!hasFilters.department || _departmentIds[element.departmentId]) &&
+                    (!hasFilters.group || _groupIds[element.employeeGroupId]) &&
+                    (!hasFilters.designation || _designationIds[element.designationId])
                 ) {
                     _employees.push(element);
                 }
@@ -259,15 +259,15 @@ export const useDropDown = () => {
         states,
         cities,
         areas,
-        departments: DropDownData.Departments,
-        groups: employeeData.Groups,
-        designations: employeeData.Designations,
+        departments: DropDownData.departments,
+        groups: employeeData.groups,
+        designations: employeeData.designations,
         employees,
-        roleTemplates: employeeData.RoleTemplates,
-        schedules: employeeData.Schedules,
-        religion: employeeData.Religion,
-        employeeStatus: employeeData.EmployeeStatus,
-        leaveAccural: employeeData.LeaveAccural,
+        roleTemplates: employeeData.roleTemplates,
+        schedules: employeeData.schedules,
+        religion: employeeData.religions,
+        employeeStatus: employeeData.employeeStatus,
+        leaveAccural: employeeData.leaveAccurals,
         years: _years,
         months: _months,
         setFilter: handleFilter,
@@ -340,8 +340,8 @@ export const DROPDOWN_PROPS = {
         name: "company",
         label: "Company",
         isMultiple: false,
-        dataId: '_id',
-        dataName: 'companyName',
+        dataId: 'id',
+        dataName: 'name',
         defaultValue: []
     },
     [COUNTRY]: {
@@ -349,7 +349,7 @@ export const DROPDOWN_PROPS = {
         name: "country",
         label: "Country",
         isMultiple: true,
-        dataId: '_id',
+        dataId: 'id',
         dataName: 'name',
         defaultValue: []
     },
@@ -358,7 +358,7 @@ export const DROPDOWN_PROPS = {
         name: "state",
         label: "State",
         isMultiple: true,
-        dataId: '_id',
+        dataId: 'id',
         dataName: "name",
         defaultValue: []
     },
@@ -367,7 +367,7 @@ export const DROPDOWN_PROPS = {
         name: "city",
         label: "City",
         isMultiple: true,
-        dataId: '_id',
+        dataId: 'id',
         dataName: "name",
         defaultValue: []
     },
@@ -375,9 +375,9 @@ export const DROPDOWN_PROPS = {
         elementType: "ad_dropdown",
         name: "area",
         label: "Area",
-        dataId: '_id',
+        dataId: 'id',
         isMultiple: true,
-        dataName: "areaName",
+        dataName: "name",
         defaultValue: []
     },
     [DEPARTMENT]: {
@@ -385,7 +385,7 @@ export const DROPDOWN_PROPS = {
         name: "department",
         label: "Department",
         isMultiple: true,
-        dataId: '_id',
+        dataId: 'id',
         dataName: "departmentName",
         defaultValue: []
     },
@@ -394,8 +394,8 @@ export const DROPDOWN_PROPS = {
         name: "group",
         label: "Group",
         isMultiple: true,
-        dataId: '_id',
-        dataName: "groupName",
+        dataId: 'id',
+        dataName: "name",
         defaultValue: []
     },
     [DESIGNATION]: {
@@ -403,7 +403,7 @@ export const DROPDOWN_PROPS = {
         name: "designation",
         label: "Designation",
         isMultiple: true,
-        dataId: '_id',
+        dataId: 'id',
         dataName: "name",
         defaultValue: []
     },
@@ -412,7 +412,7 @@ export const DROPDOWN_PROPS = {
         name: "employee",
         label: "Employees",
         isMultiple: true,
-        dataId: '_id',
+        dataId: 'id',
         dataName: "fullName",
         defaultValue: []
     },

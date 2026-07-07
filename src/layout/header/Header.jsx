@@ -127,7 +127,7 @@ export default function Header() {
         dispatch(PayrollDataThunk({ url: GET_PAYROLL_DATA }));
         dispatch(CommonDropDownThunk({ url: GET_REGULAR_DROPDOWN }));
       });
-    return () => socket.off("leave");
+
   }, []);
 
   // ── Socket listeners ──
@@ -161,18 +161,14 @@ export default function Header() {
       socket.off("changeInDesignation", employeeHandler);
       socket.off("changeInSchedule", employeeHandler);
     };
-  }, [socket]);
+  }, []);
 
   // ── Logout ──
   const handleLogout = () => {
     userSignOut({ url: API_USER_LOGOUT }).then(({ isSuccess }) => {
       if (isSuccess) {
-        const info = Auth.getitem("userInfo") || {};
         Auth.remove("appConfigData");
-        socket.emit("leaveclient", info.clientId);
-        socket.emit("leavecompany", info.companyId);
-        socket.off("leaveclient");
-        socket.off("leavecompany");
+        socket.stop();
         sessionStorage.clear();
         navigate("/");
       }
@@ -328,7 +324,7 @@ export default function Header() {
               }}
             />
           </ListItem>
-          {sideMenuData?.filter(s => s.routeTo !== "/dashboard")?.map((item) => (
+          {sideMenuData?.filter(s => s.id !== 1)?.map((item) => (
             <NavItem
               key={item.title}
               title={item.title}

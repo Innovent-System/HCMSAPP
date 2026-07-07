@@ -1,6 +1,6 @@
 export const API = {
     COUNTRY: "organization/country",
-    ALL_COUNTRY: "common/getAllCountry",
+    ALL_COUNTRY: "common/allcountries",
     AREA: "organization/area",
     COMPANY: "organization/company",
     Department: "organization/department",

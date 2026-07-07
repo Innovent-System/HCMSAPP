@@ -27,8 +27,8 @@ const getColumns = (apiRef, onEdit, onActive) => {
         {
             field: 'name', headerName: 'Name', flex: 1, hideable: false
         },
-        { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
-        { field: 'createdOn', headerName: 'Created On', flex: 1, sortingOrder: ["desc"], valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
+        { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedAt) },
+        { field: 'createdOn', headerName: 'Created On', flex: 1, sortingOrder: ["desc"], valueGetter: ({ row }) => formateISODateTime(row.createdAt) },
         {
             field: 'isActive', headerName: 'Status', renderCell: (param) => (
                 param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
@@ -95,7 +95,7 @@ const CrudUI = ({ DEFAULT_API, DEFAULT_NAME, fields, socketName }) => {
     }
 
     const handleActiveInActive = (id) => {
-        updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
+        updateOneEntity({ url: DEFAULT_API, data: { id } });
     }
 
     const handelDeleteItems = (ids) => {
@@ -133,7 +133,7 @@ const CrudUI = ({ DEFAULT_API, DEFAULT_NAME, fields, socketName }) => {
             let dataToInsert = {};
             dataToInsert.name = values.name;
             if (isEdit.current)
-                dataToInsert._id = editId
+                dataToInsert.id = editId
 
             addEntity({ url: DEFAULT_API, data: [dataToInsert] }).then(r => {
                 if (r?.data) setOpenPopup(false);

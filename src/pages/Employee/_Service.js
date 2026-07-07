@@ -1,5 +1,5 @@
 export const API = {
-    Employee: "employee/list",
+    Employee: "employee",
     EmployeeListReport: "employee/report/list",
     Approval: "employee/approval",
     ProfileRequest: "employee/profile",

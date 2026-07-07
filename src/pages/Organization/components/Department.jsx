@@ -247,7 +247,7 @@ const AddDepartment = ({ openPopup, excelConfig, setOpenPopup, isEdit = false, r
             }
             dataToInsert.designations = dataSet;
             if (isEdit)
-                dataToInsert._id = editId
+                dataToInsert.id = editId
 
             addEntity({ url: DEFAULT_API, data: [dataToInsert] }).finally(c => {
                 setOpenPopup(false);
@@ -336,7 +336,7 @@ const Department = () => {
     }
 
     const handleActiveInActive = (id) => {
-        updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
+        updateOneEntity({ url: DEFAULT_API, data: { id } });
     }
 
     const handelDeleteItems = (ids) => {

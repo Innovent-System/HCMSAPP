@@ -112,23 +112,23 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, current
         firstName: values.firstName,
         lastName: values.lastName,
         isAllowLogin: values.isAllowLogin,
-        fkCompanyId: companies.find(c => c._id === values.fkCompanyId),
+        fkCompanyId: companies.find(c => c.id === values.fkCompanyId),
         maritalstatus: values.generalInfo.maritalstatus,
         email: values.generalInfo.email,
         gender: values.generalInfo.gender,
         dateofBirth: new Date(values.generalInfo.dateofBirth),
         fkReligionId: values.generalInfo?.fkReligionId ?? null,
         nic: values.generalInfo.nic,
-        fkAreaId: areas.find(a => a._id === values.companyInfo.fkAreaId),
-        fkCityId: cities.find(a => a._id === values.companyInfo.fkCityId),
-        fkCountryId: countries.find(c => c._id === values.companyInfo.fkCountryId),
-        fkDepartmentId: departments.find(d => d._id === values.companyInfo.fkDepartmentId),
-        fkDesignationId: designations.find(d => d._id === values.companyInfo.fkDesignationId),
-        fkEmployeeGroupId: groups.find(g => g._id === values.companyInfo.fkEmployeeGroupId),
-        fkEmployeeStatusId: employeeStatus.find(e => e._id === values.companyInfo.fkEmployeeStatusId) ?? null,
-        fkStateId: states.find(s => s._id === values.companyInfo.fkStateId),
-        scheduleId: schedules.find(s => s._id === values?.scheduleId) ?? null,
-        fkManagerId: employees.find(e => e._id === values.companyInfo?.fkManagerId) ?? null,
+        fkAreaId: areas.find(a => a.id === values.companyInfo.fkAreaId),
+        fkCityId: cities.find(a => a.id === values.companyInfo.fkCityId),
+        fkCountryId: countries.find(c => c.id === values.companyInfo.fkCountryId),
+        fkDepartmentId: departments.find(d => d.id === values.companyInfo.fkDepartmentId),
+        fkDesignationId: designations.find(d => d.id === values.companyInfo.fkDesignationId),
+        fkEmployeeGroupId: groups.find(g => g.id === values.companyInfo.fkEmployeeGroupId),
+        fkEmployeeStatusId: employeeStatus.find(e => e.id === values.companyInfo.fkEmployeeStatusId) ?? null,
+        fkStateId: states.find(s => s.id === values.companyInfo.fkStateId),
+        scheduleId: schedules.find(s => s.id === values?.scheduleId) ?? null,
+        fkManagerId: employees.find(e => e.id === values.companyInfo?.fkManagerId) ?? null,
         fkRoleTemplateId: values.companyInfo?.fkRoleTemplateId ?? '',
         joiningDate: new Date(values.companyInfo.joiningDate),
         confirmationDate: values.companyInfo.confirmationDate ? new Date(values.companyInfo.confirmationDate) : null,
@@ -267,7 +267,7 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, current
           label: "Reports To",
           breakpoints,
           dataName: 'fullName',
-          dataId: '_id',
+          dataId: 'id',
           options: employees,
           defaultValue: null,
           excel: {
@@ -309,7 +309,7 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, current
           name: "fkReligionId",
           label: "Religion",
           breakpoints,
-          dataId: "_id",
+          dataId: "id",
           dataName: "name",
           defaultValue: emptyString,
           options: religion,
@@ -370,7 +370,7 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, current
           name: "fkRoleTemplateId",
           label: "User Template",
           breakpoints,
-          dataId: "_id",
+          dataId: "id",
           dataName: "templateName",
           disabled: (value) => value["isAllowLogin"] === false,
           defaultValue: emptyString,
@@ -396,9 +396,9 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, current
             errorMessage: "Company is required",
           },
           dataName: 'companyName',
-          dataId: '_id',
+          dataId: 'id',
           options: companies,
-          onChange: (data) => setFilter(data, filterType.COMPANY, "_id"),
+          onChange: (data) => setFilter(data, filterType.COMPANY, "id"),
           defaultValue: companies?.length ? companies[0] : null,
           excel: {
             sampleData: "Company"
@@ -418,7 +418,7 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, current
             errorMessage: "Country is required",
           },
           dataName: 'name',
-          dataId: '_id',
+          dataId: 'id',
           options: countries,
           onChange: (data) => setFilter(data, filterType.COUNTRY, "id"),
           defaultValue: countries?.length ? countries[0] : null,
@@ -433,7 +433,7 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, current
           breakpoints,
           required: true,
           dataName: "name",
-          dataId: '_id',
+          dataId: 'id',
           validate: {
             when: 1,
             errorMessage: "State is required",
@@ -451,9 +451,9 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, current
           label: "City",
           breakpoints,
           required: true,
-          dataId: '_id',
+          dataId: 'id',
           dataName: "name",
-          onChange: (data) => setFilter(data, filterType.CITY, "_id"),
+          onChange: (data) => setFilter(data, filterType.CITY, "id"),
           validate: {
             when: 1,
             errorMessage: "City is required",
@@ -473,8 +473,8 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, current
           },
           breakpoints,
           required: true,
-          dataId: '_id',
-          dataName: "areaName",
+          dataId: 'id',
+          dataName: "name",
           validate: {
             when: 1,
             errorMessage: "Area is required",
@@ -491,8 +491,8 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, current
           label: "Group",
           breakpoints,
           required: true,
-          dataId: '_id',
-          dataName: "groupName",
+          dataId: 'id',
+          dataName: "name",
           validate: {
             when: 1,
             errorMessage: "Group is required",
@@ -510,7 +510,7 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, current
           breakpoints,
           required: true,
           dataName: "departmentName",
-          dataId: '_id',
+          dataId: 'id',
           // modal: {
           //   Component: <AddModal name="country" />,
           // },
@@ -529,7 +529,7 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, current
           name: "fkDesignationId",
           label: "Designation",
           breakpoints,
-          dataId: '_id',
+          dataId: 'id',
           dataName: "name",
           options: designations,
           defaultValue: null,
@@ -548,7 +548,7 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, current
             when: 1,
             errorMessage: "Schedule is required",
           },
-          dataId: '_id',
+          dataId: 'id',
           dataName: "scheduleName",
           options: schedules,
           defaultValue: null,
@@ -601,7 +601,7 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, current
             errorMessage: "Employee Status is required",
           },
           breakpoints,
-          dataId: '_id',
+          dataId: 'id',
           dataName: "name",
           options: employeeStatus,
           defaultValue: employeeStatus?.length ? employeeStatus[0] : null,
@@ -738,7 +738,7 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, current
 
   useEffect(() => {
     if (companies?.length) {
-      setFilter(companies[0], filterType.COMPANY, "_id");
+      setFilter(companies[0], filterType.COMPANY, "id");
     }
   }, [companies]);
 
@@ -757,7 +757,7 @@ export default function EmployaaModal({ isEdit = false, formApi, editId, current
       const values = getValue();
       const setEmployee = mapEmployeeData(values, false);
       if (isEdit)
-        setEmployee._id = editId
+        setEmployee.id = editId
 
       addEntity({ url: add_edit_API, data: [setEmployee] });
 

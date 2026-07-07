@@ -4,7 +4,7 @@ import Controls from '../../components/controls/Controls';
 import Popup from '../../components/Popup';
 import { API, alphabets } from './_Service';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction, useLazyFileQuery } from '../../store/actions/httpactions';
-import { Typography, Stack, ButtonGroup, InputAdornment, IconButton, CircularProgress,Box } from "../../deps/ui";
+import { Typography, Stack, ButtonGroup, InputAdornment, IconButton, CircularProgress, Box } from "../../deps/ui";
 import { PeopleOutline, Add as AddIcon, Search, Clear, Description } from "../../deps/ui/icons";
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
@@ -149,43 +149,39 @@ const Employee = () => {
             lastName: values.lastName,
             isAllowLogin: values.isAllowLogin,
             timezone: values.fkCountryId.timezones[0].zoneName,
-            fkCompanyId: values.fkCompanyId._id,
-            generalInfo: {
-                maritalstatus: values.maritalstatus,
-                email: values.email,
-                gender: values.gender,
-                dateofBirth: systemFormatDate(values?.dateofBirth),
-                fkReligionId: values?.fkReligionId,
-                nic: values.nic
-            },
-            companyInfo: {
-                fkAreaId: values.fkAreaId._id,
-                fkCityId: values.fkCityId._id,
-                fkCountryId: values.fkCountryId._id,
-                fkDepartmentId: values.fkDepartmentId._id,
-                fkDesignationId: values?.fkDesignationId?._id,
-                fkEmployeeGroupId: values.fkEmployeeGroupId._id,
-                fkEmployeeStatusId: values.fkEmployeeStatusId._id,
-                fkStateId: values.fkStateId._id,
-                joiningDate: systemFormatDate(values.joiningDate),
-                confirmationDate: values.confirmationDate ? systemFormatDate(values.confirmationDate) : systemFormatDate(new Date(values.joiningDate).setMonth(values.joiningDate.getMonth() + 2)),
-                fkManagerId: values.fkManagerId?._id ?? null
-            },
-            contactDetial: {
-                address1: values.address1,
-                address2: values?.address2,
-                zipCode: values.zipCode,
-                country: values?.country,
-                state: values?.state,
-                city: values?.city,
-                mobileNo: values.mobileNo,
-                workNo: values?.workNo,
-                emergencyNo: values?.emergencyNo
-            },
+            CompanyId: values.fkCompanyId._id,
+            maritalstatus: values.maritalstatus,
+            email: values.email,
+            gender: values.gender,
+            dateofBirth: systemFormatDate(values?.dateofBirth),
+            ReligionId: values?.fkReligionId,
+            nic: values.nic,
+            // Relational Key 
+            AreaId: values.fkAreaId._id,
+            CityId: values.fkCityId._id,
+            CountryId: values.fkCountryId._id,
+            DepartmentId: values.fkDepartmentId._id,
+            DesignationId: values?.fkDesignationId?._id,
+            EmployeeGroupId: values.fkEmployeeGroupId._id,
+            EmployeeStatusId: values.fkEmployeeStatusId._id,
+            StateId: values.fkStateId._id,
+            joiningDate: systemFormatDate(values.joiningDate),
+            confirmationDate: values.confirmationDate ? systemFormatDate(values.confirmationDate) : systemFormatDate(new Date(values.joiningDate).setMonth(values.joiningDate.getMonth() + 2)),
+            ManagerId: values.fkManagerId?._id ?? null,
+            //Contact Details
+            address1: values.address1,
+            address2: values?.address2,
+            zipCode: values.zipCode,
+            country: values?.country,
+            state: values?.state,
+            city: values?.city,
+            mobileNo: values.mobileNo,
+            workNo: values?.workNo,
+            emergencyNo: values?.emergencyNo,
             scheduleId: values?.scheduleId._id
         }
         if (values.fkRoleTemplateId)
-            employee.companyInfo.fkRoleTemplateId = values.fkRoleTemplateId;
+            employee.RoleTemplateMasterId = values.fkRoleTemplateId;
 
         if (isExcel) {
 
@@ -193,7 +189,7 @@ const Employee = () => {
             const punchCode = values.punchCode;
             const updateEmp = Employees.find(e => e.employeeRefNo.toLowerCase() === refNo);
             if (updateEmp) {
-                employee._id = updateEmp._id;
+                employee.id = updateEmp.id;
                 employee.isChangePunchCode = employee.punchCode != punchCode;
             }
         }
@@ -318,7 +314,7 @@ const Employee = () => {
 
     const handleActiveInActive = (id) => {
         setGridFilter({ ...gridFilter, isFromScroll: false })
-        updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
+        updateOneEntity({ url: DEFAULT_API, data: { id } });
 
     }
 
@@ -407,7 +403,7 @@ const Employee = () => {
             const values = getValue();
             const setEmployee = mapEmployee(values, false);
             if (isEdit.current) {
-                setEmployee._id = editId
+                setEmployee.id = editId
                 setEmployee.isChangePunchCode = setEmployee.punchCode != currentEditRecord.current.punchCode;
             }
 
@@ -450,21 +446,21 @@ const Employee = () => {
                     setActiveStep={setActiveStep}
                 />
             </Popup>
-                    <Box sx={{
-    overflowX: 'auto',
-    whiteSpace: 'nowrap',
-    '&::-webkit-scrollbar': {
-      height: 3,
-      display:'none'
-    },
-  }}>
-            <ButtonGroup size="small" fullWidth >
-                {alphabets.map(alpha => (
-                    <Controls.Button key={`word-${alpha}`} onClick={handleAlphabetSearch} color={word === alpha ? 'info' : 'inherit'} text={alpha} />
-                ))}
-            </ButtonGroup>
+            <Box sx={{
+                overflowX: 'auto',
+                whiteSpace: 'nowrap',
+                '&::-webkit-scrollbar': {
+                    height: 3,
+                    display: 'none'
+                },
+            }}>
+                <ButtonGroup size="small" fullWidth >
+                    {alphabets.map(alpha => (
+                        <Controls.Button key={`word-${alpha}`} onClick={handleAlphabetSearch} color={word === alpha ? 'info' : 'inherit'} text={alpha} />
+                    ))}
+                </ButtonGroup>
             </Box>
-            
+
             <Stack flexDirection="row" justifyContent="space-between">
                 <Typography pt={1} >Records: {record.length} / {totalRecord}</Typography>
 
@@ -494,7 +490,7 @@ const Employee = () => {
                     <IconButton title='Download Excel' onClick={() => handleReport('excel')}>
                         <Description />
                     </IconButton>
-                   {isMobile ? <IconButton title='Add Employee' onClick={showAddModal}>
+                    {isMobile ? <IconButton title='Add Employee' onClick={showAddModal}>
                         <AddIcon />
                     </IconButton> :
                         <Controls.Button

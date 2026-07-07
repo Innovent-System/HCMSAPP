@@ -1,4 +1,4 @@
-import  { useEffect } from "react";
+import { useEffect } from "react";
 
 import { BrowserRouter as Router } from "react-router-dom";
 import Routes from "./router";
@@ -10,20 +10,24 @@ import { SocketContext, appsocket } from './services/socketService';
 import { SnackbarProvider } from 'notistack';
 import { theme } from './config/theme';
 import { WorkerContext, excelWorker } from './services/workerService'
+import Auth from './services/AuthenticationService'
 
 
 
 function App() {
   useEffect(() => {
-    appsocket.connect();
+    const initConnection = async () => {
+      const info = Auth.getitem('userInfo');
 
-    return () => {
-      appsocket.disconnect();
-      // excelWorker.terminate();
-    }
-  }, [])
+      if (info.token && appsocket.state === 'Disconnected')
+        await appsocket.start();
+    };
+
+    initConnection();
+
+  }, []);
   return (
-    
+
     <ThemeProvider theme={theme}>
       <SnackbarProvider maxSnack={3}>
         <Router>

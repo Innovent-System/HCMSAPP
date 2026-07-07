@@ -5,6 +5,7 @@ import { moduleSettingSlice } from './slicer/modulesettings'
 import { reportSlice } from './slicer/report';
 import { formSlice } from './slicer/form';
 import { attendanceSlice } from './slicer/attendance';
+import { listenerMiddleware } from './listenerMiddleware';
 
 
 export const store = configureStore({
@@ -17,7 +18,9 @@ export const store = configureStore({
     [formSlice.name]: formSlice.reducer,
     [attendanceSlice.name]: attendanceSlice.reducer
   },
-  middleware: (getDefaulMiddleWare) => getDefaulMiddleWare({ immutableCheck: false, serializableCheck: false }).concat(getApi.middleware)
+  middleware: (getDefaulMiddleWare) => getDefaulMiddleWare({ immutableCheck: false, serializableCheck: false })
+  .prepend(listenerMiddleware.middleware) 
+  .concat(getApi.middleware)
 })
 
 // export const store = createStore(reducers, {}, applyMiddleware(...middleware));

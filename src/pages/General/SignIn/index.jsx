@@ -13,6 +13,7 @@ import Auth from '../../../services/AuthenticationService';
 import bg from '../../../assets/images/bg-1.jpg'
 import logo from '../../../assets/images/Innovent-logo.png'
 import { jwtDecode } from 'jwt-decode';
+import { appsocket } from '../../../services/socketService';
 
 const initialFValues = {
   userName: "",
@@ -83,7 +84,7 @@ const SignIn = () => {
       }
       setLoader(true);
 
-      userSignIn({ url: API_USER_LOGIN, data: signInData }).then(res => {
+      userSignIn({ url: API_USER_LOGIN, data: signInData }).then(async res => {
 
         if (res) {
           const { token } = res.data;
@@ -106,7 +107,7 @@ const SignIn = () => {
             userId: data.userId,
             token
           });
-
+          await appsocket.start();
           navigate("/dashboard");
 
         }
