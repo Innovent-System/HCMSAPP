@@ -2,6 +2,7 @@ import Chart from '../../../components/Chart';
 import { Grid } from '../../../deps/ui';
 import Amchart from '../../../components/Amchart';
 import { useEntitiesQuery } from '../../../store/actions/httpactions';
+import EmployeeDashboard from './ESSDashboard';
 
 const API = 'employee/dashboard/get'
 const DashBoard = () => {
@@ -15,7 +16,7 @@ const DashBoard = () => {
 
     return (
         <Grid container spacing={1}>
-
+            <EmployeeDashboard/>
             <Grid size={{ xs: 12, md: 6 }} item>
                 <Amchart chartId="flag-1" type='XY' data={data?.departmentCount}
                     dataId={'_id'} dataName={'count'}

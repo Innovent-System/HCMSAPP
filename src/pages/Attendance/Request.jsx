@@ -41,24 +41,23 @@ const fields = {
 }
 const getColumns = (apiRef, onCancel) => [
     { field: '_id', headerName: 'Id', hide: true },
-    { field: 'rowNo', headerName: 'Sr#', width:8,sortable:false,filterable:false },
     {
-        field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.employees.fullName
+        field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.fullName
     },
     { field: 'requestDate', headerName: 'Request Date', flex: 1, valueGetter: ({ row }) => formateDate(row.requestDate) },
     { field: 'changeType', headerName: 'Change Type', flex: 1, valueGetter: ({ row }) => row.changeType.join(',') },
     {
         field: 'status', headerName: 'Status', flex: 1, renderCell: renderStatusCell
     },
-    { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
-    { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
+    { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedAt) },
+    { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdAt) },
     getActions(apiRef, { onCancel })
 ];
 
 export const AddAttendanceRequest = ({ openPopup, setOpenPopup, reqEmployee = null, reqDate = null }) => {
     const formApi = useRef(null);
     
-    const { Employees } = useAppSelector(e => e.appdata.employeeData);
+    const { employees } = useAppSelector(e => e.appdata.employeeData);
     const { addEntity } = useEntityAction();
     const [getAttendanceRequest] = useLazySingleQuery();
     const changeTypeTrack = useRef({ start: null, end: null });
@@ -105,7 +104,7 @@ export const AddAttendanceRequest = ({ openPopup, setOpenPopup, reqEmployee = nu
     const formData = [
         {
             elementType: "ad_dropdown",
-            name: "fkEmployeeId",
+            name: "employeeId",
             label: "Employee",
             variant: "outlined",
             required: true,
@@ -113,14 +112,14 @@ export const AddAttendanceRequest = ({ openPopup, setOpenPopup, reqEmployee = nu
                 errorMessage: "Select Employee",
             },
             dataName: 'fullName',
-            dataId: "_id",
-            options: Employees,
+            dataId: "id",
+            options: employees,
             onChange: (data) => {
                 if (!data) return;
                 const { getValue } = formApi.current;
-                handleRequest(data._id, getValue()?.requestDate);
+                handleRequest(data.id, getValue()?.requestDate);
             },
-            defaultValue: reqEmployee && Employees.find(e => e._id === reqEmployee)
+            defaultValue: reqEmployee && employees.find(e => e.id === reqEmployee)
         },
         {
             elementType: "datetimepicker",
@@ -134,9 +133,9 @@ export const AddAttendanceRequest = ({ openPopup, setOpenPopup, reqEmployee = nu
             onChange: (data) => {
                 if (!data) return;
                 const { getValue } = formApi.current;
-                const { fkEmployeeId } = getValue();
-                if (!fkEmployeeId) return
-                handleRequest(fkEmployeeId._id, data);
+                const { employeeId } = getValue();
+                if (!employeeId) return
+                handleRequest(employeeId.id, data);
             },
             defaultValue: reqDate ? new Date(reqDate) : new Date()
         },
@@ -188,8 +187,8 @@ export const AddAttendanceRequest = ({ openPopup, setOpenPopup, reqEmployee = nu
         if (validateFields()) {
             let values = getValue();
             let dataToInsert = { ...values };
-            dataToInsert.fkEmployeeId = values.fkEmployeeId._id;
-            dataToInsert.employeeCode = values.fkEmployeeId.punchCode;
+            dataToInsert.employeeId = values.employeeId.id;
+            dataToInsert.employeeCode = values.employeeId.punchCode;
             dataToInsert.requestDate = systemFormatDate(values.requestDate);
 
             dataToInsert.changeType = [];

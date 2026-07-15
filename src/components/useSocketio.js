@@ -1,4 +1,4 @@
-import { useEffect, useContext, useState } from 'react';
+import { useEffect, useContext, useState, useRef, useEffectEvent } from 'react';
 import { SocketContext } from '../services/socketService';
 
 // export const useSocketIo = (eventName = "", fetchData) => {
@@ -34,28 +34,37 @@ import { SocketContext } from '../services/socketService';
 // }
 
 
-export const useSocketIo = (eventName = "", fetchData) => {
+export const useSocketIo = (eventName, fetchData) => {
 
   const socket = useContext(SocketContext);
   const [socketData, setSocketData] = useState(null);
+  const cbRef = useRef(fetchData);
+  
+  useEffect(() => {
+    cbRef.current = fetchData;
+  }, [fetchData]);
+
+  const handleEvent = useEffectEvent((data) => {
+    if (Array.isArray(data) && data.length)
+      setSocketData(data);
+    else if (typeof fetchData === 'function') {
+      cbRef.current();
+    }
+
+  })
+
+
 
   useEffect(() => {
     if (!eventName || !socket) return;
 
-    const handler = (data) => {
-      if (Array.isArray(data) && data.length)
-        setSocketData(data);
-      else if (typeof fetchData === 'function')
-        fetchData();
-    };
-
-    socket.off(eventName);
-    socket.on(eventName, handler);
+    // socket.off(eventName, handleEvent);
+    socket.on(eventName, handleEvent);
 
     return () => {
-      socket.off(eventName);
+      socket.off(eventName, handleEvent);
     };
-  }, [eventName]);
+  }, [socket, eventName]);
 
   return { socketData, socket };
 };

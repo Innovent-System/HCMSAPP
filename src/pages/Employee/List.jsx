@@ -80,6 +80,7 @@ let editId = 0;
 const DEFAULT_API = API.Employee;
 const StepperCount = 2;
 let newEmployee = null;
+const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 const findDuplicatesIndividually = (array) => {
     const seenEmail = new Set();
@@ -148,37 +149,38 @@ const Employee = () => {
             firstName: values.firstName,
             lastName: values.lastName,
             isAllowLogin: values.isAllowLogin,
-            timezone: values.fkCountryId.timezones[0].zoneName,
-            CompanyId: values.fkCompanyId._id,
+            //timezone: values.fkCountryId?.timezones[0]?.zoneName ?? userTimeZone,
+            timeZone: userTimeZone,
+            companyId: values.fkCompanyId.id,
             maritalstatus: values.maritalstatus,
             email: values.email,
             gender: values.gender,
             dateofBirth: systemFormatDate(values?.dateofBirth),
-            ReligionId: values?.fkReligionId,
+            religionId: values?.fkReligionId ? values?.fkReligionId : null,
             nic: values.nic,
             // Relational Key 
-            AreaId: values.fkAreaId._id,
-            CityId: values.fkCityId._id,
-            CountryId: values.fkCountryId._id,
-            DepartmentId: values.fkDepartmentId._id,
-            DesignationId: values?.fkDesignationId?._id,
-            EmployeeGroupId: values.fkEmployeeGroupId._id,
-            EmployeeStatusId: values.fkEmployeeStatusId._id,
-            StateId: values.fkStateId._id,
+            areaId: values.fkAreaId.id,
+            cityId: values.fkCityId.id,
+            countryId: values.fkCountryId.id,
+            departmentId: values.fkDepartmentId.id,
+            designationId: values?.fkDesignationId?.id,
+            employeeGroupId: values.fkEmployeeGroupId.id,
+            employeeStatusId: values.fkEmployeeStatusId.id,
+            stateId: values.fkStateId.id,
             joiningDate: systemFormatDate(values.joiningDate),
             confirmationDate: values.confirmationDate ? systemFormatDate(values.confirmationDate) : systemFormatDate(new Date(values.joiningDate).setMonth(values.joiningDate.getMonth() + 2)),
-            ManagerId: values.fkManagerId?._id ?? null,
+            managerId: values.fkManagerId?.id ?? null,
             //Contact Details
             address1: values.address1,
             address2: values?.address2,
             zipCode: values.zipCode,
-            country: values?.country,
-            state: values?.state,
-            city: values?.city,
+            contactCountry: values?.country,
+            contactState: values?.state,
+            contactCity: values?.city,
             mobileNo: values.mobileNo,
             workNo: values?.workNo,
             emergencyNo: values?.emergencyNo,
-            scheduleId: values?.scheduleId._id
+            scheduleId: values?.scheduleId.id
         }
         if (values.fkRoleTemplateId)
             employee.RoleTemplateMasterId = values.fkRoleTemplateId;
@@ -235,24 +237,25 @@ const Employee = () => {
         const setquery = {
             ...query,
             // ...(word && { firstName: { "$regex": `^${word}`, "$options": "i" } }),
-            ...(countryIds && { "companyInfo.fkCountryId": { $in: countryIds.split(',') } }),
-            ...(stateIds && { "companyInfo.fkStateId": { $in: stateIds.split(',') } }),
-            ...(cityIds && { "companyInfo.fkCityId": { $in: cityIds.split(',') } }),
-            ...(areaIds && { "companyInfo.fkAreaId": { $in: areaIds.split(',') } }),
-            ...(groupIds && { "companyInfo.fkEmployeeGroupId": { $in: groupIds.split(',') } }),
-            ...(departmentIds && { "companyInfo.fkDepartmentId": { $in: departmentIds.split(',') } }),
-            ...(designationIds && { "companyInfo.fkDesignationId": { $in: designationIds.split(',') } }),
-            ...(debounceSearchText && {
-                $or: [
-                    { fullName: { $regex: debounceSearchText, $options: "i" } }, // Search in firstName
-                    { email: { $regex: debounceSearchText, $options: "i" } },
-                    { employeeRefNo: { $regex: debounceSearchText, $options: "i" } },
-                    { punchCode: { $regex: debounceSearchText, $options: "i" } },
-                    { "area.areaName": { $regex: debounceSearchText, $options: "i" } },
-                    { "designation.name": { $regex: debounceSearchText, $options: "i" } },
-                    { "department.departmentName": { $regex: debounceSearchText, $options: "i" } }
-                ]
-            })
+            ...(countryIds && { "countryId": { $in: countryIds.split(',') } }),
+            ...(stateIds && { "stateId": { $in: stateIds.split(',') } }),
+            ...(cityIds && { "cityId": { $in: cityIds.split(',') } }),
+            ...(areaIds && { "areaId": { $in: areaIds.split(',') } }),
+            ...(groupIds && { "employeeGroupId": { $in: groupIds.split(',') } }),
+            ...(departmentIds && { "departmentId": { $in: departmentIds.split(',') } }),
+            ...(designationIds && { "designationId": { $in: designationIds.split(',') } }),
+            // ...(debounceSearchText && {
+            //     $or: [
+            //         { fullName: { $regex: debounceSearchText, $options: "i" } }, // Search in firstName
+            //         { email: { $regex: debounceSearchText, $options: "i" } },
+            //         { employeeRefNo: { $regex: debounceSearchText, $options: "i" } },
+            //         { punchCode: { $regex: debounceSearchText, $options: "i" } },
+            //         { "area.areaName": { $regex: debounceSearchText, $options: "i" } },
+            //         { "designation.name": { $regex: debounceSearchText, $options: "i" } },
+            //         { "department.departmentName": { $regex: debounceSearchText, $options: "i" } }
+            //     ]
+            // }
+            //)
 
         }
         // if (query || Object.keys(setquery).length) {
@@ -268,6 +271,7 @@ const Employee = () => {
         data: {
             limit: gridFilter.limit,
             startIndex: gridFilter.startIndex,
+            searchText: debounceSearchText,
             // page: gridFilter.page + 1,
             // lastKeyId: gridFilter.lastKey,
             ...sort,
@@ -314,7 +318,7 @@ const Employee = () => {
 
     const handleActiveInActive = (id) => {
         setGridFilter({ ...gridFilter, isFromScroll: false })
-        updateOneEntity({ url: DEFAULT_API, data: { id } });
+        updateOneEntity({ url: DEFAULT_API, data: { "id": id } });
 
     }
 
@@ -404,6 +408,7 @@ const Employee = () => {
             const setEmployee = mapEmployee(values, false);
             if (isEdit.current) {
                 setEmployee.id = editId
+                setEmployee.managerId = editId == setEmployee?.managerId ? null : setEmployee.managerId;
                 setEmployee.isChangePunchCode = setEmployee.punchCode != currentEditRecord.current.punchCode;
             }
 

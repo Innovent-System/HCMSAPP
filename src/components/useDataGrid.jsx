@@ -335,6 +335,19 @@ const StripedDataGrid = styled(DataGridPro)(({ theme }) => ({
   },
 }));
 
+const rowNumberColumn = (startIndex) => ({
+  field: "rowNo",
+  headerName: "Sr#",
+  width: 70,
+  sortable: false,
+  filterable: false,
+  disableColumnMenu: true,
+  align: "center",
+  headerAlign: "center",
+  renderCell: (params) =>
+    startIndex + params.api.getRowIndexRelativeToVisibleRows(params.id) + 1
+});
+
 // ─── Main DataGrid Component ──────────────────────────────────────────────────
 
 /**
@@ -348,6 +361,7 @@ export default function FeaturedCrudGrid(props) {
     rows,
     loading = false,
     pageSize = 10,
+    showRowNumber = true,
     onRowsScrollEnd,
     page = 0,
     setSelectionModel,
@@ -366,13 +380,17 @@ export default function FeaturedCrudGrid(props) {
     ...others
   } = props;
 
+  const processedColumns = showRowNumber
+    ? [rowNumberColumn((page * pageSize)), ...columns]
+    : columns;
+
   return (
     <Box sx={{ height: `calc(100vh - ${gridHeight}px)` }}>
       <StripedDataGrid
         density={density}
         rows={rows ?? []}
         loading={loading}
-        columns={columns}
+        columns={processedColumns}
         apiRef={apiRef}
         checkboxSelection={checkboxSelection}
         getRowHeight={() => rowHeight ?? 'auto'}

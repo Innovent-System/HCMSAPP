@@ -47,7 +47,7 @@ const getColumns = (apiRef, onEdit, onActive) => {
         onEdit: onEdit
     }
     return [
-        { field: '_id', headerName: 'Id', hide: true, hideable: false },
+        { field: 'id', headerName: 'Id', hide: true, hideable: false },
         {
             field: 'shiftCode', headerName: 'Code', width: 180, hideable: false
         },
@@ -72,9 +72,6 @@ const getColumns = (apiRef, onEdit, onActive) => {
 }
 
 const flagCol = [
-    {
-        field: 'index', headerName: 'Sr#', hideable: false, valueGetter: ({ api, row }) => api.getRowIndex(row.id) + 1
-    },
     {
         field: 'name', headerName: 'Attendance Flag', width: 180, hideable: false
     },
@@ -119,7 +116,7 @@ export const AddShift = ({ openPopup, setOpenPopup, isEdit = false, row = null }
                 minTime: parseTime(row.minTime),
                 maxTime: parseTime(row.maxTime)
             });
-            setFlagRow(row.attendanceFlag?.length ? row.attendanceFlag : attendanceFlag);
+            setFlagRow(attendanceFlag.map(e => ({ ...e, at: row.attendanceFlag?.find(a => a.attendanceFlagId === e.id)?.at ?? 0 })));
         }
     }, [openPopup, formApi])
 
@@ -150,7 +147,7 @@ export const AddShift = ({ openPopup, setOpenPopup, isEdit = false, row = null }
             if (isEdit)
                 values.id = editId
 
-            addEntity({ url: DEFAULT_API, data: [{ ...values, shiftDetail: flagRows.map((e, index) => ({ ...e, shiftMasterId: values?.id ?? 0, order: index + 1, attendanceFlagId: e.id })) }] });
+            addEntity({ url: DEFAULT_API, data: [{ ...values, shiftDetail: flagRows.filter(e => e.at).map((e, index) => ({ ...e, shiftMasterId: values?.id ?? 0, order: index + 1, attendanceFlagId: e.id })) }] });
         }
     }
 

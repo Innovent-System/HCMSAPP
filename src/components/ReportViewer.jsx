@@ -11,6 +11,7 @@ import { useLocation, useSearchParams } from 'react-router-dom'
 import { EmployeeDataThunk, useEntitiesQuery, useLazyFileQuery } from '../store/actions/httpactions'
 import { GET_EMPLOYEE_DATA } from '../services/UrlService'
 import { decompressQuery } from '../util/reporthelper'
+import Auth from '../services/AuthenticationService';
 
 const BREAK_POINTS = { xs: 12, md: 12 };
 
@@ -65,9 +66,10 @@ export const BaseReportWrapper = ({ API_NAME, header, subHeader, fileName, child
             handleReport(false, 'pdf', queryData);
             setReportFilter(queryData);
         }
+        const info = Auth.getitem('userInfo');
 
         return () => {
-            document.cookie !== "is_Auth=true" && window.close();
+            !info?.token && window.close();
         }
     }, [searchParams])
 

@@ -21,14 +21,14 @@ const AttendanceFilter = () => {
             page: DefaultPage,
             limit: DefaultLimit,
             searchParams: {
-                ...(employeeIds && { "_id": { $in: employeeIds.split(',') } }),
-                ...(countryIds && { "companyInfo.fkCountryId": { $in: countryIds.split(',') } }),
-                ...(stateIds && { "companyInfo.fkStateId": { $in: stateIds.split(',') } }),
-                ...(cityIds && { "companyInfo.fkCityId": { $in: cityIds.split(',') } }),
-                ...(areaIds && { "companyInfo.fkAreaId": { $in: areaIds.split(',') } }),
-                ...(groupIds && { "companyInfo.fkEmployeeGroupId": { $in: groupIds.split(',') } }),
-                ...(departmentIds && { "companyInfo.fkDepartmentId": { $in: departmentIds.split(',') } }),
-                ...(designationIds && { "companyInfo.fkDesignationId": { $in: designationIds.split(',') } }),
+                ...(employeeIds && { "Id": employeeIds.split(',') }),
+                ...(countryIds && { "CountryId": countryIds.split(',') }),
+                ...(stateIds && { "StateId": stateIds.split(',') }),
+                ...(cityIds && { "CityId": cityIds.split(',') }),
+                ...(areaIds && { "AreaId": areaIds.split(',') }),
+                ...(groupIds && { "EmployeeGroupId": groupIds.split(',') }),
+                ...(departmentIds && { "DepartmentId": departmentIds.split(',') }),
+                ...(designationIds && { "DesignationId": designationIds.split(',') }),
                 scheduleStartDt: systemFormatDate(dateRange[0]),
                 scheduleEndDt: systemFormatDate(dateRange[1])
                 // ...query

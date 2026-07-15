@@ -65,7 +65,7 @@ const ROW_PER_PAGE = 30;
  * @param {boolean} [props.isPrintHeader=true] - Whether to print the header row in each page/group.
  * @param {React.ElementType} props.HeadElement - The component used to render the table header.
  * @param {React.ElementType|null} [props.Summary=null] - Optional summary component to render after data.
- * @param {Object|null} [props.summaryProps=null] - Props to pass into the Summary component.
+ * @param {Object|null} [props.tableProps=null] - Props to pass into the Summary component.
  * @param {Object} [props.grandTotal] - Configuration for rendering grand total.
  * @param {React.ElementType|null} [props.grandTotal.Element=null] - Component to render grand total row.
  * @param {Object} [props.grandTotal.fields={}] - Object defining which fields to include in grand total calculation.
@@ -89,7 +89,7 @@ const ReportTable = ({ pageBreak = false,
     isPrintHeader = true,
     HeadElement,
     Summary = null,
-    summaryProps = null,
+    tableProps = null,
     grandTotal = {
         Element: null,
         fields: {},
@@ -173,7 +173,7 @@ const ReportTable = ({ pageBreak = false,
             _subTotal && Object.keys(_subTotal).forEach(e => _subTotal[e] += (subTotal.parentPath ? row[subTotal.parentPath][e] : row[e] ?? 0));
             // grandTotalSum.current && Object.keys(grandTotalSum.current).forEach(e => grandTotalSum.current[e] += (grandTotal.parentPath ? row[grandTotal.parentPath][e] : row[e] ?? 0));
             if (isFirst || isNewGroup) {
-                if (HeadElement) elements.push(<HeadElement key={`headElement-${row._id}`} row={row} />);
+                if (HeadElement) elements.push(<HeadElement key={`headElement-${row._id}`} row={row} {...(tableProps && { ...tableProps })} />);
 
                 elements.push(<TblHead key={`head-${row._id}`} cols={columnPrint} />);
             }
@@ -182,14 +182,14 @@ const ReportTable = ({ pageBreak = false,
 
             if (groupByField && String(groupByField(row)) !== String(groupByField(records[rowsLength == _count ? rowsLength : rowsLength + 1]))) {
                 // GrandTotal && elements.push(<GrandTotal key={`grand-${groupByField}-${row._id}`} row={row} {...(grandTotalProps && { ...grandTotalProps })} />);
-                // Summary && elements.push(<Summary key={`summary-${groupByField}-${row._id}`} row={row} {...(summaryProps && { ...summaryProps })} />);
+                // Summary && elements.push(<Summary key={`summary-${groupByField}-${row._id}`} row={row} {...(tableProps && { ...tableProps })} />);
                 subTotal?.Element && elements.push(<subTotal.Element key={`subtotal-${groupByField(row)}-${row._id}`} row={row} subTotal={{ ..._subTotal }} />);
                 _subTotal && Object.keys(_subTotal).forEach(e => _subTotal[e] = 0);
             }
 
             if ((_count - 1) === rowsLength && isLastPage.current) {
                 grandTotal?.Element && elements.push(<grandTotal.Element key={`grand-${row._id}`} row={row} grandTotal={grandTotalSum.current} {...(grandTotal?.props && { ...grandTotal?.props })} />);
-                Summary && elements.push(<Summary key={`summary-${row._id}`} row={row} {...(summaryProps && { ...summaryProps })} />);
+                Summary && elements.push(<Summary key={`summary-${row._id}`} row={row} {...(tableProps && { ...tableProps })} />);
             }
 
 

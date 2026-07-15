@@ -49,7 +49,7 @@ const getColumns = (apiRef, onEdit, onActive, setOpenShift, addActions) => {
         onEdit: onEdit
     }
     return [
-        { field: '_id', headerName: 'Id', hide: true, hideable: false },
+        { field: 'id', headerName: 'Id', hide: true, hideable: false },
         {
             field: 'code', headerName: 'Code', flex: 1, hideable: false
         },
@@ -69,8 +69,8 @@ const getColumns = (apiRef, onEdit, onActive, setOpenShift, addActions) => {
                 />
             )
         },
-        { field: 'modifiedOn', headerName: 'Modified On', hideable: false, flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
-        { field: 'createdOn', headerName: 'Created On', hideable: false, flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
+        { field: 'modifiedOn', headerName: 'Modified On', hideable: false, flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedAt) },
+        { field: 'createdOn', headerName: 'Created On', hideable: false, flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdAt) },
         {
             field: 'isActive', headerName: 'Active', flex: 1, renderCell: (param) => (
                 param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
@@ -173,11 +173,11 @@ const Schedule = () => {
         const { code, scheduleName, weeks } = data.find(c => c.id === id);
 
         setState(weeks.map(w => {
-            const sourceData = shiftList.current.find(s => s.id === w.fkShiftId);
+            const sourceData = shiftList.current.find(s => s.id === w.shiftMasterId);
 
             return {
-                fkShiftId: w.fkShiftId,
-                name: w.name,
+                fkShiftId: w.shiftMasterId,
+                name: w.shiftName,
                 startTime: sourceData ? formateISOTime(sourceData.startTime) : "--:--:-",
                 endTime: sourceData ? formateISOTime(sourceData.endTime) : "--:--:-",
                 minTime: sourceData ? formateISOTime(sourceData.minTime) : '--:--:-',
@@ -206,11 +206,11 @@ const Schedule = () => {
         });
 
         setState(weeks.map(w => {
-            const sourceData = shiftList.current.find(s => s.id === w.fkShiftId);
+            const sourceData = shiftList.current.find(s => s.id === w.shiftMasterId);
 
             return {
-                fkShiftId: w.fkShiftId,
-                name: w.name,
+                fkShiftId: w.shiftMasterId,
+                name: w.shiftName,
                 startTime: sourceData ? formateISOTime(sourceData.startTime) : "--:--:-",
                 endTime: sourceData ? formateISOTime(sourceData.endTime) : "--:--:-",
                 minTime: sourceData ? formateISOTime(sourceData.minTime) : '--:--:-',
@@ -234,7 +234,7 @@ const Schedule = () => {
         />]
 
     const handleActiveInActive = (id) => {
-        updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
+        updateOneEntity({ url: DEFAULT_API, data: { id } });
     }
 
     const handelDeleteItems = (ids) => {
@@ -286,16 +286,16 @@ const Schedule = () => {
         const mapData = {
             code: textField.code,
             scheduleName: textField.scheduleName,
-            weeks: state.map(s => ({ name: s.name, isHoliday: s?.isHoliday, fkShiftId: s.fkShiftId }))
+            weeks: state.map((s, i) => ({ name: s.name, isHoliday: s?.isHoliday, shiftMasterId: s.fkShiftId, scheduleId: 0, dayOfWeek: i }))
         }
 
         if (isEdit.current)
-            mapData._id = editId
+            mapData.id = editId
 
         addEntity({
             url: DEFAULT_API, data: [mapData]
         }).then(c => {
-            setOpenPopup(false);
+            //setOpenPopup(false);
         });
         // }
     }

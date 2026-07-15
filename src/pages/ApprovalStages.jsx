@@ -48,7 +48,7 @@ const getColumns = (apiRef, onEdit, onActive) => {
         onEdit: onEdit
     }
     return [
-        { field: '_id', headerName: 'Id', hide: true, hideable: false },
+        { field: 'id', headerName: 'Id', hide: true, hideable: false },
         { field: 'name', headerName: 'Stage Name', width: 180, hideable: false },
         { field: 'orderNo', headerName: 'Order No', hideable: false },
         { field: 'isDepartmentHead', headerName: 'Department Head', renderCell: ({ row }) => (row["isDepartmentHead"] ? <Check color="success" /> : "--") },
@@ -96,7 +96,7 @@ export const AddApprovalStages = ({ openPopup, setOpenPopup, isEdit = false, for
         if (openPopup && !isEdit)
             resetForm();
         else {
-            let stage, fkEmployeeId;
+            let stage, employeeId;
             if (row.isLineManager)
                 stage = 1;
             else if (row.isHrManager)
@@ -107,14 +107,14 @@ export const AddApprovalStages = ({ openPopup, setOpenPopup, isEdit = false, for
                 stage = 4;
             else {
                 stage = 5;
-                fkEmployeeId = employees.find(e => e._id === row.fkEmployeeId)
+                employeeId = employees.find(e => e.id === row.employeeId)
             }
 
             setFormValue({
                 name: row.name,
                 orderNo: row.orderNo,
                 noOfManager: row.levelOfManagers ?? "",
-                fkEmployeeId: fkEmployeeId ?? null,
+                employeeId: employeeId ?? null,
                 stages: stage
             });
         }
@@ -125,19 +125,18 @@ export const AddApprovalStages = ({ openPopup, setOpenPopup, isEdit = false, for
             let values = getValue();
             let dataToInsert = {
                 applicationFormId: formId,
-                formName: routes.find(c => c._id === formId).title,
                 name: values.name,
                 isLineManager: values.stages == 1,
                 isDepartmentHead: values.stages == 4,
                 orderNo: values.orderNo,
                 isAreaHead: values.stages == 3,
                 isHrManager: values.stages == 2,
-                fkEmployeeId: values.stages == 5 ? values.fkEmployeeId?._id ?? null : null,
+                employeeId: values.stages == 5 ? values.employeeId?.id ?? null : null,
                 levelOfManagers: values.noOfManager
             };
 
             if (isEdit)
-                dataToInsert._id = editId
+                dataToInsert.id = editId
 
             addEntity({ url: DEFAULT_API, data: [dataToInsert] });
 
@@ -194,10 +193,10 @@ export const AddApprovalStages = ({ openPopup, setOpenPopup, isEdit = false, for
         {
             elementType: "ad_dropdown",
             isShow: (values) => values.stages == 5,
-            name: "fkEmployeeId",
+            name: "employeeId",
             label: "Employees",
             dataName: 'fullName',
-            dataId: '_id',
+            dataId: 'id',
             options: employees,
             defaultValue: null
         },
@@ -254,7 +253,7 @@ const ApprovalStages = ({ moduleName }) => {
             ...sort,
             searchParams: {
                 ...query,
-                applicationFormId: formId ? formId : null
+                applicationFormId: formId ? formId : 0
             }
         }
     }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
@@ -279,7 +278,7 @@ const ApprovalStages = ({ moduleName }) => {
         // dispatch(builderFieldsAction(fields));
     }, [dispatch])
     const handleActiveInActive = (id) => {
-        updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
+        updateOneEntity({ url: DEFAULT_API, data: { id } });
     }
 
     const handelDeleteItems = (ids) => {
@@ -308,7 +307,7 @@ const ApprovalStages = ({ moduleName }) => {
         const row = rowsClone.splice(oldIndex, 1)[0];
         rowsClone.splice(targetIndex, 0, row);
 
-        updateEntity({ url: STAGES_REORDER, data: rowsClone.map((r, index) => ({ _id: r._id, orderNo: ++index })) });
+        updateEntity({ url: STAGES_REORDER, data: rowsClone.map((r, index) => ({ id: r.id, orderNo: ++index })) });
     }
 
 
@@ -361,7 +360,7 @@ function ApprovalStagesToolbar(props) {
                     size='small'
                     options={formList.find(c => c.title == moduleName).
                         children.filter(c => ModuleSetting[moduleName].includes(c.formId))}
-                    dataId="_id" dataName="title" />
+                    dataId="formId" dataName="title" />
             </Box>
             {formId && <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Add Record" />}
         </GridToolbarContainer>

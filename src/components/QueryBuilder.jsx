@@ -61,14 +61,14 @@ const QueryBuilder = ({ fields, query, setQuery, resetQuery }) => {
         <div className="query-builder-container">
             {/* qb-lite */}
             <div className="query-builder" >
-                <Builder {...props}  />
+                <Builder {...props} />
             </div>
         </div>
     )
 
     const renderResult = ({ tree: immutableTree, config }) => (
         <div className="query-builder-result">
-            <div>MongoDb query: <pre>{JSON.stringify(QbUtils.mongodbFormat(immutableTree, config))}</pre></div>
+            <div>MongoDb query: <pre>{JSON.stringify(getFilters(QbUtils.getTree(immutableTree, config)))}</pre></div>
         </div>
     )
 
@@ -76,7 +76,10 @@ const QueryBuilder = ({ fields, query, setQuery, resetQuery }) => {
         // Tip: for better performance you can apply `throttle` - see `examples/demo`
 
         setQuery({ tree: immutableTree, config: config });
-        dispatch(builderQueryAction(QbUtils.mongodbFormat(immutableTree, config)));
+        const jsonTree = QbUtils.getTree(immutableTree);
+
+        const filters = getFilters(jsonTree);
+        dispatch(builderQueryAction(filters));
         // const jsonTree = QbUtils.getTree(immutableTree);
         // console.log(jsonTree);
         // `jsonTree` can be saved to backend, and later loaded to `queryValue`
@@ -161,4 +164,18 @@ export const mapToQueryBuilderFormat = (_fields) => {
         }))
     }
 
+}
+
+function getFilters(node, result = {}) {
+    if (!node) return result;
+
+    if (node.type === "rule") {
+        result[node.properties.field] = node.properties.value?.[0] ?? null;
+    }
+
+    if (node.children1) {
+        Object.values(node.children1).forEach(child => getFilters(child, result));
+    }
+
+    return result;
 }

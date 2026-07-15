@@ -1,7 +1,7 @@
 import { intervalToDuration } from 'date-fns'
 export const API = {
     Attendance: "attendance/amend",
-    AttendanceReport: "attendance/report",
+    AttendanceReport: "attendance/attendancereport",
     AttendanceRegisterReport: "attendance/report/register",
     AttendanceInsert: "attendance/amend/insert",
     AttendanceRequest: "attendance/request",

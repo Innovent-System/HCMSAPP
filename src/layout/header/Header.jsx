@@ -130,11 +130,14 @@ export default function Header() {
 
   }, []);
 
+  const handler = () => { dispatch(CommonDropDownThunk({ url: GET_REGULAR_DROPDOWN })) };
+  const employeeHandler = () => { dispatch(EmployeeDataThunk({ url: GET_EMPLOYEE_DATA })) };
+  const payrollHandler = () => { dispatch(PayrollDataThunk({ url: GET_PAYROLL_DATA })) };
+
   // ── Socket listeners ──
   useEffect(() => {
-    const handler = () => dispatch(CommonDropDownThunk({ url: GET_REGULAR_DROPDOWN }));
-    const employeeHandler = () => dispatch(EmployeeDataThunk({ url: GET_EMPLOYEE_DATA }));
-    const payrollHandler = () => dispatch(PayrollDataThunk({ url: GET_PAYROLL_DATA }));
+    if (!socket) return;
+
 
     socket.on("changeInPayrollSetup", payrollHandler);
     socket.on("changeInAllowance", payrollHandler);
@@ -161,7 +164,7 @@ export default function Header() {
       socket.off("changeInDesignation", employeeHandler);
       socket.off("changeInSchedule", employeeHandler);
     };
-  }, []);
+  }, [socket]);
 
   // ── Logout ──
   const handleLogout = () => {

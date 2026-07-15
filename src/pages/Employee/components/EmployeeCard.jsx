@@ -70,7 +70,7 @@ const label = { inputProps: { 'aria-label': 'Color switch demo' } };
 //linear-gradient(135deg, #009688, #1976d2)
 export default function EmployeeCard({ employeeInfo, handleEdit, handleActive }) {
 
-    const { _id, fullName, designation, city, tenure, email, department, employementstatus, joiningDate, isActive } = employeeInfo;
+    const { id, fullName, designation, city, tenure, email, department, employementstatus, joiningDate, isActive } = employeeInfo;
 
     return (
         <Card sx={style.card} elevation={5} >
@@ -87,8 +87,8 @@ export default function EmployeeCard({ employeeInfo, handleEdit, handleActive })
                 action={
                     <>
 
-                        <Switch {...label} size='small' onClick={() => handleActive(_id)} color='success' defaultChecked={isActive} />
-                        <MenuOption menuId={_id} options={{
+                        <Switch {...label} size='small' onClick={() => handleActive(id)} color='success' defaultChecked={isActive} />
+                        <MenuOption menuId={`empcard-${id}`} options={{
                             handleEdit
                         }} />
                     </>

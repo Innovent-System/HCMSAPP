@@ -17,9 +17,9 @@ import Auth from './services/AuthenticationService'
 function App() {
   useEffect(() => {
     const initConnection = async () => {
-      const info = Auth.getitem('userInfo');
+      const info = Auth.getitem('userInfo') || {};
 
-      if (info.token && appsocket.state === 'Disconnected')
+      if (info?.token && appsocket.state === 'Disconnected')
         await appsocket.start();
     };
 

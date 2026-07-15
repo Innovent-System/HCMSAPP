@@ -54,13 +54,13 @@ const getColumns = (apiRef, onEdit, onActive) => {
         onEdit: onEdit
     }
     return [
-        { field: '_id', headerName: 'Id', hide: true },
+        { field: 'id', headerName: 'Id', hide: true },
         {
-            field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.employees.fullName
+            field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.fullName
         },
         { field: 'rosterDate', headerName: 'Roster Date', flex: 1, valueGetter: ({ row }) => formateISODate(row.rosterDate) },
         {
-            field: 'shift', headerName: 'Shift', width: 180, valueGetter: ({ row }) => row.shift.shiftName
+            field: 'shift', headerName: 'Shift', width: 180, valueGetter: ({ row }) => row.shiftName
         },
         {
             field: 'isActive', headerName: 'Active', renderCell: (param) => (
@@ -69,8 +69,8 @@ const getColumns = (apiRef, onEdit, onActive) => {
             flex: '0 1 5%',
             align: 'center',
         },
-        { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
-        { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) }
+        { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedAt) },
+        { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdAt) }
     ]
 }
 let editId = 0;
@@ -79,7 +79,7 @@ const { weekStart, weekEnd } = getWeekStartEnd();
 export const AddRoster = ({ getTemplate, setFile, roster, setRoster, openPopup, setOpenPopup, isEdit = false, row = null, shifts }) => {
     const formApi = useRef(null);
     const { addEntity } = useEntityAction();
-    const { Employees } = useAppSelector(e => e.appdata.employeeData);
+    const { employees } = useAppSelector(e => e.appdata.employeeData);
     const handleSubmit = (e) => {
         const { getValue, validateFields } = formApi.current
         const { fkEmployeeId, rosterDates, fkShiftId } = getValue();
@@ -89,15 +89,15 @@ export const AddRoster = ({ getTemplate, setFile, roster, setRoster, openPopup, 
             for (let r = 0; r < rosterDates.length; r++) {
                 const _date = rosterDates[r];
                 roasterData.push({
-                    fkEmployeeId: fkEmployeeId[index]._id,
+                    employeeId: fkEmployeeId[index].id,
                     rosterDate: _date,
-                    fkShiftId: fkShiftId
+                    shiftMasterId: fkShiftId
                 })
             }
 
         }
         // console.log(roasterData);
-        addEntity({ url: `${DEFAULT_API}/insert`, data: { roster: roasterData } });
+        addEntity({ url: `${DEFAULT_API}`, data: roasterData });
 
     }
 
@@ -110,9 +110,9 @@ export const AddRoster = ({ getTemplate, setFile, roster, setRoster, openPopup, 
             validate: {
                 errorMessage: "Employee is required",
             },
-            dataId: '_id',
+            dataId: 'id',
             dataName: "fullName",
-            options: Employees,
+            options: employees,
             isMultiple: true,
             defaultValue: []
         },
@@ -126,7 +126,7 @@ export const AddRoster = ({ getTemplate, setFile, roster, setRoster, openPopup, 
                 errorMessage: "Shift is required",
             },
             dataName: 'shiftName',
-            dataId: "_id",
+            dataId: "id",
             options: shifts,
             excel: {
                 sampleData: shifts.length ? shifts[0].shiftName : ""
@@ -164,9 +164,9 @@ const transform = (_roster) => {
         if (r !== "fkEmployeeId") {
             const variable = r.split("_");
             data.push({
-                fkEmployeeId: _roster["fkEmployeeId"].id,
+                employeeId: _roster["fkEmployeeId"].id,
                 rosterDate: new Date(variable[3], variable[2], variable[1]),
-                fkShiftId: _roster[r]
+                shiftMasterId: _roster[r]
             })
         }
     })
@@ -183,7 +183,7 @@ const AmendRoster = () => {
     const [shifts, setShift] = useState([]);
 
     const [sort, setSort] = useState({ sort: { createdAt: -1 } });
-    const { Employees } = useAppSelector(e => e.appdata.employeeData);
+    const { employees } = useAppSelector(e => e.appdata.employeeData);
     const [roster, setRoster] = useState([weekStart, weekEnd])
     const [filter, setFilter] = useState({
         lastKey: null,
@@ -211,8 +211,8 @@ const AmendRoster = () => {
                 errorMessage: "Select Employee",
             },
             dataName: 'fullName',
-            dataId: "_id",
-            options: Employees,
+            dataId: "id",
+            options: employees,
             excel: {
                 sampleData: "Faizan Siddiqui"
             }
@@ -231,7 +231,7 @@ const AmendRoster = () => {
                     errorMessage: "Shift is required",
                 },
                 dataName: 'shiftName',
-                dataId: "_id",
+                dataId: "id",
                 options: shifts,
                 excel: {
                     sampleData: shifts.length ? shifts[0].shiftName : ""
@@ -253,7 +253,7 @@ const AmendRoster = () => {
             lastKeyId: filter.lastKey,
             ...sort,
             searchParams: {
-                ...(employeeIds && { "fkEmployeeId": { $in: employeeIds.split(',') } }),
+                ...(employeeIds && { "employeeId": employeeIds.split(',') }),
                 // ...(countryIds && { "companyInfo.fkCountryId": { $in: countryIds.split(',') } }),
                 // ...(stateIds && { "companyInfo.fkStateId": { $in: stateIds.split(',') } }),
                 // ...(cityIds && { "companyInfo.fkCityId": { $in: cityIds.split(',') } }),
@@ -282,7 +282,7 @@ const AmendRoster = () => {
 
             const distinctData = Array.from(distinctMap.values());
 
-            addEntity({ url: `${DEFAULT_API}/insert`, data: { roster: distinctData } });
+            addEntity({ url: `${DEFAULT_API}`, data: distinctData });
         }
     }, [excelData])
     const handleEdit = (id) => {
@@ -293,7 +293,7 @@ const AmendRoster = () => {
     }
 
     const handleActiveInActive = (id) => {
-        updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
+        updateOneEntity({ url: DEFAULT_API, data: {  id } });
     }
 
     const handelDeleteItems = (ids) => {

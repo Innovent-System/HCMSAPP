@@ -40,24 +40,23 @@ const fields = {
     }
 }
 const getColumns = (apiRef, onCancel) => [
-    { field: '_id', headerName: 'Id', hide: true },
-    { field: 'rowNo', headerName: 'Sr#', width:8,sortable:false,filterable:false },
+    { field: 'id', headerName: 'Id', hide: true },
     {
-        field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.employees.fullName
+        field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.fullName
     },
     { field: 'exemptionDate', headerName: 'Exemption Date', flex: 1, valueGetter: ({ row }) => formateDate(row.exemptionDate) },
-    { field: 'attendanceFlag', headerName: 'Attendance Flag', flex: 1, valueGetter: ({ row }) => row.att_flag.name },
+    { field: 'flagName', headerName: 'Attendance Flag', flex: 1 },
     {
         field: 'status', headerName: 'Status', flex: 1, renderCell: renderStatusCell
     },
-    { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
-    { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
+    { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedAt) },
+    { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdAt) },
     getActions(apiRef, { onCancel })
 ];
 
 export const AddExemptionRequest = ({ openPopup, setOpenPopup, reqEmployee = null, reqDate = null }) => {
     const formApi = useRef(null);
-    const { Employees, AttendanceFlag } = useAppSelector(e => e.appdata.employeeData);
+    const { employees, attendanceFlags } = useAppSelector(e => e.appdata.employeeData);
     const { addEntity } = useEntityAction();
     const [getExemptionRequest] = useLazySingleQuery();
     useEffect(() => {
@@ -71,7 +70,7 @@ export const AddExemptionRequest = ({ openPopup, setOpenPopup, reqEmployee = nul
         const { setFormValue, getValue } = formApi.current;
         return getExemptionRequest({ url: API.GetExemptionDetail, params: { employeeId, exemptionDate: systemFormatDate(exemptionDate) } }).then(c => {
             if (c?.data?.result) {
-                setFormValue({ attendanceFlagId: AttendanceFlag.find(f => f.flagCode === c.data?.result.flagCode)._id });
+                setFormValue({ attendanceFlagId: attendanceFlags.find(f => f.flagCode === c.data?.result).id });
             }
             else setFormValue({ attendanceFlagId: "" });
         })
@@ -87,7 +86,7 @@ export const AddExemptionRequest = ({ openPopup, setOpenPopup, reqEmployee = nul
     const formData = [
         {
             elementType: "ad_dropdown",
-            name: "fkEmployeeId",
+            name: "employeeId",
             label: "Employee",
             variant: "outlined",
             required: true,
@@ -95,14 +94,14 @@ export const AddExemptionRequest = ({ openPopup, setOpenPopup, reqEmployee = nul
                 errorMessage: "Select Employee",
             },
             dataName: 'fullName',
-            dataId: "_id",
-            options: Employees,
+            dataId: "id",
+            options: employees,
             onChange: (data) => {
                 if (!data) return;
                 const { getValue } = formApi.current;
-                handleExemption(data._id, getValue()?.exemptionDate)
+                handleExemption(data.id, getValue()?.exemptionDate)
             },
-            defaultValue: reqEmployee && Employees.find(e => e._id === reqEmployee)
+            defaultValue: reqEmployee && employees.find(e => e.id === reqEmployee)
         },
         {
             elementType: "datetimepicker",
@@ -118,9 +117,9 @@ export const AddExemptionRequest = ({ openPopup, setOpenPopup, reqEmployee = nul
 
                 if (!data) return;
                 const { getValue } = formApi.current;
-                const { fkEmployeeId } = getValue();
-                if (!fkEmployeeId?._id) return;
-                handleExemption(fkEmployeeId?._id, data)
+                const { employeeId } = getValue();
+                if (!employeeId?.id) return;
+                handleExemption(employeeId?.id, data)
             }
         },
         {
@@ -132,9 +131,9 @@ export const AddExemptionRequest = ({ openPopup, setOpenPopup, reqEmployee = nul
             validate: {
                 errorMessage: "Flag is required",
             },
-            dataId: "_id",
+            dataId: "id",
             dataName: "name",
-            options: AttendanceFlag,
+            options: attendanceFlags,
             defaultValue: ""
         },
         {
@@ -160,9 +159,9 @@ export const AddExemptionRequest = ({ openPopup, setOpenPopup, reqEmployee = nul
             let values = getValue();
             let dataToInsert = { ...values };
             
-            dataToInsert.fkEmployeeId = values.fkEmployeeId._id;
+            dataToInsert.employeeId = values.employeeId.id;
             dataToInsert.exemptionDate = systemFormatDate(values.exemptionDate);
-            dataToInsert.flagId = AttendanceFlag.find(f => f._id === dataToInsert.attendanceFlagId).flagCode;
+            dataToInsert.AttendanceFlagId = dataToInsert.attendanceFlagId;
             addEntity({ url: API.ExemptionRequest, data: [dataToInsert] });
 
         }

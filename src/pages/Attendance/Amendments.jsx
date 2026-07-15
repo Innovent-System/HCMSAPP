@@ -6,7 +6,7 @@ import { Circle, Add as AddIcon, PeopleOutline, Edit as EditIcon, Cancel as Canc
 import { GridToolbarContainer, Chip } from "../../deps/ui";
 import DataGrid, { getActions, useGridApi, GridRowModes, GridActionsCellItem, GridRowEditStopReasons } from '../../components/useDataGrid';
 import ConfirmDialog from '../../components/ConfirmDialog';
-import { formateISODateTime, parseTime, systemFormatDate } from "../../services/dateTimeService";
+import { formateISODateTime, parseTime, systemDateTime, systemFormatDate } from "../../services/dateTimeService";
 import Controls from "../../components/controls/Controls";
 import PageHeader from '../../components/PageHeader'
 import { AttendanceflagMap, weekday } from "../../util/common";
@@ -36,7 +36,7 @@ const fields = {
         type: 'date',
         fieldSettings: {
             dateFormat: "D/M/YYYY",
-            mongoFormatValue: val => systemFormatDate(val),
+            sqlFormatValue: val => systemFormatDate(val),
         },
         valueSources: ['value'],
         preferWidgets: ['date'],
@@ -50,7 +50,7 @@ const fields = {
         operators: ['less_or_equal'],
         fieldSettings: {
             dateFormat: "D/M/YYYY",
-            mongoFormatValue: val => systemFormatDate(val)
+            sqlFormatValue: val => systemFormatDate(val)
         },
         valueSources: ['value'],
         preferWidgets: ['date'],
@@ -111,7 +111,7 @@ const getColumns = (apiRef, onEdit, onSave, onCancel) => {
     //     onEdit, onSave
     // }
     return [
-        { field: '_id', headerName: 'Id', hide: true, hideable: false },
+        { field: 'id', headerName: 'Id', hide: true, hideable: false },
         {
             field: 'fullName', headerName: 'Employee Name', width: 180, hideable: false
         },
@@ -137,8 +137,8 @@ const getColumns = (apiRef, onEdit, onSave, onCancel) => {
             renderEditCell: (params) => <DateTimeCell type="Out" apiRef={apiRef} {...params} />
         },
         {
-            field: 'isMarkeabsent', headerName: 'Mark Absent', type: "boolean", editable: true,
-            renderCell: ({ row }) => (row["isMarkeabsent"] ? <Check color="success" /> : <Minimize />)
+            field: 'isMarkAbsent', headerName: 'Mark Absent', type: "boolean", editable: true,
+            renderCell: ({ row }) => (row["isMarkAbsent"] ? <Check color="success" /> : <Minimize />)
 
         },
         {
@@ -190,7 +190,7 @@ export const CallAttendanceRepost = ({ openPopup, setOpenPopup }) => {
     const formApi = useRef(null);
 
     const [leaveTypes, setLeaveTypes] = useState([]);
-    const { Employees } = useAppSelector(e => e.appdata.employeeData);
+    const { employees } = useAppSelector(e => e.appdata.employeeData);
     const { addEntity } = useEntityAction();
     // const [attendanceRespost] = useLazySingleQuery();
 
@@ -205,15 +205,15 @@ export const CallAttendanceRepost = ({ openPopup, setOpenPopup }) => {
     const formData = [
         {
             elementType: "ad_dropdown",
-            name: "fkEmployeeId",
+            name: "employeeId",
             label: "Employee",
             required: true,
             validate: {
                 errorMessage: "Employee is required",
             },
-            dataId: '_id',
+            dataId: 'id',
             dataName: "fullName",
-            options: Employees,
+            options: employees,
             isMultiple: true,
             defaultValue: []
         },
@@ -237,7 +237,7 @@ export const CallAttendanceRepost = ({ openPopup, setOpenPopup }) => {
             let values = getValue();
             let dataToInsert = {};
 
-            dataToInsert.employeeCodes = values.fkEmployeeId.map(e => e.punchCode);
+            dataToInsert.employeeCodes = values.employeeId.map(e => e.punchCode);
             dataToInsert.deviceFromDate = systemFormatDate(values.attendanceDate[0]);
             dataToInsert.deviceToDate = systemFormatDate(values.attendanceDate[1]);
 
@@ -295,7 +295,7 @@ const Amend = () => {
 
 
     const handleActiveInActive = (id) => {
-        updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
+        updateOneEntity({ url: DEFAULT_API, data: { id } });
     }
 
     const handelDeleteItems = (ids) => {
@@ -323,14 +323,14 @@ const Amend = () => {
 
         getEmployeeAttendance({
             url: DEFAULT_API, data: {
-                ...(employeeIds && { "_id": { $in: employeeIds.split(',') } }),
-                ...(countryIds && { "companyInfo.fkCountryId": { $in: countryIds.split(',') } }),
-                ...(stateIds && { "companyInfo.fkStateId": { $in: stateIds.split(',') } }),
-                ...(cityIds && { "companyInfo.fkCityId": { $in: cityIds.split(',') } }),
-                ...(areaIds && { "companyInfo.fkAreaId": { $in: areaIds.split(',') } }),
-                ...(groupIds && { "companyInfo.fkEmployeeGroupId": { $in: groupIds.split(',') } }),
-                ...(departmentIds && { "companyInfo.fkDepartmentId": { $in: departmentIds.split(',') } }),
-                ...(designationIds && { "companyInfo.fkDesignationId": { $in: designationIds.split(',') } }),
+                ...(employeeIds && { "Id": employeeIds.split(',') }),
+                ...(countryIds && { "CountryId": countryIds.split(',') }),
+                ...(stateIds && { "StateId": stateIds.split(',') }),
+                ...(cityIds && { "CityId": cityIds.split(',') }),
+                ...(areaIds && { "AreaId": areaIds.split(',') }),
+                ...(groupIds && { "EmployeeGroupId": groupIds.split(',') }),
+                ...(departmentIds && { "DepartmentId": departmentIds.split(',') }),
+                ...(designationIds && { "DesignationId": designationIds.split(',') }),
                 ...query
             }
         }).then(({ data }) => {
@@ -360,10 +360,7 @@ const Amend = () => {
         const attData = Array.from(gridApiRef.current.getRowModels().values());
         addEntity({
             url: API.AttendanceInsert,
-            data: {
-                attendances: attData.filter(c => editedRow.includes(c.id) && c.startDateTime),
-                ids: selectionModel
-            }
+            data: attData.filter(c => editedRow.includes(c.id) && c.startDateTime).map(a => ({ ...a, startDateTime: systemDateTime(a.startDateTime), ...(a.endDateTime ?? { endDateTime: systemDateTime(a.endDateTime) }) }))
         }).finally(() => {
             handleAmendAttendance()
             setSelectionModel([]);
@@ -457,6 +454,7 @@ const Amend = () => {
                 disableSelectionOnClick
                 rowModesModel={rowModesModel}
                 page={gridFilter.page}
+                getRowId={(row) => `${row.employeeId}_${row.attendanceDate}`}
                 pageSize={gridFilter.limit}
                 editMode='row'
                 paginationMode='client'
@@ -467,7 +465,7 @@ const Amend = () => {
                 setFilter={setGridFilter}
                 isCellEditable={(params) => {
 
-                    if (params.field === "isMarkeabsent") {
+                    if (params.field === "isMarkAbsent") {
                         return !!params.row.startDateTime;
                     }
                     return true;

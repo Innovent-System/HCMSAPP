@@ -34,7 +34,7 @@ export const ReportPage = ({ formId, defaultReport }) => {
             <Grid container flexDirection="column" spacing={1}>
                 <Grid item size={{ xs: 8.3, md: 2.5 }} >
                     <Controls.Select name="reportId" isNone={false} onChange={(e) => setReportId(e.target.value)} value={reportId}
-                        label="Reports" options={reports} dataId="reportId" dataName="name" />
+                        label="Reports" options={reports} dataId="id" dataName="name" />
                 </Grid>
                 <ReportToRoute loader={loader} setLoader={setLoader} reportId={reportId} />
             </Grid>

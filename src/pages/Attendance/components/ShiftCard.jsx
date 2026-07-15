@@ -150,9 +150,9 @@ export default ({ data, handleChange, handleCopy, index, shifts }) => {
      *@type {import("@mui/x-data-grid-pro").GridColumns} 
      */
     const columns = [
-        {
-            field: 'index', headerName: 'Sr#', hideable: false, valueGetter: ({ api, row }) => api.getRowIndex(row.name) + 1
-        },
+        // {
+        //     field: 'index', headerName: 'Sr#', hideable: false, valueGetter: ({ api, row }) => api.getRowIndex(row.name) + 1
+        // },
         {
             field: 'name', headerName: 'Working Day', hideable: false,
 
