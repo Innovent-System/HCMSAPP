@@ -43,13 +43,13 @@ const fields = {
 const getColumns = (handleApprove) => [
     { field: '_id', headerName: 'Id', hide: true },
     {
-        field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.employees.fullName
+        field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.fullName
     },
     {
         field: 'status', headerName: 'Status', flex: 1, renderCell: renderStatusCell
     },
     {
-        field: 'appform', headerName: 'Request Type', flex: 1, valueGetter: ({ row }) => row.appform.title
+        field: 'requestType', headerName: 'Request Type', flex: 1
     },
     { field: 'reason', headerName: 'Reason', flex: 1 },
     {
@@ -61,8 +61,8 @@ const getColumns = (handleApprove) => [
             />
         )
     },
-    { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
-    { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
+    { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedAt) },
+    { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdAt) },
     {
         field: 'action', cellClassName: 'actions', type: "actions", headerName: 'Action', width: 180, align: 'center', hideable: false, renderCell: ({ row }) => (
             <>
@@ -126,16 +126,16 @@ const AddApprovalRoute = ({ openPopup, setOpenPopup, DEFAULT_API, selectionModel
 
             let datalist = [];
             const dataObj = {
-                _id: row._id,
+                id: row.id,
                 requestId: row.requestId,
-                formId: row.appform.formId,
+                formId: row.formId,
                 type: "Request",
                 isApprove: isApproved,
                 reason: values.reason
             };
             if (selectionModel.length) {
-                datalist = records.filter(c => selectionModel.includes(c._id)).map(r => ({
-                    _id: r._id,
+                datalist = records.filter(c => selectionModel.includes(c.id)).map(r => ({
+                    id: r.id,
                     requestId: r.requestId,
                     formId: r.formId,
                     type: "Request",
@@ -202,10 +202,7 @@ const ApprovalRoute = ({ DEFAULT_API, DEFAULT_NAME, DISPLAY_TITLE }) => {
             ...sort,
             searchParams: {
                 ...query,
-                $and: [
-                    { routeBy: Auth.getitem("userInfo").fkEmployeeId },
-                    { $or: [{ isCurrentApproval: true }, { actionTaken: true }] }
-                ],
+                routeByEmployee: Auth.getitem("userInfo").fkEmployeeId
             }
         }
     }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });

@@ -267,7 +267,7 @@ export const useDropDown = () => {
         schedules: employeeData.schedules,
         religion: employeeData.religions,
         employeeStatus: employeeData.employeeStatus,
-        leaveAccural: employeeData.leaveAccurals,
+        leaveAccruals: employeeData.leaveAccruals,
         years: _years,
         months: _months,
         setFilter: handleFilter,

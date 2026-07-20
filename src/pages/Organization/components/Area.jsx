@@ -13,6 +13,7 @@ import { useSocketIo } from '../../../components/useSocketio';
 import ConfirmDialog from '../../../components/ConfirmDialog';
 import PropTypes from 'prop-types'
 import { useAppDispatch, useAppSelector } from "../../../store/storehook";
+import { formateISODateTime } from "@/services/dateTimeService";
 
 function CombineDetail(params) {
   return (
@@ -67,18 +68,15 @@ const getColumns = (apiRef, onEdit, onActive) => {
     { field: 'countryName', headerName: 'Country' },
     { field: 'stateName', headerName: 'State', align: 'center' },
     { field: 'cityName', headerName: 'City' },
+    { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedAt) },
+    { field: 'createdOn', sortingOrder: ["desc"], headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdAt) },
+
     {
-      field: 'isActive', headerName: 'Status', renderCell: (param) => (
+      field: 'isActive', headerName: 'Active', renderCell: (param) => (
         param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
       ),
       // flex: '0 1 5%',
       align: 'center',
-    },
-    {
-      field: 'detail',
-      headerName: 'Detail',
-      flex: 1,
-      renderCell: CombineDetail
     },
     getActions(apiRef, actionKit)
   ]

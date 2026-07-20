@@ -74,20 +74,19 @@ const Duration = [
 
 
 const getColumns = (apiRef, onCancel) => [
-    { field: '_id', headerName: 'Id', hide: true },
-     { field: 'rowNo', headerName: 'Sr#', width:8,sortable:false,filterable:false },
+    { field: 'id', headerName: 'Id', hide: true },
     {
-        field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.employees.fullName
+        field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.fullName
     },
     { field: 'fromDate', headerName: 'From', flex: 1, valueGetter: ({ row }) => formateISODate(row.fromDate) },
     { field: 'toDate', headerName: 'To', flex: 1, valueGetter: ({ row }) => formateISODate(row.toDate) },
-    { field: 'leavetype', headerName: 'Leave Type', flex: 1, valueGetter: ({ row }) => row.leavetype.title },
+    { field: 'leavetype', headerName: 'Leave Type', flex: 1, valueGetter: ({ row }) => row.title },
     { field: 'leaveDuration', headerName: 'Duration', flex: 1 },
     {
         field: 'status', headerName: 'Status', flex: 1, renderCell: renderStatusCell
     },
-    { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
-    { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
+    { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedAt) },
+    { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdAt) },
     getActions(apiRef, { onCancel }, true)
 ];
 
@@ -95,7 +94,7 @@ export const AddLeaveRequest = ({ requestedDate = null, requestedEmployee = null
     const formApi = useRef(null);
 
     const [leaveTypes, setLeaveTypes] = useState([]);
-    const { Employees } = useAppSelector(e => e.appdata.employeeData);
+    const { employees } = useAppSelector(e => e.appdata.employeeData);
     const { addEntity } = useEntityAction();
     const [getLeaveDetail] = useLazySingleQuery();
 
@@ -116,13 +115,12 @@ export const AddLeaveRequest = ({ requestedDate = null, requestedEmployee = null
                     setLeaveTypes(c.data.result);
                 }
                 setFormValue({
-                    fkEmployeeId: Employees.find(e => e._id === requestedEmployee)
+                    fkEmployeeId: Employees.find(e => e.id === requestedEmployee)
                 })
             })
 
-
         }
-    }, [requestedEmployee, Employees, openPopup])
+    }, [requestedEmployee, employees, openPopup])
     const formData = [
         {
             elementType: "ad_dropdown",
@@ -134,13 +132,13 @@ export const AddLeaveRequest = ({ requestedDate = null, requestedEmployee = null
                 errorMessage: "Select Employee",
             },
             dataName: 'fullName',
-            dataId: "_id",
-            options: Employees,
+            dataId: "id",
+            options: employees,
             onChange: (data) => {
                 if (!data) return;
 
                 const { setFormValue, getValue } = formApi.current;
-                getLeaveDetail({ url: API.GetLeaveDetail, params: { employeeId: data._id } }).then(c => {
+                getLeaveDetail({ url: API.GetLeaveDetail, params: { employeeId: data.id } }).then(c => {
                     if (c.data?.result) {
                         setLeaveTypes(c.data.result);
                     }
@@ -151,9 +149,9 @@ export const AddLeaveRequest = ({ requestedDate = null, requestedEmployee = null
         },
         {
             elementType: "dropdown",
-            name: "fkLeaveTypeId",
+            name: "leaveTypeId",
             label: "Leave Type",
-            dataId: "_id",
+            dataId: "id",
             dataName: "title",
             required: true,
             validate: {
@@ -207,10 +205,11 @@ export const AddLeaveRequest = ({ requestedDate = null, requestedEmployee = null
         if (validateFields()) {
             let values = getValue();
             let dataToInsert = { ...values };
-            dataToInsert.fkEmployeeId = values.fkEmployeeId._id;
+            dataToInsert.employeeId = values.fkEmployeeId.id;
             dataToInsert.employeeCode = values.fkEmployeeId.punchCode;
             dataToInsert.fromDate = systemFormatDate(values.leavesDate[0]);
             dataToInsert.toDate = systemFormatDate(values.leavesDate[1]);
+
             // ChangeType = [],
 
             addEntity({ url: DEFAULT_API, data: [dataToInsert] })
@@ -296,9 +295,9 @@ const LeaveRequest = () => {
 
         const updatedFields = {
             ...fields,
-            fkLeaveTypeId: {
+            leaveTypeId: {
                 label: "Leave Type",
-                fieldName: "fkLeaveTypeId",
+                fieldName: "leaveTypeId",
                 type: "select",
                 defaultValue: "",
                 valueSources: ["value"],

@@ -12,12 +12,12 @@ export const getApi = createApi({
   keepUnusedDataFor: 30,
   endpoints: (builder) => ({
     entities: builder.query({
-      query: ({ url, data }) => ({ url, body: data, method: "POST", headers: headerOption() }),
+      query: ({ url, data }) => ({ url, body: data, method: "QUERY", headers: headerOption() }),
       transformResponse: (response) => response?.result
 
     }),
     post: builder.query({
-      query: ({ url, data }) => ({ url, body: data, method: "POST", headers: headerOption() }),
+      query: ({ url, data }) => ({ url, body: data, method: "QUERY", headers: headerOption() }),
       transformResponse: (response) => response?.result
     }),
     file: builder.query({
@@ -203,7 +203,7 @@ const INITIAL_STATE = {
   employeeData: {
     employees: [],
     designations: [], groups: [], roleTemplates: [], schedules: [], attendanceFlags: [], religions: [],
-    employeeStatus: [], leaveAccurals: []
+    employeeStatus: [], leaveAccruals: []
   },
   payrollData: {
     allowancesTitle: [],

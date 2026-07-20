@@ -147,7 +147,12 @@ export const AddShift = ({ openPopup, setOpenPopup, isEdit = false, row = null }
             if (isEdit)
                 values.id = editId
 
-            addEntity({ url: DEFAULT_API, data: [{ ...values, shiftDetail: flagRows.filter(e => e.at).map((e, index) => ({ ...e, shiftMasterId: values?.id ?? 0, order: index + 1, attendanceFlagId: e.id })) }] });
+            addEntity({
+                url: DEFAULT_API, data: [{
+                    ...values, shiftDetail: flagRows.filter(e => e.at)
+                        .map((e, index) => ({ ...e, shiftMasterId: values?.id ?? 0, order: index + 1, attendanceFlagId: e.id }))
+                }]
+            }).finally(() => setOpenPopup(false));
         }
     }
 

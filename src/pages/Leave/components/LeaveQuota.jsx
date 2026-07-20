@@ -45,12 +45,12 @@ const getColumns = (apiRef, onEdit, onActive) => {
         onEdit: onEdit
     }
     return [
-        { field: '_id', headerName: 'Id', hide: true, hideable: false },
+        { field: 'id', headerName: 'Id', hide: true, hideable: false },
         {
             field: 'fullName', headerName: 'Employee Name', width: 180, hideable: false
         },
-        { field: 'quotaStartDate', headerName: 'Start Date', width: 180, hideable: false, valueGetter: ({ row }) => formateISODate(row.quotaStartDate) },
-        { field: 'quotaEndDate', headerName: 'End Date', width: 180, hideable: false, valueGetter: ({ row }) => formateISODate(row.quotaEndDate) },
+        { field: 'periodStart', headerName: 'Start Date', width: 180, hideable: false, valueGetter: ({ row }) => formateISODate(row.periodStart) },
+        { field: 'periodEnd', headerName: 'End Date', width: 180, hideable: false, valueGetter: ({ row }) => formateISODate(row.periodEnd) },
 
     ]
 }
@@ -61,7 +61,7 @@ const TableHead = [
     { id: 'title', disableSorting: false, label: 'Leave Type' },
     { id: 'entitled', disableSorting: false, label: 'Allowed' },
     { id: 'pending', disableSorting: false, label: 'Pending' },
-    { id: 'taken', disableSorting: false, label: 'Taken' },
+    { id: 'availed', disableSorting: false, label: 'Taken' },
     { id: 'remaining', disableSorting: false, label: 'Remaining' }
 
 ];
@@ -78,11 +78,11 @@ const TableHead = [
 /**
  *@type {import("@mui/x-data-grid-pro").GridColumns} 
  */
-const leaveTypeCol = [{ field: '_id', headerName: 'Id', hide: true, hideable: false },
+const leaveTypeCol = [{ field: 'id', headerName: 'Id', hide: true, hideable: false },
 { field: 'title', headerName: 'Leave Type', width: 180, hideable: false },
 { field: 'entitled', headerName: 'Allowed', hideable: false },
 { field: 'pending', headerName: 'Pending', hideable: false },
-{ field: 'taken', headerName: 'Taken', hideable: false },
+{ field: 'availed', headerName: 'Taken', hideable: false },
 { field: 'remaining', headerName: 'Remaining', hideable: false },
 
 ]
@@ -164,7 +164,7 @@ const LeaveQuota = () => {
     }
 
     const handleActiveInActive = (id) => {
-        updateOneEntity({ url: DEFAUL_API, data: { _id: id } });
+        updateOneEntity({ url: DEFAUL_API, data: { id } });
     }
 
     const handelDeleteItems = (ids) => {
@@ -203,7 +203,20 @@ const LeaveQuota = () => {
         })
     }
     const handleCreateQuota = () => {
-        addEntity({ url: API.LeaveQuotaInsert, data: records })
+        const flatData = records.flatMap(emp =>
+            emp.leaveTypes.map(lt => ({
+                id: lt.Id ?? 0,  
+                employeeId: emp.employeeId,
+                periodStart: emp.periodStart,
+                periodEnd: emp.periodEnd,
+                leaveTypeId: lt.leaveTypeId,
+                entitled: lt.entitled,
+                availed: lt.availed,
+                carryForward: lt.carryForward
+                
+            }))
+        );
+        addEntity({ url: API.LeaveQuotaInsert, data: flatData })
     }
     usePageHeaderOption({ apply: handleLeaveQuota })
     useEffect(() => {
@@ -240,6 +253,7 @@ const LeaveQuota = () => {
                 page={gridFilter.page}
                 pageSize={gridFilter.limit}
                 getRowHeight={() => 40}
+                getRowId={(r) => r.employeeId}
                 setFilter={setGridFilter}
                 totalCount={records.length}
                 toolbarProps={{

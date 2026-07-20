@@ -88,7 +88,7 @@ export default function EmployeeCard({ employeeInfo, handleEdit, handleActive })
                     <>
 
                         <Switch {...label} size='small' onClick={() => handleActive(id)} color='success' defaultChecked={isActive} />
-                        <MenuOption menuId={`empcard-${id}`} options={{
+                        <MenuOption menuId={id} options={{
                             handleEdit
                         }} />
                     </>

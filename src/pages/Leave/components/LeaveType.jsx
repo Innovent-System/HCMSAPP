@@ -46,15 +46,15 @@ const getColumns = (apiRef, onEdit, onActive) => {
         onEdit: onEdit
     }
     return [
-        { field: '_id', headerName: 'Id', hide: true, hideable: false },
+        { field: 'id', headerName: 'Id', hide: true, hideable: false },
         {
             field: 'title', headerName: 'Leave Type', width: 180, hideable: false
         },
         {
             field: 'entitled', headerName: 'Entitle', hideable: false
         },
-        { field: 'modifiedOn', headerName: 'Modified On', width: 180, hideable: false, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
-        { field: 'createdOn', headerName: 'Created On', width: 180, hideable: false, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
+        { field: 'modifiedOn', headerName: 'Modified On', width: 180, hideable: false, valueGetter: ({ row }) => formateISODateTime(row.modifiedAt) },
+        { field: 'createdOn', headerName: 'Created On', width: 180, hideable: false, valueGetter: ({ row }) => formateISODateTime(row.createdAt) },
         {
             field: 'isActive', headerName: 'Active', renderCell: (param) => (
                 param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
@@ -77,7 +77,8 @@ let editId = 0;
 export const AddLeaveType = ({ openPopup, setOpenPopup, isEdit = false, row = null }) => {
     const formApi = useRef(null);
     const { addEntity } = useEntityAction();
-    const { groups, leaveAccural } = useDropDown();
+    const { groups, leaveAccruals } = useDropDown();
+
     useEffect(() => {
         if (!formApi.current || !openPopup) return;
         const { resetForm, setFormValue } = formApi.current;
@@ -86,7 +87,7 @@ export const AddLeaveType = ({ openPopup, setOpenPopup, isEdit = false, row = nu
         else {
             setFormValue({
                 ...row,
-                fkGroupIds: groups.filter(c => row.fkGroupIds.includes(c._id))
+                groupIds: groups.filter(c => row.groupIds.includes(c.id))
             });
         }
     }, [openPopup, formApi])
@@ -95,9 +96,10 @@ export const AddLeaveType = ({ openPopup, setOpenPopup, isEdit = false, row = nu
         if (validateFields()) {
             let values = getValue();
             let dataToInsert = { ...values };
-            dataToInsert.fkGroupIds = values.fkGroupIds.map(c => c._id);
+            dataToInsert.groups = values.groupIds.map(c => ({ groupId: c.id, leaveTypeId: 0 }));
+            dataToInsert.gender = values.gender === "All" ? null : values.gender;
             if (isEdit)
-                dataToInsert._id = editId
+                dataToInsert.id = editId
 
             addEntity({ url: DEFAULT_API, data: [dataToInsert] }).finally(() => setOpenPopup(false));
 
@@ -128,12 +130,12 @@ export const AddLeaveType = ({ openPopup, setOpenPopup, isEdit = false, row = nu
         },
         {
             elementType: "ad_dropdown",
-            name: "fkGroupIds",
+            name: "groupIds",
             label: "Group",
             isMultiple: true,
             required: true,
-            dataId: '_id',
-            dataName: "groupName",
+            dataId: 'id',
+            dataName: "name",
             validate: {
                 errorMessage: "Group is required",
             },
@@ -151,13 +153,13 @@ export const AddLeaveType = ({ openPopup, setOpenPopup, isEdit = false, row = nu
         },
         {
             elementType: "dropdown",
-            name: "fkleaveAccrualId",
+            name: "leaveAccrualId",
             label: "LeaveAccural",
-            dataId: "leaveAccrualId",
+            dataId: "id",
             breakpoints: { size: { md: 12, xs: 12 } },
             dataName: "name",
             defaultValue: "",
-            options: leaveAccural ?? []
+            options: leaveAccruals ?? []
         },
         {
             elementType: "checkbox",
@@ -252,7 +254,7 @@ const LeaveType = () => {
     }
 
     const handleActiveInActive = (id) => {
-        updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
+        updateOneEntity({ url: DEFAULT_API, data: { id } });
     }
 
     const handelDeleteItems = (ids) => {

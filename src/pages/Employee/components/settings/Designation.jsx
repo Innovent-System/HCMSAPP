@@ -56,7 +56,7 @@ const getColumns = (apiRef, onEdit, onActive) => {
         { field: 'createdOn', sortingOrder: ["desc"], headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdAt) },
 
         {
-            field: 'isActive', headerName: 'Status', renderCell: (param) => (
+            field: 'isActive', headerName: 'Active', renderCell: (param) => (
                 param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
             ),
             flex: '0 1 5%',

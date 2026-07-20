@@ -183,7 +183,7 @@ const Employee = () => {
             scheduleId: values?.scheduleId.id
         }
         if (values.fkRoleTemplateId)
-            employee.RoleTemplateMasterId = values.fkRoleTemplateId;
+            employee.roleTemplateMasterId = values.fkRoleTemplateId;
 
         if (isExcel) {
 
@@ -237,25 +237,13 @@ const Employee = () => {
         const setquery = {
             ...query,
             // ...(word && { firstName: { "$regex": `^${word}`, "$options": "i" } }),
-            ...(countryIds && { "countryId": { $in: countryIds.split(',') } }),
-            ...(stateIds && { "stateId": { $in: stateIds.split(',') } }),
-            ...(cityIds && { "cityId": { $in: cityIds.split(',') } }),
-            ...(areaIds && { "areaId": { $in: areaIds.split(',') } }),
-            ...(groupIds && { "employeeGroupId": { $in: groupIds.split(',') } }),
-            ...(departmentIds && { "departmentId": { $in: departmentIds.split(',') } }),
-            ...(designationIds && { "designationId": { $in: designationIds.split(',') } }),
-            // ...(debounceSearchText && {
-            //     $or: [
-            //         { fullName: { $regex: debounceSearchText, $options: "i" } }, // Search in firstName
-            //         { email: { $regex: debounceSearchText, $options: "i" } },
-            //         { employeeRefNo: { $regex: debounceSearchText, $options: "i" } },
-            //         { punchCode: { $regex: debounceSearchText, $options: "i" } },
-            //         { "area.areaName": { $regex: debounceSearchText, $options: "i" } },
-            //         { "designation.name": { $regex: debounceSearchText, $options: "i" } },
-            //         { "department.departmentName": { $regex: debounceSearchText, $options: "i" } }
-            //     ]
-            // }
-            //)
+            ...(countryIds && { "countryId": countryIds.split(',') }),
+            ...(stateIds && { "stateId": stateIds.split(',') }),
+            ...(cityIds && { "cityId": cityIds.split(',') }),
+            ...(areaIds && { "areaId": areaIds.split(',') }),
+            ...(groupIds && { "employeeGroupId": groupIds.split(',') }),
+            ...(departmentIds && { "departmentId": departmentIds.split(',') }),
+            ...(designationIds && { "designationId": designationIds.split(',') })
 
         }
         // if (query || Object.keys(setquery).length) {
@@ -318,7 +306,7 @@ const Employee = () => {
 
     const handleActiveInActive = (id) => {
         setGridFilter({ ...gridFilter, isFromScroll: false })
-        updateOneEntity({ url: DEFAULT_API, data: { "id": id } });
+        updateOneEntity({ url: DEFAULT_API, data: { id } });
 
     }
 

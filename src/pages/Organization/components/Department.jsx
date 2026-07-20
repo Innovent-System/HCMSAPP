@@ -15,6 +15,7 @@ import { useAppDispatch, useAppSelector } from "../../../store/storehook";
 import { useExcelReader } from "../../../hooks/useExcelReader";
 import { useFileConfig } from "../../../hooks/useFileConfig";
 import Loader from '../../../components/Circularloading'
+import { formateISODateTime } from "@/services/dateTimeService";
 
 
 const DEFAULT_API = API.Department;
@@ -63,8 +64,9 @@ const getColumns = (apiRef, onEdit, onActive) => {
             field: 'departhead', headerName: "Department Head", width: 180, hideable: false
         },
 
-        { field: 'modifiedOn', headerName: 'Modified On', hideable: false },
-        { field: 'createdOn', headerName: 'Created On', hideable: false },
+        { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedAt) },
+        { field: 'createdOn', sortingOrder: ["desc"], headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdAt) },
+
         {
             field: 'isActive', headerName: 'Active', renderCell: (param) => (
                 param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />

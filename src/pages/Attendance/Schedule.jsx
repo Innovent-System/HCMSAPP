@@ -295,7 +295,7 @@ const Schedule = () => {
         addEntity({
             url: DEFAULT_API, data: [mapData]
         }).then(c => {
-            //setOpenPopup(false);
+            setOpenPopup(false);
         });
         // }
     }
