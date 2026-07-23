@@ -51,6 +51,14 @@ export default function Manage() {
                 panel: <AutoDeduction key="AutoDeduction" data={setup} />
             },
             {
+                title: "Overtime",
+                panel: <CompanyPolicy key="OverTime" data={setup} />
+            },
+            {
+                title: "Tax Rules",
+                panel: <CompanyPolicy key="TaxRules" data={setup} />
+            },
+            {
                 title: "Policy",
                 panel: <CompanyPolicy key="Policy" data={setup} />
             }
