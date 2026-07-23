@@ -88,7 +88,7 @@ const AddDepartment = ({ openPopup, excelConfig, setOpenPopup, isEdit = false, r
     const [error, setError] = useState(false);
 
     const { addEntity } = useEntityAction();
-    const { Designations: designations, Employees } = useAppSelector(e => e.appdata.employeeData);
+    const { designations, employees } = useAppSelector(e => e.appdata.employeeData);
     const [mapDesignation, setMapDesignation] = useState([{ noOfPositions: 0, id: designations?.length ? designations[0] : [] }]);
     useEffect(() => {
         if (!formApi.current || !openPopup) return;
@@ -101,13 +101,13 @@ const AddDepartment = ({ openPopup, excelConfig, setOpenPopup, isEdit = false, r
         }
         else {
             const data = row;
-            const mapDesig = data.designations.map(d => ({ id: designations.find(c => c._id === d.id), noOfPositions: d.noOfPositions }));
+            const mapDesig = data.designations.map(d => ({ id: designations.find(c => c.id === d.id), noOfPositions: d.noOfPositions }));
             setFormValue({
                 departmentName: data.departmentName,
                 employeeLimit: data.employeeLimit,
                 code: data.code,
                 designations: mapDesig,
-                departmentHead: data?.depart_head ? Employees.find(e => e._id === data?.depart_head._id) : null
+                departmentHead: data?.depart_head ? employees.find(e => e.id === data?.depart_head.id) : null
             });
         }
     }, [openPopup, formApi])
@@ -168,10 +168,10 @@ const AddDepartment = ({ openPopup, excelConfig, setOpenPopup, isEdit = false, r
             elementType: "ad_dropdown",
             name: "departmentHead",
             label: "Department Head",
-            dataId: "_id",
+            dataId: "id",
             dataName: "fullName",
             defaultValue: null,
-            options: Employees
+            options: employees
         },
         {
             elementType: "custom",
@@ -190,7 +190,7 @@ const AddDepartment = ({ openPopup, excelConfig, setOpenPopup, isEdit = false, r
                     name: "id",
                     label: "Designation",
                     breakpoints: { size: { xs: 6, lg: 5, md: 5 } },
-                    dataId: "_id",
+                    dataId: "id",
                     dataName: "name",
                     defaultValue: null,
                     options: designations
@@ -244,8 +244,8 @@ const AddDepartment = ({ openPopup, excelConfig, setOpenPopup, isEdit = false, r
             dataToInsert.departmentName = departmentName;
             dataToInsert.employeeLimit = employeeLimit;
             dataToInsert.code = code;
-            if (departmentHead?._id) {
-                dataToInsert.departmentHead = departmentHead._id;
+            if (departmentHead?.id) {
+                dataToInsert.departmentHeadId = departmentHead.id;
             }
             dataToInsert.designations = dataSet;
             if (isEdit)

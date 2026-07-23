@@ -139,7 +139,10 @@ const Designation = () => {
         page: 0,
         totalRecord: 0
     })
-    const { inProcess, setFile, excelData, getTemplate } = useExcelReader({ formTemplate: formData, fileName: "Designation.xlsx" });
+    const { inProcess, setFile, excelData, getTemplate } = useExcelReader({
+        formTemplate: formData, fileName: "Designation.xlsx",
+        uniqueBy: ["name"]
+    });
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,
         title: "",

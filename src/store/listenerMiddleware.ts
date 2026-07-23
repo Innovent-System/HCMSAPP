@@ -1,6 +1,6 @@
 // listenerMiddleware.js
 import { createListenerMiddleware, isRejected, isPending, isFulfilled } from '@reduxjs/toolkit';
-import { setGlobalLoader } from '../store/actions/httpactions';
+import { setAppError, setGlobalLoader } from '../store/actions/httpactions';
 import { enqueueSnackbar } from 'notistack';
 import { appsocket } from '@/services/socketService';
 import { CloseSnackBar } from '@/router/StatusHandler';
@@ -24,7 +24,7 @@ listenerMiddleware.startListening({
             dispatch(setGlobalLoader(false));
             const message = action.payload?.message;
             if (message) {
-                enqueueSnackbar(message, { variant: 'success',action: CloseSnackBar });
+                enqueueSnackbar(message, { variant: 'success', action: CloseSnackBar });
             }
         }
 
@@ -36,8 +36,8 @@ listenerMiddleware.startListening({
             const { message, result, errors } = data || {};
 
             // Array errors — popup
-            if (Array.isArray(result) && result.length) {
-                //dispatch(setErrors(result));      // ✅ Redux mein store
+            if (Array.isArray(errors) && errors.length) {
+                dispatch(setAppError({ errors: errors, showModal: true }));      // ✅ Redux mein store
                 //dispatch(setOpenPopup(true));
             }
             else if (message) {

@@ -8,7 +8,7 @@ import { IconButton, List, ListItem, ListItemText, Divider } from '../deps/ui';
 import { Close as CloseIcon } from '../deps/ui/icons';
 import ErrorModal from '../components/ErrorModal';
 import { useAppDispatch, useAppSelector } from '../store/storehook';
-import { setGlobalLoader } from '../store/actions/httpactions';
+import { setAppError, setGlobalLoader } from '../store/actions/httpactions';
 
 export const CloseSnackBar = (key) => (
   <IconButton onClick={() => closeSnackbar(key)} size="small">
@@ -25,13 +25,18 @@ function StatusHanlder() {
   const socket = useContext(SocketContext);
   const navigate = useNavigate();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-  const [errors, setErrors] = useState([]);
-  const [openPopup, setOpenPopup] = useState(false);
+  // const [errors, setErrors] = useState([]);
+  // const [openPopup, setOpenPopup] = useState(false);
+  const { errors, showModal } = useAppSelector(e => e.appdata.appError);
   const [notify, setNotify] = useState({
     isOpen: false,
     message: "",
     type: "",
   });
+
+  const handleErrorModal = () => {
+    dispatch(setAppError({ errors: [], showModal: false }));
+  }
 
   // const action = key => (
   //   <>
@@ -131,7 +136,7 @@ function StatusHanlder() {
   // }, [queryNotify]);
 
   return <>
-    <ErrorModal title="Employee Error" openPopup={openPopup} setOpenPopup={setOpenPopup} >
+    <ErrorModal title="Employee Error" openPopup={showModal} setOpenPopup={handleErrorModal} >
       <List>
         {errors.map(error => (
           <>

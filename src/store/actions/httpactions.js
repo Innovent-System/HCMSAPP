@@ -253,6 +253,10 @@ const INITIAL_STATE = {
   },
   pageHeaderOption: {
     apply: null
+  },
+  appError: {
+    errors: [],
+    showModal: false
   }
 }
 
@@ -260,6 +264,9 @@ export const appSlice = createSlice({
   name: 'appdata',
   initialState: INITIAL_STATE,
   reducers: {
+    setAppError(state, action) {
+      state.appError = action.payload;
+    },
     dropDownIdsAction(state, action) {
       state.dropdownIds = { ...state.dropdownIds, ...action.payload }
     },
@@ -470,6 +477,6 @@ export const { builderQueryAction,
   enableFilterAction,
   showDropDownFilterAction,
   setUserInfo,
-  clearDropDownIdsAction, setCommand, setFileConfig, setPageHeaderOption, setGlobalLoader } = appSlice.actions;
+  clearDropDownIdsAction, setCommand, setFileConfig, setPageHeaderOption, setGlobalLoader, setAppError } = appSlice.actions;
 
 export const { setGeneralAction, setCompanyAction, resetEmployee } = empSlice.actions
