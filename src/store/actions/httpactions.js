@@ -206,8 +206,8 @@ const INITIAL_STATE = {
     employeeStatus: [], leaveAccruals: []
   },
   payrollData: {
-    allowancesTitle: [],
-    deductionsTitle: [],
+    allowanceHeads: [],
+    deductionHeads: [],
     payrollSetups: []
   },
   routeData: {

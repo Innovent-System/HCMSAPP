@@ -51,12 +51,12 @@ const getColumns = (apiRef, onEdit, onActive) => {
     }
     return [
 
-        { field: '_id', headerName: 'Id', hide: true, hideable: false },
+        { field: 'id', headerName: 'Id', hide: true, hideable: false },
         {
             field: 'name', headerName: 'Name', flex: 1, hideable: false
         },
-        { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
-        { field: 'createdOn', headerName: 'Created On', flex: 1, sortingOrder: ["desc"], valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
+        { field: 'modifiedAt', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedAt) },
+        { field: 'createdAt', headerName: 'Created On', flex: 1, sortingOrder: ["desc"], valueGetter: ({ row }) => formateISODateTime(row.createdAt) },
         {
             field: 'isActive', headerName: 'Status', renderCell: (param) => (
                 param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
@@ -72,7 +72,7 @@ const getColumns = (apiRef, onEdit, onActive) => {
 let editId = 0;
 // const DEFAULT_API = API.Allowance;
 
-const Allowance = ({ DEFAULT_API = API.Allowance, DEFAULT_NAME = "Allowance", formProps = [], dataMapping = null, setEditData = null }) => {
+const Allowance = ({ DEFAULT_API = API.Allowance, DEFAULT_NAME = "Allowance",headType = 1, formProps = [], dataMapping = null, setEditData = null }) => {
     const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
     const isEdit = React.useRef(false);
@@ -103,13 +103,16 @@ const Allowance = ({ DEFAULT_API = API.Allowance, DEFAULT_NAME = "Allowance", fo
             page: gridFilter.page + 1,
             lastKeyId: gridFilter.lastKey,
             ...sort,
-            searchParams: { ...query }
+            searchParams: {
+                ...query,
+                headType
+            }
         }
     }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
 
     const { addEntity, updateOneEntity, removeEntity } = useEntityAction();
 
-    const { socketData } = useSocketIo(`changeIn${DEFAULT_NAME}`, refetch);
+    const { socketData } = useSocketIo(`changeInPayrollHead`, refetch);
 
     const handleEdit = (id) => {
         isEdit.current = true;
@@ -123,6 +126,7 @@ const Allowance = ({ DEFAULT_API = API.Allowance, DEFAULT_NAME = "Allowance", fo
             }
             return acc;
         }, {})
+
         if (typeof setEditData === "function") {
             editData = setEditData(rowData);
         }
@@ -132,7 +136,7 @@ const Allowance = ({ DEFAULT_API = API.Allowance, DEFAULT_NAME = "Allowance", fo
     }
 
     const handleActiveInActive = (id) => {
-        updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
+        updateOneEntity({ url: DEFAULT_API, data: { id } });
     }
 
     const handelDeleteItems = (ids) => {
@@ -168,12 +172,13 @@ const Allowance = ({ DEFAULT_API = API.Allowance, DEFAULT_NAME = "Allowance", fo
         if (isValid) {
             let values = getValue();
             let dataToInsert = { ...values };
+            dataToInsert.headType =  headType;
             if (typeof dataMapping === "function") {
                 dataToInsert = dataMapping(values);
             }
 
             if (isEdit.current)
-                dataToInsert._id = editId
+                dataToInsert.id = editId
 
 
 
@@ -204,7 +209,7 @@ const Allowance = ({ DEFAULT_API = API.Allowance, DEFAULT_NAME = "Allowance", fo
             name: "isTaxable",
             label: "Taxable",
             defaultValue: true
-          },
+        },
         ...formProps
     ];
 

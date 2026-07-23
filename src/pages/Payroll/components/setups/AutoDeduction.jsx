@@ -3,7 +3,7 @@ import { Divider, Chip, IconButton, Grid } from '../../../../deps/ui'
 import { DisplaySettings, AddCircleOutline, RemoveCircleOutline, SaveTwoTone } from '../../../../deps/ui/icons'
 import { AutoForm } from '../../../../components/useForm'
 import { useAppSelector } from '../../../../store/storehook';
-import { useEntitiesQuery, useEntityAction, useLazyPostQuery } from '../../../../store/actions/httpactions';
+import { useEntitiesQuery, useEntityAction } from '../../../../store/actions/httpactions';
 import { API } from '../../_Service';
 import Controls from '../../../../components/controls/Controls';
 
@@ -15,7 +15,8 @@ const DefaultFrequency = "EveryOccurance";
 const DEFAULT_API = API.PayrollSetup;
 export const AutoDeduction = ({ data }) => {
   const formApi = useRef(null);
-  const attendanceFlag = useAppSelector(e => e.appdata.employeeData?.AttendanceFlag)
+  const attendanceFlag = useAppSelector(e => e.appdata.employeeData?.attendanceFlags)
+  const autoDeductionType = useAppSelector(e => e.appdata.payrollData?.autoDeductionType);
   const { data: leaveTypes, isLoading, refetch, totalRecord } = useEntitiesQuery({
     url: `${API.LeaveType}/get`,
     data: {
@@ -25,12 +26,13 @@ export const AutoDeduction = ({ data }) => {
     }
   }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
 
-  const [disabledFlags, setDisabledFlags] = useState(attendanceFlag?.length ? [attendanceFlag[0]._id] : []);
+  const [disabledFlags, setDisabledFlags] = useState(attendanceFlag?.length ? [attendanceFlag[0].id] : []);
   const _flagSetting = useRef([{
-    flagId: attendanceFlag.length ? attendanceFlag[0]._id : "",
-    count: 1, exemptedCount: 3,
-    effectedFrequency: DefaultFrequency,
-    deductionDays: 1
+    attendanceFlagId: attendanceFlag?.length ? attendanceFlag[0].id : "",
+    occurrence: 1, exemptedCount: 3,
+    frequency: DefaultFrequency,
+    autoDeductionTypeId: 2,
+    value: 1
   }]).current;
 
   const { addEntity } = useEntityAction();
@@ -40,17 +42,18 @@ export const AutoDeduction = ({ data }) => {
     if (!values?.isLeaveDeductionFirst) {
       values.leaveDeductionOrder = []
     }
-    if (!validateFields()) return
+    if (!validateFields()) return;
+    var attendaceAutoId = data?.autoDeduction ? data?.autoDeduction.id : 0;
+    const { flagSetting, leaveDeductionOrder, ...restData } = values;
     const dataToInsert = {
-      _id: data._id,
-      name: data.name,
-      autoDeduction: {
-        ...values,
-        flagSetting: values.flagSetting.map(e => ({ ...e, flagCode: attendanceFlag.find(a => a._id === e.flagId).flagCode }))
-      }
+      id: attendaceAutoId,
+      payrollSetupId: data.id,
+      ...restData,
+      attendanceFlagDeductionRules: flagSetting.map(e => ({ ...e, attendanceDeductionRuleId: attendaceAutoId })),
+      leaveDeductionMappings: leaveDeductionOrder.map((e, i) => ({ attendanceDeductionRuleId: attendaceAutoId, leaveTypeId: e, priority: i + 1 }))
     }
 
-    addEntity({ url: DEFAULT_API, data: [dataToInsert] });
+    addEntity({ url: `${DEFAULT_API}/attednaceDeductionSetting`, data: dataToInsert });
 
   }
   useEffect(() => {
@@ -64,13 +67,14 @@ export const AutoDeduction = ({ data }) => {
     const { getValue, setFormValue } = formApi.current;
 
     if (attendanceFlag.length === getValue().flagSetting.length) return;
-    const newId = attendanceFlag.find(c => !disabledFlags.includes(c._id))?._id;
+    const newId = attendanceFlag.find(c => !disabledFlags.includes(c.id))?.id;
     setFormValue({
       flagSetting: [...getValue().flagSetting, {
-        flagId: newId ?? "",
-        count: 1, exemptedCount: 3,
-        effectedFrequency: DefaultFrequency,
-        deductionDays: 1
+        attendanceFlagId: newId ?? "",
+        occurrence: 1, exemptedCount: 3,
+        autoDeductionTypeId: 2,
+        frequency: DefaultFrequency,
+        value: 1
       }]
     })
     disabledFlags.push(newId);
@@ -82,7 +86,7 @@ export const AutoDeduction = ({ data }) => {
     if (disabledFlags.length === 1) return
     const { getValue, setFormValue } = formApi.current;
     const { flagSetting } = getValue();
-    disabledFlags.splice(disabledFlags.indexOf(flagSetting[_index].flagId), 1);
+    disabledFlags.splice(disabledFlags.indexOf(flagSetting[_index].attendanceFlagId), 1);
     setDisabledFlags([...disabledFlags]);
     setFormValue({ flagSetting: flagSetting.toSpliced(_index, 1) })
   }
@@ -138,7 +142,7 @@ export const AutoDeduction = ({ data }) => {
       //   setDisabledFlags(getValue().flagSetting.map(c => c.flagId))
       // },
       // disableitems: disabledFlags,
-      dataId: "_id",
+      dataId: "id",
       dataName: "title",
       isNone: false,
       defaultValue: [],
@@ -154,16 +158,16 @@ export const AutoDeduction = ({ data }) => {
       formData: [
         {
           elementType: "dropdown",
-          name: "flagId",
+          name: "attendanceFlagId",
           label: "Title",
           breakpoints,
           onChange: (_allowanc, _ind) => {
 
             const { getValue } = formApi.current;
-            setDisabledFlags(getValue().flagSetting.map(c => c.flagId))
+            setDisabledFlags(getValue().flagSetting.map(c => c.attendanceFlagId))
           },
           disableitems: disabledFlags,
-          dataId: "_id",
+          dataId: "id",
           dataName: "name",
           isNone: false,
           // defaultValue: AllowancesTitle.length ? AllowancesTitle[0]._id : "",
@@ -171,7 +175,7 @@ export const AutoDeduction = ({ data }) => {
         },
         {
           elementType: "inputfield",
-          name: "count",
+          name: "occurrence",
           label: "Flag Count",
           inputMode: 'numeric',
           type: "number",
@@ -181,7 +185,7 @@ export const AutoDeduction = ({ data }) => {
           inputProps: {
             min: 0,
           },
-          breakpoints,
+          breakpoints: { size: { xs: 1 } },
           defaultValue: "",
         },
         {
@@ -197,12 +201,12 @@ export const AutoDeduction = ({ data }) => {
           inputProps: {
             min: 0,
           },
-          breakpoints,
+          breakpoints: { size: { xs: 1 } },
           defaultValue: "",
         },
         {
           elementType: "dropdown",
-          name: "effectedFrequency",
+          name: "frequency",
           label: "Frequency",
           breakpoints,
           dataId: "id",
@@ -212,9 +216,20 @@ export const AutoDeduction = ({ data }) => {
           options: frequencyType,
         },
         {
+          elementType: "dropdown",
+          name: "autoDeductionTypeId",
+          label: "Deduction Type",
+          breakpoints,
+          dataId: "id",
+          dataName: "name",
+          isNone: false,
+          defaultValue: 2,
+          options: autoDeductionType,
+        },
+        {
           elementType: "inputfield",
-          name: "deductionDays",
-          label: "Deduction Days",
+          name: "value",
+          label: "Value",
           inputMode: 'numeric',
           type: "number",
           validate: {
@@ -223,7 +238,7 @@ export const AutoDeduction = ({ data }) => {
           inputProps: {
             min: 0,
           },
-          breakpoints,
+          breakpoints: { size: { xs: 1 } },
           defaultValue: "",
         },
         {

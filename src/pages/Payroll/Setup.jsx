@@ -19,20 +19,20 @@ const DEFAULT_API = API.PayrollSetup;
 export default function Manage() {
     const [openPopup, setOpenPopup] = useState(false);
     const titleFormApi = useRef(null);
-    const { PayrollSetups } = useAppSelector(c => c.appdata.payrollData);
+    const { payrollSetups } = useAppSelector(c => c.appdata.payrollData);
     const { addEntity } = useEntityAction();
     const [getPayrollSetup] = useLazyEntityByIdQuery();
     const [setup, setSetup] = useState(null);
     const [value, setValue] = useState('0');
-    const [setupId, setSetupId] = useState(() => PayrollSetups?.length ? PayrollSetups[0]._id : "");
+    const [setupId, setSetupId] = useState(() => payrollSetups?.length ? payrollSetups[0].id : "");
     const handleSetup = (id) => getPayrollSetup({ url: DEFAULT_API, id }).then(p => {
         setSetupId(id);
         setSetup(p.data.result);
     });
 
     useEffect(() => {
-        if (PayrollSetups?.length) handleSetup(PayrollSetups[0]._id);
-    }, [PayrollSetups])
+        if (payrollSetups?.length) handleSetup(payrollSetups[0].id);
+    }, [payrollSetups])
 
     const handleSubmit = () => {
         const { getValue, validateFields } = titleFormApi.current
@@ -93,12 +93,12 @@ export default function Manage() {
             <Grid container justifyContent={{ sm: "flex-start", md: "flex-end" }}>
                 <Grid item size={{ sm: 12, md: 3, lg: 2 }} >
                     <Controls.Select
-                        options={PayrollSetups}
+                        options={payrollSetups}
                         label='Payroll Setup'
                         value={setupId}
                         onChange={(e) => handleSetup(e.target.value)}
                         name='setup'
-                        dataId='_id'
+                        dataId='id'
                         dataName="name"
                         isNone={false}
                     />

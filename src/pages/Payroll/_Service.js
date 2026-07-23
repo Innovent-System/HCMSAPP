@@ -1,6 +1,6 @@
 export const API = {
-    Allowance: "payroll/allowance",
-    Deduction: "payroll/deduction",
+    Allowance: "payroll/head",
+    Deduction: "payroll/head",
     PayrollSetup: "payroll/setup",
     Salary: 'payroll/salary',
     Process: 'payroll/process',

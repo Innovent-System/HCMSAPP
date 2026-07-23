@@ -26,7 +26,7 @@ const Deduction = () => {
     ]
 
 
-    return <Allowance DEFAULT_API={API.Deduction} DEFAULT_NAME='Deduction' formProps={form} />
+    return <Allowance DEFAULT_API={API.Deduction} headType={2} DEFAULT_NAME='Deduction' formProps={form} />
 }
 
 export default Deduction
