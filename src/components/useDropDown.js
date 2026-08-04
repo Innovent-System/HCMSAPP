@@ -341,7 +341,7 @@ export const DROPDOWN_PROPS = {
         label: "Company",
         isMultiple: false,
         dataId: 'id',
-        dataName: 'name',
+        dataName: 'companyName',
         defaultValue: []
     },
     [COUNTRY]: {

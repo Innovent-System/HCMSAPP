@@ -2,7 +2,7 @@ export const API = {
     Allowance: "payroll/head",
     Deduction: "payroll/head",
     PayrollSetup: "payroll/setup",
-    Salary: 'payroll/salary',
+    Salary: 'payroll/salarysetup',
     Process: 'payroll/process',
     PayrollDetail: 'payroll/process',
     AdvanceSalary: 'payroll/advancesalary',
@@ -40,9 +40,9 @@ export const perDayCalulationsList = [
 ], defaultCaluation = "MonthlyGross_DivideBy_NumberOfDays_InMonth";
 
 export const basicSalaryTypeList = [
-    { id: "PercentageBased", title: "Percentage Based" },
+    { id: "PercentageOfGross", title: "Percentage Based" },
     { id: "FixedAmount", title: "Fix Amount" }
-], PercentageBased = "PercentageBased";
+], PercentageBased = "PercentageOfGross";
 
 export const CalculationType = [
     { id: "PercentageOfBasicSalary", title: "Percentage of Basic Salary" },

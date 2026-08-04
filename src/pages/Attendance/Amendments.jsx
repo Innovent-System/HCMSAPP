@@ -323,15 +323,17 @@ const Amend = () => {
 
         getEmployeeAttendance({
             url: DEFAULT_API, data: {
-                ...(employeeIds && { "Id": employeeIds.split(',') }),
-                ...(countryIds && { "CountryId": countryIds.split(',') }),
-                ...(stateIds && { "StateId": stateIds.split(',') }),
-                ...(cityIds && { "CityId": cityIds.split(',') }),
-                ...(areaIds && { "AreaId": areaIds.split(',') }),
-                ...(groupIds && { "EmployeeGroupId": groupIds.split(',') }),
-                ...(departmentIds && { "DepartmentId": departmentIds.split(',') }),
-                ...(designationIds && { "DesignationId": designationIds.split(',') }),
-                ...query
+                ...(employeeIds && { "id": { value: employeeIds.split(','), operator: "In" } }),
+                ...(countryIds && { "countryId": { value: countryIds.split(','), operator: "In" } }),
+                ...(stateIds && { "stateId": { value: stateIds.split(','), operator: "In" } }),
+                ...(cityIds && { "cityId": { value: cityIds.split(','), operator: "In" } }),
+                ...(areaIds && { "areaId": { value: areaIds.split(','), operator: "In" } }),
+                ...(groupIds && { "employeeGroupId": { value: groupIds.split(','), operator: "In" } }),
+                ...(departmentIds && { "departmentId": { value: departmentIds.split(','), operator: "In" } }),
+                ...(designationIds && { "designationId": { value: designationIds.split(','), operator: "In" } }),
+                ...query,
+                scheduleStartDt: query?.scheduleStartDt?.value,
+                scheduleEndDt: query?.scheduleEndDt?.value
             }
         }).then(({ data }) => {
             if (data) {

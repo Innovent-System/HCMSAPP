@@ -131,7 +131,7 @@ const Employee = () => {
     const theme = useTheme();
     const isLarge = useMediaQuery(theme.breakpoints.up('xl'));
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-    const { Employees } = useAppSelector(e => e.appdata.employeeData);
+    const { employees } = useAppSelector(e => e.appdata.employeeData);
     const handleSearch = (e) => {
         setSearchText(e.target.value)
     }
@@ -152,7 +152,7 @@ const Employee = () => {
             //timezone: values.fkCountryId?.timezones[0]?.zoneName ?? userTimeZone,
             timeZone: userTimeZone,
             companyId: values.fkCompanyId.id,
-            maritalstatus: values.maritalstatus,
+            maritalstatus: values?.maritalstatus ?? "Other",
             email: values.email,
             gender: values.gender,
             dateofBirth: systemFormatDate(values?.dateofBirth),
@@ -165,10 +165,10 @@ const Employee = () => {
             departmentId: values.fkDepartmentId.id,
             designationId: values?.fkDesignationId?.id,
             employeeGroupId: values.fkEmployeeGroupId.id,
-            employeeStatusId: values.fkEmployeeStatusId.id,
+            employeeStatusId: values?.fkEmployeeStatusId?.id ?? null,
             stateId: values.fkStateId.id,
             joiningDate: systemFormatDate(values.joiningDate),
-            confirmationDate: values.confirmationDate ? systemFormatDate(values.confirmationDate) : systemFormatDate(new Date(values.joiningDate).setMonth(values.joiningDate.getMonth() + 2)),
+            confirmationDate: values.confirmationDate ? systemFormatDate(values.confirmationDate) : systemFormatDate(new Date(values.joiningDate).setMonth(new Date(values.joiningDate).getMonth() + 2)),
             managerId: values.fkManagerId?.id ?? null,
             //Contact Details
             address1: values.address1,
@@ -189,7 +189,7 @@ const Employee = () => {
 
             const refNo = values.employeeRefNo.toLowerCase();
             const punchCode = values.punchCode;
-            const updateEmp = Employees.find(e => e.employeeRefNo.toLowerCase() === refNo);
+            const updateEmp = employees.find(e => e.employeeRefNo.toLowerCase() === refNo);
             if (updateEmp) {
                 employee.id = updateEmp.id;
                 employee.isChangePunchCode = employee.punchCode != punchCode;
@@ -237,13 +237,13 @@ const Employee = () => {
         const setquery = {
             ...query,
             // ...(word && { firstName: { "$regex": `^${word}`, "$options": "i" } }),
-            ...(countryIds && { "countryId": countryIds.split(',') }),
-            ...(stateIds && { "stateId": stateIds.split(',') }),
-            ...(cityIds && { "cityId": cityIds.split(',') }),
-            ...(areaIds && { "areaId": areaIds.split(',') }),
-            ...(groupIds && { "employeeGroupId": groupIds.split(',') }),
-            ...(departmentIds && { "departmentId": departmentIds.split(',') }),
-            ...(designationIds && { "designationId": designationIds.split(',') })
+            ...(countryIds && { "countryId": { value: countryIds.split(','), operator: "In" } }),
+            ...(stateIds && { "stateId": { value: stateIds.split(','), operator: "In" } }),
+            ...(cityIds && { "cityId": { value: cityIds.split(','), operator: "In" } }),
+            ...(areaIds && { "areaId": { value: areaIds.split(','), operator: "In" } }),
+            ...(groupIds && { "employeeGroupId": { value: groupIds.split(','), operator: "In" } }),
+            ...(departmentIds && { "departmentId": { value: departmentIds.split(','), operator: "In" } }),
+            ...(designationIds && { "designationId": { value: designationIds.split(','), operator: "In" } })
 
         }
         // if (query || Object.keys(setquery).length) {
@@ -338,7 +338,7 @@ const Employee = () => {
             setWord("");
         }
         else {
-            setQueryFilter({ ...filter, firstName: { "$regex": `^${e.target.innerText}`, "$options": "i" } });
+            setQueryFilter({ ...filter, firstName: { operator: "startsWith", value: e.target.innerText } });
             setWord(e.target.innerText);
         }
         setGridFilter({ ...gridFilter, startIndex: 0, isFromScroll: false })

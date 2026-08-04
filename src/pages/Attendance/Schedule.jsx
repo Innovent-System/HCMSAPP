@@ -177,7 +177,7 @@ const Schedule = () => {
 
             return {
                 fkShiftId: w.shiftMasterId,
-                name: w.shiftName,
+                name: w.dayOfWeek,
                 startTime: sourceData ? formateISOTime(sourceData.startTime) : "--:--:-",
                 endTime: sourceData ? formateISOTime(sourceData.endTime) : "--:--:-",
                 minTime: sourceData ? formateISOTime(sourceData.minTime) : '--:--:-',
@@ -210,7 +210,7 @@ const Schedule = () => {
 
             return {
                 fkShiftId: w.shiftMasterId,
-                name: w.shiftName,
+                name: w.dayOfWeek,
                 startTime: sourceData ? formateISOTime(sourceData.startTime) : "--:--:-",
                 endTime: sourceData ? formateISOTime(sourceData.endTime) : "--:--:-",
                 minTime: sourceData ? formateISOTime(sourceData.minTime) : '--:--:-',

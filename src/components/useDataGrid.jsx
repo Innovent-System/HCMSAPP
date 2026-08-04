@@ -122,7 +122,7 @@ export const getActions = (
         />
       );
 
-    if (typeof onEdit === 'function' && row?.isLock == false)
+    if (typeof onEdit === 'function')
       toolKit.push(
         <GridActionsCellItem
           icon={<EditIcon fontSize="small" />}

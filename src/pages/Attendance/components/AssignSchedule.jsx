@@ -12,17 +12,16 @@ import Tabs from '../../../components/Tabs'
 
 
 const columns = [
-    { field: '_id', headerName: 'Id', hide: true, hideable: false },
-    { field: 'row_No', headerName: 'Sr#', hideable: false, maxWidth: 50 },
+    { field: 'id', headerName: 'Id', hide: true, hideable: false },
     {
         field: 'fullName', headerName: 'Employee', width: 180, hideable: false, renderCell: ({ row }) => (
             <Link underline="hover">{row.fullName}</Link>
         )
     },
-    { field: 'area', headerName: 'Area', hideable: false, valueGetter: ({ row }) => row.area.areaName },
-    { field: 'department', headerName: 'Department', hideable: false, valueGetter: ({ row }) => row.department.departmentName },
-    { field: 'desgination', headerName: 'Desgination', hideable: false, valueGetter: ({ row }) => row.designation.name },
-    { field: 'group', headerName: 'Group', hideable: false, valueGetter: ({ row }) => row.group.groupName },
+    { field: 'area', headerName: 'Area', hideable: false },
+    { field: 'department', headerName: 'Department', hideable: false },
+    { field: 'designation', headerName: 'Desgination', hideable: false },
+    { field: 'group', headerName: 'Group', hideable: false },
 ]
 
 const DEFAULT_API = API.ScheduleDetail;
@@ -57,17 +56,16 @@ const AssingSchedule = ({ scheduleId, tab, handleTabs, selectedEmployees, setSel
             limit: filter.limit,
             page: filter.page + 1,
             ...sort,
+            scheduleId,
+            isAssigneSchedule: tab === '0',
             searchParams: {
-                scheduleId,
-                isAssigneSchedule: tab === '0',
-                ...(countryIds && { "companyInfo.fkCountryId": { $in: countryIds.split(',') } }),
-                ...(stateIds && { "companyInfo.fkStateId": { $in: stateIds.split(',') } }),
-                ...(cityIds && { "companyInfo.fkCityId": { $in: cityIds.split(',') } }),
-                ...(areaIds && { "companyInfo.fkAreaId": { $in: areaIds.split(',') } }),
-                ...(groupIds && { "companyInfo.fkEmployeeGroupId": { $in: groupIds.split(',') } }),
-                ...(departmentIds && { "companyInfo.fkDepartmentId": { $in: departmentIds.split(',') } }),
-                ...(designationIds && { "companyInfo.fkDesignationId": { $in: designationIds.split(',') } }),
-                ...(companyIds && { "fkCompanyId": { $in: companyIds.split(',') } })
+                ...(countryIds && { "countryId": { value: countryIds.split(','), operator: "In" } }),
+                ...(stateIds && { "stateId": { value: stateIds.split(','), operator: "In" } }),
+                ...(cityIds && { "cityId": { value: cityIds.split(','), operator: "In" } }),
+                ...(areaIds && { "areaId": { value: areaIds.split(','), operator: "In" } }),
+                ...(groupIds && { "employeeGroupId": { value: groupIds.split(','), operator: "In" } }),
+                ...(departmentIds && { "departmentId": { value: departmentIds.split(','), operator: "In" } }),
+                ...(designationIds && { "designationId": { value: designationIds.split(','), operator: "In" } })
 
             }
         }

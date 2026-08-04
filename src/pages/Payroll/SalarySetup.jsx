@@ -57,7 +57,7 @@ const intFormat = new Intl.NumberFormat();
 const SalarySetup = ({ isCallFromEmployee = false }) => {
     const formApi = useRef(null);
     const { employees } = useDropDown();
-    const payrollSetups = useAppSelector(e => e.appdata.payrollData.PayrollSetups);
+    const payrollSetups = useAppSelector(e => e.appdata.payrollData.payrollSetups);
     const roundOffAmount = useAppSelector(e => e.modulesetting.roundOffAmount);
     const [salaryError, setSalaryError] = useState(false)
     const estimateSalary = useRef("");
@@ -69,38 +69,38 @@ const SalarySetup = ({ isCallFromEmployee = false }) => {
     const handleSalarySetup = (payrollId) => {
         getPayroll({ url: DEFAULT_API, id: payrollId }).then(d => {
             const { basicSalaryType,
-                percentage_or_amount,
+                basicSalaryValue,
                 allowances, deductions
             } = d.data.result;
             const { getValue } = formApi.current;
             const { monthlySalary = 0 } = getValue();
             const currentItems = [];
             const isPercentageBase = basicSalaryType === PercentageBased;
-            const basicSalaryAmount = calculateOn(monthlySalary, isPercentageBase, true, percentage_or_amount, roundOffAmount);
+            const basicSalaryAmount = calculateOn(monthlySalary, isPercentageBase, true, basicSalaryValue, roundOffAmount);
 
             estimateSalary.current = basicSalaryAmount;
-            currentItems.push({ item: `Basic Salary ${isPercentageBase ? `(${percentage_or_amount}%)` : ''}`, amount: basicSalaryAmount, isPercent: isPercentageBase, isAllowance: true, percentage_or_amount });
+            currentItems.push({ item: `Basic Salary ${isPercentageBase ? `(${basicSalaryValue}%)` : ''}`, amount: basicSalaryAmount, isPercent: isPercentageBase, isAllowance: true, value: basicSalaryValue });
 
             currentItems.push(...allowances.map(c => {
-                const _amount = calculateOn(c?.type === PercentageOfBasicSalary ? basicSalaryAmount : monthlySalary, c?.type !== FixedAmount, true, c.percentage_or_amount, roundOffAmount);
+                const _amount = calculateOn(c?.calculationType === PercentageOfBasicSalary ? basicSalaryAmount : monthlySalary, c?.calculationType !== FixedAmount, true, c.value, roundOffAmount);
                 estimateSalary.current += _amount;
                 return {
-                    item: `${c.titles.name} ${c.type !== FixedAmount ? `(${c.percentage_or_amount}%)` : ''}`,
+                    item: `${c.name} ${c.calculationType !== FixedAmount ? `(${c.value}%)` : ''}`,
                     amount: intFormat.format(_amount),
-                    isPercent: c.type !== FixedAmount, isAllowance: true,
-                    percentage_or_amount: c.percentage_or_amount,
-                    isAdjustAmount: c.titles.isAdjustAmount,
-                    type: c.type
+                    isPercent: c.calculationType !== FixedAmount, isAllowance: true,
+                    value: c.value,
+                    isAdjustAmount: c?.isAdjustAmount,
+                    calculationType: c.calculationType
                 }
             }));
 
             currentItems.push(...deductions.map(d => ({
-                item: `${d.titles.name} ${d.type !== FixedAmount ? `(${d.percentage_or_amount}%)` : ''}`,
-                amount: intFormat.format(calculateOn(d?.type === PercentageOfBasicSalary ? basicSalaryAmount : monthlySalary, d?.type !== FixedAmount, false, d.percentage_or_amount, roundOffAmount)),
-                isPercent: d.type !== FixedAmount, isAllowance: false,
-                percentage_or_amount: d.percentage_or_amount,
-                type: d.type,
-                isAdjustAmount: d.titles.isAdjustAmount
+                item: `${d.name} ${d.calculationType !== FixedAmount ? `(${d.value}%)` : ''}`,
+                amount: intFormat.format(calculateOn(d?.calculationType === PercentageOfBasicSalary ? basicSalaryAmount : monthlySalary, d?.calculationType !== FixedAmount, false, d.value, roundOffAmount)),
+                isPercent: d.calculationType !== FixedAmount, isAllowance: false,
+                value: d.value,
+                calculationType: d.calculationType,
+                isAdjustAmount: d?.isAdjustAmount
             })));
 
             estimateSalary.current = intFormat.format(adjustAmount(monthlySalary, estimateSalary.current, currentItems));
@@ -114,9 +114,9 @@ const SalarySetup = ({ isCallFromEmployee = false }) => {
         estimateSalary.current = 0;
         const { setFormValue } = formApi.current;
 
-        const _currentBasicAmount = calculateOn(monthlySalary, salaryItems[0]?.isPercent, true, salaryItems[0]?.percentage_or_amount, roundOffAmount);
+        const _currentBasicAmount = calculateOn(monthlySalary, salaryItems[0]?.isPercent, true, salaryItems[0]?.value, roundOffAmount);
         const curItems = salaryItems.map((c, i) => {
-            const currAmount = calculateOn((c?.type === PercentageOfBasicSalary) ? _currentBasicAmount : monthlySalary, c.isPercent, c.isAllowance, c.percentage_or_amount, roundOffAmount);
+            const currAmount = calculateOn((c?.calculationType === PercentageOfBasicSalary) ? _currentBasicAmount : monthlySalary, c.isPercent, c.isAllowance, c.value, roundOffAmount);
             estimateSalary.current += c.isAllowance ? currAmount : 0;
             return { ...c, amount: intFormat.format(currAmount) }
         })
@@ -128,13 +128,24 @@ const SalarySetup = ({ isCallFromEmployee = false }) => {
     }
     const getSalarInfo = (employee) => {
         if (!employee) return;
-        getPayroll({ url: API.Salary, id: employee?._id }).then(info => {
+        getPayroll({ url: API.Salary, id: employee?.id }).then(info => {
+
+            const { setFormValue } = formApi.current;
             if (info?.data?.result) {
-                const { setFormValue } = formApi.current;
-                const { salaryInfo, overTime } = info.data.result;
-                const { monthlySalary = 0, annualSalary = 0, salaryType = _salaryType[0].id, fkPayrollSetupId = payrollSetups[0]._id } = salaryInfo;
-                setFormValue({ monthlySalary, annualSalary, salaryType, fkPayrollSetupId, ...overTime });
-                handleSalarySetup(fkPayrollSetupId)
+                // const { salaryInfo, overTime } = info.data.result;
+                const { monthlySalary = 0, annualSalary = 0, salaryType = _salaryType[0].id, payrollSetupId = payrollSetups[0].id } = info?.data?.result;
+                setFormValue({
+                    monthlySalary, annualSalary, salaryType, fkPayrollSetupId: payrollSetupId,
+                    // ...overTime 
+                });
+                handleSalarySetup(payrollSetupId)
+            }
+            else {
+                setFormValue({
+                    monthlySalary: 0, annualSalary: 0, salaryType: _salaryType[0].id, fkPayrollSetupId: payrollSetups[0].id,
+                    // ...overTime 
+                });
+                handleSalarySetup(payrollSetups[0].id)
             }
         })
     }
@@ -145,10 +156,10 @@ const SalarySetup = ({ isCallFromEmployee = false }) => {
         if (+monthlySalary !== +(estimateSalary.current.replaceAll(",", ""))) return setSalaryError(true);
 
         updateEntity({
-            url: `${API.Salary}/${fkEmployeeId._id}`, data: {
+            url: `${API.Salary}/${fkEmployeeId.id}`, data: {
                 monthlySalary,
                 annualSalary: monthlySalary * 12,
-                salaryType, fkPayrollSetupId,
+                salaryType, payrollSetupId: fkPayrollSetupId,
                 overTime
             }
         }).then(console.log);
@@ -168,7 +179,7 @@ const SalarySetup = ({ isCallFromEmployee = false }) => {
         },
         breakpoints,
         dataName: 'fullName',
-        dataId: '_id',
+        dataId: 'id',
         options: employees,
         defaultValue: null,
     },
@@ -183,10 +194,10 @@ const SalarySetup = ({ isCallFromEmployee = false }) => {
         breakpoints,
         onChange: handleSalarySetup,
         options: payrollSetups,
-        dataId: "_id",
+        dataId: "id",
         dataName: "name",
         isNone: false,
-        defaultValue: payrollSetups?.length ? payrollSetups[0]._id : ""
+        defaultValue: payrollSetups?.length ? payrollSetups[0].id : ""
     },
     {
         elementType: "dropdown",

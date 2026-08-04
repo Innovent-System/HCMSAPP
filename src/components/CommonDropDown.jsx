@@ -33,11 +33,11 @@ function CommonDropDown({ isMultiple = false, children, flexDirection = "row", b
     const handleDropDownIds = (data, type, matchWith) => {
         startTransition(() => {
             const isMonthYear = ['year', 'month'].includes(type);
-            const setOfIds = setDropDownIds(data, type, isMonthYear ? 'id' : "_id");
+            const setOfIds = setDropDownIds(data, type, 'id');
             dispatch(dropDownIdsAction(setOfIds));
             if (typeof setIdSet === "function") setIdSet({ ...idset, ...setOfIds });
             if (!isMonthYear) {
-                if (["company", "area", 'department', 'group', 'designation'].includes(type)) matchWith = "_id";
+                // if (["company", "area", 'department', 'group', 'designation'].includes(type)) matchWith = "_id";
                 setFilter(data, type, matchWith);
             }
 

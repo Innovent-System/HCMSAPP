@@ -98,7 +98,7 @@ const PaySettings = ({ data }) => {
             deletePayrollAfterDays,
             calculationMethod,
             basicSalaryType,
-            percentage_or_amount: basicSalaryType === PercentageBased ? percentage : amount,
+            basicSalaryValue: basicSalaryType === PercentageBased ? percentage : amount,
             details: [
                 ...allowances.map(c => ({ payrollSetupId: data.id, payrollHeadId: c.fkAllowanceId, calculationType: c.type, value: c.type !== FixedAmount ? c.percentage : c.amount })),
                 ...deductions.map(c => ({ payrollSetupId: data.id, payrollHeadId: c.fkDeductionId, calculationType: c.type, value: c.type !== FixedAmount ? c.percentage : c.amount }))
@@ -179,71 +179,71 @@ const PaySettings = ({ data }) => {
             breakpoints,
             defaultValue: 3,
         },
-        // {
-        //     elementType: "custom",
-        //     breakpoints: fullWidthPoints,
-        //     NodeElement: () => <Divider><Chip label="Payslip Items" icon={<DisplaySettings />} /></Divider>
-        // },
-        // {
-        //     elementType: "dropdown",
-        //     name: "basicSalaryType",
-        //     label: "Basic Salary Type",
-        //     breakpoints,
-        //     dataId: "id",
-        //     dataName: "title",
-        //     isNone: false,
-        //     defaultValue: PercentageBased,
-        //     options: basicSalaryTypeList,
-        // },
-        // {
-        //     elementType: "inputfield",
-        //     name: "percentage",
-        //     isShow: (values) => values.basicSalaryType === PercentageBased,
-        //     label: "Percentage",
-        //     inputMode: 'numeric',
-        //     required: (values) => values.basicSalaryType === PercentageBased,
-        //     validate: {
-        //         errorMessage: "Perentage is required",
-        //     },
-        //     type: "number",
-        //     inputProps: {
-        //         min: 0,
-        //         max: 100
-        //     },
-        //     breakpoints,
-        //     InputProps: {
-        //         endAdornment: (
-        //             <InputAdornment position="end">
-        //                 <Percent />
-        //             </InputAdornment>
-        //         )
-        //     },
-        //     defaultValue: "",
-        // },
-        // {
-        //     elementType: "inputfield",
-        //     name: "amount",
-        //     isShow: (values) => values.basicSalaryType !== PercentageBased,
-        //     label: "Amount",
-        //     inputMode: 'numeric',
-        //     required: (values) => values.basicSalaryType !== PercentageBased,
-        //     validate: {
-        //         errorMessage: "Amount is required",
-        //     },
-        //     type: "number",
-        //     inputProps: {
-        //         min: 0,
-        //     },
-        //     breakpoints,
-        //     InputProps: {
-        //         endAdornment: (
-        //             <InputAdornment position="end">
-        //                 <AttachMoney />
-        //             </InputAdornment>
-        //         )
-        //     },
-        //     defaultValue: "",
-        // },
+        {
+            elementType: "custom",
+            breakpoints: fullWidthPoints,
+            NodeElement: () => <Divider><Chip label="Payslip Items" icon={<DisplaySettings />} /></Divider>
+        },
+        {
+            elementType: "dropdown",
+            name: "basicSalaryType",
+            label: "Basic Salary Type",
+            breakpoints,
+            dataId: "id",
+            dataName: "title",
+            isNone: false,
+            defaultValue: PercentageBased,
+            options: basicSalaryTypeList,
+        },
+        {
+            elementType: "inputfield",
+            name: "percentage",
+            isShow: (values) => values.basicSalaryType === PercentageBased,
+            label: "Percentage",
+            inputMode: 'numeric',
+            required: (values) => values.basicSalaryType === PercentageBased,
+            validate: {
+                errorMessage: "Perentage is required",
+            },
+            type: "number",
+            inputProps: {
+                min: 0,
+                max: 100
+            },
+            breakpoints,
+            InputProps: {
+                endAdornment: (
+                    <InputAdornment position="end">
+                        <Percent />
+                    </InputAdornment>
+                )
+            },
+            defaultValue: "",
+        },
+        {
+            elementType: "inputfield",
+            name: "amount",
+            isShow: (values) => values.basicSalaryType !== PercentageBased,
+            label: "Amount",
+            inputMode: 'numeric',
+            required: (values) => values.basicSalaryType !== PercentageBased,
+            validate: {
+                errorMessage: "Amount is required",
+            },
+            type: "number",
+            inputProps: {
+                min: 0,
+            },
+            breakpoints,
+            InputProps: {
+                endAdornment: (
+                    <InputAdornment position="end">
+                        <AttachMoney />
+                    </InputAdornment>
+                )
+            },
+            defaultValue: "",
+        },
         {
             elementType: "custom",
             breakpoints: fullWidthPoints,
@@ -469,7 +469,7 @@ const PaySettings = ({ data }) => {
         if (result) {
             const { payrollStartDay, endDay, deletePayrollAfterDays, calculationMethod,
                 basicSalaryType,
-                percentage_or_amount,
+                basicSalaryValue,
                 allowances: _allowances, deductions: _deductions
             } = result;
             const { setFormValue } = formApi.current;
@@ -481,9 +481,9 @@ const PaySettings = ({ data }) => {
                 endDay: payrollStartDay === 0 ? "Last Day of Month" : endDay,
                 deletePayrollAfterDays,
                 calculationMethod,
-                // basicSalaryType,
-                // percentage: basicSalaryType === PercentageBased ? percentage_or_amount : 0,
-                // amount: basicSalaryType !== PercentageBased ? percentage_or_amount : 0,
+                basicSalaryType,
+                percentage: basicSalaryType === PercentageBased ? basicSalaryValue : 0,
+                amount: basicSalaryType !== PercentageBased ? basicSalaryValue : 0,
                 allowances: _allowances?.length ? _allowances.map(c => ({ fkAllowanceId: c.payrollHeadId, type: c.calculationType, percentage: c.calculationType !== FixedAmount ? c.value : 0, amount: c.calculationType === FixedAmount ? c.value : 0 })) : allowances,
                 deductions: _deductions?.length ? _deductions.map(c => ({ fkDeductionId: c.payrollHeadId, type: c.calculationType, percentage: c.calculationType !== FixedAmount ? c.value : 0, amount: c.calculationType === FixedAmount ? c.value : 0 })) : deductions
             })

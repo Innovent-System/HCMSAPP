@@ -60,6 +60,7 @@ export const AutoDeduction = ({ data }) => {
     if (formApi.current && data) {
       const { setFormValue } = formApi.current;
       setFormValue(structuredClone(data.autoDeduction))
+      setDisabledFlags(data.autoDeduction.flagSetting?.map(e => e.attendanceFlagId))
     }
   }, [data, formApi])
 

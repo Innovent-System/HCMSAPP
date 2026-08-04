@@ -22,7 +22,7 @@ export const getApi = createApi({
     }),
     file: builder.query({
       query: ({ url, data, fileName = "report.pdf" }) => ({
-        url, body: data, method: "POST", headers: headerOption(),
+        url, body: data, method: "QUERY", headers: headerOption(),
         responseHandler: async (response) => {
 
           if (response.url.endsWith("download") && response.ok) {

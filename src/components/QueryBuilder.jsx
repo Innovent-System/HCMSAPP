@@ -170,7 +170,17 @@ function getFilters(node, result = {}) {
     if (!node) return result;
 
     if (node.type === "rule") {
-        result[node.properties.field] = node.properties.value?.[0] ?? null;
+
+        const field = node.properties.field;
+        const value = node.properties.value?.[0];
+
+        if (field && value !== undefined && value !== null && value !== "") {
+
+            result[field] = {
+                operator: mapOperator(node.properties.operator),
+                value: value
+            };
+        }
     }
 
     if (node.children1) {
@@ -178,4 +188,40 @@ function getFilters(node, result = {}) {
     }
 
     return result;
+}
+
+function mapOperator(operator) {
+
+    switch (operator) {
+
+        case "equal":
+            return "Equal";
+
+        case "not_equal":
+            return "NotEqual";
+
+        case "contains":
+            return "Contains";
+
+        case "starts_with":
+            return "StartsWith";
+
+        case "ends_with":
+            return "EndsWith";
+
+        case "less":
+            return "LessThan";
+
+        case "less_or_equal":
+            return "LessThanOrEqual";
+
+        case "greater":
+            return "GreaterThan";
+
+        case "greater_or_equal":
+            return "GreaterThanOrEqual";
+
+        default:
+            return "Equal";
+    }
 }

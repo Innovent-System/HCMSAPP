@@ -115,7 +115,7 @@ export const AddLeaveRequest = ({ requestedDate = null, requestedEmployee = null
                     setLeaveTypes(c.data.result);
                 }
                 setFormValue({
-                    fkEmployeeId: Employees.find(e => e.id === requestedEmployee)
+                    fkEmployeeId: employees.find(e => e.id === requestedEmployee)
                 })
             })
 

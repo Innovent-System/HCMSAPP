@@ -72,7 +72,7 @@ const getColumns = (apiRef, onEdit, onActive) => {
 let editId = 0;
 // const DEFAULT_API = API.Allowance;
 
-const Allowance = ({ DEFAULT_API = API.Allowance, DEFAULT_NAME = "Allowance",headType = 1, formProps = [], dataMapping = null, setEditData = null }) => {
+const Allowance = ({ DEFAULT_API = API.Allowance, DEFAULT_NAME = "Allowance", headType = 1, formProps = [], dataMapping = null, setEditData = null }) => {
     const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
     const isEdit = React.useRef(false);
@@ -105,7 +105,7 @@ const Allowance = ({ DEFAULT_API = API.Allowance, DEFAULT_NAME = "Allowance",hea
             ...sort,
             searchParams: {
                 ...query,
-                headType
+                headType: { value: headType, operator: "Equal" }
             }
         }
     }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
@@ -172,7 +172,7 @@ const Allowance = ({ DEFAULT_API = API.Allowance, DEFAULT_NAME = "Allowance",hea
         if (isValid) {
             let values = getValue();
             let dataToInsert = { ...values };
-            dataToInsert.headType =  headType;
+            dataToInsert.headType = headType;
             if (typeof dataMapping === "function") {
                 dataToInsert = dataMapping(values);
             }
