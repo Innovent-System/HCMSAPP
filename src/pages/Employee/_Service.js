@@ -5,7 +5,8 @@ export const API = {
     ProfileRequest: "employee/profile",
     Group: "employee/group",
     Designation: "employee/designation",
-    EmployeeStatus: "employee/status"
+    EmployeeStatus: "employee/status",
+    RoleTemplate: "employee/roletemplate"
 }
 
 

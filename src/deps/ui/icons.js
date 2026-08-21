@@ -13,6 +13,7 @@ export {
     PictureAsPdf, OpenInNew, HourglassBottom, MoreVert, EmailOutlined, LocationOnOutlined, DomainOutlined, Save, AddCircle, RemoveCircle, Remove, PostAdd,
     HealthAndSafety, PriceChange, DirectionsWalk, AvTimer, Difference, Minimize, Logout, TrendingUp, TrendingDown, AccountBalance, CalendarToday, ArrowUpward, ArrowDownward,
     Menu, DragIndicator, AutoAwesome, Lock, Bolt, LocationOn, WorkOutline, FilePresent, CheckCircleOutline, Language, Email,
-    ContentCopy,Celebration,ChevronRight,EventAvailable,WbSunny
+    ContentCopy, Celebration, ChevronRight, EventAvailable, WbSunny, KeyboardArrowDown, KeyboardArrowUp, ArrowBack, Category,
+    LockOpen, VerifiedUser
 
 } from '@mui/icons-material';

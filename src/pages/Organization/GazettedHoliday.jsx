@@ -57,8 +57,8 @@ const getColumns = (apiRef, onEdit, onActive) => {
             field: 'title', headerName: 'Name', flex: 1, hideable: false
         },
         { field: 'holidayDate', headerName: 'Date', flex: 1, valueGetter: ({ row }) => formateISODate(row.holidayDate) },
-        { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
-        { field: 'createdOn', headerName: 'Created On', flex: 1, sortingOrder: ["desc"], valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
+        { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedAt) },
+        { field: 'createdOn', headerName: 'Created On', flex: 1, sortingOrder: ["desc"], valueGetter: ({ row }) => formateISODateTime(row.createdAt) },
         {
             field: 'isActive', headerName: 'Active', renderCell: (param) => (
                 param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
@@ -75,7 +75,7 @@ const DEFAULT_API = API.Gazetted;
 export const AddGazettedHoliday = ({ openPopup, setOpenPopup, isEdit = false, row = null }) => {
     const { addEntity } = useEntityAction();
     const formApi = useRef(null);
-    const { countries, cities, states, areas, groups, employees, filterType, setFilter } = useDropDown();
+    const { departments, areas, groups, employees, filterType, setFilter } = useDropDown();
 
     useEffect(() => {
         if (!formApi.current || !openPopup) return;
@@ -85,16 +85,14 @@ export const AddGazettedHoliday = ({ openPopup, setOpenPopup, isEdit = false, ro
         else {
 
             setFormValue({
-                fkCountryId: countries.filter(c => row.fkCountryId.includes(c._id)),
-                fkStateId: states.filter(s => row.fkStateId.includes(s._id)),
-                fkCityId: cities.filter(ct => row.fkCityId.includes(ct._id)),
-                fkAreaId: areas.filter(a => row.fkAreaId.includes(a._id)),
-                fkGroupId: groups.filter(g => row.fkGroupId.includes(g._id)),
-                exemptedEmployees: employees.filter(e => row.exemptedEmployees.includes(e._id)),
+                areas: areas.filter(a => row.areas.includes(a.id)),
+                groups: groups.filter(g => row.groups.includes(g.id)),
+                departments: departments.filter(g => row.departments.includes(g.id)),
+                exemptedEmployees: employees.filter(e => row.exemptedEmployees.includes(e.id)),
                 holidayDate: new Date(row.holidayDate),
                 title: row.title
             });
-            // setFilter(countries.filter(c => row.fkCountryId.includes(c._id)), filterType.COUNTRY, "id", (data) => {
+            // setFilter(countries.filter(c => row.countryId.includes(c._id)), filterType.COUNTRY, "id", (data) => {
             //     const { states, cities, areas } = data;
 
             // });
@@ -105,16 +103,16 @@ export const AddGazettedHoliday = ({ openPopup, setOpenPopup, isEdit = false, ro
         const { getValue, validateFields } = formApi.current
         if (validateFields()) {
             let values = getValue();
-            let dataToInsert = { ...values };
+            let dataToInsert = { id: 0, ...values };
+            if (isEdit)
+                dataToInsert.id = editId
 
             dataToInsert.holidayDate = systemFormatDate(dataToInsert.holidayDate);
-            dataToInsert.fkCountryId = dataToInsert.fkCountryId.map(c => c._id);
-            dataToInsert.fkStateId = dataToInsert.fkStateId.map(c => c._id);
-            dataToInsert.fkCityId = dataToInsert.fkCityId.map(c => c._id);
-            dataToInsert.fkAreaId = dataToInsert.fkAreaId.map(c => c._id);
-            dataToInsert.fkGroupId = dataToInsert.fkGroupId.map(c => c._id);
-            if (isEdit)
-                dataToInsert._id = editId
+            dataToInsert.areas = dataToInsert.areas.map(c => ({ areaId: c.id, gazettedHolidayId: dataToInsert.id }));
+            dataToInsert.groups = dataToInsert.groups.map(c => ({ groupId: c.id, gazettedHolidayId: dataToInsert.id }));
+            dataToInsert.departments = dataToInsert.departments.map(c => ({ departmentId: c.id, gazettedHolidayId: dataToInsert.id }));
+            dataToInsert.exemptedEmployees = dataToInsert.exemptedEmployees.map(c => ({ employeeId: c.id, gazettedHolidayId: dataToInsert.id }));
+
 
             addEntity({ url: DEFAULT_API, data: [dataToInsert] }).then(r => {
                 if (r?.data) setOpenPopup(false);
@@ -147,44 +145,14 @@ export const AddGazettedHoliday = ({ openPopup, setOpenPopup, isEdit = false, ro
         },
         {
             elementType: "ad_dropdown",
-            name: "fkCountryId",
-            isMultiple: true,
-            label: "Country",
-            dataName: 'name',
-            options: countries,
-            onChange: (data) => setFilter(data, filterType.COUNTRY, "id"),
-            defaultValue: []
-        },
-        {
-            elementType: "ad_dropdown",
-            name: "fkStateId",
-            label: "State",
-            isMultiple: true,
-            dataName: "name",
-            options: states,
-            onChange: (data) => setFilter(data, filterType.STATE, "id"),
-            defaultValue: []
-        },
-        {
-            elementType: "ad_dropdown",
-            name: "fkCityId",
-            label: "City",
-            isMultiple: true,
-            dataName: "name",
-            onChange: (data) => setFilter(data, filterType.CITY, "_id"),
-            options: cities,
-            defaultValue: []
-        },
-        {
-            elementType: "ad_dropdown",
-            name: "fkAreaId",
+            name: "areas",
             label: "Area",
             required: true,
             validate: {
                 errorMessage: "Area is required",
             },
-            dataId: '_id',
-            dataName: "areaName",
+            dataId: 'id',
+            dataName: "name",
             onChange: (data) => setFilter(data, filterType.AREA, "_id"),
             options: areas,
             isMultiple: true,
@@ -192,16 +160,23 @@ export const AddGazettedHoliday = ({ openPopup, setOpenPopup, isEdit = false, ro
         },
         {
             elementType: "ad_dropdown",
-            name: "fkGroupId",
-            label: "Group",
-            required: true,
-            validate: {
-                errorMessage: "Group is required",
-            },
+            name: "departments",
+            label: "Department",
             isMultiple: true,
-            // onChange: (data) => setFilter(data, filterType.GROUP, "_id"),
-            dataId: '_id',
-            dataName: "groupName",
+            onChange: (data) => setFilter(data, filterType.DEPARTMENT, "id"),
+            dataId: 'id',
+            dataName: "departmentName",
+            options: departments,
+            defaultValue: []
+        },
+        {
+            elementType: "ad_dropdown",
+            name: "groups",
+            label: "Group",
+            isMultiple: true,
+            onChange: (data) => setFilter(data, filterType.GROUP, "id"),
+            dataId: 'id',
+            dataName: "name",
             options: groups,
             defaultValue: []
         },
@@ -210,7 +185,7 @@ export const AddGazettedHoliday = ({ openPopup, setOpenPopup, isEdit = false, ro
             name: "exemptedEmployees",
             label: "Exempted Employees",
             isMultiple: true,
-            dataId: '_id',
+            dataId: 'id',
             dataName: "fullName",
             options: employees,
             defaultValue: []
@@ -255,7 +230,7 @@ const GazettedHoliday = () => {
 
     const gridApiRef = useGridApi();
     const query = useAppSelector(e => e.appdata.query.builder);
-    const { countryIds, stateIds, cityIds } = useDropDownIds();
+    const { areaIds, departmentIds, groupIds } = useDropDownIds();
 
     const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
         url: `${DEFAULT_API}/get`,
@@ -266,9 +241,9 @@ const GazettedHoliday = () => {
             ...sort,
             searchParams: {
                 ...query,
-                ...(countryIds && { "country.country_id": countryIds }),
-                ...(stateIds && { "state.state_id": stateIds }),
-                ...(cityIds && { "city.city_id": cityIds })
+                ...(areaIds && { "areaId": { value: areaIds.split(','), operator: "In" } }),
+                ...(groupIds && { "employeeGroupId": { value: groupIds.split(','), operator: "In" } }),
+                ...(departmentIds && { "departmentId": { value: departmentIds.split(','), operator: "In" } })
             }
         }
     }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
@@ -287,7 +262,7 @@ const GazettedHoliday = () => {
     }
 
     const handleActiveInActive = (id) => {
-        updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
+        updateOneEntity({ url: DEFAULT_API, data: { id: id } });
     }
 
     const handelDeleteItems = (ids) => {

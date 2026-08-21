@@ -44,7 +44,7 @@ const fields = {
 
 const mapAdvSalary = (values) => {
     const map = { ...values };
-    map.fkEmployeeId = values.fkEmployeeId._id;
+    map.employeeId = values.employeeId.id;
     return map
 }
 
@@ -52,17 +52,17 @@ const getColumns = (onCancel) => [
     { field: '_id', headerName: 'Id', hide: true },
     { field: 'rowNo', headerName: 'Sr#', width:8,sortable:false,filterable:false },
     {
-        field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.employees.fullName
+        field: 'fullName', headerName: 'Employee Name', flex: 1
     },
     { field: 'loanRequest', headerName: 'Date', flex: 1, valueGetter: ({ row }) => formateISODate(row.loanRequest) },
     { field: 'principleAmount', headerName: 'Principle' },
-    { field: 'type', headerName: 'Type' },
+    { field: 'loanType', headerName: 'Type' },
     { field: 'repayAmount', headerName: 'Repay' },
     {
         field: 'status', headerName: 'Status', flex: 1, renderCell: renderStatusCell
     },
-    { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
-    { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
+    { field: 'modifiedAt', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedAt) },
+    { field: 'createdAt', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdAt) },
     getActions(null, { onCancel })
 ];
 
@@ -74,7 +74,7 @@ const AddLaonRequest = ({ openPopup, setOpenPopup, colData = [] }) => {
     const formApi = useRef(null);
     const [loader, setLoader] = useState(false);
 
-    const { Employees } = useAppSelector(e => e.appdata.employeeData);
+    const { employees } = useAppSelector(e => e.appdata.employeeData);
     const checkPfBalance = useAppSelector(e => e.modulesetting.payroll.checkPfBalance);
     const { addEntity } = useEntityAction();
 
@@ -97,19 +97,19 @@ const AddLaonRequest = ({ openPopup, setOpenPopup, colData = [] }) => {
     const formData = [
         {
             elementType: "ad_dropdown",
-            name: "fkEmployeeId",
+            name: "employeeId",
             label: "Employee",
             onChange: (val) => {
                 const { getValue } = formApi.current;
-                handlePfBalc(val._id, getValue().type);
+                handlePfBalc(val.id, getValue().loanType);
             },
             required: true,
             validate: {
                 errorMessage: "Select Employee",
             },
             dataName: 'fullName',
-            dataId: "_id",
-            options: Employees,
+            dataId: "id",
+            options: employees,
             defaultValue: null,
             excel: {
                 sampleData: "Faizan Siddiqui"
@@ -162,11 +162,11 @@ const AddLaonRequest = ({ openPopup, setOpenPopup, colData = [] }) => {
         },
         {
             elementType: "dropdown",
-            name: "type",
+            name: "loanType",
             label: "Type",
             onChange: (val) => {
                 const { getValue } = formApi.current;
-                handlePfBalc(getValue().fkEmployeeId._id, val);
+                handlePfBalc(getValue().employeeId.id, val);
             },
             isNone: false,
             dataId: "id",
@@ -238,7 +238,7 @@ const AddLaonRequest = ({ openPopup, setOpenPopup, colData = [] }) => {
             elementType: "inputfield",
             name: "pfBalance",
             disabled: true,
-            isShow: val => val.fkEmployeeId && val.type === "PF",
+            isShow: val => val.employeeId && val.loanType === "PF",
             type: "number",
             label: "Balance",
             defaultValue: 0
@@ -268,7 +268,7 @@ const AddLaonRequest = ({ openPopup, setOpenPopup, colData = [] }) => {
         if (validateFields()) {
             let values = getValue();
             let dataToInsert = { ...values };
-            dataToInsert.fkEmployeeId = values.fkEmployeeId._id;
+            dataToInsert.employeeId = values.employeeId.id;
             dataToInsert.loanStartDate = systemFormatDate(values.loanStartDate);
             dataToInsert.loanRequest = systemFormatDate(values.loanRequest);
 
@@ -354,7 +354,7 @@ const LoanRequest = () => {
 
     }, [excelData])
 
-    const { socketData } = useSocketIo("changeInLaon", refetch);
+    const { socketData } = useSocketIo("changeInLoan", refetch);
 
     const columns = getColumns(handleCancel);
 

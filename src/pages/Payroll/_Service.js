@@ -3,8 +3,8 @@ export const API = {
     Deduction: "payroll/head",
     PayrollSetup: "payroll/setup",
     Salary: 'payroll/salarysetup',
-    Process: 'payroll/process',
-    PayrollDetail: 'payroll/process',
+    Process: 'payroll/processpayroll',
+    PayrollDetail: 'payroll/processpayroll',
     AdvanceSalary: 'payroll/advancesalary',
     SalaryChange: 'payroll/salarychange',
     CancelAdvanceSalary: 'payroll/advancesalary/cancel',
@@ -61,4 +61,7 @@ export const OverTimeCalculation = [
 
 ], defaultOverTimeCalculation = "FixedAmount"
 
-
+export const YESNOLIST = [
+    { id: "yes", title: "Yes" },
+    { id: "no", title: "No" }
+]

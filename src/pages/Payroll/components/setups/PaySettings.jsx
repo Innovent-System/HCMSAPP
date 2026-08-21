@@ -4,7 +4,8 @@ import { DisplaySettings, Percent, AttachMoney, RemoveCircleOutline, AddCircleOu
 import { Divider, Chip, InputAdornment, IconButton, Fab, Grid } from '../../../../deps/ui'
 import {
     API, basicSalaryTypeList, PercentageBased, dayRange, defaultCaluation, payScheduleType,
-    perDayCalulationsList, CalculationType, PercentageOfBasicSalary, FixedAmount
+    perDayCalulationsList, CalculationType, PercentageOfBasicSalary, FixedAmount,
+    YESNOLIST
 } from '../../_Service'
 import { useAppDispatch, useAppSelector } from '../../../../store/storehook'
 import { PayrollDataThunk, useEntityAction, useLazyEntityByIdQuery } from '../../../../store/actions/httpactions'
@@ -28,7 +29,7 @@ const PaySettings = ({ data }) => {
 
     const isEdit = useRef(true);
     const { allowanceHeads, deductionHeads, PayrollSetups } = useAppSelector(c => c.appdata.payrollData)
-    const allowances = useRef([{ fkAllowanceId: allowanceHeads?.length ? allowanceHeads[0].id : "", type: PercentageOfBasicSalary, amount: 0, percentage: 0 }]).current
+    const allowances = useRef([{ fkAllowanceId: allowanceHeads?.length ? allowanceHeads[0].id : "", type: PercentageOfBasicSalary, amount: 0, percentage: 0, isTaxable: "no" }]).current
     const deductions = useRef([{ fkDeductionId: deductionHeads?.length ? deductionHeads[0].id : "", type: PercentageOfBasicSalary, amount: 0, percentage: 0 }]).current
     const [disabledAllowance, setDisabledAllowance] = useState(allowanceHeads?.length ? [allowanceHeads[0].id] : []);
     const [disabledDeduction, setDisabledDeduct] = useState(deductionHeads?.length ? [deductionHeads[0].id] : [])
@@ -100,7 +101,7 @@ const PaySettings = ({ data }) => {
             basicSalaryType,
             basicSalaryValue: basicSalaryType === PercentageBased ? percentage : amount,
             details: [
-                ...allowances.map(c => ({ payrollSetupId: data.id, payrollHeadId: c.fkAllowanceId, calculationType: c.type, value: c.type !== FixedAmount ? c.percentage : c.amount })),
+                ...allowances.map(c => ({ payrollSetupId: data.id, payrollHeadId: c.fkAllowanceId, calculationType: c.type, value: c.type !== FixedAmount ? c.percentage : c.amount, isTaxable: c.isTaxable == "yes" })),
                 ...deductions.map(c => ({ payrollSetupId: data.id, payrollHeadId: c.fkDeductionId, calculationType: c.type, value: c.type !== FixedAmount ? c.percentage : c.amount }))
             ]
         };
@@ -285,6 +286,17 @@ const PaySettings = ({ data }) => {
                     options: CalculationType,
                 },
                 {
+                    elementType: "dropdown",
+                    name: "isTaxable",
+                    label: "Taxable",
+                     breakpoints: { size: { xs: 1, lg: 1, md: 1 } },
+                    dataId: "id",
+                    dataName: "title",
+                    isNone: false,
+                    defaultValue: "NO",
+                    options: YESNOLIST,
+                },
+                {
                     elementType: "inputfield",
                     name: "percentage",
                     isShow: (values) => values.type !== FixedAmount,
@@ -335,7 +347,7 @@ const PaySettings = ({ data }) => {
                 },
                 {
                     elementType: "custom",
-                    breakpoints: { size: { xs: 6, lg: 6, md: 6 } },
+                    breakpoints: { size: { xs: 4, lg: 4, md: 4 } },
                     NodeElement: ({ dataindex }) => <>
                         <IconButton onClick={() => handleRemoveItems(dataindex)}>
                             <RemoveCircleOutline color='warning' />
@@ -484,7 +496,7 @@ const PaySettings = ({ data }) => {
                 basicSalaryType,
                 percentage: basicSalaryType === PercentageBased ? basicSalaryValue : 0,
                 amount: basicSalaryType !== PercentageBased ? basicSalaryValue : 0,
-                allowances: _allowances?.length ? _allowances.map(c => ({ fkAllowanceId: c.payrollHeadId, type: c.calculationType, percentage: c.calculationType !== FixedAmount ? c.value : 0, amount: c.calculationType === FixedAmount ? c.value : 0 })) : allowances,
+                allowances: _allowances?.length ? _allowances.map(c => ({ fkAllowanceId: c.payrollHeadId, type: c.calculationType, percentage: c.calculationType !== FixedAmount ? c.value : 0, amount: c.calculationType === FixedAmount ? c.value : 0, isTaxable: c.isTaxable ? "yes" : "no" })) : allowances,
                 deductions: _deductions?.length ? _deductions.map(c => ({ fkDeductionId: c.payrollHeadId, type: c.calculationType, percentage: c.calculationType !== FixedAmount ? c.value : 0, amount: c.calculationType === FixedAmount ? c.value : 0 })) : deductions
             })
         }

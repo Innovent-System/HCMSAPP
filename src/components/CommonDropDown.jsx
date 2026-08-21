@@ -17,6 +17,10 @@ const bindDataIds = (data, matchWith) => {
     return data.map(e => e[matchWith]).join(",");
 }
 
+const AUTO_SELECT_FIELDS = {
+    area: 'areas',
+    //employee: 'employees'
+};
 //ENable filters or or Ids Mapping COmponent base krni hai abhi
 
 const setDropDownIds = (data, type, matchWith) => ({ [type + "Ids"]: bindDataIds(data, matchWith) })
@@ -27,7 +31,7 @@ function CommonDropDown({ isMultiple = false, children, flexDirection = "row", b
     const { filterType, setFilter, ...dropDown } = useDropDown();
     const dispatch = useAppDispatch();
     const formApi = React.useRef(null);
-
+    const isFirstRender = React.useRef(true);
     const showFilter = useAppSelector(e => showFilters ?? e.appdata.showFilterProps);
 
     const handleDropDownIds = (data, type, matchWith) => {
@@ -44,6 +48,44 @@ function CommonDropDown({ isMultiple = false, children, flexDirection = "row", b
         })
 
     }
+    // useEffect(() => {
+    //     if (isFirstRender.current) {
+    //         isFirstRender.current = false;
+    //         return;   // pehli render pe (default state) auto-select mat karo
+    //     }
+
+    //     if (!showFilter.area) return;   // agar Employee dropdown hi dikh nahi raha to kuch mat karo
+    //     if (!formApi.current) return;
+
+    //     // formApi.current.setFormValue({ employee: dropDown.employees });
+
+    //     // Redux ids bhi sync karo (backend ko final submit pe yehi jayenge)
+    //     const areaIds = dropDown.areas.map(e => e.id).join(",");
+    //     dispatch(dropDownIdsAction({ areaIds }));
+    //     if (typeof setIdSet === "function") setIdSet(prev => ({ ...prev, areaIds }));
+
+    // }, [dropDown.areas])
+
+    useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
+        if (!formApi.current) return;
+
+        for (const [fieldName, dropDownKey] of Object.entries(AUTO_SELECT_FIELDS)) {
+            if (!showFilter[fieldName]) continue;
+
+            const options = dropDown[dropDownKey] || [];
+
+            //formApi.current.setFormValue({ [fieldName]: options });
+
+            const setOfIds = setDropDownIds(options, fieldName, 'id');
+            dispatch(dropDownIdsAction(setOfIds));
+            if (typeof setIdSet === "function") setIdSet(prev => ({ ...prev, ...setOfIds }));
+        }
+    }, [dropDown.areas])
+
     const debouncedClick = React.useRef(debounce(handleDropDownIds, 300)).current;
 
     const isReset = useAppSelector(e => e.appdata.isReset);

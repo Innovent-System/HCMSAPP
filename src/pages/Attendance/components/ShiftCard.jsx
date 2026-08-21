@@ -18,9 +18,9 @@ import { GridRowEditStopReasons, GridRowModes } from '@mui/x-data-grid-pro'
  */
 const getColumns = (apiRef, handleChange, shifts) => {
     return [
-        {
-            field: 'index', headerName: 'Sr#', hideable: false, valueGetter: ({ api, row }) => api.getRowIndex(row.name) + 1
-        },
+        // {
+        //     field: 'index', headerName: 'Sr#', hideable: false, valueGetter: ({ api, row }) => api.getRowIndex(row.name) + 1
+        // },
         {
             field: 'name', headerName: 'Working Day', hideable: false,
 

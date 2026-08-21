@@ -11,7 +11,7 @@ import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { AutoForm } from '../../components/useForm'
 import PageHeader from '../../components/PageHeader'
-import { formateISODate, systemFormatDate,formateISODateTime } from '../../services/dateTimeService'
+import { formateISODate, systemFormatDate, formateISODateTime } from '../../services/dateTimeService'
 import Loader from '../../components/Circularloading'
 import { useDropDownIds } from "../../components/useDropDown";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
@@ -44,23 +44,23 @@ const fields = {
 
 const mapAdvSalary = (values) => {
     const map = { ...values };
-    map.fkEmployeeId = values.fkEmployeeId._id;
+    map.employeeId = values.employeeId.id;
+    map.requestDate = systemFormatDate(values.requestDate);
     return map
 }
 
 const getColumns = (onCancel) => [
-    { field: '_id', headerName: 'Id', hide: true },
-    { field: 'rowNo', headerName: 'Sr#', width:8,sortable:false,filterable:false },
+    { field: 'id', headerName: 'Id', hide: true },
     {
-        field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.fullName
+        field: 'fullName', headerName: 'Employee Name', flex: 1,
     },
-    { field: 'salaryRequest', headerName: 'Date', flex: 1, valueGetter: ({ row }) => formateISODate(row.salaryRequest) },
+    { field: 'requestDate', headerName: 'Date', flex: 1, valueGetter: ({ row }) => formateISODate(row.requestDate) },
     { field: 'amount', headerName: 'Amount' },
     {
         field: 'status', headerName: 'Status', flex: 1, renderCell: renderStatusCell
     },
-    { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
-    { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
+    { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedAt) },
+    { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdAt) },
     getActions(null, { onCancel })
 ];
 
@@ -68,7 +68,7 @@ const AddAdvanceSalary = ({ openPopup, setOpenPopup, colData = [] }) => {
     const formApi = useRef(null);
     const [loader, setLoader] = useState(false);
 
-    const { Employees } = useAppSelector(e => e.appdata.employeeData);
+    const { employees } = useAppSelector(e => e.appdata.employeeData);
     const { addEntity } = useEntityAction();
 
     useEffect(() => {
@@ -80,7 +80,7 @@ const AddAdvanceSalary = ({ openPopup, setOpenPopup, colData = [] }) => {
     const formData = [
         {
             elementType: "ad_dropdown",
-            name: "fkEmployeeId",
+            name: "employeeId",
             label: "Employee",
             variant: "outlined",
             required: true,
@@ -88,8 +88,8 @@ const AddAdvanceSalary = ({ openPopup, setOpenPopup, colData = [] }) => {
                 errorMessage: "Select Employee",
             },
             dataName: 'fullName',
-            dataId: "_id",
-            options: Employees,
+            dataId: "id",
+            options: employees,
             defaultValue: null,
             excel: {
                 sampleData: "Faizan Siddiqui"
@@ -98,7 +98,7 @@ const AddAdvanceSalary = ({ openPopup, setOpenPopup, colData = [] }) => {
         {
             elementType: "datetimepicker",
             label: "Date",
-            name: "salaryRequest",
+            name: "requestDate",
             required: true,
             // disablePast: true,
             validate: {
@@ -161,8 +161,8 @@ const AddAdvanceSalary = ({ openPopup, setOpenPopup, colData = [] }) => {
         if (validateFields()) {
             let values = getValue();
             let dataToInsert = { ...values };
-            dataToInsert.salaryRequest = systemFormatDate(values.salaryRequest);
-            dataToInsert.fkEmployeeId = values.fkEmployeeId._id;
+            dataToInsert.requestDate = systemFormatDate(values.requestDate);
+            dataToInsert.employeeId = values.employeeId.id;
 
             addEntity({ url: DEFAULT_API, data: [dataToInsert] });
 
@@ -201,7 +201,8 @@ const AdvanceSalaryRequest = () => {
     const [sort, setSort] = useState({ sort: { createdAt: -1 } });
     const { inProcess, setFile, excelData, getTemplate } = useExcelReader({
         formTemplate: excelColData.current,
-        transform: mapAdvSalary, fileName: "AdvSalary.xlsx"
+        transform: mapAdvSalary, fileName: "AdvSalary.xlsx",
+        uniqueBy: ["requestDate", "employeeId"]
     });
 
     const [confirmDialog, setConfirmDialog] = useState({

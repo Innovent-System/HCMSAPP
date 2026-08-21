@@ -12,6 +12,7 @@ import { useEntityAction, useLazyEntityByIdQuery } from '../../store/actions/htt
 import { API } from './_Service';
 import { AutoDeduction } from './components/setups/AutoDeduction';
 import { CompanyPolicy } from './components/setups/CompanyPolicy';
+import { TaxRule } from './components/setups/TaxRule';
 
 
 
@@ -26,13 +27,13 @@ export default function Manage() {
     const [value, setValue] = useState('0');
     const [setupId, setSetupId] = useState(() => payrollSetups?.length ? payrollSetups[0].id : "");
     const handleSetup = (id) => getPayrollSetup({ url: DEFAULT_API, id }).then(p => {
-        setSetupId(id);
+        // setSetupId(id);
         setSetup(p.data.result);
     });
 
     useEffect(() => {
-        if (payrollSetups?.length) handleSetup(payrollSetups[0].id);
-    }, [payrollSetups])
+        if (payrollSetups?.length && setupId) handleSetup(setupId);
+    }, [setupId])
 
     const handleSubmit = () => {
         const { getValue, validateFields } = titleFormApi.current
@@ -56,7 +57,7 @@ export default function Manage() {
             },
             {
                 title: "Tax Rules",
-                panel: <CompanyPolicy key="TaxRules" data={setup} />
+                panel: <TaxRule key="TaxRules" data={setup} />
             },
             {
                 title: "Policy",
@@ -104,7 +105,7 @@ export default function Manage() {
                         options={payrollSetups}
                         label='Payroll Setup'
                         value={setupId}
-                        onChange={(e) => handleSetup(e.target.value)}
+                        onChange={(e) => setSetupId(e.target.value)}
                         name='setup'
                         dataId='id'
                         dataName="name"

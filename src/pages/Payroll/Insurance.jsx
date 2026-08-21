@@ -50,24 +50,24 @@ const fields = {
 
 const mapExcelData = (values) => {
     const map = { ...values };
-    map.fkEmployeeId = values.fkEmployeeId._id;
+    map.employeeId = values.employeeId._id;
     return map
 }
 
 const getColumns = (onCancel) => [
-    { field: '_id', headerName: 'Id', hide: true },
+    { field: 'id', headerName: 'Id', hide: true },
     {
-        field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.fullName
+        field: 'fullName', headerName: 'Employee Name', flex: 1
     },
-    { field: 'startDate', headerName: 'Start Date', flex: 1, valueGetter: ({ row }) => formateISODate(row.startDate) },
-    { field: 'endDate', headerName: 'End Date', flex: 1, valueGetter: ({ row }) => formateISODate(row.endDate) },
+    { field: 'startDate', headerName: 'Start Date', flex: 1, valueGetter: ({ row }) => formateISODate(row.periodStart) },
+    { field: 'endDate', headerName: 'End Date', flex: 1, valueGetter: ({ row }) => formateISODate(row.periodEnd) },
     { field: 'amount', headerName: 'Amount' },
     { field: 'policyNumber', headerName: 'Policy' },
-    {
-        field: 'status', headerName: 'Status', flex: 1, renderCell: renderStatusCell
-    },
-    { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
-    { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
+    // {
+    //     field: 'status', headerName: 'Status', flex: 1, renderCell: renderStatusCell
+    // },
+    { field: 'modifiedAt', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedAt) },
+    { field: 'createdAt', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdAt) },
     getActions(null, { onCancel }, true)
 ];
 
@@ -75,7 +75,7 @@ const AddInsurance = ({ openPopup, setOpenPopup, colData = [] }) => {
     const formApi = useRef(null);
 
 
-    const { Employees } = useAppSelector(e => e.appdata.employeeData);
+    const { employees } = useAppSelector(e => e.appdata.employeeData);
     const { addEntity } = useEntityAction();
 
     useEffect(() => {
@@ -87,7 +87,7 @@ const AddInsurance = ({ openPopup, setOpenPopup, colData = [] }) => {
     const formData = [
         {
             elementType: "ad_dropdown",
-            name: "fkEmployeeId",
+            name: "employeeId",
             label: "Employee",
             variant: "outlined",
             required: true,
@@ -95,8 +95,8 @@ const AddInsurance = ({ openPopup, setOpenPopup, colData = [] }) => {
                 errorMessage: "Select Employee",
             },
             dataName: 'fullName',
-            dataId: "_id",
-            options: Employees,
+            dataId: "id",
+            options: employees,
             defaultValue: null,
             excel: {
                 sampleData: "Faizan Siddiqui"
@@ -105,7 +105,7 @@ const AddInsurance = ({ openPopup, setOpenPopup, colData = [] }) => {
         {
             elementType: "datetimepicker",
             label: "Start",
-            name: "startDate",
+            name: "periodStart",
             required: true,
             validate: {
                 errorMessage: "Select Start Date please",
@@ -118,8 +118,8 @@ const AddInsurance = ({ openPopup, setOpenPopup, colData = [] }) => {
         {
             elementType: "datetimepicker",
             label: "End",
-            name: "endDate",
-            shouldDisableDate: (date) => date < startOfDay(formApi.current?.getValue()?.startDate),
+            name: "periodEnd",
+            shouldDisableDate: (date) => date < startOfDay(formApi.current?.getValue()?.periodStart),
             required: true,
             validate: {
                 errorMessage: "Select End Date please",
@@ -160,9 +160,9 @@ const AddInsurance = ({ openPopup, setOpenPopup, colData = [] }) => {
         if (validateFields()) {
             let values = getValue();
             let dataToInsert = { ...values };
-            dataToInsert.fkEmployeeId = values.fkEmployeeId._id;
-            dataToInsert.startDate = systemFormatDate(values.startDate);
-            dataToInsert.endDate = systemFormatDate(values.endDate);
+            dataToInsert.employeeId = values.employeeId.id;
+            dataToInsert.periodStart = systemFormatDate(values.periodStart);
+            dataToInsert.periodEnd = systemFormatDate(values.periodEnd);
             addEntity({ url: DEFAULT_API, data: [dataToInsert] });
 
         }
@@ -203,7 +203,7 @@ const Insurance = () => {
         formTemplate: excelColData.current,
         transform: mapExcelData,
         fileName: "Insurance.xlsx",
-        uniqueBy: ["fkEmployeeId"]
+        uniqueBy: ["employeeId"]
     });
 
     const [confirmDialog, setConfirmDialog] = useState({
@@ -259,7 +259,7 @@ const Insurance = () => {
 
     useEffect(() => {
         if (excelData)
-            addEntity({ url: DEFAULT_API, data: uniqueData(excelData, "fkEmployeeId", "startDate", "endDate") });
+            addEntity({ url: DEFAULT_API, data: uniqueData(excelData, "employeeId", "periodStart", "periodEnd") });
 
     }, [excelData])
 

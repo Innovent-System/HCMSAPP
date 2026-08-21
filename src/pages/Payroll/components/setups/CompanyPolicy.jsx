@@ -19,15 +19,14 @@ export const CompanyPolicy = ({ data }) => {
     const values = getValue();
 
     if (!validateFields()) return
+     var pfPolicyId = data?.pfPolicy ? data?.pfPolicy.id : 0;
     const dataToInsert = {
-      _id: data._id,
-      name: data.name,
-      pfPolicy: {
-        ...values
-      }
+      id: pfPolicyId,
+      payrollSetupId:data.id,
+      ...values
     }
 
-    addEntity({ url: DEFAULT_API, data: [dataToInsert] });
+    addEntity({ url: `${DEFAULT_API}/PFPolicySetting`, data: dataToInsert });
 
   }
   useEffect(() => {
@@ -46,16 +45,24 @@ export const CompanyPolicy = ({ data }) => {
     },
     {
       elementType: "checkbox",
-      name: "enable",
-      label: "Enable",
+      name: "applyPfPolicy",
+      label: "Apply PF Policy",
+      title: "For PF Policy",
+      breakpoints: fullWidthPoints,
+      defaultValue: false
+    },
+    {
+      elementType: "checkbox",
+      name: "isProRata",
+      label: "ProRata Base",
       title: "For PF Policy",
       breakpoints,
-      defaultValue: true
+      defaultValue: false
     },
     {
       elementType: "dropdown",
-      name: "type",
-      label: "Type",
+      name: "pfCalculationType",
+      label: "Calculation Type",
       breakpoints,
       dataId: "id",
       dataName: "title",
@@ -67,12 +74,16 @@ export const CompanyPolicy = ({ data }) => {
       }
     },
     {
+      elementType: "clearfix",
+      breakpoints: fullWidthPoints,
+    },
+    {
       elementType: "inputfield",
       name: "employeeShare",
       label: "Employee(s) Share",
       breakpoints,
       inputMode: 'numeric',
-      required: (value) => value.enable,
+      required: (value) => value.applyPfPolicy,
       validate: {
         errorMessage: "Employee(s) Share is required",
       },
@@ -98,7 +109,7 @@ export const CompanyPolicy = ({ data }) => {
       label: "Employer(s) Share",
       inputMode: 'numeric',
       breakpoints,
-      required: (value) => value.enable,
+      required: (value) => value.applyPfPolicy,
       validate: {
         errorMessage: "Employer(s) Share is required",
       },

@@ -1,13 +1,14 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import { AutoForm } from '../../components/useForm'
 import { useDropDown } from '../../components/useDropDown'
 import { useAppSelector } from '../../store/storehook';
-import { Divider, Chip, InputAdornment, Grid, Typography, FormHelperText } from '../../deps/ui'
-import { DisplaySettings, AttachMoney } from '../../deps/ui/icons'
+import { Divider, Chip, InputAdornment, Grid, Typography, FormHelperText, Stack, Tooltip, IconButton } from '../../deps/ui'
+import { DisplaySettings, AttachMoney, FileCopy } from '../../deps/ui/icons'
 import { useEntityAction, useEntityByIdQuery, useLazyEntityByIdQuery } from '../../store/actions/httpactions';
 import { API, defaultOverTimeCalculation, OverTimeCalculation, PercentageBased, PercentageOfBasicSalary, FixedAmount } from './_Service';
 import CircularLoading from '../../components/Circularloading';
 import Controls from '../../components/controls/Controls'
+import { useExcelReader } from '@/hooks/useExcelReader';
 const _salaryType = [{ id: "Monthly", title: "Monthly" },
 { id: "Hourly", title: "Hourly" },
 { id: "Daily", title: "Daily" }
@@ -32,6 +33,12 @@ const adjustAmount = (monthlySalary, estimateSalary, allowances) => {
     }
 
     return estimateSalary;
+}
+
+const mapSalarySetup = (values) => {
+    const map = { ...values };
+    map.employeeId = values.employeeId.id;
+    return map
 }
 
 /**
@@ -126,6 +133,7 @@ const SalarySetup = ({ isCallFromEmployee = false }) => {
         setFormValue({ annualSalary: intFormat.format(+monthlySalary * 12) });
 
     }
+
     const getSalarInfo = (employee) => {
         if (!employee) return;
         getPayroll({ url: API.Salary, id: employee?.id }).then(info => {
@@ -135,14 +143,14 @@ const SalarySetup = ({ isCallFromEmployee = false }) => {
                 // const { salaryInfo, overTime } = info.data.result;
                 const { monthlySalary = 0, annualSalary = 0, salaryType = _salaryType[0].id, payrollSetupId = payrollSetups[0].id } = info?.data?.result;
                 setFormValue({
-                    monthlySalary, annualSalary, salaryType, fkPayrollSetupId: payrollSetupId,
+                    monthlySalary, annualSalary, salaryType, payrollSetupId: payrollSetupId,
                     // ...overTime 
                 });
                 handleSalarySetup(payrollSetupId)
             }
             else {
                 setFormValue({
-                    monthlySalary: 0, annualSalary: 0, salaryType: _salaryType[0].id, fkPayrollSetupId: payrollSetups[0].id,
+                    monthlySalary: 0, annualSalary: 0, salaryType: _salaryType[0].id, payrollSetupId: payrollSetups[0].id,
                     // ...overTime 
                 });
                 handleSalarySetup(payrollSetups[0].id)
@@ -151,15 +159,15 @@ const SalarySetup = ({ isCallFromEmployee = false }) => {
     }
     const updateSalary = () => {
         const { getValue, validateFields } = formApi.current
-        const { monthlySalary, fkEmployeeId, salaryType, fkPayrollSetupId, ...overTime } = getValue();
+        const { monthlySalary, employeeId, salaryType, payrollSetupId, ...overTime } = getValue();
         if (!validateFields()) return;
         if (+monthlySalary !== +(estimateSalary.current.replaceAll(",", ""))) return setSalaryError(true);
 
         updateEntity({
-            url: `${API.Salary}/${fkEmployeeId.id}`, data: {
+            url: `${API.Salary}/${employeeId.id}`, data: {
                 monthlySalary,
                 annualSalary: monthlySalary * 12,
-                salaryType, payrollSetupId: fkPayrollSetupId,
+                salaryType, payrollSetupId: payrollSetupId,
                 overTime
             }
         }).then(console.log);
@@ -170,7 +178,7 @@ const SalarySetup = ({ isCallFromEmployee = false }) => {
      */
     const formData = [{
         elementType: "ad_dropdown",
-        name: "fkEmployeeId",
+        name: "employeeId",
         label: "Employee",
         onChange: getSalarInfo,
         required: true,
@@ -182,11 +190,14 @@ const SalarySetup = ({ isCallFromEmployee = false }) => {
         dataId: 'id',
         options: employees,
         defaultValue: null,
+        excel: {
+            sampleDate: "Faizan Siddiqui"
+        }
     },
     {
         elementType: "dropdown",
         label: "Payroll Setup",
-        name: "fkPayrollSetupId",
+        name: "payrollSetupId",
         required: true,
         validate: {
             errorMessage: "Payroll Setup is required",
@@ -197,7 +208,10 @@ const SalarySetup = ({ isCallFromEmployee = false }) => {
         dataId: "id",
         dataName: "name",
         isNone: false,
-        defaultValue: payrollSetups?.length ? payrollSetups[0].id : ""
+        defaultValue: payrollSetups?.length ? payrollSetups[0].id : "",
+        excel: {
+            sampleDate: "General"
+        }
     },
     {
         elementType: "dropdown",
@@ -208,7 +222,10 @@ const SalarySetup = ({ isCallFromEmployee = false }) => {
         isNone: false,
         dataId: "id",
         dataName: "title",
-        defaultValue: _salaryType[0].id
+        defaultValue: _salaryType[0].id,
+        excel: {
+            sampleData: "Monthly"
+        }
     },
     {
         elementType: "custom",
@@ -356,6 +373,9 @@ const SalarySetup = ({ isCallFromEmployee = false }) => {
             )
         },
         defaultValue: 0,
+        excel: {
+            sampleData: 250000
+        }
     },
     {
         elementType: "inputfield",
@@ -374,8 +394,28 @@ const SalarySetup = ({ isCallFromEmployee = false }) => {
     }
     ]
 
+    const { inProcess, setFile, excelData, getTemplate } = useExcelReader({
+        formTemplate: formData,
+        transform: mapSalarySetup, fileName: "SalarySetup.xlsx",
+        uniqueBy: ["payrollSetupId", "employeeId"]
+    });
+
+    useEffect(() => {
+        if (excelData)
+            addEntity({ url: `${API.Salary}/uploadexcel`, data: excelData });
+
+    }, [excelData])
+
     return (<>
         {/* <CircularLoading open={isLoading} /> */}
+        <Stack flexDirection='row' sx={{ float: 'right' }}>
+            <Tooltip title="Download Template" placement="bottom" arrow>
+                <IconButton size="small" onClick={getTemplate} aria-label="download template">
+                    <FileCopy fontSize="small" />
+                </IconButton>
+            </Tooltip>
+            <Controls.FileInput handleUpload={(e) => setFile(e.target.files[0])} />
+        </Stack>
         <AutoForm ref={formApi} formData={formData} reduxKey="salarySetup" >
             {/* <Grid container flexDirection="column" spacing={2} pt={2}> */}
             <Grid item size={{ xs: 12, md: 12 }}>

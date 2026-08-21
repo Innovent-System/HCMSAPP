@@ -60,7 +60,7 @@ export const AutoDeduction = ({ data }) => {
     if (formApi.current && data) {
       const { setFormValue } = formApi.current;
       setFormValue(structuredClone(data.autoDeduction))
-      setDisabledFlags(data.autoDeduction.flagSetting?.map(e => e.attendanceFlagId))
+      setDisabledFlags(data.autoDeduction?.flagSetting?.map(e => e.attendanceFlagId))
     }
   }, [data, formApi])
 
@@ -108,15 +108,8 @@ export const AutoDeduction = ({ data }) => {
     },
     {
       elementType: "checkbox",
-      name: "isMinuteWiseDeduction",
-      label: "Minute Wise Deduction",
-      breakpoints,
-      defaultValue: false
-    },
-    {
-      elementType: "checkbox",
       name: "isAbsentDeduction",
-      label: "Abesent Deduction",
+      label: "Absent Deduction",
       breakpoints,
       defaultValue: true
     },
@@ -257,21 +250,39 @@ export const AutoDeduction = ({ data }) => {
     {
       elementType: "custom",
       breakpoints: fullWidthPoints,
-      NodeElement: () => <IconButton title='Add Allowance' size='small' aria-label="delete" onClick={handleAddItems}>
+      NodeElement: () => <IconButton title='Add Flag' size='small' aria-label="delete" onClick={handleAddItems}>
         <AddCircleOutline color='primary' />
       </IconButton>
     },
     {
       elementType: "custom",
       breakpoints: fullWidthPoints,
-      NodeElement: () => <Divider><Chip label="Tax Rule" icon={<DisplaySettings />} /></Divider>
+      NodeElement: () => <Divider><Chip label="Short Time" icon={<DisplaySettings />} /></Divider>
     },
     {
       elementType: "checkbox",
-      name: "autoTaxIncome",
-      label: "Auto Tax Deduction",
+      name: "isShortTimeDeduction",
+      label: "Short Time Deduction",
       breakpoints,
-      defaultValue: true
+      defaultValue: false
+    },
+    {
+      elementType: "inputfield",
+      name: "salaryCalculationPerHour",
+      isShow: (values) => values.isShortTimeDeduction,
+      label: "Salary Calcuation Per Hour",
+      inputMode: 'numeric',
+      required: (values) => values.isShortTimeDeduction,
+      validate: {
+        errorMessage: "value is required",
+      },
+      type: "number",
+      inputProps: {
+        min: 0,
+        max: 16
+      },
+      breakpoints,
+      defaultValue: 8,
     },
   ]
 

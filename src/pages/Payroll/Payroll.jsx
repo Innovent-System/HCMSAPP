@@ -32,7 +32,7 @@ const fields = {
         defaultValue: null,
         hideForCompare: true,
         operators: ["select_equals"],
-        listValues:  monthNames.map((e, i) => ({ value: i, title: e })),
+        listValues: monthNames.map((e, i) => ({ value: i, title: e })),
 
     },
     year: {
@@ -61,20 +61,20 @@ const fields = {
 }
 
 const getColumns = (onDelete) => [
-    { field: '_id', headerName: 'Id', hide: true, hideable: false },
+    { field: 'id', headerName: 'Id', hide: true, hideable: false },
     {
-        field: 'fullName', headerName: 'Name', width: 220, hideable: false, valueGetter: ({ row }) => row.employees?.fullName
+        field: 'fullName', headerName: 'Name', width: 220, hideable: false
     },
     {
-        field: 'payrollsetup', headerName: 'Setup', hideable: false, valueGetter: ({ row }) => row.payrollsetup?.name
+        field: 'payrollSetupName', headerName: 'Setup', hideable: false
     },
     { field: 'salaryType', headerName: 'Type', hideable: false },
-    { field: 'month', headerName: 'Month', hideable: false },
+    { field: 'month', headerName: 'Month', hideable: false, valueGetter: ({ row }) => monthNames[row.month - 1] },
     { field: 'year', headerName: 'Year', hideable: false },
     { field: 'monthlySalary', headerName: 'Monthly Salary', hideable: false, valueGetter: ({ row }) => formatNumber(row.monthlySalary) },
-    { field: 'totalSalary', headerName: 'Net Salary', hideable: false, valueGetter: ({ row }) => formatNumber(row.totalSalary) },
-    { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
-    { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
+    { field: 'netSalary', headerName: 'Net Salary', hideable: false, valueGetter: ({ row }) => formatNumber(row.netSalary) },
+    { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedAt) },
+    { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdAt) },
     getActions(null, { onDelete })
 ];
 
@@ -103,7 +103,7 @@ const Payroll = () => {
 
     const gridApiRef = useGridApi();
     const query = useAppSelector(e => e.appdata.query.builder);
-    const { countryIds, stateIds, cityIds, areaIds, departmentIds, groupIds, designationIds, employeeIds } = useDropDownIds();
+    const { countryIds, stateIds, cityIds, areaIds, departmentIds, groupIds, employeeIds } = useDropDownIds();
 
     const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
         url: `${DEFAULT_API}/get`,
@@ -113,17 +113,17 @@ const Payroll = () => {
             lastKeyId: gridFilter.lastKey,
             ...sort,
             searchParams: {
-                ...(employeeIds && { "fkEmployeeId": { $in: employeeIds.split(',') } }),
-                ...(countryIds && { "companyInfo.fkCountryId": { $in: countryIds.split(',') } }),
-                ...(stateIds && { "companyInfo.fkStateId": { $in: stateIds.split(',') } }),
-                ...(cityIds && { "companyInfo.fkCityId": { $in: cityIds.split(',') } }),
-                ...(areaIds && { "companyInfo.fkAreaId": { $in: areaIds.split(',') } }),
-                ...(groupIds && { "companyInfo.fkEmployeeGroupId": { $in: groupIds.split(',') } }),
-                ...(departmentIds && { "companyInfo.fkDepartmentId": { $in: departmentIds.split(',') } }),
-                ...(designationIds && { "companyInfo.fkDesignationId": { $in: designationIds.split(',') } }),
-                ...query,
-
-            }
+                ...(employeeIds && { "employeeId": { value: employeeIds.split(','), operator: "In" } }),
+                ...(countryIds && { "countryId": { value: countryIds.split(','), operator: "In" } }),
+                ...(stateIds && { "stateId": { value: stateIds.split(','), operator: "In" } }),
+                ...(cityIds && { "cityId": { value: cityIds.split(','), operator: "In" } }),
+                ...(areaIds && { "areaId": { value: areaIds.split(','), operator: "In" } }),
+                ...(groupIds && { "employeeGroupId": { value: groupIds.split(','), operator: "In" } }),
+                ...(departmentIds && { "departmentId": { value: departmentIds.split(','), operator: "In" } }),
+                ...query
+            },
+            month: query?.month?.value,
+            year: query?.year?.value
         }
     }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
 
@@ -153,15 +153,15 @@ const Payroll = () => {
         const deletPayroll = data.filter(e => idTobeDelete.includes(e.id));
 
         const distinctMap = {
-            payrollIds: [],
+            payrollMasterIds: [],
             employeeIds: new Set(),
             years: new Set(),
             months: new Set()
         };
 
         for (const del of deletPayroll) {
-            distinctMap.payrollIds.push(del.id);
-            distinctMap.employeeIds.add(del.fkEmployeeId);
+            distinctMap.payrollMasterIds.push(del.id);
+            distinctMap.employeeIds.add(del.employeeId);
             distinctMap.years.add(del.year);
             distinctMap.months.add(del.monthInNumber);
         }
@@ -197,7 +197,6 @@ const Payroll = () => {
             area: true,
             department: true,
             group: true,
-            designation: true,
             employee: true
         }));
 

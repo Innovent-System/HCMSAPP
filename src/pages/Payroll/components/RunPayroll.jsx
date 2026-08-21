@@ -44,8 +44,8 @@ const currFormat = new Intl.NumberFormat();
 
 const SummaryCards = ({ records }) => {
     const totalGross = records.reduce((s, r) => s + (r.monthlySalary || 0), 0);
-    const totalDeductions = records.reduce((s, r) => s + (r.totalDeduction || 0), 0);
-    const totalNet = records.reduce((s, r) => s + (r.totalSalary || 0), 0);
+    const totalDeductions = records.reduce((s, r) => s + (r.totalDeductions || 0), 0);
+    const totalNet = records.reduce((s, r) => s + (r.netSalary || 0), 0);
 
     const cards = [
         {
@@ -131,7 +131,7 @@ const SectionColumn = ({ title, items, total, accentColor }) => (
         </Box>
 
         <Stack spacing={0.75}>
-            {items.map((e, i) => (
+            {items?.map((e, i) => (
                 <Box
                     key={i}
                     sx={{
@@ -147,10 +147,10 @@ const SectionColumn = ({ title, items, total, accentColor }) => (
                     }}
                 >
                     <Typography variant="body2" sx={{ color: 'text.primary', fontSize: '0.8rem' }}>
-                        {e.item}
+                        {e.headName}
                     </Typography>
                     <Typography variant="body2" sx={{ fontWeight: 600, fontVariantNumeric: 'tabular-nums', fontSize: '0.8rem', color: 'text.primary' }}>
-                        {e.displayAmount}
+                        {currFormat.format(e.amount)}
                     </Typography>
                 </Box>
             ))}
@@ -176,8 +176,8 @@ const DetailPanelContent = ({ row }) => (
             <Grid item size={{ xs: 12, md: 4 }}>
                 <SectionColumn
                     title="Earnings"
-                    items={row.earnings}
-                    total={row.totalEarning}
+                    items={row.details.filter(e => e.isEarning)}
+                    total={row.totalEarnings}
                     accentColor="#1976d2"
                 />
             </Grid>
@@ -186,8 +186,8 @@ const DetailPanelContent = ({ row }) => (
             <Grid item size={{ xs: 12, md: 4 }}>
                 <SectionColumn
                     title="Deductions"
-                    items={row.deductions}
-                    total={row.totalDeduction}
+                    items={row.details.filter(d => !d.isEarning)}
+                    total={row.totalDeductions}
                     accentColor="#d32f2f"
                 />
             </Grid>
@@ -196,7 +196,7 @@ const DetailPanelContent = ({ row }) => (
             <Grid item size={{ xs: 12, md: 4 }}>
                 <SectionColumn
                     title="Others"
-                    items={row.others}
+                    items={row?.others}
                     accentColor="#7b1fa2"
                 />
             </Grid>
@@ -220,17 +220,17 @@ const DetailPanelContent = ({ row }) => (
         >
             <Typography variant="caption" sx={{ color: 'text.secondary' }}>Net Calculation:</Typography>
             <Typography variant="caption" sx={{ fontWeight: 700, color: '#1976d2', fontVariantNumeric: 'tabular-nums' }}>
-                {currFormat.format(row.totalEarning)}
+                {currFormat.format(row.totalEarnings)}
             </Typography>
             <Typography variant="caption" sx={{ color: 'text.secondary' }}>earnings</Typography>
             <Typography variant="caption" sx={{ color: 'text.secondary', mx: 0.5 }}>−</Typography>
             <Typography variant="caption" sx={{ fontWeight: 700, color: '#d32f2f', fontVariantNumeric: 'tabular-nums' }}>
-                {currFormat.format(row.totalDeduction)}
+                {currFormat.format(row.totalDeductions)}
             </Typography>
             <Typography variant="caption" sx={{ color: 'text.secondary' }}>deductions</Typography>
             <Typography variant="caption" sx={{ color: 'text.secondary', mx: 0.5 }}>=</Typography>
             <Typography variant="body2" sx={{ fontWeight: 700, color: '#2e7d32', fontVariantNumeric: 'tabular-nums' }}>
-                {currFormat.format(row.totalSalary)}
+                {currFormat.format(row.netSalary)}
             </Typography>
             <Typography variant="caption" sx={{ color: 'text.secondary' }}>net salary</Typography>
         </Box>
@@ -240,7 +240,7 @@ const DetailPanelContent = ({ row }) => (
 // ─── Column Definitions ───────────────────────────────────────────────────────
 
 const getColumns = (apiRef, onEdit, onActive) => [
-    { field: '_id', headerName: 'Id', hide: true, hideable: false },
+    { field: 'employeeId', headerName: 'Id', hide: true, hideable: false },
     {
         field: 'fullName',
         headerName: 'Employee',
@@ -268,7 +268,7 @@ const getColumns = (apiRef, onEdit, onActive) => [
         ),
     },
     {
-        field: 'payrollSetup',
+        field: 'payrollSetupName',
         headerName: 'Payroll Setup',
         hideable: false,
         renderCell: ({ value }) => (
@@ -290,7 +290,7 @@ const getColumns = (apiRef, onEdit, onActive) => [
         field: 'month',
         headerName: 'Month',
         hideable: false,
-        valueGetter: ({ value }) => monthNames[value],
+        valueGetter: ({ value }) => monthNames[value - 1],
     },
     {
         field: 'monthlySalary',
@@ -303,7 +303,7 @@ const getColumns = (apiRef, onEdit, onActive) => [
         ),
     },
     {
-        field: 'totalSalary',
+        field: 'netSalary',
         headerName: 'Net Salary',
         hideable: false,
         renderCell: ({ value }) => (
@@ -422,7 +422,7 @@ const RunPayroll = ({ setOpenPopup }) => {
 
     const [gridFilter, setGridFilter] = useState({ limit: 10, page: 0, totalRecord: 0 });
     const [records, setRecords] = useState([]);
-    const [extraData, setExtraData] = useState({ loanDetail: [], bounsDetail: [], leaveDetail: [] });
+    const [extraData, setExtraData] = useState({ loanDetail: [], bounsDetail: [], leavePenalty: [] });
 
     const { addEntity } = useEntityAction();
     const gridApiRef = useGridApi();
@@ -432,7 +432,7 @@ const RunPayroll = ({ setOpenPopup }) => {
     useEffect(() => {
         dispatch(showDropDownFilterAction({
             company: true, country: true, state: true, city: true,
-            area: true, department: true, group: true, designation: true, employee: true
+            area: true, department: true, group: true, employee: true
         }));
         dispatch(builderFieldsAction(fields));
     }, [dispatch]);
@@ -444,8 +444,8 @@ const RunPayroll = ({ setOpenPopup }) => {
     const getDetailPanelHeight = React.useCallback(({ row }) => {
         const { HEADER_H, ITEM_H, TOTAL_H, SUMMARY_H, PADDING_H, MIN_H } = DETAIL_PANEL;
         const maxItems = Math.max(
-            row.earnings?.length || 0,
-            row.deductions?.length || 0,
+            row.details?.filter(e => e.isEarning)?.length || 0,
+            row.details?.filter(e => !e.isEarning)?.length || 0,
             row.others?.length || 0,
         );
         return Math.max(PADDING_H + HEADER_H + (maxItems * ITEM_H) + TOTAL_H + SUMMARY_H, MIN_H);
@@ -466,14 +466,13 @@ const RunPayroll = ({ setOpenPopup }) => {
             fileName: "TempPayrollSummaryReport",
             data: {
                 searchParams: {
-                    ...(employeeIds && { "_id": { $in: employeeIds.split(',') } }),
-                    ...(countryIds && { "companyInfo.fkCountryId": { $in: countryIds.split(',') } }),
-                    ...(stateIds && { "companyInfo.fkStateId": { $in: stateIds.split(',') } }),
-                    ...(cityIds && { "companyInfo.fkCityId": { $in: cityIds.split(',') } }),
-                    ...(areaIds && { "companyInfo.fkAreaId": { $in: areaIds.split(',') } }),
-                    ...(groupIds && { "companyInfo.fkEmployeeGroupId": { $in: groupIds.split(',') } }),
-                    ...(departmentIds && { "companyInfo.fkDepartmentId": { $in: departmentIds.split(',') } }),
-                    ...(designationIds && { "companyInfo.fkDesignationId": { $in: designationIds.split(',') } }),
+                    ...(employeeIds && { "employeeId": { value: employeeIds.split(','), operator: "In" } }),
+                    ...(countryIds && { "countryId": { value: countryIds.split(','), operator: "In" } }),
+                    ...(stateIds && { "stateId": { value: stateIds.split(','), operator: "In" } }),
+                    ...(cityIds && { "cityId": { value: cityIds.split(','), operator: "In" } }),
+                    ...(areaIds && { "areaId": { value: areaIds.split(','), operator: "In" } }),
+                    ...(groupIds && { "employeeGroupId": { value: groupIds.split(','), operator: "In" } }),
+                    ...(departmentIds && { "departmentId": { value: departmentIds.split(','), operator: "In" } }),
                     ...query
                 }, type, isCallFromRunPayroll: true
             }
@@ -486,34 +485,36 @@ const RunPayroll = ({ setOpenPopup }) => {
         getEmployeePayroll({
             url: DEFAULT_API,
             data: {
-                ...(employeeIds && { "_id": { $in: employeeIds.split(',') } }),
-                ...(countryIds && { "companyInfo.fkCountryId": { $in: countryIds.split(',') } }),
-                ...(stateIds && { "companyInfo.fkStateId": { $in: stateIds.split(',') } }),
-                ...(cityIds && { "companyInfo.fkCityId": { $in: cityIds.split(',') } }),
-                ...(areaIds && { "companyInfo.fkAreaId": { $in: areaIds.split(',') } }),
-                ...(groupIds && { "companyInfo.fkEmployeeGroupId": { $in: groupIds.split(',') } }),
-                ...(departmentIds && { "companyInfo.fkDepartmentId": { $in: departmentIds.split(',') } }),
-                ...(designationIds && { "companyInfo.fkDesignationId": { $in: designationIds.split(',') } }),
-                ...query
+                ...(employeeIds && { "employeeId": employeeIds.split(',') }),
+                // ...(countryIds && { "countryId": { value: countryIds.split(','), operator: "In" } }),
+                // ...(stateIds && { "stateId": { value: stateIds.split(','), operator: "In" } }),
+                // ...(cityIds && { "cityId": { value: cityIds.split(','), operator: "In" } }),
+                ...(areaIds && { "areaId": areaIds.split(',') }),
+                ...(groupIds && { "GroupId": groupIds.split(',') }),
+                ...(departmentIds && { "departmentId": departmentIds.split(',') }),
+                ...query,
+                month: query?.month?.value,
+                year: query?.year?.value
             }
         }).then(({ data }) => {
             const { payrollDetails, ...extra } = data;
             setGridFilter({ ...gridFilter, limit: 10, page: 0 });
             setRecords(payrollDetails);
             setExtraData(extra);
-            setDetailPanelExpandedRowIds(payrollDetails.filter(c => c.isProcess).map(e => e.fkEmployeeId));
+            setDetailPanelExpandedRowIds(payrollDetails.map(e => e.employeeId));
         }).finally(() => dispatch(setGlobalLoader(false)));
     };
 
     const handleSavePayroll = () => {
-        const processData = records.filter(c => c.isProcess);
+        // const processData = records.filter(c => c.isProcess);
+        const processData = records;
         addEntity({
             url: `${DEFAULT_API}/save`,
             data: {
                 payrollData: processData,
                 year: records[0].year,
                 month: records[0].month,
-                employeeIds: processData.map(c => c.fkEmployeeId),
+                employeeIds: processData.map(c => c.employeeId),
                 ...extraData
             }
         }).finally(() => setOpenPopup(false));
@@ -566,7 +567,7 @@ const RunPayroll = ({ setOpenPopup }) => {
                             handleReport
                         }}
                         checkboxSelection={false}
-                        getRowId={(r) => r.fkEmployeeId}
+                        getRowId={(r) => r.employeeId}
                         detailPanelExpandedRowIds={detailPanelExpandedRowIds}
                         onDetailPanelExpandedRowIdsChange={handleDetailPanelExpandedRowIdsChange}
                         getDetailPanelContent={getDetailPanelContent}

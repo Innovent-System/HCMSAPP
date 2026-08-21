@@ -35,8 +35,8 @@ function isMatchEmployee(employeeName = "", searchTerm = "") {
 }
 
 const isRequired = (prop, value, objectData) => {
-    const required = typeof prop?.required === "function" 
-        ? prop.required(objectData) 
+    const required = typeof prop?.required === "function"
+        ? prop.required(objectData)
         : prop?.required;
     return required && notValid.includes(value);
 }
@@ -131,7 +131,7 @@ const processAndVerifyData = ({ colInfo, excelData, transformData, uniqueBy = []
         errors.push("No rows found");
 
     if (uniqueBy.length) {
-        const finalData = uniqueData(modifyData, uniqueBy);
+        const finalData = uniqueData(modifyData, ...uniqueBy);
         return [errors, finalData]
     }
 
@@ -161,12 +161,12 @@ export const useExcelReader = ({ formTemplate, transform = null, fileName = "Tem
         inProcess: false,
         isDone: false
     });
-    colInfo = formTemplate.flatMap(c => c?._children ?? c).filter(c => c?.label);
+    colInfo = formTemplate.flatMap(c => c?._children ?? c).filter(c => c?.label && c.excel);
 
 
     const getTemplate = () => {
         if (Array.isArray(formTemplate)) {
-            const excelCol = formTemplate.flatMap(c => c?._children ?? c).filter(c => c?.label).map(c => c.label);
+            const excelCol = formTemplate.flatMap(c => c?._children ?? c).filter(c => c?.label && c.excel).map(c => c.label);
             const dummyData = formTemplate.flatMap(c => c?._children ?? c).filter(c => c?.excel).map(c => c.excel.sampleData);
 
             setStatus({ inProcess: true, isDone: false });
