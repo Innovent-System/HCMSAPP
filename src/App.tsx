@@ -8,7 +8,7 @@ import { Provider } from "react-redux";
 import { store } from "./store/store";
 import { SocketContext, appsocket } from './services/socketService';
 import { SnackbarProvider } from 'notistack';
-import { theme } from './config/theme';
+import { theme1 } from './config/theme';
 import { WorkerContext, excelWorker } from './services/workerService'
 import Auth from './services/AuthenticationService'
 
@@ -28,9 +28,9 @@ function App() {
   }, []);
   return (
 
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={theme1}>
       <SnackbarProvider maxSnack={3}>
-        <Router>
+      <Router>
           <Provider store={store}>
             <WorkerContext.Provider value={{ excelWorker }}>
               <SocketContext.Provider value={appsocket}>

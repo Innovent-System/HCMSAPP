@@ -23,6 +23,10 @@ export const API = {
     SalarySheetReport: 'payroll/report/salarysheet',
     PayrollSummaryReport: 'payroll/report/payrollsummary',
     LoanReport: 'payroll/report/loandetail',
+    FiscalYear: 'payroll/fiscalyear',
+    TaxAdjustment: 'payroll/taxadjustment',
+    TaxAdjustmentType: 'payroll/taxadjustmenttype',
+    TaxOpening: 'payroll/taxopening'
 
 }
 

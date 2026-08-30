@@ -16,7 +16,7 @@ import { useDropDownIds } from "../../components/useDropDown";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
 import Controls from "../../components/controls/Controls";
 import RunPayroll from "./components/RunPayroll";
-import { formatNumber, getDefaultMonth, getYears, monthNames } from "../../util/common";
+import { formatNumber, getDefaultMonth, getYears, getMonths } from "../../util/common";
 
 /**
  * @type {import('@react-awesome-query-builder/mui').Fields}
@@ -32,7 +32,7 @@ const fields = {
         defaultValue: null,
         hideForCompare: true,
         operators: ["select_equals"],
-        listValues: monthNames.map((e, i) => ({ value: i, title: e })),
+        listValues: getMonths().map((e) => ({ value: e.id, title: e.title })),
 
     },
     year: {

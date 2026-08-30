@@ -26,7 +26,7 @@ const ResponsiveEmployeeGrid = ({ data, totalRecord = 0,loading, handleEdit, han
     
     // Calculate column count and column width based on screen size
     const columnCount = isMobile ? 1 : isTablet ? 2 : isLarge ? 5 : 4; // 1 for mobile, 2 for tablet, 4 for laptop+
-    const columnWidth = isMobile ? 360 : isTablet ? 400 : 375; // Adjust widths for each screen size
+    const columnWidth = isMobile ? 360 : isTablet ? 400 : 355; // Adjust widths for each screen size
     const gridHeight = isMobile ? '65vh' : isLarge ? '75vh' : '70vh';
 
     const rowCount = Math.ceil(data.length / columnCount); // Calculate rows based on total items and columns
@@ -88,7 +88,7 @@ const handleScroll = ({ currentTarget }) => {
             cellProps={{ data, columnCount, handleEdit, handleActive }}
             rowCount={rowCount}
             columnWidth={columnWidth}
-            rowHeight={210} // Fixed height for each row
+            rowHeight={220} // Fixed height for each row
             //width={isMobile ? 360 : columnCount * columnWidth} // Total grid width
            // height={gridHeight} // Total grid height
             style={{ height: gridHeight }}

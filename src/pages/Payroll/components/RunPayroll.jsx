@@ -8,7 +8,7 @@ import { useDropDownIds } from '../../../components/useDropDown';
 import DataGrid, { GridToolbarQuickFilter, useGridApi } from '../../../components/useDataGrid';
 import Controls from "../../../components/controls/Controls";
 import { API } from '../_Service';
-import { getDefaultMonth, getYears, monthNames } from '../../../util/common';
+import { getDefaultMonth, getYears, getMonths, monthNames } from '../../../util/common';
 
 
 /**
@@ -24,7 +24,7 @@ const fields = {
         defaultValue: getDefaultMonth(),
         hideForCompare: true,
         operators: ["select_equals"],
-        listValues: monthNames.map((e, i) => ({ value: i, title: e })),
+        listValues: getMonths().map((e) => ({ value: e.id, title: e.title })),
     },
     year: {
         label: 'Year',

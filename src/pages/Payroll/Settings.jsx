@@ -7,8 +7,9 @@ import Tabs from '../../components/Tabs'
 // import Deduction from './components/Deduction';
 
 const ApprovalStages = lazy(() => import("../ApprovalStages"));
-const Allowance = lazy(() => import("./components/Allowance"));
-const Deduction = lazy(() => import("./components/Deduction"));
+const Allowance = lazy(() => import("./components/settings/Allowance"));
+const Deduction = lazy(() => import("./components/settings/Deduction"));
+const FiscalYear = lazy(() => import("./components/settings/FiscalYear"));
 
 const tabs = [
     {
@@ -18,6 +19,10 @@ const tabs = [
     {
         title: "Deductions",
         panel: <Deduction />
+    },
+    {
+        title: "Fiscal Year",
+        panel: <FiscalYear />
     },
     {
         title: "Approval Stages",

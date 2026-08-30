@@ -4,39 +4,39 @@ import Popup from '../../../../components/Popup';
 import { AutoForm } from '../../../../components/useForm';
 import { API } from '../../_Service';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAction } from '../../../../store/actions/httpactions';
-import { Circle } from "../../../../deps/ui/icons";
+import { Circle, Check } from "../../../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions, GridToolbar } from '../../../../components/useDataGrid';
 import { useSocketIo } from '../../../../components/useSocketio';
 import ConfirmDialog from '../../../../components/ConfirmDialog';
 import { useAppDispatch, useAppSelector } from "../../../../store/storehook";
-import { formateISODateTime } from "@/services/dateTimeService";
+import { formateISODateTime, startOfDay, systemFormatDate } from "@/services/dateTimeService";
 
 
-const fields = {
-    groupName: {
-        label: 'Group',
-        type: 'text',
-        valueSources: ['value'],
-        preferWidgets: ['text'],
-    },
-    createdAt: {
-        label: 'Created Date',
-        type: 'date',
-        fieldSettings: {
-            dateFormat: "D/M/YYYY",
-            mongoFormatValue: val => ({ $date: new Date(val).toISOString() }),
-        },
-        valueSources: ['value'],
-        preferWidgets: ['date'],
-    },
+// const fields = {
+//     groupName: {
+//         label: 'Group',
+//         type: 'text',
+//         valueSources: ['value'],
+//         preferWidgets: ['text'],
+//     },
+//     createdAt: {
+//         label: 'Created Date',
+//         type: 'date',
+//         fieldSettings: {
+//             dateFormat: "D/M/YYYY",
+//             mongoFormatValue: val => ({ $date: new Date(val).toISOString() }),
+//         },
+//         valueSources: ['value'],
+//         preferWidgets: ['date'],
+//     },
 
-    isActive: {
-        label: 'Status',
-        type: 'boolean',
-        operators: ['equal'],
-        valueSources: ['value'],
-    },
-}
+//     isActive: {
+//         label: 'Status',
+//         type: 'boolean',
+//         operators: ['equal'],
+//         valueSources: ['value'],
+//     },
+// }
 
 const getColumns = (apiRef, onEdit, onActive) => {
     const actionKit = {
@@ -46,8 +46,10 @@ const getColumns = (apiRef, onEdit, onActive) => {
     return [
         { field: 'id', headerName: 'Id', hide: true, hideable: false },
         {
-            field: 'name', headerName: 'Group', width: 180, hideable: false
+            field: 'name', headerName: 'Name', width: 180, hideable: false
         },
+        { field: 'isCurrentYear', headerName: 'Current Year', renderCell: ({ row }) => (row["isCurrentYear"] ? <Check color="success" /> : "--") },
+
         { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedAt) },
         { field: 'createdOn', sortingOrder: ["desc"], headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdAt) },
 
@@ -64,8 +66,8 @@ const getColumns = (apiRef, onEdit, onActive) => {
 }
 
 let editId = 0;
-const DEFAULT_API = API.Group;
-export const AddGroup = ({ openPopup, setOpenPopup, isEdit = false, row = null }) => {
+const DEFAULT_API = API.FiscalYear;
+export const AddFiscalYear = ({ openPopup, setOpenPopup, isEdit = false, row = null }) => {
     const formApi = useRef(null);
     const { addEntity } = useEntityAction();
     useEffect(() => {
@@ -75,7 +77,9 @@ export const AddGroup = ({ openPopup, setOpenPopup, isEdit = false, row = null }
             resetForm();
         else {
             setFormValue({
-                name: row.name
+                startDate: row.startDate,
+                endDate: row.endDate,
+                isCurrentYear: row.isCurrentYear
             });
         }
     }, [openPopup, formApi])
@@ -84,30 +88,55 @@ export const AddGroup = ({ openPopup, setOpenPopup, isEdit = false, row = null }
         const { getValue, validateFields } = formApi.current
         if (validateFields()) {
             let values = getValue();
-            let dataToInsert = {};
-            dataToInsert.name = values.name;
+            let dataToInsert = { ...values };
+            dataToInsert.startDate = systemFormatDate(values.startDate);
+            dataToInsert.endDate = systemFormatDate(values.endDate);
             if (isEdit)
                 dataToInsert.id = editId
 
-            addEntity({ url: DEFAULT_API, data: [dataToInsert] });
+            addEntity({ url: DEFAULT_API, data: dataToInsert });
 
         }
     }
 
     const formData = [
         {
-            elementType: "inputfield",
-            name: "name",
-            label: "Group",
+            elementType: "datetimepicker",
+            label: "Start",
+            name: "startDate",
             required: true,
             validate: {
-                errorMessage: "Group is required"
+                errorMessage: "Select Start Date please",
             },
-            defaultValue: ""
+            defaultValue: new Date(),
+            excel: {
+                sampleData: new Date().toLocaleDateString('en-CA')
+            }
+        },
+        {
+            elementType: "datetimepicker",
+            label: "End",
+            name: "endDate",
+            shouldDisableDate: (date) => date < startOfDay(formApi.current?.getValue()?.startDate),
+            required: true,
+            validate: {
+                errorMessage: "Select End Date please",
+            },
+            defaultValue: new Date(),
+            excel: {
+                sampleData: new Date().toLocaleDateString('en-CA')
+            }
+        },
+        {
+            elementType: "checkbox",
+            name: "isCurrentYear",
+            label: "Default Year",
+            defaultValue: true
         }
+
     ];
     return <Popup
-        title="Add Group"
+        title="Add Fiscal Year"
         openPopup={openPopup}
         maxWidth="sm"
         isEdit={isEdit}
@@ -118,7 +147,7 @@ export const AddGroup = ({ openPopup, setOpenPopup, isEdit = false, row = null }
     </Popup>
 }
 
-const Group = () => {
+const FiscalYear = () => {
     const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
 
@@ -159,7 +188,7 @@ const Group = () => {
     const { updateOneEntity, removeEntity } = useEntityAction();
 
 
-    const { socketData } = useSocketIo("changeInGroup", refetch);
+    const { socketData } = useSocketIo("changeInFiscal", refetch);
 
     const handleEdit = (id) => {
         isEdit.current = true;
@@ -195,7 +224,7 @@ const Group = () => {
 
     useEffect(() => {
         dispatch(enableFilterAction(false));
-        dispatch(builderFieldsAction(fields));
+        // dispatch(builderFieldsAction(fields));
     }, [dispatch])
 
     const columns = getColumns(gridApiRef, handleEdit, handleActiveInActive);
@@ -208,7 +237,7 @@ const Group = () => {
 
     return (
         <>
-            <AddGroup openPopup={openPopup} setOpenPopup={setOpenPopup} isEdit={isEdit.current} row={row.current} />
+            <AddFiscalYear openPopup={openPopup} setOpenPopup={setOpenPopup} isEdit={isEdit.current} row={row.current} />
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={data}
                 loading={isLoading} pageSize={gridFilter.limit}
@@ -230,4 +259,4 @@ const Group = () => {
         </>
     );
 }
-export default Group;
+export default FiscalYear;

@@ -22,13 +22,15 @@ import { useAppDispatch, useAppSelector } from "../store/storehook";
 
 // ─── Styled Header Bar ────────────────────────────────────────────────────────
 
+// HeaderBar — dark secondary.main hataein, light banayein
 const HeaderBar = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(0.5, 1.5),
   marginBottom: theme.spacing(0.5),
   minHeight: 48,
   borderRadius: theme.spacing(0.5),
-  background: theme.palette.secondary.main,
-  boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+  background: theme.palette.background.paper,      // was secondary.main
+  borderLeft: `3px solid ${theme.palette.primary.main}`, // teal identity accent
+  boxShadow: 'none',                                 // was heavy shadow — flat design ke consistent
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
@@ -36,15 +38,16 @@ const HeaderBar = styled(Paper)(({ theme }) => ({
 
 // ─── Styled Header Icon Button ────────────────────────────────────────────────
 
+// HeaderIconBtn — white-on-dark tha, ab dark-on-light
 const HeaderIconBtn = styled(IconButton)(({ theme }) => ({
-  color: alpha(theme.palette.secondary.contrastText, 0.85),
+  color: theme.palette.text.secondary,               // was alpha(secondary.contrastText, 0.85)
   width: 28,
   height: 28,
   borderRadius: theme.spacing(1),
   transition: 'background 0.15s, color 0.15s',
   '&:hover': {
-    background: alpha(theme.palette.secondary.contrastText, 0.12),
-    color: theme.palette.secondary.contrastText,
+    background: theme.palette.action.hover,
+    color: theme.palette.primary.main,                // teal on hover
   },
 }));
 
@@ -130,7 +133,7 @@ export default function PageHeader(props) {
           )} */}
           <Box>
             <Typography sx={{
-              color: 'secondary.contrastText',
+              color: 'text.primary',
               fontWeight: 700,
               fontSize: '0.9rem',
               lineHeight: 1.1,
@@ -140,7 +143,7 @@ export default function PageHeader(props) {
             </Typography>
             {subTitle && (
               <Typography sx={{
-                color: alpha('#fff', 0.65),
+                color: 'text.secondary',
                 fontSize: '0.68rem',
                 mt: 0.1,
               }}>
@@ -211,7 +214,7 @@ export default function PageHeader(props) {
           },
         }}
       >
-        <Box role="presentation" sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <Box role="presentation" sx={{ display: 'flex', backgroundColor: "background.default", flexDirection: 'column', height: '100%' }}>
 
           {/* Drawer Header */}
           <DrawerHeader>

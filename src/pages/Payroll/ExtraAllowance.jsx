@@ -1,7 +1,7 @@
 // eslint-disable-next-line react-hooks/exhaustive-deps
 import React, { useEffect, useRef, useState } from "react";
 import Popup from '../../components/Popup';
-import { API, CalculationType, PercentageOfBasicSalary } from './_Service';
+import { API, CalculationType, FixedAmount, PercentageOfBasicSalary } from './_Service';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction } from '../../store/actions/httpactions';
 import { PeopleOutline, Percent, Circle } from "../../deps/ui/icons";
 import { InputAdornment } from '../../deps/ui'
@@ -35,7 +35,7 @@ const fields = {
 
 const mapExcelData = (values) => {
     const map = { ...values };
-    map.fkEmployeeId = values.fkEmployeeId._id;
+    map.employeeId = values.employeeId.id;
     return map
 }
 const calcObj = {
@@ -45,12 +45,12 @@ const calcObj = {
 }
 
 const getColumns = (apiRef, onEdit, onActive) => [
-    { field: '_id', headerName: 'Id', hide: true },
+    { field: 'id', headerName: 'Id', hide: true },
     {
-        field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.employees.fullName
+        field: 'fullName', headerName: 'Employee Name', flex: 1
     },
-    { field: 'title', headerName: 'Title' },
-    { field: 'type', headerName: 'Type', flex: 1, valueGetter: ({ row }) => calcObj[row.type] },
+    { field: 'name', headerName: 'Title' },
+    { field: 'calculationType', headerName: 'Type', flex: 1, valueGetter: ({ row }) => calcObj[row.calculationType] },
     { field: 'value', headerName: 'Value' },
     {
         field: 'isActive', headerName: 'Active', renderCell: (param) => (
@@ -59,8 +59,8 @@ const getColumns = (apiRef, onEdit, onActive) => [
         // flex: '0 1 5%',
         align: 'center',
     },
-    { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
-    { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
+    { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedAt) },
+    { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdAt) },
     getActions(apiRef, { onEdit, onActive })
 ];
 
@@ -69,7 +69,7 @@ const AddExtraAllowance = ({ openPopup, setOpenPopup, colData = [], row = null, 
     const formApi = useRef(null);
 
 
-    const { Employees } = useAppSelector(e => e.appdata.employeeData);
+    const { employees } = useAppSelector(e => e.appdata.employeeData);
     const { addEntity } = useEntityAction();
 
     useEffect(() => {
@@ -80,12 +80,13 @@ const AddExtraAllowance = ({ openPopup, setOpenPopup, colData = [], row = null, 
             resetForm();
         else {
 
-            const { fkEmployeeId } = row;
+            const { employeeId } = row;
             setFormValue({
-                fkEmployeeId: Employees.find(c => c._id === fkEmployeeId),
-                type: row.type,
-                employeeShare: row.employeeShare,
-                employerShare: row.employerShare,
+                name: row.name,
+                employeeId: employees.find(c => c.id === employeeId),
+                calculationType: row.calculationType,
+                value: row.value,
+                isTaxable: row.isTaxable
             });
         }
 
@@ -94,7 +95,7 @@ const AddExtraAllowance = ({ openPopup, setOpenPopup, colData = [], row = null, 
     const formData = [
         {
             elementType: "ad_dropdown",
-            name: "fkEmployeeId",
+            name: "employeeId",
             label: "Employee",
             variant: "outlined",
             required: true,
@@ -103,8 +104,8 @@ const AddExtraAllowance = ({ openPopup, setOpenPopup, colData = [], row = null, 
                 errorMessage: "Select Employee",
             },
             dataName: 'fullName',
-            dataId: "_id",
-            options: Employees,
+            dataId: "id",
+            options: employees,
             defaultValue: null,
             excel: {
                 sampleData: "Faizan Siddiqui"
@@ -112,7 +113,7 @@ const AddExtraAllowance = ({ openPopup, setOpenPopup, colData = [], row = null, 
         },
         {
             elementType: "inputfield",
-            name: "title",
+            name: "name",
             required: true,
             label: "Title",
             validate: {
@@ -125,16 +126,16 @@ const AddExtraAllowance = ({ openPopup, setOpenPopup, colData = [], row = null, 
         },
         {
             elementType: "dropdown",
-            name: "type",
+            name: "calculationType",
             label: "Type",
 
             dataId: "id",
             dataName: "title",
             isNone: false,
-            defaultValue: PercentageOfBasicSalary,
+            defaultValue: FixedAmount,
             options: CalculationType,
             excel: {
-                sampleData: "Percentage of Basic Salary"
+                sampleData: "FixedAmount"
             }
         },
         {
@@ -159,6 +160,15 @@ const AddExtraAllowance = ({ openPopup, setOpenPopup, colData = [], row = null, 
                 )
             },
             defaultValue: "",
+            excel: {
+                sampleData: 0
+            }
+        },
+        {
+            elementType: "checkbox",
+            name: "isTaxable",
+            label: "Taxable",
+            defaultValue: false
         }
 
     ];
@@ -169,10 +179,10 @@ const AddExtraAllowance = ({ openPopup, setOpenPopup, colData = [], row = null, 
         if (validateFields()) {
             let values = getValue();
             let dataToInsert = { ...values };
-            dataToInsert.fkEmployeeId = values.fkEmployeeId._id;
+            dataToInsert.employeeId = values.employeeId.id;
 
             if (isEdit)
-                dataToInsert._id = editId
+                dataToInsert.id = editId
 
             addEntity({ url: DEFAULT_API, data: [dataToInsert] });
 

@@ -1,6 +1,6 @@
 import React from 'react'
 import Allowance from './Allowance'
-import { API } from '../_Service'
+import { API } from '../../_Service'
 
 const deductionTypes = [
     { id: "Other", title: "Other" },

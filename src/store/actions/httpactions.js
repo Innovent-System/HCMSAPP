@@ -26,12 +26,29 @@ export const getApi = createApi({
         responseHandler: async (response) => {
 
           if (response.url.endsWith("download") && response.ok) {
-            const blob = await response.blob()
-            const url = window.URL.createObjectURL(blob)
-            const a = document.createElement('a')
-            a.href = url
-            a.download = fileName // replace with desired file name
-            a.click()
+            // Option 1: Using arrayBuffer (most reliable for raw bytes)
+            const arrayBuffer = await response.arrayBuffer();
+            const blob = new Blob([arrayBuffer], {
+              type: response.headers.get('content-type') || 'application/octet-stream'
+            });
+
+            // Option 2: Alternative using response.blob() with proper handling
+            // const blob = await response.blob();
+            // ✅ Create download
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+
+            // ✅ Cleanup
+            setTimeout(() => {
+              document.body.removeChild(link);
+              window.URL.revokeObjectURL(url);
+            }, 100);
+
+            console.log(`✅ PDF downloaded: ${fileName} (${blob.size} bytes)`);
           } else
             return await response.json();
         },

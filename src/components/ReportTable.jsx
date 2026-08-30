@@ -33,7 +33,8 @@ const Styles = {
             fontSize: 12
         },
         '& .MuiTableCell-head': {
-            fontWeight: 600
+            fontWeight: 600,
+            color:'#ffffff'
         },
         '& .MuiTableRow-head': {
             bgcolor: 'primary.main',
@@ -202,7 +203,7 @@ const ReportTable = ({ pageBreak = false,
     }, [records]);
 
 
-    return <TableContainer>
+    return <TableContainer >
         {records.length ? <Pagination shape='rounded'
             sx={{ display: 'flex', justifyContent: 'center' }}
             page={page}

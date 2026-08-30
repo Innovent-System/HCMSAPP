@@ -1,36 +1,41 @@
-import { Paper } from '../deps/ui';
-import { useEffect, useContext } from 'react';
+import { Paper, Box } from '../deps/ui';
+import { useEffect, useContext, useState } from 'react';
 import { SocketContext } from '../services/socketService';
 import { Outlet, useParams } from 'react-router-dom';
 import Header from '../layout/header/Header';
+import VHeader from '../layout/header/VHeader';
 import Speech from '../components/speech/SpeechRecognition';
 import Auth from '../services/AuthenticationService'
 import BreadCrumbs from '../components/BreadCrumbs';
 import LinearLoader from '../components/LinearLoader';
+import { useTheme, useMediaQuery } from '@mui/material';
+import HRNovaSidebar from './SideBar';
+import { useAppSelector } from '@/store/storehook';
 
 const Layout = () => {
 
   const socket = useContext(SocketContext);
-
   const params = useParams();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  // useEffect(() => {
-  //   const info = Auth.getitem('userInfo') || {};
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
-  //   socket.emit("joinclient", info.clientId);
-  //   socket.emit("joincompany", info.companyId);
+  const handleMenuClick = () => {
+    if (isMobile) {
+      setMobileSidebarOpen(true);
+      return;
+    }
+    setSidebarOpen(previous => !previous);
+  }
 
-  //   return () => {
-  //     socket.emit("leavecompany", info.companyId);
-  //     socket.emit("leaveclient", info.clientId);
+  const user = {
+    name: 'Ayesha Malik',
+    designation: 'Senior QA Engineer',
+    initials: 'AM',
+  }
 
-  //     socket.off("leaveclient");
-  //     socket.off("joinclient");
-
-  //     socket.off("leavecompany");
-  //     socket.off("joincompany");
-  //   }
-  // }, [])
 
   useEffect(() => {
     const joinForm = async () => {
@@ -50,16 +55,94 @@ const Layout = () => {
     };
   }, [params?.id]);
 
+  // const sideMenuData = [];
+  const sideMenuData = useAppSelector((e) => e.appdata.routeData?.sideMenuData);
+
   return (
-    <>
-      <Header />
+    // <>
+    //   <Header />
+    //   <LinearLoader />
+    //   <Paper className={"content-area"}>
+    //     {/* <BreadCrumbs /> */}
+    //     <Outlet />
+    //   </Paper>
+    //   <Speech mode='command' />
+    // </>
+
+    <Box
+      sx={{
+        display: 'flex',
+        minHeight: '100vh',
+        bgcolor: '#F7F9FC',
+      }}
+    >
       <LinearLoader />
-      <Paper className={"content-area"}>
-        {/* <BreadCrumbs /> */}
+
+
+      <HRNovaSidebar
+        sideMenuData={sideMenuData}
+        open={sidebarOpen}
+        onToggle={() =>
+          setSidebarOpen(
+            previous => !previous
+          )
+        }
+
+        mobileOpen={mobileSidebarOpen}
+        onMobileClose={() =>
+          setMobileSidebarOpen(false)
+        }
+        onNavigate={() => {
+          if (isMobile) {
+            setMobileSidebarOpen(false);
+          }
+        }}
+        user={user}
+      />
+
+
+      <Box
+        component="main"
+        sx={{
+          flex: 1,
+          minWidth: 0,
+          minHeight: '100vh',
+        }}
+      >
+
+        {/* Your Header */}
+
+        <VHeader
+          onMenuClick={() =>
+            isMobile
+              ? setMobileSidebarOpen(true)
+              : setSidebarOpen(
+                (prev) => !prev
+              )
+          }
+        />
+
+
+        {/* Page */}
+
+        {/* <Box
+          sx={{
+            p: {
+              xs: 2,
+              md: 3,
+            },
+          }}
+        > */}
+        <Paper className={"content-area"}>
+          {/* <BreadCrumbs /> */}
+          <Outlet />
+        </Paper>
         <Outlet />
-      </Paper>
-      <Speech mode='command' />
-    </>
+        {/* </Box> */}
+
+      </Box>
+
+    </Box>
   )
 }
 

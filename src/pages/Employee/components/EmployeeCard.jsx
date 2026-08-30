@@ -58,7 +58,7 @@ const style = {
         borderRadius: 2
     },
     cardContent: {
-        pt: 0, pl: 8,
+        pt: 0, pl: 6,
         '&:last-child': {
             pb: 0
         }

@@ -1,15 +1,15 @@
 // eslint-disable-next-line react-hooks/exhaustive-deps
 import React, { useEffect, useState } from "react";
-import Popup from '../../../components/Popup';
-import { AutoForm } from '../../../components/useForm';
-import { API } from '../_Service';
-import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAction } from '../../../store/actions/httpactions';
-import { Circle } from "../../../deps/ui/icons";
-import DataGrid, { useGridApi, getActions, GridToolbar } from '../../../components/useDataGrid';
-import { useSocketIo } from '../../../components/useSocketio';
-import ConfirmDialog from '../../../components/ConfirmDialog';
-import { useAppDispatch, useAppSelector } from "../../../store/storehook";
-import { formateISODateTime } from "../../../services/dateTimeService";
+import Popup from '../../../../components/Popup';
+import { AutoForm } from '../../../../components/useForm';
+import { API } from '../../_Service';
+import { builderFieldsAction, useEntityAction, useEntitiesQuery, enableFilterAction } from '../../../../store/actions/httpactions';
+import { Circle } from "../../../../deps/ui/icons";
+import DataGrid, { useGridApi, getActions, GridToolbar } from '../../../../components/useDataGrid';
+import { useSocketIo } from '../../../../components/useSocketio';
+import ConfirmDialog from '../../../../components/ConfirmDialog';
+import { useAppDispatch, useAppSelector } from "../../../../store/storehook";
+import { formateISODateTime } from "../../../../services/dateTimeService";
 
 
 const fields = {
@@ -190,7 +190,7 @@ const Allowance = ({ DEFAULT_API = API.Allowance, DEFAULT_NAME = "Allowance", he
         return isValid;
     }
     /**
-    * @type {Array<import("../../../types").FormType>}
+    * @type {Array<import("../../../../types").FormType>}
     */
     const formData = [
         {
