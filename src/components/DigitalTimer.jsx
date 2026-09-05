@@ -22,9 +22,9 @@ const DigitalTimer = () => {
     const interval = useRef(null);
     const timer = useAppSelector(e => e.attendance.markDetail);
     const dispatch = useAppDispatch();
-    const { data } = useSingleQuery(
+    const { data, isAbleToMark } = useSingleQuery(
         { url: DEFAULT_API, params: {} },
-        { selectFromResult: ({ data }) => ({ data: data?.result }) }
+        { selectFromResult: ({ data }) => ({ data: data?.result?.attendanceDetail, isAbleToMark: Boolean(data?.result?.isAbleToMark) }) }
     );
 
     // GPS settings from company (assumes you have this endpoint or include in mark response)
@@ -37,7 +37,6 @@ const DigitalTimer = () => {
         gpsEnabled: true, allowedRadius: 200, officeLocation: {
             latitude: 24.8907,
             longitude: 67.1991
-
         }
     };
 
@@ -52,12 +51,18 @@ const DigitalTimer = () => {
     }, [timer]);
 
     useEffect(() => {
-        if (data?.start) {
+        if (data?.startDateTime) {
             isCheck.current = !data.end;
-            dispatch(setMarkDetail({ start: new Date(data.start), end: data.end ? new Date(data.end) : null }))
-
+            dispatch(setMarkDetail({ start: new Date(data.startDateTime), end: data.endDateTime ? new Date(data.endDateTime) : null, isAbleToMark: isAbleToMark, ...data }))
         }
     }, [data]);
+
+
+    useEffect(() => {
+        if (isAbleToMark && !data?.startDateTime) {
+            dispatch(setMarkDetail({ isAbleToMark: isAbleToMark }))
+        }
+    }, [isAbleToMark]);
 
 
 
@@ -105,8 +110,8 @@ const DigitalTimer = () => {
 
         addEntity({ url: DEFAULT_API, data: payload }).then(({ data }) => {
             if (data) {
-                isCheck.current = !data.result.end;
-                dispatch(setMarkDetail({ start: new Date(data.result.start), end: data.result.end ? new Date(data.result.end) : null }))
+                isCheck.current = !data.result.endDateTime;
+                dispatch(setMarkDetail({ start: new Date(data.result.startDateTime), end: data.result.endDateTime ? new Date(data.result.endDateTime) : null }))
             }
         });
     };

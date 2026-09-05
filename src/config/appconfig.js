@@ -18,7 +18,6 @@ export const headerOption = () => {
     // 'Accept': 'application/json',
     'Content-Type': 'application/json;charset=UTF-8',
     'formid': window.location.pathname.substr(window.location.pathname.lastIndexOf("/") + 1),
-    'clientid': info.clientId,
     "authorization": `Bearer ${info?.token}` 
   }
 };

@@ -7,17 +7,17 @@ import EmployeeDashboard from './ESSDashboard';
 const API = 'employee/dashboard/get'
 const DashBoard = () => {
 
-    const { data, isLoading, refetch } = useEntitiesQuery({
-        url: API,
-        data: {
+    // const { data, isLoading, refetch } = useEntitiesQuery({
+    //     url: API,
+    //     data: {
 
-        }
-    });
+    //     }
+    // });
 
     return (
         <Grid container spacing={1}>
             <EmployeeDashboard/>
-            <Grid size={{ xs: 12, md: 6 }} item>
+            {/* <Grid size={{ xs: 12, md: 6 }} item>
                 <Amchart chartId="flag-1" type='XY' data={data?.departmentCount}
                     dataId={'_id'} dataName={'count'}
                     yHeading="Departments"
@@ -40,7 +40,7 @@ const DashBoard = () => {
                 <Amchart chartId="flag-4" type='PIE' data={data?.genderCount}
                     dataId={'_id'} dataName={'count'}
                 />
-            </Grid>
+            </Grid> */}
 
 
         </Grid>

@@ -83,7 +83,7 @@ const ModuleSetting = {
     "EMPLOYEE": [4],
     "LEAVE": [17],
     "PAYROLL": [26, 28, 29, 30, 31],
-    "RECRUITMENT":[]
+    "RECRUITMENT": []
 }
 export const AddApprovalStages = ({ openPopup, setOpenPopup, isEdit = false, formId, row = null }) => {
     const formApi = useRef(null);
@@ -132,7 +132,7 @@ export const AddApprovalStages = ({ openPopup, setOpenPopup, isEdit = false, for
                 isAreaHead: values.stages == 3,
                 isHrManager: values.stages == 2,
                 employeeId: values.stages == 5 ? values.employeeId?.id ?? null : null,
-                levelOfManagers: values.noOfManager
+                levelOfManagers: values?.noOfManager ? values?.noOfManager : 0
             };
 
             if (isEdit)
@@ -253,7 +253,7 @@ const ApprovalStages = ({ moduleName }) => {
             ...sort,
             searchParams: {
                 ...query,
-                applicationFormId: formId ? formId : 0
+                applicationFormId: { value: formId ? formId : 0, operator: "Equal" },
             }
         }
     }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
@@ -271,7 +271,7 @@ const ApprovalStages = ({ moduleName }) => {
         row.current = data.find(a => a.id === id);
         setOpenPopup(true);
     }
-    
+
     useEffect(() => {
 
         dispatch(enableFilterAction(false));

@@ -94,7 +94,7 @@ const SignIn = () => {
             clientId: data.clientId,
             companyId: data.companyId,
             userName: data.userName,
-            fkEmployeeId: data.fkEmployeeId,
+            employeeId: data.employeeId,
             userId: data.userId,
             token
           }))
@@ -103,7 +103,7 @@ const SignIn = () => {
             clientId: data.clientId,
             companyId: data.companyId,
             userName: data.userName,
-            fkEmployeeId: data.fkEmployeeId,
+            employeeId: data.employeeId,
             userId: data.userId,
             token
           });

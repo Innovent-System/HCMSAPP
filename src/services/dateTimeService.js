@@ -15,7 +15,9 @@ export const parseTime = (timeString) => timeString ? parse(timeString, "HH:mm:s
 
 export const formateISOTime = (date) => {
     if (!date) return "";
-    return format(parse(date, "HH:mm:ss", new Date()), "hh:mm:ss a");
+    if (typeof date == "string")
+        return format(parse(date, "HH:mm:ss", new Date()), "hh:mm:ss a");
+    else return format(new Date(date), "hh:mm:ss a")
 }
 
 export const formateDate = (date) => {

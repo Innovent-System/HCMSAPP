@@ -41,9 +41,9 @@ const fields = {
     }
 }
 const getColumns = (handleApprove) => [
-    { field: '_id', headerName: 'Id', hide: true },
+    { field: 'id', headerName: 'Id', hide: true },
     {
-        field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.fullName
+        field: 'fullName', headerName: 'Employee Name', flex: 1
     },
     {
         field: 'status', headerName: 'Status', flex: 1, renderCell: renderStatusCell
@@ -202,7 +202,7 @@ const ApprovalRoute = ({ DEFAULT_API, DEFAULT_NAME, DISPLAY_TITLE }) => {
             ...sort,
             searchParams: {
                 ...query,
-                routeByEmployee: Auth.getitem("userInfo").fkEmployeeId
+                routeBy: { value: Auth.getitem("userInfo").employeeId, operator: "Equal" }
             }
         }
     }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
@@ -261,7 +261,7 @@ const ApprovalRoute = ({ DEFAULT_API, DEFAULT_NAME, DISPLAY_TITLE }) => {
                 columns={columns} rows={data}
                 loading={isLoading} pageSize={gridFilter.limit}
                 page={gridFilter.page}
-                totalCount={gridFilter.totalRecord}
+                totalCount={totalRecord}
                 // toolbarProps={{
                 //     apiRef: gridApiRef,
                 //     onAdd: showAddModal,
