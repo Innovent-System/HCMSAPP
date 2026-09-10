@@ -5,6 +5,7 @@ import Tabs from '../../components/Tabs'
 
 const TaxAdjustment = lazy(() => import("./components/tax/TaxAdjustment"));
 const TaxOpening = lazy(() => import("./components/tax/TaxOpening"));
+const TaxAdjustmentType = lazy(() => import("./components/tax/TaxAdjustmentType"));
 
 
 const tabs = [
@@ -18,7 +19,7 @@ const tabs = [
     },
     {
         title: "Tax Adjustment Type",
-        panel: <TaxOpening />
+        panel: <TaxAdjustmentType />
     },
 
 ]

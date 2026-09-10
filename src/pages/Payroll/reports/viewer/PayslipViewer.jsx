@@ -3,6 +3,7 @@ import { BaseReportWrapper } from '../../../../components/ReportViewer';
 import { Pagination } from '../../../../deps/ui'
 
 import PayslipView from '../../components/PayslipView';
+import { formateDate } from '@/services/dateTimeService';
 
 const pagination = {
     display: 'flex',
@@ -13,17 +14,24 @@ const PaySlipViewer = ({ API_NAME, fileName }) => {
 
     const [records, setRecords] = useState([]);
     const _key = useId();
-    const currenSlip = useRef({ _id: _key });
+    const currenSlip = useRef({ id: _key });
     const [page, setPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(1);
 
     const handleRecord = (data) => {
         setRecords(data)
-        currenSlip.current = data[0]
+        currenSlip.current = {
+            ...data[0],
+            generatedOn: formateDate(new Date)
+        }
         setPage(1);
     }
     const handleChangePage = (event, value) => {
-        currenSlip.current = records[value - 1];
+        const currentRec = records[value - 1];
+        currenSlip.current = {
+            ...currentRec,
+            generatedOn: formateDate(new Date)
+        };
         setPage(value);
     }
 
@@ -39,7 +47,7 @@ const PaySlipViewer = ({ API_NAME, fileName }) => {
                 onChange={handleChangePage}
             />}
         >
-            <PayslipView key={currenSlip.current?._id} {...currenSlip.current} />
+            <PayslipView key={currenSlip.current?.id} {...currenSlip.current} />
         </BaseReportWrapper>
     )
 }

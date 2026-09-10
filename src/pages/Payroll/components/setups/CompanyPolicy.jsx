@@ -7,7 +7,7 @@ import { useEntitiesQuery, useEntityAction } from '../../../../store/actions/htt
 import { API, CalculationType, PercentageOfBasicSalary } from '../../_Service';
 import Controls from '../../../../components/controls/Controls';
 
-const breakpoints = { size: { md: 2, sm: 6, xs: 6 } }, fullWidthPoints = { size: { md: 12, sm: 12, xs: 12 } };
+const breakpoints = { size: { md: 3, sm: 6, xs: 6 } }, fullWidthPoints = { size: { md: 12, sm: 12, xs: 12 } };
 
 const DEFAULT_API = API.PayrollSetup;
 export const CompanyPolicy = ({ data }) => {

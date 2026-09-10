@@ -28,7 +28,6 @@ const AttendanceFilter = () => {
                 ...(areaIds && { "areaId": { value: areaIds.split(','), operator: "In" } }),
                 ...(groupIds && { "employeeGroupId": { value: groupIds.split(','), operator: "In" } }),
                 ...(departmentIds && { "departmentId": { value: departmentIds.split(','), operator: "In" } }),
-                ...(designationIds && { "designationId": { value: designationIds.split(','), operator: "In" } }),
                 scheduleStartDt: { value: systemFormatDate(dateRange[0]), operator: "GreaterThanOrEqual" },
                 scheduleEndDt: { value: systemFormatDate(dateRange[1]), operator: "LessThanOrEqual" }
                 // ...query

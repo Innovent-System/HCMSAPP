@@ -1,18 +1,7 @@
 import { Paper, Typography, Link, Box, Stack } from "@/deps/ui";
 import { essColors, MODULE_BADGE_COLOR } from "./theme";
 
-/**
- * @param {{
- *   label: string,             // "LEAVE", "PENDING REQUESTS", ...
- *   accentColor: string,       // left border + link color
- *   value: React.ReactNode,    // "14", "PKR ••••••••", etc — can include a Typography span for units
- *   sublabel?: string,
- *   sublabelColor?: string,
- *   actionLabel: string,       // "Apply leave", "Review", "Fix now", "View payslip"
- *   onAction?: () => void,
- *   pendingLabel:string
- * }} props
- */
+
 export default function AlertStatCard({
   label,
   accentColor,

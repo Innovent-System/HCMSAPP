@@ -14,23 +14,22 @@ const DefaultLimit = 30, DefaultPage = 0;
 const AttendanceRegisterFilter = () => {
 
     const [dateRange, setDateRange] = useState([monthStart, monthEnd])
-    const { countryIds, stateIds, cityIds, areaIds, departmentIds, groupIds, designationIds, employeeIds } = useDropDownIds();
+    const { countryIds, stateIds, cityIds, areaIds, departmentIds, groupIds, employeeIds } = useDropDownIds();
 
     const handleViewer = () => {
         const query = {
             page: DefaultPage,
             limit: DefaultLimit,
             searchParams: {
-                ...(employeeIds && { "Id": employeeIds.split(',') }),
-                ...(countryIds && { "CountryId": countryIds.split(',') }),
-                ...(stateIds && { "StateId": stateIds.split(',') }),
-                ...(cityIds && { "CityId": cityIds.split(',') }),
-                ...(areaIds && { "AreaId": areaIds.split(',') }),
-                ...(groupIds && { "EmployeeGroupId": groupIds.split(',') }),
-                ...(departmentIds && { "DepartmentId": departmentIds.split(',') }),
-                ...(designationIds && { "DesignationId": designationIds.split(',') }),
-                scheduleStartDt: systemFormatDate(dateRange[0]),
-                scheduleEndDt: systemFormatDate(dateRange[1])
+                ...(employeeIds && { "employeeId": { value: employeeIds.split(','), operator: "In" } }),
+                ...(countryIds && { "countryId": { value: countryIds.split(','), operator: "In" } }),
+                ...(stateIds && { "stateId": { value: stateIds.split(','), operator: "In" } }),
+                ...(cityIds && { "cityId": { value: cityIds.split(','), operator: "In" } }),
+                ...(areaIds && { "areaId": { value: areaIds.split(','), operator: "In" } }),
+                ...(groupIds && { "employeeGroupId": { value: groupIds.split(','), operator: "In" } }),
+                ...(departmentIds && { "departmentId": { value: departmentIds.split(','), operator: "In" } }),
+                scheduleStartDt: { value: systemFormatDate(dateRange[0]), operator: "GreaterThanOrEqual" },
+                scheduleEndDt: { value: systemFormatDate(dateRange[1]), operator: "LessThanOrEqual" }
                 // ...query
             }
         }

@@ -24,13 +24,17 @@ function App() {
     };
 
     initConnection();
-
+    // return () => {
+    //   if (appsocket.state !== "Disconnected") {
+    //     appsocket.stop();
+    //   }
+    // };
   }, []);
   return (
 
     <ThemeProvider theme={theme1}>
       <SnackbarProvider maxSnack={3}>
-      <Router>
+        <Router>
           <Provider store={store}>
             <WorkerContext.Provider value={{ excelWorker }}>
               <SocketContext.Provider value={appsocket}>

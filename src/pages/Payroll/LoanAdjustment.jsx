@@ -4,19 +4,18 @@ import Popup from '../../components/Popup';
 import { API } from './_Service';
 
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction, useLazySingleQuery } from '../../store/actions/httpactions';
-import { PeopleOutline, AttachMoney, DisplaySettings, RemoveCircleOutline, AddCircleOutline } from "../../deps/ui/icons";
-import { InputAdornment, Divider, Chip, IconButton } from "../../deps/ui";
+import { PeopleOutline, Delete, AdminPanelSettings, CancelScheduleSend } from "../../deps/ui/icons";
+import { GridActionsCellItem, Box, Divider, Typography, Chip, Stack } from "../../deps/ui";
 import DataGrid, { GridToolbar, renderStatusCell, useGridApi, getActions } from '../../components/useDataGrid';
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { AutoForm } from '../../components/useForm'
 import PageHeader from '../../components/PageHeader'
-import { formateISODate, systemFormatDate } from '../../services/dateTimeService'
-import { formateISODateTime } from "../../services/dateTimeService";
+import { formateISODateTime, formateISODate, systemFormatDate } from '../../services/dateTimeService'
 import Loader from '../../components/Circularloading'
 import { useDropDownIds } from "../../components/useDropDown";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
-
+import { useExcelReader } from "../../hooks/useExcelReader";
 
 const fields = {
     status: {
@@ -45,40 +44,113 @@ const fields = {
 
 const mapAdvSalary = (values) => {
     const map = { ...values };
-    map.fkEmployeeId = values.fkEmployeeId._id;
+    map.employeeId = values.employeeId.id;
     return map
 }
 
+const LoanDetailPanel = ({ loanDetail, pfBalance }) => {
+    if (!loanDetail) {
+        return (
+            <Box p={2} width="80%" bgcolor="#f5f5f5" borderRadius={1}>
+                <Typography variant="body2" color="textSecondary">
+                    No Record Found
+                </Typography>
+            </Box>
+        );
+    }
+
+    return (
+        <Box border="0.5px solid #e0e0e0" width="80%" borderRadius={1} p={2}>
+            <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                <Typography variant="subtitle2" fontWeight={700}>{loanDetail.fullName}</Typography>
+                <Chip
+                    label={loanDetail.isPaid ? "Paid" : "Active"}
+                    color={loanDetail.isPaid ? "default" : "success"}
+                    size="small"
+                />
+            </Box>
+
+            <Divider sx={{ my: 1 }} />
+
+            <Box display="flex" justifyContent="space-between" py={0.5}>
+                <Typography variant="body2" color="textSecondary">Loan Request Date</Typography>
+                <Typography variant="body2">{formateISODate(loanDetail.loanRequest)}</Typography>
+            </Box>
+            <Box display="flex" justifyContent="space-between" py={0.5}>
+                <Typography variant="body2" color="textSecondary">Loan Start Date</Typography>
+                <Typography variant="body2">{formateISODate(loanDetail.loanStartDate)}</Typography>
+            </Box>
+            <Box display="flex" justifyContent="space-between" py={0.5}>
+                <Typography variant="body2" color="textSecondary">Principle Amount</Typography>
+                <Typography variant="body2">{loanDetail.principleAmount}</Typography>
+            </Box>
+            <Box display="flex" justifyContent="space-between" py={0.5}>
+                <Typography variant="body2" color="textSecondary">Repayment Amount</Typography>
+                <Typography variant="body2">{loanDetail.repayAmount}</Typography>
+            </Box>
+            <Box display="flex" justifyContent="space-between" py={0.5}>
+                <Typography variant="body2" color="textSecondary">Paid Amount</Typography>
+                <Typography variant="body2">{loanDetail.paidAmount}</Typography>
+            </Box>
+            <Box display="flex" justifyContent="space-between" py={0.5}>
+                <Typography variant="body2" color="textSecondary">Outstanding Balance</Typography>
+                <Typography variant="body2">{loanDetail.principleAmount - loanDetail.paidAmount}</Typography>
+            </Box>
+
+            {loanDetail?.loanType === 'PF' && (
+                <>
+                    <Divider sx={{ my: 1 }} />
+                    <Box display="flex" justifyContent="space-between" py={0.5}>
+                        <Typography variant="body2" fontWeight={600}>Available PF Balance</Typography>
+                        <Typography variant="body2" fontWeight={700} color="primary.main">
+                            {Number(pfBalance).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                        </Typography>
+                    </Box>
+                </>
+            )}
+        </Box>
+    );
+};
+
 const getColumns = (onCancel) => [
-    { field: '_id', headerName: 'Id', hide: true },
+    { field: 'id', headerName: 'Id', hide: true },
     {
-        field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.employees.fullName
+        field: 'fullName', headerName: 'Employee Name', flex: 1
     },
-    { field: 'loanRequest', headerName: 'Date', flex: 1, valueGetter: ({ row }) => formateISODate(row.loanRequest) },
-    { field: 'principleAmount', headerName: 'Principle' },
-    { field: 'repayAmount', headerName: 'Repay' },
+    { field: 'requestDate', headerName: 'Date', flex: 1, valueGetter: ({ row }) => formateISODate(row.requestDate) },
+    { field: 'loanType', headerName: 'Loan Type' },
+    { field: 'adjustmentType', headerName: 'Adjustment Type' },
     {
         field: 'status', headerName: 'Status', flex: 1, renderCell: renderStatusCell
     },
-    { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
-    { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
-    // getActions(null, { onCancel })
+    { field: 'modifiedAt', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedAt) },
+    { field: 'createdAt', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdAt) },
+    getActions(null, { onCancel })
 ];
 
 const LoanType = [
     { id: "Personal", title: "Personal Loan" },
     { id: "PF", title: "PF Loan" }
 ]
-const breakpoints = { size: { md: 12 } }
+
+const LoanAdjustmentType = [
+    { id: "Settlement", title: "Settlement" },
+    // { id: "InstallmentChange", title: "Change In Installment" }
+]
 const AddLoanAdjustment = ({ openPopup, setOpenPopup, colData = [] }) => {
     const formApi = useRef(null);
-    const loanAjApi = useRef(null);
-    const loadId = useRef(null);
-    const initLoanDetail = useRef([{ _id: null, paidDate: new Date(), amount: 0 }]);
-    const { Employees } = useAppSelector(e => e.appdata.employeeData);
+    const detailRef = useRef(null);
+    const [loader, setLoader] = useState(false);
+    const [detail, setDetail] = useState(null);
+    const { employees } = useAppSelector(e => e.appdata.employeeData);
+    const checkPfBalance = useAppSelector(e => e.modulesetting.payroll.checkPfBalance);
     const { addEntity } = useEntityAction();
-    const [getLoanDetail] = useLazySingleQuery();
 
+    const [getLoanDetail] = useLazySingleQuery();
+    const handleAmountValidation = (amount) => {
+        const { loanDetail } = detailRef.current;
+        return (+amount + loanDetail?.paidAmount) <= loanDetail.principleAmount;
+    };
     useEffect(() => {
         if (formApi.current && openPopup) {
             const { resetForm } = formApi.current;
@@ -86,66 +158,51 @@ const AddLoanAdjustment = ({ openPopup, setOpenPopup, colData = [] }) => {
         }
     }, [openPopup, formApi])
 
-    const handleAddItems = (i) => {
-        const { getValue, setFormValue } = formApi.current;
-        if (getValue().distributedMonth === getValue().loanSchedule.length) return;
-        setFormValue({ loanSchedule: [...getValue().loanSchedule, { _id: null, paidDate: new Date(), amount: 0, isNew: true }] })
-
-
-    }
-    const handleRemoveItems = (_index) => {
-        const { getValue, setFormValue } = formApi.current;
-        const { loanSchedule } = getValue();
-
-        setFormValue({ loanSchedule: loanSchedule.toSpliced(_index, 1) })
-    }
     const handleLoanDetail = (employeeId, type) => {
+        if (!employeeId || !type) {
+            detailRef.current = null;
+            setDetail(null)
+            return;
+        }
+        getLoanDetail({ url: `${API.LoanRequest}/detail`, params: { employeeId, type } }).then(res => {
+            const { setFormValue } = formApi.current;
+            if (res.data.result) {
+                detailRef.current = res.data.result;
+                setDetail(res.data.result)
 
-        const { setFormValue, getValue } = formApi.current;
-        getLoanDetail({ url: API.LoanDetail, params: { employeeId, type } }).then(c => {
-            if (c.data?.result) {
-                const { result } = c.data;
-                loadId.current = result._id;
-                setFormValue({
-                    title: result.title, loanRequest: new Date(result.loanRequest),
-                    repayAmount: result.repayAmount, principleAmount: result.principleAmount,
-                    loanStartDate: new Date(result.loanStartDate),
-                    distributedMonth: Math.ceil(result.principleAmount / result.repayAmount),
-                    loanSchedule: result.loanSchedule.map(e => ({ ...e, paidDate: new Date(e.paidDate) }))
-                });
             }
-            else {
-                loadId.current = null;
-                setFormValue({
-                    title: "", loanRequest: new Date(),
-                    repayAmount: 0, principleAmount: 0,
-                    distributedMonth: 0,
-                    loanStartDate: new Date(),
-                    loanSchedule: [...initLoanDetail.current]
-                });
-            }
-
         })
     }
 
     const formData = [
         {
+            elementType: "datetimepicker",
+            label: "Date",
+            name: "requestDate",
+            required: true,
+            validate: {
+                errorMessage: "Select Date please",
+            },
+            defaultValue: new Date(),
+            excel: {
+                sampleData: new Date().toLocaleDateString('en-US')
+            }
+        },
+        {
             elementType: "ad_dropdown",
-            name: "fkEmployeeId",
+            name: "employeeId",
             label: "Employee",
-            variant: "outlined",
+            onChange: (val) => {
+                const { getValue } = formApi.current;
+                handleLoanDetail(val?.id, getValue().loanType);
+            },
             required: true,
             validate: {
                 errorMessage: "Select Employee",
             },
             dataName: 'fullName',
-            dataId: "_id",
-            onChange: (data) => {
-                if (!data) return;
-                const { getValue } = formApi.current;
-                handleLoanDetail(data._id, getValue().type);
-            },
-            options: Employees,
+            dataId: "id",
+            options: employees,
             defaultValue: null,
             excel: {
                 sampleData: "Faizan Siddiqui"
@@ -153,240 +210,102 @@ const AddLoanAdjustment = ({ openPopup, setOpenPopup, colData = [] }) => {
         },
         {
             elementType: "dropdown",
-            name: "type",
+            name: "loanType",
             label: "Type",
-            onChange: (data) => {
-                if (!data) return;
+            required: true,
+            validate: {
+                errorMessage: "Select Loan Type",
+            },
+            onChange: (val) => {
                 const { getValue } = formApi.current;
-                handleLoanDetail(getValue().fkEmployeeId._id, data);
+                handleLoanDetail(getValue().employeeId.id, val);
             },
             isNone: false,
             dataId: "id",
             dataName: "title",
             defaultValue: "Personal",
-            options: LoanType,
-            excel: {
-                sampleData: "PF"
-            }
+            options: LoanType
         },
         {
-            elementType: "datetimepicker",
-            label: "Date",
-            disabled: true,
-            name: "loanRequest",
-            required: true,
-            validate: {
-                errorMessage: "Select Date please",
-            },
-            defaultValue: new Date(),
-            excel: {
-                sampleData: new Date().toLocaleDateString('en-US')
-            }
-        },
-        {
-            elementType: "datetimepicker",
-            label: "Loan Start Date",
-            name: "loanStartDate",
-            disabled: true,
-            required: true,
-            shouldDisableDate: (date) => {
-                const { getValue } = formApi.current;
-                const { loanRequest } = getValue();
-                return date?.getTime() < loanRequest?.getTime()
-            },
-            validate: {
-                errorMessage: "Select Date please",
-            },
-            defaultValue: new Date(),
-            excel: {
-                sampleData: new Date().toLocaleDateString('en-US')
-            }
+            elementType: "dropdown",
+            name: "adjustmentType",
+            label: "Adjustment Type",
+            isNone: false,
+            dataId: "id",
+            dataName: "title",
+            defaultValue: "Settlement",
+            options: LoanAdjustmentType
         },
         {
             elementType: "inputfield",
-            name: "title",
+            name: "amount",
             required: true,
-            disabled: true,
-            label: "Title",
-            validate: {
-                errorMessage: "Title required",
-            },
-            defaultValue: "",
-            excel: {
-                sampleData: "Peronal Loan"
-            }
-        },
-        {
-            elementType: "inputfield",
-            name: "principleAmount",
-            disabled: true,
-            required: true,
-            onChange: (val) => {
-                const { setFormValue, getValue } = formApi.current;
-                const { repayAmount } = getValue();
-                setFormValue({ distributedMonth: Math.ceil(+val / +repayAmount) })
-            },
-            type: "number",
-            label: "Loan Amount",
-            validate: {
-                errorMessage: "Loan Amount required",
-            },
-            defaultValue: 0,
-            excel: {
-                sampleData: 10000
-            }
-        },
-        {
-            elementType: "inputfield",
-            name: "repayAmount",
-            required: true,
-            type: "number",
-            onChange: (val) => {
-                const { setFormValue, getValue } = formApi.current;
-                const { principleAmount } = getValue();
-
-                setFormValue({ distributedMonth: Math.ceil(+principleAmount / +val) })
-            },
-            label: "Repay Amount",
             validate: {
                 validate: (val) => {
-                    const { getValue } = formApi.current;
-                    return +val.repayAmount < +getValue().principleAmount
+                    return handleAmountValidation(val.amount);
                 },
-                errorMessage: "Amount should be less than of loan amount",
+                errorMessage: "Amount should be less than of loan balance",
             },
-            defaultValue: 0,
-            excel: {
-                sampleData: 2000
-            }
-        },
-        {
-            elementType: "inputfield",
-            name: "distributedMonth",
-            disabled: true,
             type: "number",
-            label: "Distribute in Month",
+            label: "Amount",
             defaultValue: 0
         },
         {
-            elementType: "custom",
-            breakpoints: breakpoints,
-            NodeElement: () => <Divider><Chip size="small" label="Installment Details" icon={<DisplaySettings />} /></Divider>
-        },
-        {
-            elementType: "arrayForm",
-            name: "loanSchedule",
-            // sx: listStyle,
-            arrayFormRef: loanAjApi,
-            breakpoints: breakpoints,
-            defaultValue: initLoanDetail.current,
-            formData: [
-                {
-                    elementType: "datetimepicker",
-                    label: "Date",
-                    name: "paidDate",
-                    required: true,
-                    disabled: (value) => value["_id"],
-                    validate: {
-                        errorMessage: "Select Date please",
-                    },
-                    breakpoints: { size: { md: 5 } },
-                    defaultValue: new Date(),
-                    excel: {
-                        sampleData: new Date().toLocaleDateString('en-US')
-                    }
-                },
-                {
-                    elementType: "inputfield",
-                    name: "amount",
-                    label: "Amount",
-                    inputMode: 'numeric',
-                    disabled: (value) => value["_id"],
-                    type: "number",
-                    required: true,
-                    validate: {
-                        errorMessage: "Amount is required",
-                    },
-                    inputProps: {
-                        min: 0,
-                    },
-                    breakpoints: { size: { md: 5 } },
-                    InputProps: {
-                        endAdornment: (
-                            <InputAdornment position="end">
-                                <AttachMoney />
-                            </InputAdornment>
-                        )
-                    },
-                    defaultValue: "",
-                },
-                {
-                    elementType: "custom",
-                    breakpoints: { size: { md: 2 } },
-                    NodeElement: ({ dataindex, datavalue }) =>
-                        !datavalue?._id ?
-                            <IconButton onClick={() => handleRemoveItems(dataindex, false)}>
-                                <RemoveCircleOutline color='warning' />
-                            </IconButton> : null
-
-                }
-            ],
-            isValidate: true,
-        },
-        {
-            elementType: "custom",
-            breakpoints: breakpoints,
-            NodeElement: () => <IconButton title='Add Installment' aria-label="delete" onClick={() => handleAddItems(false)}>
-                <AddCircleOutline color='primary' />
-            </IconButton>
+            elementType: "inputfield",
+            name: "reason",
+            required: true,
+            label: "Description",
+            multiline: true,
+            validate: {
+                errorMessage: "Description required",
+            },
+            minRows: 5,
+            variant: "outlined",
+            breakpoints: { size: { md: 12, sm: 12, xs: 12 } },
+            defaultValue: "",
+            excel: {
+                sampleData: "Personl reson"
+            }
         }
     ];
     colData.current = formData;
 
     const handleSubmit = (e) => {
-        if (!loadId.current) return;
         const { getValue, validateFields } = formApi.current
-        const { validateFields: adjValidateFields } = loanAjApi.current
-        if (validateFields() && adjValidateFields()) {
+        if (validateFields() && detail?.loanDetail) {
             let values = getValue();
-            let dataToInsert = {};
-            dataToInsert._id = loadId.current;
-            dataToInsert.repayAmount = values.repayAmount;
-            dataToInsert.isAdjust = true;
-            dataToInsert.loanSchedule = values.loanSchedule.map(({ _id, ...e }) => ({
-                ...e,
-                isFromAdjust: e?.isNew ?? false, ...(_id && { _id }),
-                paidDate: systemFormatDate(e.paidDate),
-                ...(!e?.month && e.month !== 0 && { month: e.paidDate.getMonth(), year: e.paidDate.getFullYear() })
-            }));
-
-            const creditAmount = values.loanSchedule
-                .reduce((accumulator, currentValue) => accumulator + (+currentValue.amount), 0);
-
-            dataToInsert.isPaid = creditAmount === values.principleAmount;
-
-            addEntity({ url: DEFAULT_API, data: [dataToInsert] }).finally(() => {
-                setOpenPopup(false);
-            });
+            const { loanDetail } = detail;
+            let dataToInsert = { ...values };
+            dataToInsert.employeeId = values.employeeId.id;
+            dataToInsert.loanMasterId = loanDetail.loanMasterId;
+            dataToInsert.requestDate = systemFormatDate(values.requestDate);
+            dataToInsert.settlementAmount = values.amount;
+            dataToInsert.outstandingBalanceAtSettlement = (loanDetail.principleAmount - loanDetail.paidAmount);
+            addEntity({ url: DEFAULT_API, data: [dataToInsert] }).finally(() => setOpenPopup(false));
 
         }
     }
     return <>
+        <Loader open={loader} />
         <Popup
             title="Loan Adjustment"
             openPopup={openPopup}
-            maxWidth="xl"
-            fullScreen
+            maxWidth="md"
+            loader={Boolean(!detail?.loanDetail)}
             isEdit={false}
             keepMounted={true}
             addOrEditFunc={handleSubmit}
             setOpenPopup={setOpenPopup}>
-            <AutoForm formData={formData} ref={formApi} breakpoints={{ size: { md: 6 } }} isValidate={true} />
+            <Stack flexDirection="row" gap={2}>
+                <AutoForm formData={formData} ref={formApi} isValidate={true} />
+                <LoanDetailPanel loanDetail={detail?.loanDetail} pfBalance={detail?.pfBalance} />
+            </Stack>
+
         </Popup>
     </>
 }
-const DEFAULT_API = API.LoanRequest;
-const LoanRequest = () => {
+const DEFAULT_API = API.LoanAdjustment;
+const LoanAdjustment = () => {
     const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
 
@@ -403,6 +322,7 @@ const LoanRequest = () => {
 
     const [sort, setSort] = useState({ sort: { createdAt: -1 } });
 
+
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,
         title: "",
@@ -413,19 +333,16 @@ const LoanRequest = () => {
     const gridApiRef = useGridApi();
     const query = useAppSelector(e => e.appdata.query.builder);
     const { countryIds, stateIds, cityIds, areaIds } = useDropDownIds();
-    const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
+    const { data, isFetching, refetch, totalRecord } = useEntitiesQuery({
         url: `${DEFAULT_API}/get`,
         data: {
             limit: gridFilter.limit,
             page: gridFilter.page + 1,
             lastKeyId: gridFilter.lastKey,
             ...sort,
-            searchParams: {
-                isAdjust: true,
-                ...query
-            }
+            searchParams: { ...query }
         }
-    }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
+    }, { selectFromResult: ({ data, isFetching }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isFetching }) });
 
     const { removeEntity, updateOneEntity, addEntity } = useEntityAction();
 
@@ -441,7 +358,7 @@ const LoanRequest = () => {
 
     }
 
-    const { socketData } = useSocketIo("changeInAdj", refetch);
+    const { socketData } = useSocketIo("changeInLoanAdjust", refetch);
 
     const columns = getColumns(handleCancel);
 
@@ -465,9 +382,9 @@ const LoanRequest = () => {
 
     useEffect(() => {
 
-        dispatch(showDropDownFilterAction({
-            employee: true,
-        }));
+        // dispatch(showDropDownFilterAction({
+        //     employee: true,
+        // }));
         dispatch(builderFieldsAction(fields));
     }, [dispatch])
 
@@ -480,7 +397,7 @@ const LoanRequest = () => {
         <>
             <PageHeader
                 title="Loan Adjustment"
-                enableFilter={true}
+                enableFilter={false}
                 subTitle="Manage Loan Adjustment"
                 icon={<PeopleOutline fontSize="large" />}
             />
@@ -492,7 +409,7 @@ const LoanRequest = () => {
                 checkboxSelection={false}
                 disableSelectionOnClick={true}
                 getRowHeight={() => 40}
-                loading={isLoading} pageSize={gridFilter.limit}
+                loading={isFetching} pageSize={gridFilter.limit}
                 setFilter={setGridFilter}
                 onSortModelChange={(s) => setSort({ sort: s.reduce((a, v) => ({ ...a, [v.field]: v.sort === 'asc' ? 1 : -1 }), {}) })}
                 totalCount={totalRecord}
@@ -510,4 +427,4 @@ const LoanRequest = () => {
     );
 }
 
-export default LoanRequest;
+export default LoanAdjustment;

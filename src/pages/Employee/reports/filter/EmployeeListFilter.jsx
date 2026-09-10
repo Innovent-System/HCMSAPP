@@ -9,7 +9,7 @@ const DefaultLimit = 30, DefaultPage = 0;
 
 const EmployeeListFilter = () => {
 
-    const { countryIds, stateIds, cityIds, areaIds, departmentIds, groupIds, designationIds, employeeIds } = useDropDownIds();
+    const { countryIds, stateIds, cityIds, areaIds, departmentIds, groupIds, employeeIds } = useDropDownIds();
     const [groupByField, setGoupByField] = useState("");
     const handleViewer = () => {
         const query = {
@@ -17,14 +17,13 @@ const EmployeeListFilter = () => {
             limit: DefaultLimit,
             groupBy: groupByField,
             searchParams: {
-                ...(employeeIds && { "_id": { $in: employeeIds.split(',') } }),
-                ...(countryIds && { "companyInfo.fkCountryId": { $in: countryIds.split(',') } }),
-                ...(stateIds && { "companyInfo.fkStateId": { $in: stateIds.split(',') } }),
-                ...(cityIds && { "companyInfo.fkCityId": { $in: cityIds.split(',') } }),
-                ...(areaIds && { "companyInfo.fkAreaId": { $in: areaIds.split(',') } }),
-                ...(groupIds && { "companyInfo.fkEmployeeGroupId": { $in: groupIds.split(',') } }),
-                ...(departmentIds && { "companyInfo.fkDepartmentId": { $in: departmentIds.split(',') } }),
-                ...(designationIds && { "companyInfo.fkDesignationId": { $in: designationIds.split(',') } })
+                ...(employeeIds && { "id": { value: employeeIds.split(','), operator: "In" } }),
+                ...(countryIds && { "countryId": { value: countryIds.split(','), operator: "In" } }),
+                ...(stateIds && { "stateId": { value: stateIds.split(','), operator: "In" } }),
+                ...(cityIds && { "cityId": { value: cityIds.split(','), operator: "In" } }),
+                ...(areaIds && { "areaId": { value: areaIds.split(','), operator: "In" } }),
+                ...(groupIds && { "employeeGroupId": { value: groupIds.split(','), operator: "In" } }),
+                ...(departmentIds && { "departmentId": { value: departmentIds.split(','), operator: "In" } })
             }
         }
 
@@ -52,7 +51,7 @@ const EmployeeListFilter = () => {
                             value={Boolean(groupByField)}
                             onChange={e => e.target.value ? setGoupByField(e.target.name) : setGoupByField("")}
                             fullWidth />
-                             {/* <Controls.Checkbox label="Area Wise Group" name="area"
+                        {/* <Controls.Checkbox label="Area Wise Group" name="area"
                             value={Boolean(groupByField)}
                             onChange={e => e.target.value ? setGoupByField(e.target.name) : setGoupByField("")}
                             fullWidth /> */}

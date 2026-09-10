@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from '@/store/storehook';
 import { setMarkDetail } from '@/store/slicer/attendance';
 
 const labelSx = {
-    '& .MuiFormControlLabel-label': { fontFamily: 'Calculator', fontSize: "xx-large", pb: 1 }
+    '& .MuiFormControlLabel-label': { fontFamily: 'Calculator', color: "#fff", fontSize: "xx-large", pb: 1 }
 }
 
 

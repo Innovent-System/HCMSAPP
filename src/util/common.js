@@ -27,10 +27,9 @@ export const getYears = (startYear = 2020) => {
     return years;
 }
 export const getMonths = () => monthNames.map((e, i) => ({ id: i + 1, title: e }));
+const currentMonth = new Date().getMonth() + 1;
 
-const currentMonth = new Date().getMonth();
-
-export const getDefaultMonth = (monthId = currentMonth) => monthId === 0 ? 12 : monthId;
+export const getDefaultMonth = (monthId = currentMonth) => monthId === 1 ? 12 : monthId;
 
 
 export const AttendanceflagMap = {

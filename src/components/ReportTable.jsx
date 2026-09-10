@@ -34,7 +34,7 @@ const Styles = {
         },
         '& .MuiTableCell-head': {
             fontWeight: 600,
-            color:'#ffffff'
+            color: '#ffffff'
         },
         '& .MuiTableRow-head': {
             bgcolor: 'primary.main',
@@ -131,7 +131,7 @@ const ReportTable = ({ pageBreak = false,
             pre[curr] = 0;
             return pre;
         }, {}) : null;
-        if(grandTotalSum.current){
+        if (grandTotalSum.current) {
             for (let index = 0; index < reportData.length; index++) {
                 const row = reportData[index];
                 Object.keys(grandTotalSum.current).forEach(e => grandTotalSum.current[e] += (grandTotal.parentPath ? row[grandTotal.parentPath][e] : row[e] ?? 0));
@@ -143,8 +143,10 @@ const ReportTable = ({ pageBreak = false,
             setResultCount(reportData[reportData?.length - 1]?.pageIndex ?? 0);
         }
         else {
+            const resultCount = Math.ceil(reportData.length / ROW_PER_PAGE);
+            isLastPage.current = resultCount === 1;
             setRecords(reportData.slice(0 * ROW_PER_PAGE, (0 + 1) * ROW_PER_PAGE));
-            setResultCount(Math.ceil(reportData.length / ROW_PER_PAGE));
+            setResultCount(resultCount);
         }
 
 
@@ -174,27 +176,27 @@ const ReportTable = ({ pageBreak = false,
             _subTotal && Object.keys(_subTotal).forEach(e => _subTotal[e] += (subTotal.parentPath ? row[subTotal.parentPath][e] : row[e] ?? 0));
             // grandTotalSum.current && Object.keys(grandTotalSum.current).forEach(e => grandTotalSum.current[e] += (grandTotal.parentPath ? row[grandTotal.parentPath][e] : row[e] ?? 0));
             if (isFirst || isNewGroup) {
-                if (HeadElement) elements.push(<HeadElement key={`headElement-${row._id}`} row={row} {...(tableProps && { ...tableProps })} />);
+                if (HeadElement) elements.push(<HeadElement key={`headElement-${row.id}`} row={row} {...(tableProps && { ...tableProps })} />);
 
-                elements.push(<TblHead key={`head-${row._id}`} cols={columnPrint} />);
+                elements.push(<TblHead key={`head-${row.id}`} cols={columnPrint} />);
             }
 
-            elements.push(<Row key={`row-${row._id}`} row={row} cols={columnPrint} />)
+            elements.push(<Row key={`row-${row.id}`} row={row} cols={columnPrint} />)
 
             if (groupByField && String(groupByField(row)) !== String(groupByField(records[rowsLength == _count ? rowsLength : rowsLength + 1]))) {
                 // GrandTotal && elements.push(<GrandTotal key={`grand-${groupByField}-${row._id}`} row={row} {...(grandTotalProps && { ...grandTotalProps })} />);
                 // Summary && elements.push(<Summary key={`summary-${groupByField}-${row._id}`} row={row} {...(tableProps && { ...tableProps })} />);
-                subTotal?.Element && elements.push(<subTotal.Element key={`subtotal-${groupByField(row)}-${row._id}`} row={row} subTotal={{ ..._subTotal }} />);
+                subTotal?.Element && elements.push(<subTotal.Element key={`subtotal-${groupByField(row)}-${row.id}`} row={row} subTotal={{ ..._subTotal }} {...(subTotal?.props && { ...subTotal?.props })} />);
                 _subTotal && Object.keys(_subTotal).forEach(e => _subTotal[e] = 0);
             }
 
             if ((_count - 1) === rowsLength && isLastPage.current) {
-                grandTotal?.Element && elements.push(<grandTotal.Element key={`grand-${row._id}`} row={row} grandTotal={grandTotalSum.current} {...(grandTotal?.props && { ...grandTotal?.props })} />);
-                Summary && elements.push(<Summary key={`summary-${row._id}`} row={row} {...(tableProps && { ...tableProps })} />);
+                grandTotal?.Element && elements.push(<grandTotal.Element key={`grand-${row.id}`} row={row} grandTotal={grandTotalSum.current} {...(grandTotal?.props && { ...grandTotal?.props })} />);
+                Summary && elements.push(<Summary key={`summary-${row.id}`} row={row} {...(tableProps && { ...tableProps })} />);
             }
 
 
-        preValue = row[pageBreakOn];
+            preValue = row[pageBreakOn];
             groupValue = typeof groupByField == "function" ? groupByField(row) : null;
             isFirst = false;
         }

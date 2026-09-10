@@ -433,7 +433,7 @@ export const DROPDOWN_PROPS = {
         isNone: false,
         dataId: "id",
         dataName: "title",
-        defaultValue: _months[getDefaultMonth()].id,
+        defaultValue: getDefaultMonth(),
         // options: _months,
     }
 }

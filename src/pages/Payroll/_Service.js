@@ -12,6 +12,7 @@ export const API = {
     OverTime: 'payroll/overtime',
     LoanRequest: 'payroll/loan',
     LoanDetail: 'payroll/loan/detail',
+    LoanAdjustment: 'payroll/loanadjustment',
     Approval: "payroll/approval",
     ApprovalAction: "payroll/approval/action",
     LeaveType: "leave/type",

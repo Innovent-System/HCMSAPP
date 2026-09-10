@@ -242,7 +242,7 @@ const StripedDataGrid = styled(DataGridPro)(({ theme }) => ({
 
   border: 'none',
   borderRadius: 0,
-  fontSize: '0.82rem',
+  fontSize: '0.8rem',
   fontFamily: theme.typography.fontFamily,
 
   // ── Column Headers

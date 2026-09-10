@@ -78,7 +78,7 @@ export const BaseReportWrapper = ({ API_NAME, header, subHeader, fileName, child
         getReport({
             url: `${API_NAME}/${isDownload ? 'download' : 'view'}`,
             fileName,
-            data: { ...queryData, type }
+            data: { ...queryData, reportType: type }
         }).then(c => {
 
             if (!isDownload)

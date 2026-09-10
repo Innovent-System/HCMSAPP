@@ -5,6 +5,12 @@ import { Box, Stack, TableCell, TableRow, Typography, IconButton, ButtonGroup, T
 import ReportTable from '../../../../components/ReportTable';
 
 
+const fixColumns = [
+    { field: 'punchCode', headerName: 'Code' },
+    { field: 'fullName', headerName: 'Employee' },
+    // { field: 'department', headerName: 'Department' }
+];
+
 const HeadElement = ({ row, index }) => {
     return <TableHead> <TableRow><TableCell sx={{ backgroundColor: '#fff' }} colSpan={reportColumns.length}>
         <Box pb={1} pl={1} borderRadius={1} borderColor="whitesmoke" component="fieldset">
@@ -39,12 +45,28 @@ const HeadElement = ({ row, index }) => {
 const AttendanceRegisterViewer = ({ API_NAME, fileName }) => {
 
     const [records, setRecords] = useState({
-        reportColumns: [],
-        attRegister: [],
+        columns: [],
+        rows: [],
         totalEmployees: 0
     });
     const handleRecord = (data) => {
-        setRecords(data)
+
+        const dynamicColumns = data.columns.map((headName) => ({
+            field: headName,
+            headerName: headName
+        }));
+        // colSpan.current = dynamicColumns.length;
+        const columns = [...fixColumns, ...dynamicColumns,
+        { field: 'TP', headerName: 'P' },
+        { field: 'TA', headerName: 'A' },
+        { field: 'TL', headerName: 'L' },
+        { field: 'TH', headerName: 'H' },
+        { field: 'TLV', headerName: 'LV' }
+        ]
+        setRecords({
+            rows: data.rows,
+            columns
+        })
     }
 
     return (
@@ -52,10 +74,10 @@ const AttendanceRegisterViewer = ({ API_NAME, fileName }) => {
         <BaseReportWrapper API_NAME={API_NAME} fileName={fileName}
             handleRecord={handleRecord}
         >
-            <ReportTable columnPrint={records?.reportColumns}
+            <ReportTable columnPrint={records?.columns}
 
-                reportData={records?.attRegister}
-                // HeadElement={HeadElement}
+                reportData={records?.rows}
+            // HeadElement={HeadElement}
             />
         </BaseReportWrapper>
     )

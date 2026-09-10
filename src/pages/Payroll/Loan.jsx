@@ -49,8 +49,7 @@ const mapAdvSalary = (values) => {
 }
 
 const getColumns = (onCancel) => [
-    { field: '_id', headerName: 'Id', hide: true },
-    { field: 'rowNo', headerName: 'Sr#', width:8,sortable:false,filterable:false },
+    { field: 'id', headerName: 'Id', hide: true },
     {
         field: 'fullName', headerName: 'Employee Name', flex: 1
     },

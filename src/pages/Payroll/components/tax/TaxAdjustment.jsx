@@ -81,7 +81,9 @@ export const AddTaxAdjustment = ({ openPopup, setOpenPopup, isEdit = false, row 
         data: {
             limit: 100,
             page: 1,
-            searchParams: {}
+            searchParams: {
+                isActive: { value: true, operator: "Equal" }
+            }
         }
     }, { selectFromResult: ({ data, isFetching }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isFetching }) });
 

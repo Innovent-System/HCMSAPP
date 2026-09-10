@@ -2,7 +2,7 @@ import { ReactNode, ReactElement, ChangeEvent, CSSProperties, ComponentType, Ref
 import { SxProps, Theme } from '@mui/material';
 
 // ✅ FIXED: String literal union type
-export type ElementType = 
+export type ElementType =
   | "inputfield"
   | "radiogroup"
   | "checkbox"
@@ -161,7 +161,7 @@ export interface ClearfixConfig<T = any> extends Omit<BaseFieldConfig<T>, 'eleme
 }
 
 // ✅ Union type - IntelliSense will now show specific types
-export type FieldConfig<T = any> = 
+export type FieldConfig<T = any> =
   | InputFieldConfig<T>
   | DropdownConfig<T>
   | RadioGroupConfig<T>
@@ -194,7 +194,7 @@ export interface FormRef<T = any> {
 
 export interface AutoFormProps<T = any> {
   formData: FormData<T>;
-  breakpoints?: BreakpointsType;
+  breakpoints?: { size: BreakpointsType };
   children?: ReactNode;
   isValidate?: boolean;
   isEdit?: boolean;

@@ -35,24 +35,16 @@ const fields = {
 
 const mapExcelData = (values) => {
     const map = { ...values };
-    map.fkEmployeeId = values.fkEmployeeId._id;
+    map.employeeId = values.employeeId.id;
     return map
-}
-const calcObj = {
-    "PercentageOfBasicSalary": "Percentage of Basic Salary",
-    "PercentageOfGrossSalary": "Percentage of Gross Salary",
-    "FixedAmount": "Fix Amount"
 }
 
 const getColumns = (apiRef, onEdit, onActive) => [
-    { field: '_id', headerName: 'Id', hide: true },
+    { field: 'id', headerName: 'Id', hide: true },
     {
-        field: 'fullName', headerName: 'Employee Name', flex: 1, valueGetter: ({ row }) => row.employees.fullName
+        field: 'fullName', headerName: 'Employee Name', flex: 1
     },
-    { field: 'type', headerName: 'Type', flex: 1, valueGetter: ({ row }) => calcObj[row.type] },
-    { field: 'employeeShare', headerName: 'Employee Share' },
-    { field: 'employerShare', headerName: 'Employer Share' },
-
+    { field: 'amount', headerName: 'Opening Balance' },
     {
         field: 'isActive', headerName: 'Active', renderCell: (param) => (
             param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
@@ -60,8 +52,8 @@ const getColumns = (apiRef, onEdit, onActive) => [
         // flex: '0 1 5%',
         align: 'center',
     },
-    { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
-    { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
+    { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedAt) },
+    { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdAt) },
     getActions(apiRef, { onEdit, onActive })
 ];
 
@@ -72,7 +64,7 @@ const AddPFOpening = ({ openPopup, setOpenPopup, colData = [], row = null, isEdi
     const formApi = useRef(null);
 
 
-    const { Employees } = useAppSelector(e => e.appdata.employeeData);
+    const { employees } = useAppSelector(e => e.appdata.employeeData);
     const { addEntity } = useEntityAction();
 
     useEffect(() => {
@@ -83,14 +75,10 @@ const AddPFOpening = ({ openPopup, setOpenPopup, colData = [], row = null, isEdi
             resetForm();
         else {
 
-            const { fkEmployeeId } = row;
+            const { employeeId } = row;
             setFormValue({
-                fkEmployeeId: Employees.find(c => c._id === fkEmployeeId),
-                type: row.type,
-                employeeShare: row.employeeShare,
-                employerShare: row.employerShare,
-                addOPBalance: row?.openingBalance ? true : false,
-                openingBalance: row?.openingBalance ? row?.openingBalance : 0
+                employeeId: employees.find(c => c.id === employeeId),
+                amount: row?.amount ? row?.amount : 0
             });
         }
 
@@ -99,7 +87,7 @@ const AddPFOpening = ({ openPopup, setOpenPopup, colData = [], row = null, isEdi
     const formData = [
         {
             elementType: "ad_dropdown",
-            name: "fkEmployeeId",
+            name: "employeeId",
             label: "Employee",
             variant: "outlined",
             required: true,
@@ -108,8 +96,8 @@ const AddPFOpening = ({ openPopup, setOpenPopup, colData = [], row = null, isEdi
                 errorMessage: "Select Employee",
             },
             dataName: 'fullName',
-            dataId: "_id",
-            options: Employees,
+            dataId: "id",
+            options: employees,
             defaultValue: null,
             excel: {
                 sampleData: "Faizan Siddiqui"
@@ -117,7 +105,7 @@ const AddPFOpening = ({ openPopup, setOpenPopup, colData = [], row = null, isEdi
         },
         {
             elementType: "inputfield",
-            name: "openingBalance",
+            name: "amount",
             label: "Opening Balance",
             inputMode: 'numeric',
             required: true,
@@ -151,10 +139,9 @@ const AddPFOpening = ({ openPopup, setOpenPopup, colData = [], row = null, isEdi
         if (validateFields()) {
             let values = getValue();
             let dataToInsert = { ...values };
-            dataToInsert.fkEmployeeId = values.fkEmployeeId._id;
-            dataToInsert.openingBalance = dataToInsert.addOPBalance ? dataToInsert.openingBalance : 0;
+            dataToInsert.employeeId = values.employeeId.id;
             if (isEdit)
-                dataToInsert._id = editId
+                dataToInsert.id = editId
 
             addEntity({ url: DEFAULT_API, data: [dataToInsert] });
 
@@ -197,8 +184,8 @@ const PFOpening = () => {
     const { inProcess, setFile, excelData, getTemplate } = useExcelReader({
         formTemplate: excelColData.current,
         transform: mapExcelData,
-        fileName: "ProvidentFund.xlsx",
-        uniqueBy: ["fkEmployeeId"]
+        fileName: "PFOpening.xlsx",
+        uniqueBy: ["employeeId"]
     });
 
     const [confirmDialog, setConfirmDialog] = useState({
@@ -237,7 +224,7 @@ const PFOpening = () => {
     }
 
     const handleActiveInActive = (id) => {
-        updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
+        updateOneEntity({ url: DEFAULT_API, data: { id: id } });
     }
 
     const handleEdit = (id) => {
@@ -278,9 +265,9 @@ const PFOpening = () => {
 
     useEffect(() => {
 
-        dispatch(showDropDownFilterAction({
-            employee: true,
-        }));
+        // dispatch(showDropDownFilterAction({
+        //     employee: true,
+        // }));
         dispatch(builderFieldsAction(fields));
     }, [dispatch])
 
@@ -294,7 +281,7 @@ const PFOpening = () => {
         <>
             <PageHeader
                 title={DEFAULT_TITLE}
-                enableFilter={true}
+                enableFilter={false}
                 handleUpload={(e) => setFile(e.target.files[0])}
                 handleTemplate={getTemplate}
                 subTitle={`Manage ${DEFAULT_TITLE}`}
