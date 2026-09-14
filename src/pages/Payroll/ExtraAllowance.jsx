@@ -263,7 +263,7 @@ const ExtraAllowance = () => {
     }
 
     const handleActiveInActive = (id) => {
-        updateOneEntity({ url: DEFAULT_API, data: { _id: id } });
+        updateOneEntity({ url: DEFAULT_API, data: { id } });
     }
 
     const handleEdit = (id) => {

@@ -1,6 +1,6 @@
 // listenerMiddleware.js
 import { createListenerMiddleware, isRejected, isPending, isFulfilled } from '@reduxjs/toolkit';
-import { setAppError, setGlobalLoader } from '../store/actions/httpactions';
+import { setAppError, setGlobalLoader } from './actions/httpactions';
 import { enqueueSnackbar } from 'notistack';
 import { appsocket } from '@/services/socketService';
 import { CloseSnackBar } from '@/router/StatusHandler';

@@ -7,7 +7,7 @@ import Auth from '../services/AuthenticationService';
 
 // export const domain = 'http://55.55.55.106:5000/api/';
 // export const socketUrl = "http://55.55.55.106:5000/";
-const BASE_URL = import.meta.env.DEV ? 'http://localhost:5304' : 'https://hcmsapi.onrender.com'
+const BASE_URL = import.meta.env.DEV ? 'http://localhost:5304' : 'http://192.100.1.222:5304'
 
 export const domain = `${BASE_URL}/api/v1/`;
 export const socketUrl = BASE_URL;

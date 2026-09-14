@@ -9,8 +9,8 @@ const InitialState = {
         end: null,
         isAbleToMark: false
     },
-    attendanceList: [],
-    missingAttendaceList: []
+    attendanceList: [] as any[],
+    missingAttendaceList: [] as any[]
 }
 
 export const attendanceSlice = createSlice({
