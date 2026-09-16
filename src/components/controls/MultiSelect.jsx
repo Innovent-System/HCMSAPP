@@ -66,7 +66,7 @@ function MultiSelect(props) {
     <Autocomplete
       multiple={isMultiple}
       ref={autoCompleteRef}
-      limitTags={1}
+      limitTags={2}
       isOptionEqualToValue={(option, value) => {
         if (option.isSelectAll) return false;
         return option[dataName] === value[dataName];
@@ -140,6 +140,16 @@ function MultiSelect(props) {
         },
 
         renderTags: (value, getTagProps, _prop) => {
+          if (allSelected) {
+            return [
+              <Chip
+                key="all-chip"
+                label="All"
+                size="small"
+                onDelete={handleClearAll}
+              />
+            ];
+          }
           return value.slice(0, _prop.limitTags).map((option, index) => {
             const { key, ...chipProp } = getTagProps({ index });
             return (

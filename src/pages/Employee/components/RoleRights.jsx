@@ -128,16 +128,74 @@ export const ApplyTemplate = ({ openPopup, setOpenPopup, employeeId, refetch }) 
     </Popup>
 }
 
+// Sentinel option injected into a role's configuration dropdown to represent "All X" —
+// selecting it clears any specific entity picks (isAll=true, entityIds=[]).
+const ALL_SENTINEL = "__ALL__";
+
+// A role's `code` decides which reference list its configuration dropdown uses. Self and
+// Subordinates have no entry here on purpose — they're checkbox-only, no config column.
+const buildEntityListByCode = (departments, areas) => ({
+    DEPARTMENTACCESS: { options: departments, dataName: "departmentName" },
+    AREAACCESS: { options: areas, dataName: "name" },
+});
+
+const SYSTEM_GENERAL_ROLES = [
+    {
+        id: 1,
+        name: "Self",
+        code: "SELF",
+        description: "User's own employee data",
+        access: false,
+        isAll: false,
+        entityIds: []
+    },
+    {
+        id: 2,
+        name: "Subordinates",
+        code: "SUBORDINATES",
+        description: "Employees reporting to the user",
+        access: false,
+        isAll: false,
+        entityIds: []
+    },
+    {
+        id: 3,
+        name: "Access on Department",
+        code: "DEPARTMENTACCESS",
+        description: "Access employees by department",
+        access: false,
+        isAll: false,
+        entityIds: []
+    },
+    {
+        id: 4,
+        name: "Access on Area",
+        code: "AREAACCESS",
+        description: "Access employees by area",
+        access: false,
+        isAll: false,
+        entityIds: []
+    },
+];
+
+// Key used in the same expandedModules map as the module rows, so the accordion
+// expand/collapse behaves identically to every other section in this table.
+const GENERAL_ACCESS_KEY = "general-access";
+
 const DEFAULT_API = API.RoleTemplate;
 
 const RoleRights = ({ isUserRole = false }) => {
     const [selectedTemplate, setSelectedTemplate] = useState(null);
     const [permissions, setPermissions] = useState([]);
-    const [expandedModules, setExpandedModules] = useState({});
+    const [expandedModules, setExpandedModules] = useState({ [GENERAL_ACCESS_KEY]: true });
     const [loading, setLoading] = useState(false);
     const [openPopup, setOpenPopup] = useState(false);
 
-    const { roleTemplates: templates, employees } = useDropDown();
+    const [generalRoles, setGeneralRoles] = useState(SYSTEM_GENERAL_ROLES);
+
+    const { roleTemplates: templates, employees, departments = [], areas = [] } = useDropDown();
+    const entityListByCode = useMemo(() => buildEntityListByCode(departments, areas), [departments, areas]);
+
     const { data, refetch } = useEntityByIdQuery({
         url: isUserRole ? `${DEFAULT_API}/userRole` : DEFAULT_API,
         id: selectedTemplate?.id
@@ -147,13 +205,15 @@ const RoleRights = ({ isUserRole = false }) => {
     // Load rights whenever a different template is picked
     useEffect(() => {
         if (!data) return;
-        setPermissions([...data]);
-        setExpandedModules(
-            data.reduce((acc, module) => {
+        setPermissions([...data.formRights]);
+        setGeneralRoles([...data.generalAccess]);
+        setExpandedModules((prev) => ({
+            ...data.formRights.reduce((acc, module) => {
                 acc[module.moduleId] = true;
                 return acc;
-            }, {})
-        );
+            }, {}),
+            [GENERAL_ACCESS_KEY]: prev[GENERAL_ACCESS_KEY] ?? true,
+        }));
     }, [data]);
 
     // Union of every distinct action across ALL forms/modules — different forms can expose
@@ -242,6 +302,28 @@ const RoleRights = ({ isUserRole = false }) => {
             )
         );
 
+    // ---- General Access handlers ----
+
+    const toggleGeneralRole = (roleId) => {
+        setGeneralRoles((prev) =>
+            prev.map((role) =>
+                role.id === roleId
+                    ? { ...role, access: !role.access, ...(role.access ? { isAll: false, entityIds: [] } : {}) }
+                    : role
+            )
+        );
+    };
+
+    const updateGeneralRoleConfig = (roleId, value, optionLength) => {
+        const hasAll = value.length === optionLength;
+        setGeneralRoles((prev) =>
+            prev.map((role) =>
+                role.id === roleId
+                    ? { ...role, isAll: hasAll, entityIds: hasAll ? [] : (value || []).map((v) => v.id) }
+                    : role
+            )
+        );
+    };
 
     const handleSave = () => {
         if (!selectedTemplate) return;
@@ -254,15 +336,31 @@ const RoleRights = ({ isUserRole = false }) => {
                 actionIds: form.actions.filter((a) => a.isSelected).map((a) => a.actionId),
             }))
         );
-        const url = isUserRole ? `${DEFAULT_API}/userRole` : DEFAULT_API
         const roleTemplateId = isUserRole ? 0 : selectedTemplate.id
+
+        const generalAccessPayload = generalRoles
+            .filter((r) => r.access)
+            .map((r) => ({
+                generalRoleId: r.id, isAll: r.isAll,
+                generalRoleTemplateId: r?.generalRoleTemplateId,
+                roleTemplateMasterId: r?.roleTemplateMasterId,
+                mappings: r.entityIds.map((e) => ({
+                    generalRoleTemplateId: 0,
+                    roleTemplateMasterId: roleTemplateId,
+                    entityId: e
+                }))
+            }));
+
+
+        const url = isUserRole ? `${DEFAULT_API}/userRole` : DEFAULT_API
+
         updateEntity({
             url: `${url}/${selectedTemplate.id}`, data: {
                 roleTemplateMasterId: roleTemplateId,
-                permissions: payload
+                permissions: payload,
+                generalAccess: generalAccessPayload,
             }
         });
-        // onSave(selectedTemplate.id, payload);
     };
 
 
@@ -299,28 +397,6 @@ const RoleRights = ({ isUserRole = false }) => {
                     />
 
                 }
-                {/* <Autocomplete
-                    options={templates}
-                    getOptionLabel={(t) => t.name}
-                    value={selectedTemplate}
-                    onChange={(e, value) => setSelectedTemplate(value)}
-                    isOptionEqualToValue={(a, b) => a.id === b.id}
-                    sx={{ width: 320 }}
-                    renderInput={(params) => (
-                        <TextField
-                            {...params}
-                            size="small"
-                            placeholder="Select role template..."
-                            sx={{
-                                "& .MuiOutlinedInput-root": {
-                                    borderRadius: 2,
-                                    backgroundColor: "#fff",
-                                    fontSize: 13,
-                                },
-                            }}
-                        />
-                    )}
-                /> */}
 
                 {selectedTemplate && !isUserRole && (
                     <Chip
@@ -407,7 +483,8 @@ const RoleRights = ({ isUserRole = false }) => {
 
 
                     {/* =================================================
-                        MATRIX TABLE
+                        MATRIX TABLE — Form Rights modules, then General
+                        Access as one more accordion section, same table.
                     ================================================= */}
 
                     <TableContainer
@@ -575,6 +652,113 @@ const RoleRights = ({ isUserRole = false }) => {
                                         </React.Fragment>
                                     );
                                 })}
+
+
+                                {/* =================================================
+                                    GENERAL ACCESS — same accordion pattern as a
+                                    module above, appended as the last section.
+                                ================================================= */}
+
+                                {!loading && (() => {
+                                    const isGeneralAccessExpanded = expandedModules[GENERAL_ACCESS_KEY] ?? true;
+                                    const grantedCount = generalRoles.filter((r) => r.access).length;
+
+                                    return (
+                                        <React.Fragment key={GENERAL_ACCESS_KEY}>
+
+                                            {/* SECTION HEADER — same look as a module row */}
+                                            <TableRow
+                                                sx={{
+                                                    backgroundColor: "#fafafa",
+                                                    "& > td": { borderBottom: "1px solid", borderColor: "divider" },
+                                                    "&:hover": { backgroundColor: "#f7f7f7" },
+                                                }}
+                                            >
+                                                <TableCell sx={{ width: 42, py: 0.6, px: 1 }}>
+                                                    <IconButton size="small" onClick={() => toggleModule(GENERAL_ACCESS_KEY)} sx={{ p: 0.3 }}>
+                                                        {isGeneralAccessExpanded
+                                                            ? <KeyboardArrowUpIcon sx={{ fontSize: 18 }} />
+                                                            : <KeyboardArrowDownIcon sx={{ fontSize: 18 }} />}
+                                                    </IconButton>
+                                                </TableCell>
+
+                                                <TableCell sx={{ py: 0.6, px: 1 }}>
+                                                    <Stack direction="row" spacing={1} alignItems="center">
+                                                        <Box sx={{ width: 4, height: 26, borderRadius: 1, backgroundColor: "primary.main" }} />
+                                                        <Box>
+                                                            <Typography sx={{ fontSize: 12.5, fontWeight: 600, lineHeight: 1.2, textTransform: "uppercase", letterSpacing: 0.4 }}>
+                                                                General Access
+                                                            </Typography>
+                                                            <Typography sx={{ fontSize: 10.5, color: "text.secondary", lineHeight: 1.2, mt: 0.2 }}>
+                                                                {grantedCount} Enabled
+                                                            </Typography>
+                                                        </Box>
+                                                    </Stack>
+                                                </TableCell>
+
+                                                <TableCell colSpan={actions.length + 1} sx={{ py: 0.6, px: 0.5 }} />
+                                            </TableRow>
+
+                                            {/* ROLE ROWS */}
+                                            {isGeneralAccessExpanded && generalRoles.map((role) => {
+                                                const entityList = entityListByCode[role.code];
+
+                                                return (
+                                                    <TableRow
+                                                        hover
+                                                        key={role.id}
+                                                        sx={{
+                                                            "& > td": { borderBottom: "1px solid", borderColor: "divider" },
+                                                            "&:hover": { backgroundColor: "#fafafa" },
+                                                        }}
+                                                    >
+                                                        <TableCell sx={{ width: 42, py: 0.5, px: 1 }} />
+
+                                                        <TableCell sx={{ py: 0.5, px: 1, pl: 5.5 }}>
+                                                            <Typography sx={{ fontSize: 12.5, fontWeight: 600, lineHeight: 1.3 }}>
+                                                                {role.name}
+                                                            </Typography>
+                                                            <Typography sx={{ fontSize: 10.5, color: "text.secondary", lineHeight: 1.3 }}>
+                                                                {role.description}
+                                                            </Typography>
+                                                        </TableCell>
+
+                                                        {/* Configuration — spans the action columns, only shown once
+                                                            the role is enabled and it has a reference list (Self /
+                                                            Subordinates don't — checkbox alone is their full state) */}
+                                                        <TableCell colSpan={actions.length} sx={{ py: 0.5, px: 1 }}>
+                                                            {role.access && entityList && (
+                                                                <Controls.MultiSelect
+                                                                    isMultiple={true}
+                                                                    options={entityList.options}
+                                                                    dataId="id"
+                                                                    sx={{ maxWidth: 250 }}
+                                                                    dataName={entityList.dataName}
+                                                                    value={
+                                                                        role.isAll
+                                                                            ? entityList.options
+                                                                            : entityList.options.filter((o) => role.entityIds.includes(o.id))
+                                                                    }
+                                                                    onChange={(e) => updateGeneralRoleConfig(role.id, e.target.value, entityList.options.length)}
+                                                                />
+                                                            )}
+                                                        </TableCell>
+
+                                                        <TableCell align="center" sx={{ width: 80, py: 0.5, px: 0.5 }}>
+                                                            <Checkbox
+                                                                size="small"
+                                                                checked={role.access}
+                                                                onChange={() => toggleGeneralRole(role.id)}
+                                                                sx={{ p: 0.4 }}
+                                                            />
+                                                        </TableCell>
+                                                    </TableRow>
+                                                );
+                                            })}
+
+                                        </React.Fragment>
+                                    );
+                                })()}
 
                             </TableBody>
 
