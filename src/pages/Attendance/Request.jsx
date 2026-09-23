@@ -56,7 +56,7 @@ const getColumns = (apiRef, onCancel) => [
 
 export const AddAttendanceRequest = ({ openPopup, setOpenPopup, reqEmployee = null, reqDate = null }) => {
     const formApi = useRef(null);
-    
+
     const { employees } = useAppSelector(e => e.appdata.employeeData);
     const { addEntity } = useEntityAction();
     const [getAttendanceRequest] = useLazySingleQuery();
@@ -199,7 +199,7 @@ export const AddAttendanceRequest = ({ openPopup, setOpenPopup, reqEmployee = nu
                 dataToInsert.changeType.push("SignOut")
             }
             dataToInsert.startDateTime = systemDateTime(values.startDateTime);
-            dataToInsert.endDateTime = values?.endDateTime ? systemDateTime(values.endDateTime) : null;            
+            dataToInsert.endDateTime = values?.endDateTime ? systemDateTime(values.endDateTime) : null;
             if (!dataToInsert.changeType?.length) return;
 
             addEntity({ url: DEFAULT_API, data: [dataToInsert] }).finally(e => setOpenPopup(false));
@@ -248,15 +248,16 @@ const AttendanceRequest = () => {
     const gridApiRef = useGridApi();
     const query = useAppSelector(e => e.appdata.query.builder);
     const { countryIds, stateIds, cityIds, areaIds } = useDropDownIds();
-    const { data,isFetching, refetch, totalRecord } = useEntitiesQuery({
+    const { data, isFetching, refetch, totalRecord } = useEntitiesQuery({
         url: `${DEFAULT_API}/get`,
         data: {
             limit: gridFilter.limit,
             page: gridFilter.page + 1,
+            // requestType: "All",
             ...sort,
             searchParams: { ...query }
         }
-    }, { selectFromResult: ({ data,isFetching }) => ({ data: data?.entityData, totalRecord: data?.totalRecord,isFetching }) });
+    }, { selectFromResult: ({ data, isFetching }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isFetching }) });
     const { updateOneEntity } = useEntityAction();
 
     const { socketData } = useSocketIo("changeInAttendanceRequest", refetch);

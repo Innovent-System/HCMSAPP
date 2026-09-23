@@ -21,12 +21,6 @@ import Popup from "../../components/Popup";
  * @type {import('@react-awesome-query-builder/mui').Fields}
  */
 const fields = {
-    firstName: {
-        label: 'Employee Name',
-        type: 'text',
-        valueSources: ['value'],
-        preferWidgets: ['text'],
-    },
     scheduleStartDt: {
         label: 'From',
         fieldName: "scheduleStartDt",
@@ -323,17 +317,22 @@ const Amend = () => {
 
         getEmployeeAttendance({
             url: DEFAULT_API, data: {
-                ...(employeeIds && { "id": { value: employeeIds.split(','), operator: "In" } }),
-                ...(countryIds && { "countryId": { value: countryIds.split(','), operator: "In" } }),
-                ...(stateIds && { "stateId": { value: stateIds.split(','), operator: "In" } }),
-                ...(cityIds && { "cityId": { value: cityIds.split(','), operator: "In" } }),
-                ...(areaIds && { "areaId": { value: areaIds.split(','), operator: "In" } }),
-                ...(groupIds && { "employeeGroupId": { value: groupIds.split(','), operator: "In" } }),
-                ...(departmentIds && { "departmentId": { value: departmentIds.split(','), operator: "In" } }),
-                ...(designationIds && { "designationId": { value: designationIds.split(','), operator: "In" } }),
-                ...query,
-                scheduleStartDt: query?.scheduleStartDt?.value,
-                scheduleEndDt: query?.scheduleEndDt?.value
+                page: gridFilter.page + 1,
+                limit: gridFilter.limit,
+                searchParams: {
+                    ...(employeeIds && { "employeeId": { value: employeeIds.split(','), operator: "In" } }),
+                    ...(countryIds && { "countryId": { value: countryIds.split(','), operator: "In" } }),
+                    ...(stateIds && { "stateId": { value: stateIds.split(','), operator: "In" } }),
+                    ...(cityIds && { "cityId": { value: cityIds.split(','), operator: "In" } }),
+                    ...(areaIds && { "areaId": { value: areaIds.split(','), operator: "In" } }),
+                    ...(groupIds && { "employeeGroupId": { value: groupIds.split(','), operator: "In" } }),
+                    ...(departmentIds && { "departmentId": { value: departmentIds.split(','), operator: "In" } }),
+                    ...query
+                    // scheduleStartDt: { value: systemFormatDate(dateRange[0]), operator: "GreaterThanOrEqual" },
+                    // scheduleEndDt: { value: systemFormatDate(dateRange[1]), operator: "LessThanOrEqual" }
+
+                }
+
             }
         }).then(({ data }) => {
             if (data) {
@@ -381,7 +380,6 @@ const Amend = () => {
             area: true,
             department: true,
             group: true,
-            designation: true,
             employee: true
         }));
         dispatch(builderFieldsAction(fields));

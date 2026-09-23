@@ -94,6 +94,7 @@ const DetailPanelContent = ({ row }) => {
             sx={{
                 p: 1
             }}
+            getRowId={(row) => `${row.id}_${row.title}`}
             checkboxSelection={false}
             hideFooter={true}
             gridHeight={540}
@@ -119,8 +120,7 @@ const LeaveQuota = () => {
         totalRecord: 0
     })
 
-    const { employeeIds, yearIds } = useDropDownIds();
-
+    const { employeeIds, countryIds, departmentIds, groupIds, stateIds, areaIds, cityIds, yearIds } = useDropDownIds();
 
     const getDetailPanelContent = React.useCallback(
         ({ row }) => <DetailPanelContent row={row.leaveTypes} />,
@@ -190,12 +190,25 @@ const LeaveQuota = () => {
         setLoader(true);
         getLeaveQuota({
             url: DEFAUL_API, data: {
-                year: yearIds,
-                employeeIds: employeeIds ? employeeIds.split(',') : []
+                page: 50,
+                limit: 10,
+                searchParams: {
+                    ...(employeeIds && { "id": { value: employeeIds.split(','), operator: "In" } }),
+                    ...(countryIds && { "countryId": { value: countryIds.split(','), operator: "In" } }),
+                    ...(stateIds && { "stateId": { value: stateIds.split(','), operator: "In" } }),
+                    ...(cityIds && { "cityId": { value: cityIds.split(','), operator: "In" } }),
+                    ...(areaIds && { "areaId": { value: areaIds.split(','), operator: "In" } }),
+                    ...(groupIds && { "employeeGroupId": { value: groupIds.split(','), operator: "In" } }),
+                    ...(departmentIds && { "departmentId": { value: departmentIds.split(','), operator: "In" } })
+                },
+                year: yearIds
             }
         }).then(({ data }) => {
-            if (data)
+            if (data) {
                 setRecords(data);
+                setDetailPanelExpandedRowIds(data.map(e => e.employeeId));
+            }
+
 
         }).finally(() => {
             setLoader(false);
@@ -204,7 +217,7 @@ const LeaveQuota = () => {
     const handleCreateQuota = () => {
         const flatData = records.flatMap(emp =>
             emp.leaveTypes.map(lt => ({
-                id: lt.Id ?? 0,  
+                id: lt.id ?? 0,
                 employeeId: emp.employeeId,
                 periodStart: emp.periodStart,
                 periodEnd: emp.periodEnd,
@@ -212,10 +225,12 @@ const LeaveQuota = () => {
                 entitled: lt.entitled,
                 availed: lt.availed,
                 carryForward: lt.carryForward
-                
+
             }))
         );
-        addEntity({ url: API.LeaveQuotaInsert, data: flatData })
+        addEntity({ url: API.LeaveQuotaInsert, data: flatData }).then(res => {
+            setRecords([]);
+        });
     }
     usePageHeaderOption({ apply: handleLeaveQuota })
     useEffect(() => {
@@ -230,7 +245,6 @@ const LeaveQuota = () => {
             area: true,
             department: true,
             group: true,
-            designation: true,
             employee: true,
             year: true
         }));

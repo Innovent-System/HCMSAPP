@@ -43,48 +43,32 @@ function CommonDropDown({ isMultiple = false, children, flexDirection = "row", b
             if (!isMonthYear) {
                 // if (["company", "area", 'department', 'group', 'designation'].includes(type)) matchWith = "_id";
                 setFilter(data, type, matchWith);
+                
             }
 
         })
 
     }
+
     // useEffect(() => {
     //     if (isFirstRender.current) {
     //         isFirstRender.current = false;
-    //         return;   // pehli render pe (default state) auto-select mat karo
+    //         return;
     //     }
-
-    //     if (!showFilter.area) return;   // agar Employee dropdown hi dikh nahi raha to kuch mat karo
     //     if (!formApi.current) return;
 
-    //     // formApi.current.setFormValue({ employee: dropDown.employees });
+    //     for (const [fieldName, dropDownKey] of Object.entries(AUTO_SELECT_FIELDS)) {
+    //         if (!showFilter[fieldName]) continue;
 
-    //     // Redux ids bhi sync karo (backend ko final submit pe yehi jayenge)
-    //     const areaIds = dropDown.areas.map(e => e.id).join(",");
-    //     dispatch(dropDownIdsAction({ areaIds }));
-    //     if (typeof setIdSet === "function") setIdSet(prev => ({ ...prev, areaIds }));
+    //         const options = dropDown[dropDownKey] || [];
 
+    //         //formApi.current.setFormValue({ [fieldName]: options });
+
+    //         const setOfIds = setDropDownIds(options, fieldName, 'id');
+    //         dispatch(dropDownIdsAction(setOfIds));
+    //         if (typeof setIdSet === "function") setIdSet(prev => ({ ...prev, ...setOfIds }));
+    //     }
     // }, [dropDown.areas])
-
-    useEffect(() => {
-        if (isFirstRender.current) {
-            isFirstRender.current = false;
-            return;
-        }
-        if (!formApi.current) return;
-
-        for (const [fieldName, dropDownKey] of Object.entries(AUTO_SELECT_FIELDS)) {
-            if (!showFilter[fieldName]) continue;
-
-            const options = dropDown[dropDownKey] || [];
-
-            //formApi.current.setFormValue({ [fieldName]: options });
-
-            const setOfIds = setDropDownIds(options, fieldName, 'id');
-            dispatch(dropDownIdsAction(setOfIds));
-            if (typeof setIdSet === "function") setIdSet(prev => ({ ...prev, ...setOfIds }));
-        }
-    }, [dropDown.areas])
 
     const debouncedClick = React.useRef(debounce(handleDropDownIds, 300)).current;
 

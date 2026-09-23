@@ -25,7 +25,7 @@ import {
 } from "@/deps/ui/icons";
 import { useDropDown } from "@/components/useDropDown";
 import { API } from "../_Service";
-import { useEntityAction, useEntityByIdQuery } from "@/store/actions/httpactions";
+import { useEntityAction, useEntityByIdQuery, useSingleQuery } from "@/store/actions/httpactions";
 import Controls from "@/components/controls/Controls";
 import { AutoForm } from '@/components/useForm'
 import Popup from '@/components/Popup';
@@ -193,7 +193,12 @@ const RoleRights = ({ isUserRole = false }) => {
 
     const [generalRoles, setGeneralRoles] = useState(SYSTEM_GENERAL_ROLES);
 
-    const { roleTemplates: templates, employees, departments = [], areas = [] } = useDropDown();
+    const { roleTemplates: templates, employees } = useDropDown();
+    const { departments, areas } = useSingleQuery(
+        { url: `${DEFAULT_API}/roledropdown`, params: {} },
+        { selectFromResult: ({ data }) => ({ departments: data?.result?.departments || [], areas: data?.result?.areas || [] }) }
+    );
+
     const entityListByCode = useMemo(() => buildEntityListByCode(departments, areas), [departments, areas]);
 
     const { data, refetch } = useEntityByIdQuery({

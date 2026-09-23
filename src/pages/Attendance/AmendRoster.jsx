@@ -389,7 +389,7 @@ function RosterToolbar(props) {
     return (
         <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
             {/* {selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<DeleteIcon />} text="Delete Items" /> : null} */}
-            <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Upload Roster" />
+            <Controls.Button onClick={onAdd} startIcon={<AddIcon />} text="Amend Roster" />
         </GridToolbarContainer>
     );
 }

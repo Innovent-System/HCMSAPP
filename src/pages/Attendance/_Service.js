@@ -16,7 +16,7 @@ export const API = {
     MarkAttendance: "attendance/mark",
     AmendRoster: "attendance/amendroster",
     ApprovalAction: "attendance/approval/action",
-    AttendanceRepost: "attendance/machine/repost"
+    AttendanceRepost: "attendance/amend/repost"
     // Designation: "employee/designation",
 }
 
