@@ -64,33 +64,34 @@ const getColumns = (handleApprove) => [
     { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedAt) },
     { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdAt) },
     {
-        field: 'action', cellClassName: 'actions', type: "actions", headerName: 'Action', width: 180, align: 'center', hideable: false, renderCell: ({ row }) => (
-            <>
-                {row.actionTaken ? <GridActionsCellItem
+        field: 'action', cellClassName: 'actions', type: "actions", headerName: 'Action', width: 180, align: 'center', hideable: false,
+        getActions: ({ row }) => row.actionTaken
+            ? [
+                <GridActionsCellItem
+                    key="taken"
                     label="Action Taken"
                     icon={<AdminPanelSettings fontSize="small" />}
-                /> : <>
-                    <GridActionsCellItem
-                        icon={<Chip size="small" variant="outlined" color="success" icon={<CheckCircle fontSize="small" />} label="Accept" />}
-                        label="Approve"
-                        onClick={() => handleApprove(1, row)}
-                    />
-                    <GridActionsCellItem
-                        icon={<Chip size="small" variant="outlined" color="error" icon={<Cancel fontSize="small" />} label="Reject" />}
-                        label="Reject"
-                        onClick={() => handleApprove(0, row)}
-                    />
-                </>
-
-                }
-
-            </>
-        )
+                />
+            ]
+            : [
+                <GridActionsCellItem
+                    key="approve"
+                    icon={<Chip size="small" variant="outlined" color="success" icon={<CheckCircle fontSize="small" />} label="Accept" />}
+                    label="Approve"
+                    onClick={() => handleApprove(1, row)}
+                />,
+                <GridActionsCellItem
+                    key="reject"
+                    icon={<Chip size="small" variant="outlined" color="error" icon={<Cancel fontSize="small" />} label="Reject" />}
+                    label="Reject"
+                    onClick={() => handleApprove(0, row)}
+                />
+            ]
     }
 ];
 
 
-const AddApprovalRoute = ({ openPopup, setOpenPopup, DEFAULT_API, selectionModel, row, isApproved, records }) => {
+const AddApprovalRoute = ({ openPopup, setOpenPopup, DEFAULT_API, DISPLAY_TITLE, selectionModel, row, isApproved, records }) => {
     const formApi = useRef(null);
     const [loader, setLoader] = useState(false);
 
@@ -134,7 +135,7 @@ const AddApprovalRoute = ({ openPopup, setOpenPopup, DEFAULT_API, selectionModel
                 reason: values.reason
             };
             if (selectionModel.length) {
-                datalist = records.filter(c => selectionModel.includes(c.id)).map(r => ({
+                datalist = records.filter(c => selectionModel.includes(c.id) && !c.actionTaken).map(r => ({
                     id: r.id,
                     requestId: r.requestId,
                     formId: r.formId,
@@ -147,14 +148,16 @@ const AddApprovalRoute = ({ openPopup, setOpenPopup, DEFAULT_API, selectionModel
                 datalist.push(dataObj)
             }
 
-            addEntity({ url: `${DEFAULT_API}/action`, data: datalist });
+            addEntity({ url: `${DEFAULT_API}/action`, data: datalist }).finally(() => {
+                setOpenPopup(false);
+            })
 
         }
     }
     return <>
         <Loader open={loader} />
         <Popup
-            title="Payroll Approvals"
+            title={DISPLAY_TITLE}
             openPopup={openPopup}
             maxWidth="sm"
             isEdit={false}
@@ -194,7 +197,7 @@ const ApprovalRoute = ({ DEFAULT_API, DEFAULT_NAME, DISPLAY_TITLE }) => {
     const gridApiRef = useGridApi();
     const query = useAppSelector(e => e.appdata.query.builder);
 
-    const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
+    const { data, isFetching, refetch, totalRecord } = useEntitiesQuery({
         url: `${DEFAULT_API}/get`,
         data: {
             limit: gridFilter.limit,
@@ -205,8 +208,8 @@ const ApprovalRoute = ({ DEFAULT_API, DEFAULT_NAME, DISPLAY_TITLE }) => {
                 routeBy: { value: Auth.getitem("userInfo").employeeId, operator: "Equal" }
             }
         }
-    }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
-
+    }, { selectFromResult: ({ data, isFetching }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isFetching }) });
+    
     const { removeEntity } = useEntityAction();
 
     const { socketData } = useSocketIo(`changeIn${DEFAULT_NAME}`, refetch);
@@ -256,12 +259,14 @@ const ApprovalRoute = ({ DEFAULT_API, DEFAULT_NAME, DISPLAY_TITLE }) => {
                 subTitle={`Manage ${DISPLAY_TITLE}`}
                 icon={<PeopleOutline fontSize="large" />}
             />
-            <AddApprovalRoute openPopup={openPopup} DEFAULT_API={DEFAULT_API} setOpenPopup={setOpenPopup} isApproved={isApproved.current} selectionModel={selectionModel} records={data} row={row.current} />
+            <AddApprovalRoute openPopup={openPopup} DEFAULT_API={DEFAULT_API} DISPLAY_TITLE={DISPLAY_TITLE} setOpenPopup={setOpenPopup} isApproved={isApproved.current} selectionModel={selectionModel} records={data} row={row.current} />
             <DataGrid apiRef={gridApiRef}
                 columns={columns} rows={data}
-                loading={isLoading} pageSize={gridFilter.limit}
+                loading={isFetching} pageSize={gridFilter.limit}
                 page={gridFilter.page}
                 totalCount={totalRecord}
+                
+                setFilter={setGridFilter}
                 // toolbarProps={{
                 //     apiRef: gridApiRef,
                 //     onAdd: showAddModal,

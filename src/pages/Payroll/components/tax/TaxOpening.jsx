@@ -53,6 +53,7 @@ const getColumns = (apiRef, onEdit, onActive) => {
         {
             field: 'fullName', headerName: 'Employee Name', width: 220, hideable: false
         },
+        { field: 'year', headerName: 'Year', hideable: false },
         { field: 'taxableIncome', headerName: 'Taxable Income', hideable: false },
         { field: 'taxDeducted', headerName: 'Tax Deducted', hideable: false },
         { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedAt) },
@@ -60,7 +61,7 @@ const getColumns = (apiRef, onEdit, onActive) => {
 
         {
             field: 'isActive', headerName: 'Active', renderCell: (param) => (
-                param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
+                param.row["isActive"] ? <Circle color="successs" /> : <Circle color="disabled" />
             ),
             flex: '0 1 5%',
             hideable: false,
