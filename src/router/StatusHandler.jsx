@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
-import Notification from "../components/Notification";
+import SnackBarAlert from "../components/SnackBarAlert";
 import { SocketContext } from '../services/socketService';
 import Auth from '../services/AuthenticationService';
 import { useSnackbar, closeSnackbar } from 'notistack';
@@ -149,7 +149,7 @@ function StatusHanlder() {
         }
       </List>
     </ErrorModal>
-    <Notification notify={notify} setNotify={setNotify} />
+    <SnackBarAlert notify={notify} setNotify={setNotify} />
   </>
 }
 

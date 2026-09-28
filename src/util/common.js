@@ -402,6 +402,14 @@ export const downloadAndViewFile = (base64, fileName = 'test1', ext = 'pdf', isD
     document.body.removeChild(a);
 }
 
+export const objectToLabelValueArray = (obj, excludeKeys = []) =>
+    obj ?
+        Object.entries(obj)
+            .filter(([key]) => !excludeKeys.includes(key.toLowerCase()))
+            .map(([key, value]) => ({
+                label: key,
+                value
+            })) : [];
 
 const colorGenerator = (internalData) => {
     const graphColors = [];

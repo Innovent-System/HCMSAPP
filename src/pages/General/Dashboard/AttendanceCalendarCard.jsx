@@ -103,7 +103,7 @@ export default function AttendanceCalendarCard({ monthLabel, onPrevMonth, onNext
   // NOTE: adjust the endpoint/shape to whatever your employee-list API actually is —
   // this assumes { id, fullName } objects back.
   useEffect(() => {
-    if (employees.length)
+    if (employees.length && Auth.getitem("userInfo")?.employeeId)
       setSelectedEmployee(employees.find(e => e.id == Auth.getitem("userInfo").employeeId))
   }, [employees])
   const employeeId = selectedEmployee?.id ?? 0;

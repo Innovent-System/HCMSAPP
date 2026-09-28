@@ -24,6 +24,7 @@ import { attendanceCommand, routeCommand } from "./routecommand";
 import { useAppDispatch } from "../../store/storehook";
 import DigitalTimer from "../../components/DigitalTimer";
 import { setMarkDetail } from "@/store/slicer/attendance";
+import NotificationBell from "../NotificationAlert";
 
 
 // ============================================================
@@ -352,23 +353,14 @@ export default function Header({
 
   const handleLogout = () => {
 
-    userSignOut({
-      url: API_USER_LOGOUT,
-    }).then(({ isSuccess }) => {
+    userSignOut({ url: API_USER_LOGOUT, }).then(({ isSuccess }) => {
 
       if (isSuccess) {
-
-        Auth.remove(
-          "appConfigData"
-        );
-
+        Auth.remove("appConfigData");
         socket.stop();
-
         sessionStorage.clear();
-
         navigate("/");
       }
-
     });
 
   };
@@ -413,26 +405,11 @@ export default function Header({
                     ========================================== */}
 
           <Grid item>
-
-            <Tooltip
-              title="Menu"
-              placement="bottom"
-              arrow
-            >
-
-              <NavIconBtn
-                onClick={onMenuClick}
-                size="small"
-              >
-
-                <MenuIcon
-                  fontSize="small"
-                />
-
+            <Tooltip title="Menu" placement="bottom" arrow>
+              <NavIconBtn onClick={onMenuClick} size="small">
+                <MenuIcon fontSize="small" />
               </NavIconBtn>
-
             </Tooltip>
-
           </Grid>
 
 
@@ -469,29 +446,14 @@ export default function Header({
               position: 'absolute',
               left: '50%',
               transform: 'translateX(-50%)',
-
-              display: {
-                xs: 'none',
-                sm: 'flex',
-              },
-
+              display: { xs: 'none', sm: 'flex', },
               alignItems: 'center',
               gap: 1,
-
               height: 40,
-
               px: 1.5,
-
               borderRadius: 2,
-
-              backgroundColor:
-                alpha('#FFFFFF', 0.045),
-
-              border:
-                `1px solid ${alpha(
-                  '#FFFFFF',
-                  0.06
-                )}`,
+              backgroundColor: alpha('#FFFFFF', 0.045),
+              border: `1px solid ${alpha('#FFFFFF', 0.06)}`,
             }}
           >
 
@@ -502,15 +464,8 @@ export default function Header({
                 width: 8,
                 height: 8,
                 borderRadius: '50%',
-
-                backgroundColor:
-                  teal,
-
-                boxShadow:
-                  `0 0 0 4px ${alpha(
-                    teal,
-                    0.12
-                  )}`,
+                backgroundColor: teal,
+                boxShadow: `0 0 0 4px ${alpha(teal, 0.12)}`,
               }}
             />
 
@@ -549,53 +504,11 @@ export default function Header({
 
           <Grid item>
 
-            <Stack
-              direction="row"
-              alignItems="center"
-              gap={0.25}
-            >
+            <Stack direction="row" alignItems="center" gap={0.25}>
 
               {/* Notifications */}
 
-              <Tooltip
-                title="Notifications"
-                placement="bottom"
-                arrow
-              >
-
-                <NavIconBtn
-                  size="small"
-                >
-
-                  <Badge
-                    badgeContent={4}
-                    color="error"
-                    sx={{
-                      "& .MuiBadge-badge":
-                      {
-                        fontSize:
-                          "0.6rem",
-
-                        height: 15,
-
-                        minWidth: 15,
-
-                        padding:
-                          "0 3px",
-                      },
-                    }}
-                  >
-
-                    <NotificationsNoneIcon
-                      fontSize="small"
-                    />
-
-                  </Badge>
-
-                </NavIconBtn>
-
-              </Tooltip>
-
+              <NotificationBell />
 
               {/* Messages */}
 

@@ -2,8 +2,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import Controls from '../components/controls/Controls';
 import Popup from '../components/Popup';
-import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction } from '../store/actions/httpactions';
-import { Chip, GridToolbarContainer, GridActionsCellItem } from "../deps/ui";
+import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction, useLazySingleQuery, useSingleQuery, useEntityByIdQuery } from '../store/actions/httpactions';
+import { Chip, GridToolbarContainer, GridActionsCellItem, Stack, Box, Typography, Skeleton, Divider, Fade } from "../deps/ui";
 import { Delete as DeleteIcon, PeopleOutline, CheckCircle, Cancel, Description, AdminPanelSettings } from "../deps/ui/icons";
 import DataGrid, { renderStatusCell, useGridApi } from '../components/useDataGrid';
 import { useSocketIo } from '../components/useSocketio';
@@ -15,6 +15,7 @@ import { formateISODateTime } from "../services/dateTimeService";
 import Loader from '../components/Circularloading'
 import Auth from '../services/AuthenticationService'
 import { useAppDispatch, useAppSelector } from "../store/storehook";
+import { objectToLabelValueArray } from "@/util/common";
 
 const fields = {
     status: {
@@ -40,6 +41,8 @@ const fields = {
         preferWidgets: ['date'],
     }
 }
+
+
 const getColumns = (handleApprove) => [
     { field: 'id', headerName: 'Id', hide: true },
     {
@@ -52,15 +55,15 @@ const getColumns = (handleApprove) => [
         field: 'requestType', headerName: 'Request Type', flex: 1
     },
     { field: 'reason', headerName: 'Reason', flex: 1 },
-    {
-        field: 'detail', cellClassName: 'actions', type: "actions", headerName: 'Detail', flex: 1, align: 'center', hideable: false, renderCell: ({ row }) => (
-            <GridActionsCellItem
-                icon={<Description />}
-                label="Detail"
-                onClick={() => { }}
-            />
-        )
-    },
+    // {
+    //     field: 'detail', cellClassName: 'actions', type: "actions", headerName: 'Detail', flex: 1, align: 'center', hideable: false, renderCell: ({ row }) => (
+    //         <GridActionsCellItem
+    //             icon={<Description />}
+    //             label="Detail"
+    //             onClick={() => { }}
+    //         />
+    //     )
+    // },
     { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedAt) },
     { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdAt) },
     {
@@ -89,7 +92,177 @@ const getColumns = (handleApprove) => [
             ]
     }
 ];
+const PANEL_CONFIG = {
+    12: {
+        API: "Attendance/Request", TITLE: "Attendance Request", fieldCount: 5, transform: (_data) => objectToLabelValueArray(_data, ["id", "employeeid"])
+            .map(e => ({ value: String(e.value).includes(":") ? formateISODateTime(e.value) : e.value, label: e.label.charAt(0).toUpperCase() + e.label.slice(1) }))
+    },
+    13: {
+        API: "Attendance/Exemption", TITLE: "Exemption Request", fieldCount: 5, transform: (_data) => objectToLabelValueArray(_data, ["id", "employeeid"])
+            .map(e => ({ ...e, label: e.label.charAt(0).toUpperCase() + e.label.slice(1) }))
+    },
+    17: {
+        API: "Leave/Request", TITLE: "Leave Request", fieldCount: 6, transform: (_data) => objectToLabelValueArray(_data, ["id", "leavetypeid", "employeeid"])
+            .map(e => ({ ...e, label: e.label.charAt(0).toUpperCase() + e.label.slice(1) }))
+    }
+}
 
+const DetailPanelContent = ({ row }) => {
+    const { transform, API, TITLE } = PANEL_CONFIG[row.formId] || {};
+    if (!API) return null;
+    const { data, apiData, isFetching } = useEntityByIdQuery(
+        { url: API, id: row.requestId },
+        {
+            selectFromResult: ({ data, isFetching }) => ({
+                data: transform
+                    ? transform(data?.result)
+                    : [],
+                isFetching,
+                apiData: data?.result
+            })
+        }
+    );
+
+    if (isFetching) {
+        return (
+            <Skeleton
+                variant="rectangular"
+                width="100%"
+                height={150}
+            />
+        );
+    }
+
+    const reason = apiData?.reason || "--";
+
+    const detailData = data?.filter(
+        item => item.label.toLowerCase() !== "reason"
+    ) || [];
+
+    return (
+        <Fade in easing={{ enter: 'easeOutCubic' }} timeout={280}>
+            <Box
+                sx={{
+                    px: 3,
+                    py: 2,
+                    borderRadius: 2,
+                    minHeight: 120,
+                    backgroundColor: "action.hover",
+                }}
+            >
+                {/* Header */}
+                <Stack
+                    direction="row"
+                    alignItems="center"
+                    spacing={1}
+                    sx={{ mb: 1 }}
+                >
+                    <Chip
+                        label={TITLE}
+                        size="small"
+                        sx={{ fontWeight: 600 }}
+                    />
+
+                    <Chip
+                        label={`Status: ${row.status}`}
+                        size="small"
+                        variant="outlined"
+                    />
+                </Stack>
+
+                <Divider sx={{ mb: 1 }} />
+
+                {/* 3 columns: fields split across the first two (alternating, each item
+                kept as one label+value block — never split apart), Reason always
+                owns the third column so it can grow with the row height. */}
+                <Box
+                    sx={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr 1fr",
+                        columnGap: 4,
+                        alignItems: "start",
+                    }}
+                >
+                    {/* Column 1 */}
+                    <Stack spacing={1}>
+                        {detailData
+                            .filter((_, index) => index % 2 === 0)
+                            .map((item) => (
+                                <Box key={item.label}>
+                                    <Typography
+                                        sx={{
+                                            fontSize: 10,
+                                            fontWeight: 700,
+                                            textTransform: "uppercase",
+                                            letterSpacing: 0.5,
+                                            color: "text.secondary",
+                                            mb: 0.3,
+                                        }}
+                                    >
+                                        {item.label}
+                                    </Typography>
+                                    <Typography sx={{ fontSize: 12.5, fontWeight: 600 }}>
+                                        {item.value ?? "--"}
+                                    </Typography>
+                                </Box>
+                            ))}
+                    </Stack>
+
+                    {/* Column 2 */}
+                    <Stack spacing={1}>
+                        {detailData
+                            .filter((_, index) => index % 2 === 1)
+                            .map((item) => (
+                                <Box key={item.label}>
+                                    <Typography
+                                        sx={{
+                                            fontSize: 10,
+                                            fontWeight: 700,
+                                            textTransform: "uppercase",
+                                            letterSpacing: 0.5,
+                                            color: "text.secondary",
+                                            mb: 0.3,
+                                        }}
+                                    >
+                                        {item.label}
+                                    </Typography>
+                                    <Typography sx={{ fontSize: 12.5, fontWeight: 600 }}>
+                                        {item.value ?? "--"}
+                                    </Typography>
+                                </Box>
+                            ))}
+                    </Stack>
+
+                    {/* Column 3 — always Reason */}
+                    <Box>
+                        <Typography
+                            sx={{
+                                fontSize: 10,
+                                fontWeight: 700,
+                                textTransform: "uppercase",
+                                letterSpacing: 0.5,
+                                color: "text.secondary",
+                                mb: 0.3,
+                            }}
+                        >
+                            Reason
+                        </Typography>
+                        <Typography
+                            sx={{
+                                fontSize: 12.5,
+                                whiteSpace: "pre-wrap",
+                                wordBreak: "break-word",
+                            }}
+                        >
+                            {reason}
+                        </Typography>
+                    </Box>
+                </Box>
+            </Box>
+        </Fade>
+    );
+
+};
 
 const AddApprovalRoute = ({ openPopup, setOpenPopup, DEFAULT_API, DISPLAY_TITLE, selectionModel, row, isApproved, records }) => {
     const formApi = useRef(null);
@@ -169,13 +342,17 @@ const AddApprovalRoute = ({ openPopup, setOpenPopup, DEFAULT_API, DISPLAY_TITLE,
     </>
 }
 
+const calculateDetailPanelHeight = (fieldCount, columns = 3) => {
+    return fieldCount == 6 ? 210 : 160;
+}
+
+
+
+
 const ApprovalRoute = ({ DEFAULT_API, DEFAULT_NAME, DISPLAY_TITLE }) => {
     const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
-
-
     const [selectionModel, setSelectionModel] = React.useState([]);
-
     const isApproved = useRef(false);
     const row = useRef(null);
 
@@ -193,6 +370,21 @@ const ApprovalRoute = ({ DEFAULT_API, DEFAULT_NAME, DISPLAY_TITLE }) => {
         subTitle: "",
     });
 
+    const getDetailPanelContent = React.useCallback(
+        ({ row }) => <DetailPanelContent row={row} />,
+        [],
+    );
+
+    const getDetailPanelHeight = React.useCallback(({ row }) => calculateDetailPanelHeight(PANEL_CONFIG[row?.formId || 12].fieldCount), []);
+
+    const [detailPanelExpandedRowIds, setDetailPanelExpandedRowIds] = React.useState(
+        [],
+    );
+
+    const handleDetailPanelExpandedRowIdsChange = React.useCallback((newIds) => {
+        setDetailPanelExpandedRowIds(newIds);
+    }, []);
+
 
     const gridApiRef = useGridApi();
     const query = useAppSelector(e => e.appdata.query.builder);
@@ -209,7 +401,7 @@ const ApprovalRoute = ({ DEFAULT_API, DEFAULT_NAME, DISPLAY_TITLE }) => {
             }
         }
     }, { selectFromResult: ({ data, isFetching }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isFetching }) });
-    
+
     const { removeEntity } = useEntityAction();
 
     const { socketData } = useSocketIo(`changeIn${DEFAULT_NAME}`, refetch);
@@ -265,7 +457,6 @@ const ApprovalRoute = ({ DEFAULT_API, DEFAULT_NAME, DISPLAY_TITLE }) => {
                 loading={isFetching} pageSize={gridFilter.limit}
                 page={gridFilter.page}
                 totalCount={totalRecord}
-                
                 setFilter={setGridFilter}
                 // toolbarProps={{
                 //     apiRef: gridApiRef,
@@ -275,6 +466,9 @@ const ApprovalRoute = ({ DEFAULT_API, DEFAULT_NAME, DISPLAY_TITLE }) => {
                 // gridToolBar={ApprovalToolbar}
                 selectionModel={selectionModel}
                 setSelectionModel={setSelectionModel}
+                onDetailPanelExpandedRowIdsChange={handleDetailPanelExpandedRowIdsChange}
+                getDetailPanelContent={getDetailPanelContent}
+                getDetailPanelHeight={getDetailPanelHeight} // Height based on the content.
 
             />
             <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />

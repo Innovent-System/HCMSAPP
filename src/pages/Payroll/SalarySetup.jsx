@@ -4,7 +4,7 @@ import { useDropDown } from '../../components/useDropDown'
 import { useAppSelector } from '../../store/storehook';
 import { Divider, Chip, InputAdornment, Grid, Typography, FormHelperText, Stack, Tooltip, IconButton } from '../../deps/ui'
 import { DisplaySettings, AttachMoney, FileCopy } from '../../deps/ui/icons'
-import { useEntityAction, useEntityByIdQuery, useLazyEntityByIdQuery } from '../../store/actions/httpactions';
+import { useEntityAction, useLazyEntityByIdQuery } from '../../store/actions/httpactions';
 import { API, defaultOverTimeCalculation, OverTimeCalculation, PercentageBased, PercentageOfBasicSalary, FixedAmount } from './_Service';
 import CircularLoading from '../../components/Circularloading';
 import Controls from '../../components/controls/Controls'

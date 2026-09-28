@@ -1,11 +1,12 @@
+import React from 'react';
 import PropTypes from 'prop-types';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Close';
-import { ToggleOn, AdminPanelSettings, Cancel } from '../deps/ui/icons'
-import { Box, Chip, Pagination as MuiPagination, Stack } from '../deps/ui'
+import { ToggleOn, AdminPanelSettings, Cancel, ChevronRight } from '../deps/ui/icons'
+import { Box, Chip, Pagination as MuiPagination, Stack, IconButton } from '../deps/ui'
 import { alpha, styled } from '@mui/material/styles';
 import Controls from './controls/Controls'
 import {
@@ -18,12 +19,61 @@ import {
   LicenseInfo,
   GridOverlay,
   GridPagination,
+  useGridSelector,
+  useGridApiContext,
+  gridDetailPanelExpandedRowsContentCacheSelector,
+  gridDetailPanelExpandedRowIdsSelector,
+  GRID_DETAIL_PANEL_TOGGLE_COL_DEF,
 } from '@mui/x-data-grid-pro';
-export { GridRowModes, GridActionsCellItem, GridRowEditStopReasons, GridToolbarQuickFilter } from '@mui/x-data-grid-pro'
+export {
+  GridRowModes, GridActionsCellItem, GridRowEditStopReasons, GridToolbarQuickFilter
+
+} from '@mui/x-data-grid-pro'
 import LinearProgress from '@mui/material/LinearProgress';
 
 const Key = '0f94d8b65161817ca5d7f7af8ac2f042T1JERVI6TVVJLVN0b3J5Ym9vayxFWFBJUlk9MTY1NDg1ODc1MzU1MCxLRVlWRVJTSU9OPTE=';
 LicenseInfo.setLicenseKey(Key);
+
+function CustomDetailPanelToggle(props) {
+  const { id } = props;
+  const apiRef = useGridApiContext();
+
+  // To avoid calling ´getDetailPanelContent` all the time, the following selector
+  // gives an object with the detail panel content for each row id.
+  const contentCache = useGridSelector(
+    apiRef,
+    gridDetailPanelExpandedRowsContentCacheSelector,
+  );
+
+  const expandedRowIds = useGridSelector(
+    apiRef,
+    gridDetailPanelExpandedRowIdsSelector,
+  );
+
+  const isExpanded = expandedRowIds.includes(id);
+
+  // If the value is not a valid React element, it means that the row has no detail panel.
+  const hasDetail = React.isValidElement(contentCache[id]);
+
+  return (
+    <IconButton
+      size="small"
+      tabIndex={-1}
+      disabled={!hasDetail}
+      aria-label={isExpanded ? 'Close' : 'Open'}
+    >
+      <ChevronRight
+        sx={(theme) => ({
+          transform: `rotateZ(${isExpanded ? 90 : 0}deg)`,
+          transition: theme.transitions.create('transform', {
+            duration: theme.transitions.duration.shortest,
+          }),
+        })}
+        fontSize="inherit"
+      />
+    </IconButton>
+  );
+}
 
 // ─── CRUD Actions (logic unchanged) ──────────────────────────────────────────
 
@@ -381,7 +431,21 @@ export default function FeaturedCrudGrid(props) {
   } = props;
 
   const processedColumns = showRowNumber
-    ? [rowNumberColumn((page * pageSize)), ...columns]
+    ? [
+      ...(others?.getDetailPanelContent
+        ? [{
+          ...GRID_DETAIL_PANEL_TOGGLE_COL_DEF,
+          renderCell: (params) => (
+            <CustomDetailPanelToggle
+              id={params.id}
+              value={params.value}
+            />
+          ),
+        }]
+        : []),
+      rowNumberColumn(page * pageSize),
+      ...columns,
+    ]
     : columns;
 
   return (

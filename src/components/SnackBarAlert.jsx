@@ -7,7 +7,7 @@ const Styles = {
     }
 }
 
-export default function Notification(props) {
+export default function SnackBarAlert(props) {
 
     const { notify, setNotify } = props;
 
