@@ -32,6 +32,8 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         navigateFallback: '/index.html',
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
         // runtimeCaching: [
         //   {
         //     urlPattern: /^https:\/\/.*\.hrnova\.com\/api\//,

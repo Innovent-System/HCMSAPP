@@ -53,7 +53,7 @@ const reportColumns = [
                     <AddAction key={`exemption-${row.employeeId}-${row.scheduleStartDt}`} name="exmptionReq" reqDate={row.scheduleStartDt} reqEmployee={row.employeeId} />
                 </>
                 : null}
-            {attendaceWillBeSHow.includes(row?.status) || !row.scheduleEndDt || row.earlyOut ?
+            {attendaceWillBeSHow.includes(row?.status) || (!row.endDateTime && row?.status !== 0) || row.earlyOut ?
                 <AddAction key={`attendance-${row.employeeId}-${row.scheduleStartDt}`} name="attendanceReq" reqDate={row.scheduleStartDt} reqEmployee={row.employeeId} /> : null}
         </ButtonGroup>
 

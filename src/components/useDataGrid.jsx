@@ -5,7 +5,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Close';
-import { ToggleOn, AdminPanelSettings, Cancel, ChevronRight } from '../deps/ui/icons'
+import { ToggleOn, AdminPanelSettings, Cancel, ChevronRight, Delete } from '../deps/ui/icons'
 import { Box, Chip, Pagination as MuiPagination, Stack, IconButton } from '../deps/ui'
 import { alpha, styled } from '@mui/material/styles';
 import Controls from './controls/Controls'
@@ -151,6 +151,7 @@ export const getActions = (
   actionKit = { onActive: null, onApproval: null, onEdit: null, onDelete: null, onCancel: null },
   allowCancelAfterApprove = false,
   addActions = null,
+  showInMenu = true
 ) => ({
   field: 'actions',
   type: 'actions',
@@ -177,7 +178,7 @@ export const getActions = (
         <GridActionsCellItem
           icon={<EditIcon fontSize="small" />}
           label="Edit" size="small"
-          onClick={() => onEdit(id)} color="primary" showInMenu
+          onClick={() => onEdit(id)} color="primary" showInMenu={showInMenu}
         />
       );
 
@@ -186,7 +187,7 @@ export const getActions = (
         <GridActionsCellItem
           icon={<DeleteIcon fontSize="small" />}
           label="Delete" size="small"
-          onClick={() => onDelete(id)} color="primary" showInMenu
+          onClick={() => onDelete(id)} color="primary" showInMenu={showInMenu}
         />
       );
 
@@ -195,7 +196,7 @@ export const getActions = (
         <GridActionsCellItem
           icon={<SaveIcon fontSize="small" />}
           label="Approval" size="small"
-          onClick={() => onApproval(id)} color="primary" showInMenu
+          onClick={() => onApproval(id)} color="primary" showInMenu={showInMenu}
         />
       );
 
@@ -545,20 +546,23 @@ export function GridToolbar(props) {
           },
         }}
       />
-      <Controls.Button
-        onClick={onAdd}
-        startIcon={<AddIcon />}
-        text="Add Record"
-      // sx={{
-      //   borderRadius: 2,
-      //   textTransform: 'none',
-      //   fontWeight  : 600,
-      //   fontSize    : '0.82rem',
-      //   px          : 2,
-      //   boxShadow   : '0 2px 6px rgba(25,118,210,0.2)',
-      //   '&:hover'   : { boxShadow: '0 3px 10px rgba(25,118,210,0.3)' },
-      // }}
-      />
+      <div>
+        {onDelete && selectionModel?.length ? <Controls.Button onClick={() => onDelete(selectionModel)} startIcon={<Delete />} text="Delete Records" /> : null}
+        <Controls.Button
+          onClick={onAdd}
+          startIcon={<AddIcon />}
+          text="Add Record"
+        // sx={{
+        //   borderRadius: 2,
+        //   textTransform: 'none',
+        //   fontWeight  : 600,
+        //   fontSize    : '0.82rem',
+        //   px          : 2,
+        //   boxShadow   : '0 2px 6px rgba(25,118,210,0.2)',
+        //   '&:hover'   : { boxShadow: '0 3px 10px rgba(25,118,210,0.3)' },
+        // }}
+        />
+      </div>
     </GridToolbarContainer>
   );
 }

@@ -136,13 +136,13 @@ const getColumns = (apiRef, onEdit, onSave, onCancel) => {
 
         },
         {
-            field: 'status', headerName: 'Status', width: 180, hideable: false, renderCell: ({ row }) => <Chip color={AttendanceflagMap[row.status].color} label={AttendanceflagMap[row.status].short} />
+            field: 'status', headerName: 'Status', width: 80, hideable: false, renderCell: ({ row }) => <Chip color={AttendanceflagMap[row.status].color} label={AttendanceflagMap[row.status].short} />
         },
         {
             field: 'actions',
             type: 'actions',
             headerName: 'Actions',
-            width: 100,
+            width: 80,
             cellClassName: 'actions',
             getActions: ({ id }) => {
 

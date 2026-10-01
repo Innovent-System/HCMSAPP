@@ -6,14 +6,16 @@ import { AutoForm } from '../../../components/useForm';
 import { API } from '../_Service';
 import { enableFilterAction, builderFieldsAction, showDropDownFilterAction, useEntitiesQuery, useEntityAction } from '../../../store/actions/httpactions';
 import { useDropDown, useDropDownIds } from "../../../components/useDropDown";
-import { Typography, Stack, GridToolbarContainer } from "../../../deps/ui";
-import { Circle, Add as AddIcon, Delete as DeleteIcon } from "../../../deps/ui/icons";
+import { Typography, Stack, GridToolbarContainer, Chip, IconButton } from "../../../deps/ui";
+import { Circle, Add as AddIcon, Delete as DeleteIcon, LocationOn } from "../../../deps/ui/icons";
 import DataGrid, { useGridApi, getActions, GridToolbar } from '../../../components/useDataGrid';
 import { useSocketIo } from '../../../components/useSocketio';
 import ConfirmDialog from '../../../components/ConfirmDialog';
 import PropTypes from 'prop-types'
 import { useAppDispatch, useAppSelector } from "../../../store/storehook";
 import { formateISODateTime } from "@/services/dateTimeService";
+import useCurrentLocation from "@/hooks/useCurrentLocation";
+import LinearLoader from "@/components/LinearLoader";
 
 function CombineDetail(params) {
   return (
@@ -81,13 +83,25 @@ const getColumns = (apiRef, onEdit, onActive) => {
     getActions(apiRef, actionKit)
   ]
 }
+const fullWidthPoints = { size: { md: 12, sm: 12, xs: 12 } };
 let editId = 0;
 const DEFAULT_API = API.AREA;
 export const AddArea = ({ openPopup, setOpenPopup, isEdit = false, row = null }) => {
   const { addEntity } = useEntityAction();
   const formApi = useRef(null);
   const { countries, cities, states, employees, filterType, setFilter } = useDropDown();
+  const { location, error, loading, getLocation } = useCurrentLocation();
 
+  useEffect(() => {
+    if (location && !error) {
+      const { resetForm, setFormValue } = formApi.current;
+      setFormValue({
+        latitude: location.latitude,
+        longitude: location.longitude,
+        radiusMeters: location.accuracy
+      })
+    }
+  }, [location])
   useEffect(() => {
     if (!formApi.current || !openPopup) return;
     const { resetForm, setFormValue } = formApi.current;
@@ -100,7 +114,11 @@ export const AddArea = ({ openPopup, setOpenPopup, isEdit = false, row = null })
           fkCountryId: countries.find(c => c.id === row.countryId),
           fkStateId: states.find(s => s.id === row.stateId),
           fkCityId: cities.find(ct => ct.id === row.cityId),
-          areaName: row.areaName
+          areaName: row.areaName,
+          enableGeoLocation: Boolean(row?.latitude),
+          latitude: row?.latitude,
+          longitude: row?.longitude,
+          radiusMeters: row?.radiusMeters
         });
       });
     }
@@ -118,6 +136,11 @@ export const AddArea = ({ openPopup, setOpenPopup, isEdit = false, row = null })
       dataToInsert.cityId = values.fkCityId.id;
       if (isEdit)
         dataToInsert.id = editId
+      if (values.enableGeoLocation) {
+        dataToInsert.latitude = values.latitude;
+        dataToInsert.longitude = values.longitude;
+        dataToInsert.radiusMeters = values.radiusMeters;
+      }
 
       addEntity({ url: DEFAULT_API, data: [dataToInsert] }).then(r => {
         if (r?.data) setOpenPopup(false);
@@ -184,6 +207,58 @@ export const AddArea = ({ openPopup, setOpenPopup, isEdit = false, row = null })
       options: employees,
       defaultValue: null
     },
+    {
+      "elementType": "clearfix"
+    },
+    {
+      elementType: "checkbox",
+      name: "enableGeoLocation",
+      label: "Add Geo Location",
+      // breakpoints: fullWidthPoints,
+      defaultValue: false
+    },
+    {
+      elementType: "custom",
+      isShow: (value) => value["enableGeoLocation"],
+      NodeElement: () => <IconButton sx={{ float: "right", mt: 1 }} onClick={getLocation}><Chip label="Current Location" size="small" icon={<LocationOn />} /></IconButton>
+    },
+    {
+      elementType: "inputfield",
+      name: "latitude",
+      label: "Latitude",
+      type: "number",
+      isShow: (value) => value["enableGeoLocation"],
+      required: (value) => value["enableGeoLocation"],
+      validate: {
+        errorMessage: "Field is required"
+      },
+      defaultValue: ""
+    },
+    {
+      elementType: "inputfield",
+      name: "longitude",
+      label: "Longitude",
+      type: "number",
+      isShow: (value) => value["enableGeoLocation"],
+      required: (value) => value["enableGeoLocation"],
+      validate: {
+        errorMessage: "Field is required"
+      },
+      defaultValue: ""
+    },
+    {
+      elementType: "inputfield",
+      name: "radiusMeters",
+      label: "RadiusMeters",
+      type: "number",
+      isShow: (value) => value["enableGeoLocation"],
+      required: (value) => value["enableGeoLocation"],
+      validate: {
+        errorMessage: "Field is required"
+      },
+      defaultValue: ""
+    },
+
   ];
 
   return <Popup
@@ -194,6 +269,7 @@ export const AddArea = ({ openPopup, setOpenPopup, isEdit = false, row = null })
     keepMounted={true}
     addOrEditFunc={handleSubmit}
     setOpenPopup={setOpenPopup}>
+    <LinearLoader open={loading} />
     <AutoForm formData={formData} ref={formApi} isValidate={true} />
   </Popup>
 
@@ -226,7 +302,7 @@ const Area = () => {
   const query = useAppSelector(e => e.appdata.query.builder);
   const { countryIds, stateIds, cityIds } = useDropDownIds();
 
-  const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
+  const { data, isFetching, refetch, totalRecord } = useEntitiesQuery({
     url: `${DEFAULT_API}/get`,
     data: {
       limit: filter.limit,
@@ -240,7 +316,7 @@ const Area = () => {
         ...(cityIds && { "city.city_id": cityIds })
       }
     }
-  }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
+  }, { selectFromResult: ({ data, isFetching }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isFetching }) });
 
 
   const { updateOneEntity, removeEntity } = useEntityAction();
@@ -298,10 +374,11 @@ const Area = () => {
 
   return (
     <>
+
       <AddArea openPopup={openPopup} setOpenPopup={setOpenPopup} row={row.current} isEdit={isEdit.current} />
       <DataGrid apiRef={gridApiRef}
         columns={columns} rows={data}
-        loading={isLoading}
+        loading={isFetching}
         totalCount={totalRecord}
         pageSize={filter.limit}
         page={filter.page}

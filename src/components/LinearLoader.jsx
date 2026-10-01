@@ -13,7 +13,7 @@ function LinearLoader({ open = false }) {
 
     const isLoading = useAppSelector(e => e.appdata.isLoading);
 
-    return <Backdrop sx={{ background: "transparent", zIndex: (theme) => theme.zIndex.drawer + 110 }} open={isLoading}><LinearProgress color='info' sx={sx} /></Backdrop>
+    return <Backdrop sx={{ background: "transparent", zIndex: (theme) => theme.zIndex.drawer + 110 }} open={isLoading || open}><LinearProgress color='info' sx={sx} /></Backdrop>
 }
 
 export default LinearLoader

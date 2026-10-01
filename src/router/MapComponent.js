@@ -21,6 +21,7 @@ export default Object.freeze({
     23: lazy(() => import(`../pages/Attendance/Reports`)),
     34: lazy(() => import(`../pages/Attendance/AmendRoster`)),
     44: lazy(() => import(`../pages/Attendance/Dashboard`)),
+    49: lazy(() => import(`../pages/Attendance/PunchRestrictions`)),
     //Leave
     17: lazy(() => import(`../pages/Leave/Request`)),
     // 18: lazy(() => import(`../pages/Leave/Request`)),

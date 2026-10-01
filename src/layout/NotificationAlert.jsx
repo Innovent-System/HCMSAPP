@@ -47,10 +47,16 @@ const MOCK_ALL_NOTIFICATIONS = Array.from({ length: 20 }, (_, i) => {
 
 // FormId -> route template. EntityId substitutes :id. Keep in sync with ApplicationForm table.
 const FORM_ROUTE_MAP = {
-    12: "/attendance/request/:id",
-    13: "/attendance/exemption/:id",
-    17: "/leave/request/:id",
+    12: "/attendance/request/12",
+    13: "/attendance/exemption/13",
+    17: "/leave/request/17",
 };
+
+const APPROVAL_ROUTE = {
+    12: "/attendance/approval/14",
+    13: "/attendance/approval/14",
+    17: "/leave/approval/19",
+}
 
 // FormId -> icon + tint, purely presentational (falls back to a generic bell/announcement look)
 const TYPE_STYLE = {
@@ -61,10 +67,10 @@ const TYPE_STYLE = {
     default: { icon: CampaignRoundedIcon, color: "#6A1B9A", bg: "#F3E5F5" }, // Announcement / other
 };
 
-const resolveRoute = (formId, entityId) => {
-    const template = FORM_ROUTE_MAP[formId];
+const resolveRoute = (formId, entityId, isRequester = false) => {
+    const template = isRequester ? FORM_ROUTE_MAP[formId] : APPROVAL_ROUTE[formId];
     if (!template) return null;
-    return formId != null ? template.replace(":id", formId) : template.replace("/:id", "");
+    return template;
 };
 
 // Compact relative time — "2m", "3h", "1d", falls back to short date past a week
@@ -244,7 +250,7 @@ const NotificationBell = () => {
                 refetch();
             });
         }
-        const route = resolveRoute(notification.formId, notification.entityId);
+        const route = resolveRoute(notification.formId, notification.entityId, notification.isRequester);
         handleClose();
         if (route) navigate(route);
     };

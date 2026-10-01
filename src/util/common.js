@@ -41,6 +41,8 @@ export const AttendanceflagMap = {
     7: { tag: "Absent", short: "A", color: "error" },
     31: { tag: "Full Leave", short: "FL", color: "secondary" },
     32: { tag: "Half Leave", short: "HL", color: "secondary" },
+    33: { tag: "WP Full Leave", short: "LWP", color: "secondary" },
+    34: { tag: "WP Half Leave", short: "HLWP", color: "secondary" },
     10: { tag: "Gazetted Holiday", short: "GH", color: "info" },
     null: { tag: "Present", short: "P", color: "success" }
 }
