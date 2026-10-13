@@ -14,12 +14,14 @@ const DefaultLimit = 30, DefaultPage = 0;
 const AttendanceRegisterFilter = () => {
 
     const [dateRange, setDateRange] = useState([monthStart, monthEnd])
+    const [groupByField, setGoupByField] = useState("");
     const { countryIds, stateIds, cityIds, areaIds, departmentIds, groupIds, employeeIds } = useDropDownIds();
 
     const handleViewer = () => {
         const query = {
             page: DefaultPage,
             limit: DefaultLimit,
+            groupBy: groupByField,
             searchParams: {
                 ...(employeeIds && { "employeeId": { value: employeeIds.split(','), operator: "In" } }),
                 ...(countryIds && { "countryId": { value: countryIds.split(','), operator: "In" } }),
@@ -53,6 +55,12 @@ const AttendanceRegisterFilter = () => {
                 }}>
                     <Grid item size={{ xs: 10, md: 10 }}>
                         <Controls.DateRangePicker onChange={({ target }) => { setDateRange(target.value) }} value={dateRange} />
+                    </Grid>
+                    <Grid item size={{ xs: 10, md: 10 }} pr={1}>
+                        <Controls.Checkbox label="Department Wise Group" name="department"
+                            value={Boolean(groupByField)}
+                            onChange={e => e.target.value ? setGoupByField(e.target.name) : setGoupByField("")}
+                            fullWidth />
                     </Grid>
                     <Grid item size={{ xs: 10, md: 10 }} pr={1}>
                         <Controls.Button text="Generate" onClick={() => handleViewer()} fullWidth />

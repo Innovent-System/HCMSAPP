@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import { API } from '../_Service';
-import { builderFieldsAction, useEntityAction, enableFilterAction, useLazyPostQuery, showDropDownFilterAction } from '../../../store/actions/httpactions';
+import { builderFieldsAction, useEntityAction, enableFilterAction, useLazyPostQuery, showDropDownFilterAction, useEntitiesQuery } from '../../../store/actions/httpactions';
 import { Circle, Add as AddIcon } from "../../../deps/ui/icons";
 import { GridToolbarContainer, Select, MenuItem, FormControl, InputLabel } from "../../../deps/ui";
 import DataGrid, { useGridApi } from '../../../components/useDataGrid';
@@ -13,6 +13,8 @@ import Controls from "../../../components/controls/Controls";
 import useTable from "../../../components/useTable";
 import { useAppDispatch, useAppSelector } from "../../../store/storehook";
 import { usePageHeaderOption } from "../../../hooks/usePageHeaderOption";
+import { useExcelReader } from "@/hooks/useExcelReader";
+import { useFileConfig } from "@/hooks/useFileConfig";
 
 /**
  * @type {import('@react-awesome-query-builder/mui').Fields}
@@ -54,7 +56,7 @@ const getColumns = (apiRef, onEdit, onActive) => {
     ]
 }
 
-const DEFAUL_API = API.LeaveQuota;
+const DEFAULT_API = API.LeaveQuota;
 
 const TableHead = [
     { id: 'title', disableSorting: false, label: 'Leave Type' },
@@ -104,7 +106,11 @@ const DetailPanelContent = ({ row }) => {
     )
 }
 
-
+const mapExcelData = (values) => {
+    const map = { ...values };
+    map.employeeId = values.employeeId.id;
+    return map
+}
 const LeaveQuota = () => {
     const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
@@ -121,6 +127,7 @@ const LeaveQuota = () => {
     })
 
     const { employeeIds, countryIds, departmentIds, groupIds, stateIds, areaIds, cityIds, yearIds } = useDropDownIds();
+    const { employees } = useDropDown();
 
     const getDetailPanelContent = React.useCallback(
         ({ row }) => <DetailPanelContent row={row.leaveTypes} />,
@@ -137,12 +144,85 @@ const LeaveQuota = () => {
         setDetailPanelExpandedRowIds(newIds);
     }, []);
 
+    const { data: leaveTypes, isFetching, refetch, totalRecord } = useEntitiesQuery({
+        url: `${API.LeaveType}/get`,
+        data: {
+            limit: 100,
+            page: 1,
+            searchParams: {}
+        }
+    }, { selectFromResult: ({ data, isFetching }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isFetching }) });
 
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,
         title: "",
         subTitle: "",
     });
+
+    const formData = [
+        {
+            elementType: "ad_dropdown",
+            name: "employeeId",
+            label: "Employee",
+            variant: "outlined",
+            required: true,
+            validate: {
+                errorMessage: "Select Employee",
+            },
+            dataName: 'fullName',
+            dataId: "id",
+            options: employees,
+            defaultValue: null,
+            excel: {
+                sampleData: "Faizan"
+            }
+        },
+        {
+            elementType: "dropdown",
+            name: "leaveTypeId",
+            label: "Leave Type",
+            dataId: "id",
+            dataName: "title",
+            required: true,
+            validate: {
+                errorMessage: "Leave Type required",
+            },
+            options: leaveTypes,
+            defaultValue: "",
+            excel: {
+                sampleData: "Sick"
+            }
+        },
+        {
+            elementType: "inputfield",
+            name: "availed",
+            required: true,
+            label: "Taken",
+            type: "number",
+            validate: {
+                errorMessage: "taken field required",
+            },
+            defaultValue: 0,
+            excel: {
+                sampleData: 0
+            }
+        },
+
+
+    ];
+
+    const { inProcess, setFile, excelData, getTemplate } = useExcelReader({
+        formTemplate: formData, fileName: "LeaveQuota.xlsx",
+        uniqueBy: ["employeeId", "leaveTypeId"], transform: mapExcelData
+    });
+
+    useEffect(() => {
+        if (excelData) {
+            addEntity({ url: `${DEFAULT_API}/uploader/${yearIds}`, data: excelData });
+        }
+    }, [excelData])
+
+    useFileConfig(setFile, getTemplate);
 
     const [records, setRecords] = useState([]);
 
@@ -163,7 +243,7 @@ const LeaveQuota = () => {
     }
 
     const handleActiveInActive = (id) => {
-        updateOneEntity({ url: DEFAUL_API, data: { id } });
+        updateOneEntity({ url: DEFAULT_API, data: { id } });
     }
 
     const handelDeleteItems = (ids) => {
@@ -178,7 +258,7 @@ const LeaveQuota = () => {
             title: "Are you sure to delete this records?",
             subTitle: "You can't undo this operation",
             onConfirm: () => {
-                removeEntity({ url: DEFAUL_API, params: idTobeDelete }).then(res => {
+                removeEntity({ url: DEFAULT_API, params: idTobeDelete }).then(res => {
                     setSelectionModel([]);
                 })
             },
@@ -189,7 +269,7 @@ const LeaveQuota = () => {
     const handleLeaveQuota = () => {
         setLoader(true);
         getLeaveQuota({
-            url: DEFAUL_API, data: {
+            url: DEFAULT_API, data: {
                 page: 50,
                 limit: 10,
                 searchParams: {

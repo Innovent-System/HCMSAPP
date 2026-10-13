@@ -1,7 +1,7 @@
 // eslint-disable-next-line react-hooks/exhaustive-deps
 import React, { useEffect, useRef, useState } from "react";
 import Popup from '../../components/Popup';
-import { API, CalculationType, FixedAmount, PercentageOfBasicSalary } from './_Service';
+import { API, calcTypeObj, CalculationType, FixedAmount, PercentageOfBasicSalary } from './_Service';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction } from '../../store/actions/httpactions';
 import { PeopleOutline, Percent, AttachMoney } from "../../deps/ui/icons";
 import { InputAdornment } from "../../deps/ui";
@@ -10,7 +10,7 @@ import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { AutoForm } from '../../components/useForm'
 import PageHeader from '../../components/PageHeader'
-import { formateISODateTime,formateISODate, systemFormatDate } from '../../services/dateTimeService'
+import { formateISODateTime, formateISODate, systemFormatDate } from '../../services/dateTimeService'
 import Loader from '../../components/Circularloading'
 import { useDropDownIds } from "../../components/useDropDown";
 import { useAppDispatch, useAppSelector } from "../../store/storehook";
@@ -41,27 +41,26 @@ const fields = {
     }
 }
 
-const mapAdvSalary = (values) => {
+const mapExcelData = (values) => {
     const map = { ...values };
-    map.employeeIds = values.employeeIds._id;
-    map.type = values.type.id;
-    map.percentage_or_amount = map.type !== FixedAmount ? map.percentage : map.amount;
+    map.employeeId = values.employeeId.id;
+    map.requestDate = systemFormatDate(values.requestDate);
     return map
 }
 
 const getColumns = (onCancel) => [
-    { field: '_id', headerName: 'Id', hide: true },
-    {
-        field: 'title', headerName: 'Title', flex: 1, valueGetter: ({ row }) => row.title
-    },
-    { field: 'bonusRequest', headerName: 'Date', flex: 1, valueGetter: ({ row }) => formateISODate(row.bonusRequest) },
-    { field: 'type', headerName: 'Type', flex: 1 },
+    { field: 'id', headerName: 'Id', hide: true },
+    { field: 'fullName', headerName: 'Employee', flex: 1 },
+    { field: 'title', headerName: 'Title', flex: 1 },
+    { field: 'requestDate', headerName: 'Date', flex: 1, valueGetter: ({ row }) => formateISODate(row.requestDate) },
+    { field: 'calculationType', headerName: 'Type', flex: 1, valueGetter: ({ row }) => calcTypeObj[row.calculationType] },
+
     // { field: 'amount', headerName: 'Amount' },
     {
         field: 'status', headerName: 'Status', flex: 1, renderCell: renderStatusCell
     },
-    { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedOn) },
-    { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdOn) },
+    { field: 'modifiedOn', headerName: 'Modified On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.modifiedAt) },
+    { field: 'createdOn', headerName: 'Created On', flex: 1, valueGetter: ({ row }) => formateISODateTime(row.createdAt) },
     getActions(null, { onCancel })
 ];
 
@@ -69,7 +68,7 @@ const AddBonus = ({ openPopup, setOpenPopup, colData = [] }) => {
     const formApi = useRef(null);
     const [loader, setLoader] = useState(false);
 
-    const { Employees } = useAppSelector(e => e.appdata.employeeData);
+    const { employees } = useAppSelector(e => e.appdata.employeeData);
     const { addEntity } = useEntityAction();
 
     useEffect(() => {
@@ -81,7 +80,7 @@ const AddBonus = ({ openPopup, setOpenPopup, colData = [] }) => {
     const formData = [
         {
             elementType: "ad_dropdown",
-            name: "employeeIds",
+            name: "employeeId",
             label: "Employee",
             variant: "outlined",
             required: true,
@@ -90,8 +89,8 @@ const AddBonus = ({ openPopup, setOpenPopup, colData = [] }) => {
                 errorMessage: "Select Employees",
             },
             dataName: 'fullName',
-            dataId: "_id",
-            options: Employees,
+            dataId: "id",
+            options: employees,
             defaultValue: [],
             excel: {
                 sampleData: "Faizan Siddiqui"
@@ -100,7 +99,7 @@ const AddBonus = ({ openPopup, setOpenPopup, colData = [] }) => {
         {
             elementType: "datetimepicker",
             label: "Date",
-            name: "bonusRequest",
+            name: "requestDate",
             required: true,
             disablePast: true,
             validate: {
@@ -121,73 +120,38 @@ const AddBonus = ({ openPopup, setOpenPopup, colData = [] }) => {
             },
             defaultValue: "",
             excel: {
-                sampleData: "Advance"
+                sampleData: "Annual Bonus"
             }
         },
         {
             elementType: "dropdown",
-            name: "type",
+            name: "calculationType",
             label: "Type",
-            // breakpoints,
             dataId: "id",
             dataName: "title",
             isNone: false,
-            defaultValue: PercentageOfBasicSalary,
+            defaultValue: FixedAmount,
             options: CalculationType,
-        },
-        {
-            elementType: "inputfield",
-            name: "percentage",
-            isShow: (values) => values.type !== FixedAmount,
-            label: "Percentage",
-            inputMode: 'numeric',
-            required: true,
-            validate: {
-                errorMessage: "Perentage is required",
-            },
-            type: "number",
-            inputProps: {
-                min: 0,
-                max: 100
-            },
-            // breakpoints,
-            InputProps: {
-                endAdornment: (
-                    <InputAdornment position="end">
-                        <Percent />
-                    </InputAdornment>
-                )
-            },
-            defaultValue: "",
             excel: {
-                sampleData: 20
+                sampleData: "FixedAmount"
             }
         },
         {
             elementType: "inputfield",
-            name: "amount",
-            isShow: (values) => values.type === FixedAmount,
-            label: "Amount",
+            name: "value",
+            label: "Value",
             inputMode: 'numeric',
             required: true,
             validate: {
-                errorMessage: "Amount is required",
+                errorMessage: "Value is required",
             },
             type: "number",
             inputProps: {
-                min: 0,
-            },
-            // breakpoints,
-            InputProps: {
-                endAdornment: (
-                    <InputAdornment position="end">
-                        <AttachMoney />
-                    </InputAdornment>
-                )
+                min: 0
             },
             defaultValue: "",
             excel: {
-                sampleData: 10000
+                sampleData: 0
             }
         },
         {
@@ -213,13 +177,18 @@ const AddBonus = ({ openPopup, setOpenPopup, colData = [] }) => {
     const handleSubmit = (e) => {
         const { getValue, validateFields } = formApi.current
         if (validateFields()) {
-            const { percentage, amount, ...values } = getValue();
-            values.percentage_or_amount = values.type === FixedAmount ? amount : percentage
-            values.employeeIds = values.employeeIds.map(e => e._id)
-            values.bonusRequest = systemFormatDate(values.bonusRequest);
-            // dataToInsert.fkEmployeeId = values.fkEmployeeId._id;
+            let values = getValue();
+            //let dataToInsert = { ...values };
 
-            addEntity({ url: DEFAULT_API, data: [values] });
+            const dataToInsert = values.employeeId.map((empId) => ({
+                ...values,
+                employeeId: empId.id,
+                requestDate: systemFormatDate(values.requestDate)
+            }));
+
+            addEntity({ url: DEFAULT_API, data: dataToInsert }).finally(() => {
+                setOpenPopup(false);
+            });
 
         }
     }
@@ -256,8 +225,9 @@ const BonusRequest = () => {
     const [sort, setSort] = useState({ sort: { createdAt: -1 } });
     const { inProcess, setFile, excelData, getTemplate } = useExcelReader({
         formTemplate: excelColData.current,
-        transform: mapAdvSalary,
-        fileName: "Bonus.xlsx"
+        transform: mapExcelData,
+        fileName: "Bonus.xlsx",
+        uniqueBy: ["requestDate", "employeeId"]
     });
 
     const [confirmDialog, setConfirmDialog] = useState({
@@ -296,23 +266,8 @@ const BonusRequest = () => {
     }
 
     useEffect(() => {
-        if (excelData) {
-
-            const groupedData = {};
-
-            for (const obj of excelData) {
-                const key = obj.title.toLowerCase();
-                if (!groupedData[key]) {
-                    groupedData[key] = { ...obj, employeeIds: [] };
-                }
-                if (!groupedData[key].employeeIds.includes(obj.employeeIds)) {
-                    groupedData[key].employeeIds.push(obj.employeeIds);
-                }
-            }
-
-            const result = Object.values(groupedData);
-            addEntity({ url: DEFAULT_API, data: result });
-        }
+        if (excelData)
+            addEntity({ url: DEFAULT_API, data: excelData });
 
     }, [excelData])
 

@@ -1,7 +1,7 @@
 // eslint-disable-next-line react-hooks/exhaustive-deps
 import React, { useEffect, useRef, useState } from "react";
 import Popup from '../../components/Popup';
-import { API, CalculationType, FixedAmount, PercentageOfBasicSalary } from './_Service';
+import { API, calcTypeObj, CalculationType, FixedAmount, PercentageOfBasicSalary } from './_Service';
 import { builderFieldsAction, useEntityAction, useEntitiesQuery, showDropDownFilterAction } from '../../store/actions/httpactions';
 import { PeopleOutline, Percent, Circle } from "../../deps/ui/icons";
 import { InputAdornment } from '../../deps/ui'
@@ -38,11 +38,6 @@ const mapExcelData = (values) => {
     map.employeeId = values.employeeId.id;
     return map
 }
-const calcObj = {
-    "PercentageOfBasicSalary": "Percentage of Basic Salary",
-    "PercentageOfGrossSalary": "Percentage of Gross Salary",
-    "FixedAmount": "Fix Amount"
-}
 
 const getColumns = (apiRef, onEdit, onActive) => [
     { field: 'id', headerName: 'Id', hide: true },
@@ -50,7 +45,7 @@ const getColumns = (apiRef, onEdit, onActive) => [
         field: 'fullName', headerName: 'Employee Name', flex: 1
     },
     { field: 'name', headerName: 'Title' },
-    { field: 'calculationType', headerName: 'Type', flex: 1, valueGetter: ({ row }) => calcObj[row.calculationType] },
+    { field: 'calculationType', headerName: 'Type', flex: 1, valueGetter: ({ row }) => calcTypeObj[row.calculationType] },
     { field: 'value', headerName: 'Value' },
     {
         field: 'isActive', headerName: 'Active', renderCell: (param) => (
@@ -128,7 +123,6 @@ const AddExtraAllowance = ({ openPopup, setOpenPopup, colData = [], row = null, 
             elementType: "dropdown",
             name: "calculationType",
             label: "Type",
-
             dataId: "id",
             dataName: "title",
             isNone: false,

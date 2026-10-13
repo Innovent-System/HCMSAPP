@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-    Card, CardHeader, CardContent, CardMedia, CardActions, Avatar, IconButton, Typography, Menu, MenuItem,
+    Card, CardHeader, CardContent, CardMedia, CardActions, Avatar, IconButton, Typography, Stack, Menu, MenuItem,
     List,
     ListItem,
     ListItemIcon,
@@ -58,7 +58,7 @@ const style = {
         borderRadius: 2
     },
     cardContent: {
-        pt: 0, pl: 6,
+        pt: 0, pl: 4,
         '&:last-child': {
             pb: 0
         }
@@ -70,7 +70,7 @@ const label = { inputProps: { 'aria-label': 'Color switch demo' } };
 //linear-gradient(135deg, #009688, #1976d2)
 export default function EmployeeCard({ employeeInfo, handleEdit, handleActive }) {
 
-    const { id, fullName, designation, city, tenure, email, department, employementstatus, joiningDate, isActive } = employeeInfo;
+    const { id, employeeRefNo, fullName, designation, city, tenure, email, department, employeeStatus, joiningDate, isActive } = employeeInfo;
 
     return (
         <Card sx={style.card} elevation={5} >
@@ -96,7 +96,13 @@ export default function EmployeeCard({ employeeInfo, handleEdit, handleActive })
                 }
 
                 titleTypographyProps={{ maxWidth: 195, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
-                title={fullName}
+                title={<>
+                    <Typography variant="caption" color="text.secondary" component="div" sx={{ fontFamily: 'monospace', lineHeight: 1.3 }}>
+                        {employeeRefNo || "--"}
+                    </Typography>
+                    {fullName}
+
+                </>}
                 subheader={designation}
 
             />
@@ -107,12 +113,12 @@ export default function EmployeeCard({ employeeInfo, handleEdit, handleActive })
                 alt="Paella dish"
             /> */}
             <CardContent sx={style.cardContent}>
-                <List>
+                <List disablePadding >
                     <ListItem disablePadding>
                         <ListItemIcon sx={{ minWidth: 30 }}>
                             <EmailOutlined fontSize='small' />
                         </ListItemIcon>
-                        <ListItemText sx={{ '&::first-letter': { textTransform: "capitalize" } }} primary={email ?? "--"} />
+                        <ListItemText sx={{ '&::first-letter': { textTransform: "capitalize" } }} primary={email || "--"} />
                     </ListItem>
                     <ListItem disablePadding>
                         <ListItemIcon sx={{ minWidth: 30 }}>
@@ -133,8 +139,8 @@ export default function EmployeeCard({ employeeInfo, handleEdit, handleActive })
                     </ListItem>
                     <Divider />
                     <ListItem disablePadding>
-                        <ListItemText primary="Tenure" secondary={`${tenure.years}${tenure.months == 0 ? "" : "." + tenure.months} Yrs`} />
-                        <ListItemText primary="Status" secondary={employementstatus} />
+                        <ListItemText primary="Tenure" secondary={tenure} />
+                        <ListItemText primary="Status" secondary={employeeStatus} />
                         <ListItemText primary="Joining Date" secondary={formateISODate(joiningDate)} />
                     </ListItem>
                 </List>

@@ -235,6 +235,7 @@ const SalarySetup = ({ isCallFromEmployee = false }) => {
     {
         elementType: "checkbox",
         name: "enable",
+        isShow: (value) => false,
         label: "Enable Over Time",
         breakpoints: { size: { xs: 12, sm: 12, md: 12 } },
         defaultValue: false

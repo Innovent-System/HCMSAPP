@@ -92,7 +92,7 @@ const PaySettings = ({ data }) => {
 
     const handleSubmit = () => {
         const { getValue, validateFields } = formApi.current;
-        const { deletePayrollAfterDays, basicSalaryType, allowances, startDay, deductions, calculationMethod, amount, percentage } = getValue();
+        const { deletePayrollAfterDays, basicSalaryType, allowances, startDay, deductions, calculationMethod, isBasicTaxable, amount, percentage } = getValue();
         const dataToInsert = {
             payrollStartDay: startDay === 0 ? 0 : startDay,
             endDay: startDay === 0 ? 0 : startDay - 1,
@@ -100,6 +100,7 @@ const PaySettings = ({ data }) => {
             calculationMethod,
             basicSalaryType,
             basicSalaryValue: basicSalaryType === PercentageBased ? percentage : amount,
+            isBasicTaxable: isBasicTaxable == "yes",
             details: [
                 ...allowances.map(c => ({ payrollSetupId: data.id, payrollHeadId: c.fkAllowanceId, calculationType: c.type, value: c.type !== FixedAmount ? c.percentage : c.amount, isTaxable: c.isTaxable == "yes" })),
                 ...deductions.map(c => ({ payrollSetupId: data.id, payrollHeadId: c.fkDeductionId, calculationType: c.type, value: c.type !== FixedAmount ? c.percentage : c.amount }))
@@ -167,19 +168,19 @@ const PaySettings = ({ data }) => {
             defaultValue: defaultCaluation,
             options: perDayCalulationsList,
         },
-        {
-            elementType: "inputfield",
-            name: "deletePayrollAfterDays",
-            label: "Delete Payroll After Days",
-            type: "number",
-            inputMode: 'numeric',
-            inputProps: {
-                min: 0,
-                max: 50,
-            },
-            breakpoints,
-            defaultValue: 3,
-        },
+        // {
+        //     elementType: "inputfield",
+        //     name: "deletePayrollAfterDays",
+        //     label: "Delete Payroll After Days",
+        //     type: "number",
+        //     inputMode: 'numeric',
+        //     inputProps: {
+        //         min: 0,
+        //         max: 50,
+        //     },
+        //     breakpoints,
+        //     defaultValue: 3,
+        // },
         {
             elementType: "custom",
             breakpoints: fullWidthPoints,
@@ -246,6 +247,17 @@ const PaySettings = ({ data }) => {
             defaultValue: "",
         },
         {
+            elementType: "dropdown",
+            name: "isBasicTaxable",
+            label: "Taxable",
+            dataId: "id",
+            dataName: "title",
+            breakpoints,
+            isNone: false,
+            defaultValue: "NO",
+            options: YESNOLIST,
+        },
+        {
             elementType: "custom",
             breakpoints: fullWidthPoints,
             NodeElement: () => <Divider><Chip label="Allowances" icon={<DisplaySettings />} /></Divider>
@@ -289,7 +301,7 @@ const PaySettings = ({ data }) => {
                     elementType: "dropdown",
                     name: "isTaxable",
                     label: "Taxable",
-                     breakpoints: { size: { xs: 1, lg: 1, md: 1 } },
+                    breakpoints: { size: { xs: 1, lg: 1, md: 1 } },
                     dataId: "id",
                     dataName: "title",
                     isNone: false,
@@ -482,6 +494,7 @@ const PaySettings = ({ data }) => {
             const { payrollStartDay, endDay, deletePayrollAfterDays, calculationMethod,
                 basicSalaryType,
                 basicSalaryValue,
+                isBasicTaxable,
                 allowances: _allowances, deductions: _deductions
             } = result;
             const { setFormValue } = formApi.current;
@@ -496,6 +509,7 @@ const PaySettings = ({ data }) => {
                 basicSalaryType,
                 percentage: basicSalaryType === PercentageBased ? basicSalaryValue : 0,
                 amount: basicSalaryType !== PercentageBased ? basicSalaryValue : 0,
+                isBasicTaxable: isBasicTaxable ? "yes" : "no",
                 allowances: _allowances?.length ? _allowances.map(c => ({ fkAllowanceId: c.payrollHeadId, type: c.calculationType, percentage: c.calculationType !== FixedAmount ? c.value : 0, amount: c.calculationType === FixedAmount ? c.value : 0, isTaxable: c.isTaxable ? "yes" : "no" })) : allowances,
                 deductions: _deductions?.length ? _deductions.map(c => ({ fkDeductionId: c.payrollHeadId, type: c.calculationType, percentage: c.calculationType !== FixedAmount ? c.value : 0, amount: c.calculationType === FixedAmount ? c.value : 0 })) : deductions
             })

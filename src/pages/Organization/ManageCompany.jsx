@@ -33,8 +33,8 @@ export default function ManageCompany() {
   return (
     <>
       <PageHeader
-        title="Constant"
-        subTitle="Manage Comapny"
+        title="Company Setup"
+        subTitle="Manage Company"
         icon={<PeopleOutline fontSize="large" />}
       />
       <Tabs orientation='horizontal' value={value} setValue={setValue} TabsConfig={tabs} />

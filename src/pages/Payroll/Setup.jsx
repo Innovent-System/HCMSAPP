@@ -13,6 +13,7 @@ import { API } from './_Service';
 import { AutoDeduction } from './components/setups/AutoDeduction';
 import { CompanyPolicy } from './components/setups/CompanyPolicy';
 import { TaxRule } from './components/setups/TaxRule';
+import { OverTimeSettings } from './components/setups/OverTimeSettings';
 
 
 
@@ -53,7 +54,7 @@ export default function Manage() {
             },
             {
                 title: "Overtime",
-                panel: <CompanyPolicy key="OverTime" data={setup} />
+                panel: <OverTimeSettings key="OverTime" data={setup} />
             },
             {
                 title: "Tax Rules",

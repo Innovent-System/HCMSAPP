@@ -9,6 +9,7 @@ export const API = {
     SalaryChange: 'payroll/salarychange',
     CancelAdvanceSalary: 'payroll/advancesalary/cancel',
     Bonus: 'payroll/bonus',
+    Adjustment: 'payroll/adjustment',
     OverTime: 'payroll/overtime',
     LoanRequest: 'payroll/loan',
     LoanDetail: 'payroll/loan/detail',
@@ -54,11 +55,17 @@ export const CalculationType = [
     { id: "PercentageOfGrossSalary", title: "Percentage of Gross Salary" },
     { id: "FixedAmount", title: "Fix Amount" }
 ], PercentageOfBasicSalary = "PercentageOfBasicSalary", FixedAmount = "FixedAmount";
+
+export const calcTypeObj = {
+    "PercentageOfBasicSalary": "Percentage of Basic Salary",
+    "PercentageOfGrossSalary": "Percentage of Gross Salary",
+    "FixedAmount": "Fix Amount"
+}
 export const OverTimeType = [
-    { id: "WeekDay", title: "WeekDay" },
-    { id: "Holiday", title: "Holiday" },
+    { id: "WorkingDay", title: "Working Day" },
+    { id: "WeeklyOff", title: "Holiday" },
     { id: "Gazetted", title: "Gazetted" }
-], defaultOverTimeType = "WeekDay"
+], defaultOverTimeType = "WorkingDay"
 
 export const OverTimeCalculation = [
     { id: "FixedAmount", title: "Fix Amount" },
@@ -70,3 +77,8 @@ export const YESNOLIST = [
     { id: "yes", title: "Yes" },
     { id: "no", title: "No" }
 ]
+
+export const OverTimeRate = [
+    { id: "PerHourSalary", title: "Per Hour Salary X {Value}" },
+    { id: "SpecifiedAmount", title: "Specified Amount" },
+], defaultOverTimeRate = "PerHourSalary"
