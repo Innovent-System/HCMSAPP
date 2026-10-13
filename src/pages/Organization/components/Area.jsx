@@ -108,7 +108,7 @@ export const AddArea = ({ openPopup, setOpenPopup, isEdit = false, row = null })
     if (openPopup && !isEdit)
       resetForm();
     else {
-      setFilter(countries.find(c => c._id === row.country_id), filterType.COUNTRY, "id", (data) => {
+      setFilter(countries.find(c => c.id === row.countryId), filterType.COUNTRY, "id", (data) => {
         const { states, cities } = data;
         setFormValue({
           fkCountryId: countries.find(c => c.id === row.countryId),

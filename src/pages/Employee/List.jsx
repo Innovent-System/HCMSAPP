@@ -8,7 +8,7 @@ import { Typography, Stack, ButtonGroup, InputAdornment, IconButton, CircularPro
 import { PeopleOutline, Add as AddIcon, Search, Clear, Description } from "../../deps/ui/icons";
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
-import EmpoyeeModal from './components/AddEditEmployee';
+import EmpoyeeModal, { getSteps } from './components/AddEditEmployee';
 import AddEmployee from "./components/AddEmployee";
 import PageHeader from '../../components/PageHeader'
 import { useExcelReader } from "../../hooks/useExcelReader";
@@ -82,6 +82,7 @@ const StepperCount = 2;
 let newEmployee = null;
 const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
+
 const findDuplicatesIndividually = (array) => {
     const seenEmail = new Set();
     const seenEmployeeRefNo = new Set();
@@ -135,7 +136,7 @@ const Employee = () => {
     const handleSearch = (e) => {
         setSearchText(e.target.value)
     }
-
+    const StepperCount = getSteps(isEdit.current).length;
     // const debouncedClick = useRef(debounce(searchText, 300)).current;
     const debounceSearchText = useDebounce(searchText, 300);
 
@@ -152,7 +153,7 @@ const Employee = () => {
             //timezone: values.fkCountryId?.timezones[0]?.zoneName ?? userTimeZone,
             timeZone: userTimeZone,
             companyId: values.fkCompanyId.id,
-            maritalstatus: values?.maritalstatus ?? "Other",
+            maritalStatus: values?.maritalStatus ?? "Other",
             email: values.email,
             gender: values.gender,
             dateofBirth: systemFormatDate(values?.dateofBirth),
@@ -169,6 +170,7 @@ const Employee = () => {
             stateId: values.fkStateId.id,
             joiningDate: systemFormatDate(values.joiningDate),
             confirmationDate: values.confirmationDate ? systemFormatDate(values.confirmationDate) : systemFormatDate(new Date(values.joiningDate).setMonth(new Date(values.joiningDate).getMonth() + 2)),
+            resignationDate: values.resignationDate ? systemFormatDate(values.resignationDate) : null,
             managerId: values.fkManagerId?.id ?? null,
             //Contact Details
             address1: values.address1,
@@ -388,22 +390,30 @@ const Employee = () => {
         setActiveStep((prevActiveStep) => prevActiveStep - 1);
     };
 
-    const handleSubmit = (e) => {
-        const { getValue, validateFields } = formApi.current
-        if (validateFields()) {
+    const handleSubmit = () => {
+        const { getValue, validateFields, validateWhen } = formApi.current;
 
+        // error kisi aise tab/step mein ho jo abhi khula nahi, to wahan jump karo
+        const stepCount = getSteps(isEdit.current).length;
+        for (let i = 0; i < stepCount; i++) {
+            if (validateWhen(i) === false) {
+                setActiveStep(i);
+                return;
+            }
+        }
+
+        if (validateFields()) {
             const values = getValue();
             const setEmployee = mapEmployee(values, false);
             if (isEdit.current) {
-                setEmployee.id = editId
+                setEmployee.id = editId;
                 setEmployee.managerId = editId == setEmployee?.managerId ? null : setEmployee.managerId;
                 setEmployee.isChangePunchCode = setEmployee.punchCode != currentEditRecord.current.punchCode;
             }
 
             addEntity({ url: DEFAULT_API, data: [setEmployee] });
-
         }
-    }
+    };
 
 
     return (
@@ -424,9 +434,11 @@ const Employee = () => {
                 keepMounted={true}
                 fullScreen={true} isEdit={isEdit.current}
                 footer={<>
-                    <Controls.Button onClick={handleBack} disabled={activeStep === 0} text="Back" />
-                    {activeStep !== StepperCount - 1 && <Controls.Button onClick={handleNext} text={'Next'} />}
-                    {activeStep === StepperCount - 1 && <Controls.Button onClick={handleSubmit} text="Submit" />}
+                    {!isEdit.current && <Controls.Button onClick={handleBack} disabled={activeStep === 0} text="Back" />}
+                    {!isEdit.current && activeStep !== StepperCount - 1 && <Controls.Button onClick={handleNext} text="Next" />}
+                    {(isEdit.current || activeStep === StepperCount - 1) && (
+                        <Controls.Button onClick={handleSubmit} text={isEdit.current ? "Save" : "Submit"} />
+                    )}
                 </>}
                 setOpenPopup={setOpenPopup}>
                 {/* <AddEmployee /> */}
