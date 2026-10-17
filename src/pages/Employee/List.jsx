@@ -8,7 +8,7 @@ import { Typography, Stack, ButtonGroup, InputAdornment, IconButton, CircularPro
 import { PeopleOutline, Add as AddIcon, Search, Clear, Description } from "../../deps/ui/icons";
 import { useSocketIo } from '../../components/useSocketio';
 import ConfirmDialog from '../../components/ConfirmDialog';
-import EmpoyeeModal, { getSteps } from './components/AddEditEmployee';
+import EmpoyeeModal, { getSteps, isFormStep } from './components/AddEditEmployee';
 import AddEmployee from "./components/AddEmployee";
 import PageHeader from '../../components/PageHeader'
 import { useExcelReader } from "../../hooks/useExcelReader";
@@ -418,7 +418,7 @@ const Employee = () => {
 
     return (
         <>
-            <Loader open={inProcess || loader} />
+            <Loader open={loader} />
 
             <PageHeader
                 title="Employee"
@@ -436,9 +436,11 @@ const Employee = () => {
                 footer={<>
                     {!isEdit.current && <Controls.Button onClick={handleBack} disabled={activeStep === 0} text="Back" />}
                     {!isEdit.current && activeStep !== StepperCount - 1 && <Controls.Button onClick={handleNext} text="Next" />}
-                    {(isEdit.current || activeStep === StepperCount - 1) && (
-                        <Controls.Button onClick={handleSubmit} text={isEdit.current ? "Save" : "Submit"} />
-                    )}
+                    {
+                        (isEdit.current ? isFormStep(true, activeStep) : activeStep === StepperCount - 1) && (
+                            <Controls.Button onClick={handleSubmit} text={isEdit.current ? "Save" : "Submit"} />
+                        )
+                    }
                 </>}
                 setOpenPopup={setOpenPopup}>
                 {/* <AddEmployee /> */}

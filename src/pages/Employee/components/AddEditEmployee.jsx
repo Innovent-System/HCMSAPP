@@ -17,6 +17,7 @@ import Check from '@mui/icons-material/Check';
 import { AddCountry } from '../../Organization/components/Country';
 import { AddArea } from '../../Organization/components/Area';
 import SalarySetup from '../../Payroll/SalarySetup';
+import { EmployeeBankTab, EmployeeDocumentsTab } from './EmployeeSubTab';
 
 const TAB_ICONS = {
   Personal: <Person fontSize="small" />,
@@ -218,11 +219,13 @@ const PROFILE_TABS = [
   { label: 'Job', groups: ['job', 'exit'] },
   { label: 'Contact', groups: ['contact'] },
   { label: 'Access', groups: ['access'] },
+  { label: 'Bank', groups: [], grid: 'bank' },
+  { label: 'Documents', groups: [], grid: 'documents' },
 ];
 
 // parent (Back/Next/Submit wala) isay use kare: getSteps(isEdit).length - 1 = last step
 export const getSteps = (isEdit = false) => (isEdit ? PROFILE_TABS : WIZARD_TABS).map(t => t.label);
-
+export const isFormStep = (isEdit, step) => !(isEdit && PROFILE_TABS[step]?.grid);
 // validate.when ab group ke tab index se aata hai (hardcoded 0/1 nahi)
 const withWhen = (fields, when) =>
   fields.map(f => (f.validate ? { ...f, validate: { ...f.validate, when } } : f));
@@ -979,6 +982,8 @@ export default function EmployaaModal({ isEdit = false, formApi, setOpenPopup, e
           isValidate={true}
           sx={{ width: '100%' }}
         />
+        {isEdit && tabs[activeStep]?.grid === 'bank' && <EmployeeBankTab employeeId={editId} employeeName={fullName} />}
+        {isEdit && tabs[activeStep]?.grid === 'documents' && <EmployeeDocumentsTab employeeId={editId} />}
       </Box>
     </Box>
   );

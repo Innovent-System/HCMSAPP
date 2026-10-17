@@ -47,6 +47,16 @@ export const AttendanceflagMap = {
     null: { tag: "Present", short: "P", color: "success" }
 }
 
+const NAME_VALID = /^[\p{L}\p{N}]+(?: [\p{L}\p{N}]+)*$/u;
+const CODE_VALID = /^[A-Za-z0-9]+$/;
+
+export const alnumRule = (field, regex, message, { skipInEdit = false } = {}) => (val) => {
+  const v = String(val?.[field] ?? '').trim();
+  if (!v) return false;
+  if (skipInEdit) return true; // purane employees ka code (disabled field) save na rokay
+  return regex.test(v) ? true : message;
+};
+
 export const currencyFormat = new Intl.NumberFormat();
 
 export function formatNumber(x) {

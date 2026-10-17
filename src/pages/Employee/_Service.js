@@ -6,7 +6,11 @@ export const API = {
     Group: "employee/group",
     Designation: "employee/designation",
     EmployeeStatus: "employee/status",
-    RoleTemplate: "employee/roletemplate"
+    RoleTemplate: "employee/roletemplate",
+    EmployeeDocument: "employee/document",
+    BankDetail: "employee/bankdetail",
+    Bank: "employee/bank",
+    DocumentType: "employee/documenttype"
 }
 
 

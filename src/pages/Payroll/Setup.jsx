@@ -14,6 +14,7 @@ import { AutoDeduction } from './components/setups/AutoDeduction';
 import { CompanyPolicy } from './components/setups/CompanyPolicy';
 import { TaxRule } from './components/setups/TaxRule';
 import { OverTimeSettings } from './components/setups/OverTimeSettings';
+import { useSocketIo } from '@/components/useSocketio';
 
 
 
@@ -42,6 +43,7 @@ export default function Manage() {
         addEntity({ url: DEFAULT_API, data: [getValue()] });
     }
 
+    useSocketIo("changeInPayrollSetup", () => setSetupId(prev => prev));
     const tabs = useMemo(() =>
         [
             {

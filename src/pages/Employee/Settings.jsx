@@ -6,7 +6,9 @@ import Tabs from '../../components/Tabs'
 const Group = lazy(() => import('./components/settings/Group'));
 const Designation = lazy(() => import('./components/settings/Designation'));
 const EmployeeStatus = lazy(() => import('./components/settings/EmployeeStatus'))
-const ApprovalStages = lazy(()=> import('../ApprovalStages'));
+const Bank = lazy(() => import('./components/settings/Bank'));
+const DocumentType = lazy(() => import('./components/settings/DocumentType'));
+const ApprovalStages = lazy(() => import('../ApprovalStages'));
 
 const tabs = [
     {
@@ -20,6 +22,18 @@ const tabs = [
     {
         title: "Employee Status",
         panel: <EmployeeStatus />
+    },
+    {
+        title: "Employee Status",
+        panel: <EmployeeStatus />
+    },
+    {
+        title: "Bank",
+        panel: <Bank />
+    },
+    {
+        title: "Document Type",
+        panel: <DocumentType />
     },
     {
         title: "Approval Stages",
