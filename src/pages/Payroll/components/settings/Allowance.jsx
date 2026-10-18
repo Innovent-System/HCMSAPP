@@ -204,12 +204,12 @@ const Allowance = ({ DEFAULT_API = API.Allowance, DEFAULT_NAME = "Allowance", he
             },
             defaultValue: ""
         },
-        {
-            elementType: "checkbox",
-            name: "isTaxable",
-            label: "Taxable",
-            defaultValue: true
-        },
+        // {
+        //     elementType: "checkbox",
+        //     name: "isTaxable",
+        //     label: "Taxable",
+        //     defaultValue: true
+        // },
         ...formProps
     ];
 

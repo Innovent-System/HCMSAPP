@@ -39,7 +39,7 @@ export const salaryChangeType = [{ id: "Increment", title: "Increment" },
 { id: "Decrement", title: "Decrement" }
 ]
 
-export const dayRange = Array.from(Array(31)).map((e, i) => ({ id: i, title: `${i === 0 ? 'First Day of Month' : i}` }));
+export const dayRange = Array.from(Array(29)).map((e, i) => ({ id: i, title: `${i === 0 ? 'First Day of Month' : i}` }));
 export const perDayCalulationsList = [
     { id: "MonthlyGross_DivideBy_NumberOfDays_InMonth", title: "Monthly Gross Salary / No. of Days In Month" },
     { id: "MonthlyGross_DivideBy_FixedDays", title: "Monthly Gross Salary / Fixed Days" }
