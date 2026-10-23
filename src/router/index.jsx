@@ -13,6 +13,7 @@ import AttendanceReportViewer from '../pages/Attendance/reports/viewer/Attendanc
 import { API as EmployeeAPI } from '../pages/Employee/_Service';
 import { API as AttendanceAPI } from '../pages/Attendance/_Service';
 import { API as PayrollAPI } from '../pages/Payroll/_Service';
+import { API as SeparationAPI } from '../pages/Separation/_Service';
 import { API as LeaveAPI } from '../pages/Leave/_Service';
 import PaySlipViewer from '../pages/Payroll/reports/viewer/PayslipViewer';
 import SalarySheetViewer from '../pages/Payroll/reports/viewer/SalarySheetViewer';
@@ -21,6 +22,7 @@ import PayrollSummaryViewer from '../pages/Payroll/reports/viewer/PayrollSummary
 import AttendanceRegisterViewer from '../pages/Attendance/reports/viewer/AttendanceRegisterViewer';
 import LeaveBalanceViewer from '../pages/Leave/reports/viewer/LeaveBalanceViewer';
 import EmployeeListViewer from '../pages/Employee/reports/viewer/EmployeeListViewer';
+import FNFViewer from '@/pages/Separation/reports/viewer/FNFViewer';
 
 const LazySignIn = lazy(() => import(`../pages/General/SignIn`));
 const LazyDashboard = lazy(() => import(`../pages/General/Dashboard`));
@@ -60,6 +62,8 @@ const Routers = () => {
             <Route path="/payrollsummaryreport" element={<PayrollSummaryViewer fileName="PayrollSummaryReport" API_NAME={PayrollAPI.PayrollSummaryReport} />} />
             <Route path="/loanreport" element={<LoanViewer fileName="LoanReport" API_NAME={PayrollAPI.LoanReport} />} />
             <Route path="/leavebalancereport" element={<LeaveBalanceViewer fileName="LeaveBalanceReport" API_NAME={LeaveAPI.LeaveBalanceReport} />} />
+            <Route path="/payslipreport" element={<PaySlipViewer fileName="PayslipReport" API_NAME={PayrollAPI.PayslipReport} />} />
+            <Route path="/fnfreport" element={<FNFViewer fileName="FNFReport" API_NAME={SeparationAPI.FNFReport} />} />
             <Route element={<Layout />}>
               <Route path="/dashboard" element={<LazyDashboard />} />
 

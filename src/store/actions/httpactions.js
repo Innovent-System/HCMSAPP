@@ -218,7 +218,7 @@ const INITIAL_STATE = {
     departments: []
   },
   employeeData: {
-    employees: [],
+    employees: [], inactiveEmployees: [],
     designations: [], groups: [], roleTemplates: [], schedules: [], attendanceFlags: [], religions: [],
     employeeStatus: [], leaveAccruals: []
   },
@@ -247,6 +247,7 @@ const INITIAL_STATE = {
     companyIds: '',
     countryIds: '',
     employeeIds: '',
+    inactiveEmployeeIds: '',
     stateIds: '',
     cityIds: '',
     areaIds: '',
@@ -313,6 +314,9 @@ export const appSlice = createSlice({
         group: false,
         designation: false,
         employee: false,
+        inactiveEmployee: false,
+        month: false,
+        year: false,
         ...action.payload
       }
     },

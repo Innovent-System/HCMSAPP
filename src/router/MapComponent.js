@@ -56,5 +56,11 @@ export default Object.freeze({
     //Recruitment
     36: lazy(() => import("../pages/Recruitment/JobPost")),
     48: lazy(() => import("../pages/Recruitment/HiringBoard")),
-    47: lazy(() => import("../pages/Recruitment/Settings"))
+    47: lazy(() => import("../pages/Recruitment/Settings")),
+
+    //Separation
+    51: lazy(() => import("../pages/Separation/EmployeeExit")),
+    52: lazy(() => import("../pages/Separation/FinalSettlement")),
+    53: lazy(() => import("../pages/Separation/Settings")),
+    54: lazy(() => import("../pages/Separation/Reports"))
 })

@@ -79,7 +79,7 @@ const getColumns = (onDelete) => [
 ];
 
 const DEFAULT_API = API.PayrollDetail;
-const Payroll = () => {
+const Payroll = ({ isFNF = false }) => {
     const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
 
@@ -103,7 +103,7 @@ const Payroll = () => {
 
     const gridApiRef = useGridApi();
     const query = useAppSelector(e => e.appdata.query.builder);
-    const { countryIds, stateIds, cityIds, areaIds, departmentIds, groupIds, employeeIds } = useDropDownIds();
+    const { countryIds, stateIds, cityIds, areaIds, departmentIds, groupIds, employeeIds, inactiveEmployeeIds } = useDropDownIds();
 
     const { data, isLoading, refetch, totalRecord } = useEntitiesQuery({
         url: `${DEFAULT_API}/get`,
@@ -113,7 +113,7 @@ const Payroll = () => {
             lastKeyId: gridFilter.lastKey,
             ...sort,
             searchParams: {
-                ...(employeeIds && { "employeeId": { value: employeeIds.split(','), operator: "In" } }),
+                ...(employeeIds && { "employeeId": { value: isFNF ? inactiveEmployeeIds.split(',') : employeeIds.split(','), operator: "In" } }),
                 ...(countryIds && { "countryId": { value: countryIds.split(','), operator: "In" } }),
                 ...(stateIds && { "stateId": { value: stateIds.split(','), operator: "In" } }),
                 ...(cityIds && { "cityId": { value: cityIds.split(','), operator: "In" } }),
@@ -123,6 +123,7 @@ const Payroll = () => {
                 ...query
             },
             month: query?.month?.value,
+            isFNF,
             year: query?.year?.value
         }
     }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
@@ -197,12 +198,13 @@ const Payroll = () => {
             area: true,
             department: true,
             group: true,
-            employee: true
+            employee: !isFNF,
+            inactiveEmployee: isFNF
         }));
 
         dispatch(builderFieldsAction(fields));
     }, [dispatch])
-
+    const POPUPTITLE = isFNF ? "Final Settlement" : "Payroll";
 
     const showAddModal = () => {
         setOpenPopup(true);
@@ -211,20 +213,20 @@ const Payroll = () => {
     return (
         <>
             <PageHeader
-                title="Payroll"
+                title={POPUPTITLE}
                 enableFilter={true}
 
-                subTitle="Manage Payroll"
+                subTitle={`Manage ${POPUPTITLE}`}
                 icon={<PeopleOutline fontSize="large" />}
             />
 
             <Popup
-                title="Process Payroll"
+                title={`Process ${POPUPTITLE}`}
                 openPopup={openPopup} maxWidth="xl"
                 fullScreen={true}
                 footer={<></>}
                 setOpenPopup={setOpenPopup}>
-                <RunPayroll setOpenPopup={setOpenPopup} />
+                <RunPayroll isFNF={isFNF} setOpenPopup={setOpenPopup} />
             </Popup>
 
             <DataGrid apiRef={gridApiRef}

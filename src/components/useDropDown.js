@@ -12,6 +12,7 @@ export const filterTypes = Object.freeze({
     AREA: 'area',
     DEPARTMENT: 'department',
     EMPLOYEE: 'employee',
+    INACTIVE_EMPLOYEE: 'inactiveEmployee',
     GROUP: 'group',
     DESIGNATION: 'designation',
     YEAR: 'year',
@@ -70,6 +71,7 @@ export const useDropDown = () => {
     const [areas, setAreas] = useState([]);
     const [companies, setCompanies] = useState([]);
     const [employees, setEmployees] = useState([]);
+    const [inactiveEmployees, setInactiveEmployees] = useState([]);
 
     const callbackRef = useRef(null);
     const DropDownData = useAppSelector(e => e.appdata.DropDownData);
@@ -104,6 +106,7 @@ export const useDropDown = () => {
         setCities(DropDownData.cities);
         setAreas(DropDownData.areas);
         setEmployees(employeeData.employees);
+        setInactiveEmployees(employeeData.inactiveEmployees);
     }
 
     useMemo(() => {
@@ -113,7 +116,7 @@ export const useDropDown = () => {
             return;
         }
         let ids = filter.data[0] ? filter.data.map(d => d[filter.matchWith]) : [];
-        const _countries = [], _states = [], _cities = [], _areas = [], _employees = [];
+        const _countries = [], _states = [], _cities = [], _areas = [], _employees = [], _inactiveEmployees = [];
         let count = -1;
         let _companyIds = companyIds ? companyIds.split(",").reduce((acc, item) => { acc[item] = item; return acc }, {}) : {},
             _departmentIds = departmentIds ? departmentIds.split(",").reduce((acc, item) => { acc[item] = item; return acc }, {}) : {},
@@ -226,7 +229,7 @@ export const useDropDown = () => {
             designation: Object.keys(_designationIds).length > 0,
         };
 
-        if (!["employee", "year", "month"].includes(filter.type)) {
+        if (![filterTypes.EMPLOYEE, filterTypes.INACTIVE_EMPLOYEE, filterTypes.YEAR, filterTypes.MONTH].includes(filter.type)) {
             count = employeeData.employees.length;
             while (count--) {
                 const element = employeeData.employees[count];
@@ -247,6 +250,27 @@ export const useDropDown = () => {
             setEmployees(_employees);
         }
 
+        if (![filterTypes.EMPLOYEE, filterTypes.INACTIVE_EMPLOYEE, filterTypes.YEAR, filterTypes.MONTH].includes(filter.type)) {
+            count = employeeData.inactiveEmployees.length;
+            while (count--) {
+                const element = employeeData.inactiveEmployees[count];
+
+                if ((!hasFilters.company || _companyIds[element.companyId]) &&
+                    (!hasFilters.country || _countryIds[element.countryId]) &&
+                    (!hasFilters.state || _stateIds[element.stateId]) &&
+                    (!hasFilters.city || _cityIds[element.cityId]) &&
+                    (!hasFilters.area || _areaIds[element.areaId]) &&
+                    (!hasFilters.department || _departmentIds[element.departmentId]) &&
+                    (!hasFilters.group || _groupIds[element.employeeGroupId]) &&
+                    (!hasFilters.designation || _designationIds[element.designationId])
+                ) {
+                    _inactiveEmployees.push(element);
+                }
+
+            }
+            setInactiveEmployees(_inactiveEmployees);
+        }
+
         if (callbackRef.current) {
             callbackRef.current({ countries, states, cities, areas })
         }
@@ -263,6 +287,7 @@ export const useDropDown = () => {
         groups: employeeData.groups,
         designations: employeeData.designations,
         employees,
+        inactiveEmployees,
         roleTemplates: employeeData.roleTemplates,
         schedules: employeeData.schedules,
         religion: employeeData.religions,
@@ -292,7 +317,7 @@ export const useFilterBarEvent = (onReset) => {
     }, [onReset])
 }
 
-const { DEFAULT, COMPANY, COUNTRY, STATE, CITY, AREA, DEPARTMENT, GROUP, DESIGNATION, EMPLOYEE, YEAR, MONTH } = filterTypes;
+const { DEFAULT, COMPANY, COUNTRY, STATE, CITY, AREA, DEPARTMENT, GROUP, DESIGNATION, EMPLOYEE, INACTIVE_EMPLOYEE, YEAR, MONTH } = filterTypes;
 
 export const showFilterProps = {
     [COMPANY]: true,
@@ -310,7 +335,7 @@ export const showFilterProps = {
 
 useDropDown.propTypes = {
     filter: PropTypes.objectOf({
-        type: PropTypes.oneOf([DEFAULT, COMPANY, COUNTRY, STATE, CITY, AREA, DEPARTMENT, GROUP, EMPLOYEE, DESIGNATION]).isRequired,
+        type: PropTypes.oneOf([DEFAULT, COMPANY, COUNTRY, STATE, CITY, AREA, DEPARTMENT, GROUP, EMPLOYEE, INACTIVE_EMPLOYEE, DESIGNATION]).isRequired,
         data: PropTypes.oneOfType([
             PropTypes.array,
             PropTypes.object
@@ -328,6 +353,7 @@ export const Name_MAP = {
     [GROUP]: "groups",
     [DESIGNATION]: "designations",
     [EMPLOYEE]: 'employees',
+    [INACTIVE_EMPLOYEE]: 'inactiveEmployees',
     [YEAR]: 'years',
     [MONTH]: 'months'
 }
@@ -410,6 +436,15 @@ export const DROPDOWN_PROPS = {
     [EMPLOYEE]: {
         elementType: "ad_dropdown",
         name: "employee",
+        label: "Employees",
+        isMultiple: true,
+        dataId: 'id',
+        dataName: "fullName",
+        defaultValue: []
+    },
+    [INACTIVE_EMPLOYEE]: {
+        elementType: "ad_dropdown",
+        name: "inactiveEmployee",
         label: "Employees",
         isMultiple: true,
         dataId: 'id',

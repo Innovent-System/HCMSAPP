@@ -14,7 +14,8 @@ const reportMap = Object.freeze({
     5: lazy(() => import(`./Payroll/reports/filter/PayrollSummaryFilter`)),
     6: lazy(() => import(`./Attendance/reports/filter/AttendanceRegisterFilter`)),
     7: lazy(() => import(`./Leave/reports/filter/LeaveBalanceFilter`)),
-    8: lazy(() => import(`./Employee/reports/filter/EmployeeListFilter`))
+    8: lazy(() => import(`./Employee/reports/filter/EmployeeListFilter`)),
+    9: lazy(() => import(`./Separation/reports/filter/FNFFilter`))
 })
 
 const ReportToRoute = ({ reportId, loader, setLoader }) => {

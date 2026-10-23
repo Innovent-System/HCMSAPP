@@ -32,14 +32,9 @@ import NotificationBell from "../NotificationAlert";
 // ============================================================
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
-  backgroundColor:
-    theme.palette.custom.shell,        // was gradients.primary ?? primary.main
-
-  borderBottom:
-    `1px solid ${theme.palette.custom.shellBrd}`,   // was heavy boxShadow
-
+  backgroundColor: theme.palette.custom.shell,        // was gradients.primary ?? primary.main
+  borderBottom: `1px solid ${theme.palette.custom.shellBrd}`,   // was heavy boxShadow
   boxShadow: 'none',                     // consistent with flat MuiPaper style elsewhere
-
   zIndex: theme.zIndex.drawer + 1,
 }));
 
@@ -79,9 +74,7 @@ const NavIconBtn = styled(IconButton)(({ theme }) => ({
 // HEADER
 // ============================================================
 
-export default function Header({
-  onMenuClick,
-}) {
+export default function Header({ onMenuClick }) {
 
   const dispatch = useAppDispatch();
 
@@ -89,11 +82,9 @@ export default function Header({
   const theme = useTheme();
   const socket = useContext(SocketContext);
 
-  const [userSignOut] =
-    useLazySingleQuery();
+  const [userSignOut] = useLazySingleQuery();
 
-  const { addEntity } =
-    useEntityAction();
+  const { addEntity } = useEntityAction();
 
 
   // ========================================================
@@ -119,16 +110,10 @@ export default function Header({
 
   useEffect(() => {
 
-    dispatch(
-      AppRoutesThunk({
-        url: GET_ROUTES,
-      })
-    )
-      .unwrap()
+    dispatch(AppRoutesThunk({ url: GET_ROUTES, })).unwrap()
       .then(({ data }) => {
 
-        Auth.setItem(
-          "appConfigData",
+        Auth.setItem("appConfigData",
           {
             appRoutes:
               data.appRoutes,
@@ -152,31 +137,10 @@ export default function Header({
           }),
         ];
 
-
-        dispatch(
-          setCommand(command)
-        );
-
-
-        dispatch(
-          EmployeeDataThunk({
-            url: GET_EMPLOYEE_DATA,
-          })
-        );
-
-
-        dispatch(
-          PayrollDataThunk({
-            url: GET_PAYROLL_DATA,
-          })
-        );
-
-
-        dispatch(
-          CommonDropDownThunk({
-            url: GET_REGULAR_DROPDOWN,
-          })
-        );
+        dispatch(setCommand(command));
+        dispatch(EmployeeDataThunk({ url: GET_EMPLOYEE_DATA, }));
+        dispatch(PayrollDataThunk({ url: GET_PAYROLL_DATA, }));
+        dispatch(CommonDropDownThunk({ url: GET_REGULAR_DROPDOWN, }));
 
       });
 
@@ -188,35 +152,17 @@ export default function Header({
   // ========================================================
 
   const handler = () => {
-
-    dispatch(
-      CommonDropDownThunk({
-        url: GET_REGULAR_DROPDOWN,
-      })
-    );
-
+    dispatch(CommonDropDownThunk({ url: GET_REGULAR_DROPDOWN }));
   };
 
 
   const employeeHandler = () => {
-
-    dispatch(
-      EmployeeDataThunk({
-        url: GET_EMPLOYEE_DATA,
-      })
-    );
-
+    dispatch(EmployeeDataThunk({ url: GET_EMPLOYEE_DATA, }));
   };
 
 
   const payrollHandler = () => {
-
-    dispatch(
-      PayrollDataThunk({
-        url: GET_PAYROLL_DATA,
-      })
-    );
-
+    dispatch(PayrollDataThunk({ url: GET_PAYROLL_DATA, }));
   };
 
 
@@ -228,120 +174,33 @@ export default function Header({
 
     if (!socket) return;
 
-
-    socket.on(
-      "changeInPayrollSetup",
-      payrollHandler
-    );
-
-    socket.on(
-      "changeInAllowance",
-      payrollHandler
-    );
-
-    socket.on(
-      "changeInDeduction",
-      payrollHandler
-    );
-
-    socket.on(
-      "changeInArea",
-      handler
-    );
-
-    socket.on(
-      "changeInCompany",
-      handler
-    );
-
-    socket.on(
-      "changeInCountry",
-      handler
-    );
-
-    socket.on(
-      "changeInDepartment",
-      handler
-    );
-
-    socket.on(
-      "changeInEmployee",
-      employeeHandler
-    );
-
-    socket.on(
-      "changeInGroup",
-      employeeHandler
-    );
-
-    socket.on(
-      "changeInDesignation",
-      employeeHandler
-    );
-
-    socket.on(
-      "changeInSchedule",
-      employeeHandler
-    );
-
+    socket.on("changeInPayrollSetup", payrollHandler);
+    socket.on("changeInAllowance", payrollHandler);
+    socket.on("changeInDeduction", payrollHandler);
+    socket.on("changeInArea", handler);
+    socket.on("changeInCompany", handler);
+    socket.on("changeInCountry", handler);
+    socket.on("changeInDepartment", handler);
+    socket.on("changeInEmployee", employeeHandler);
+    socket.on("changeInGroup", employeeHandler);
+    socket.on("changeInDesignation", employeeHandler);
+    socket.on("changeInSchedule", employeeHandler);
+    socket.on("changeInEmployeeExit", employeeHandler);
 
     return () => {
 
-      socket.off(
-        "changeInPayrollSetup",
-        payrollHandler
-      );
-
-      socket.off(
-        "changeInAllowance",
-        payrollHandler
-      );
-
-      socket.off(
-        "changeInDeduction",
-        payrollHandler
-      );
-
-      socket.off(
-        "changeInArea",
-        handler
-      );
-
-      socket.off(
-        "changeInCompany",
-        handler
-      );
-
-      socket.off(
-        "changeInCountry",
-        handler
-      );
-
-      socket.off(
-        "changeInDepartment",
-        handler
-      );
-
-      socket.off(
-        "changeInEmployee",
-        employeeHandler
-      );
-
-      socket.off(
-        "changeInGroup",
-        employeeHandler
-      );
-
-      socket.off(
-        "changeInDesignation",
-        employeeHandler
-      );
-
-      socket.off(
-        "changeInSchedule",
-        employeeHandler
-      );
-
+      socket.off("changeInPayrollSetup", payrollHandler);
+      socket.off("changeInAllowance", payrollHandler);
+      socket.off("changeInDeduction", payrollHandler);
+      socket.off("changeInArea", handler);
+      socket.off("changeInCompany", handler);
+      socket.off("changeInCountry", handler);
+      socket.off("changeInDepartment", handler);
+      socket.off("changeInEmployee", employeeHandler);
+      socket.off("changeInGroup", employeeHandler);
+      socket.off("changeInDesignation", employeeHandler);
+      socket.off("changeInSchedule", employeeHandler);
+      socket.off("changeInEmployeeExit", employeeHandler);
     };
 
   }, [socket]);
@@ -364,12 +223,8 @@ export default function Header({
     });
 
   };
-  const shellText =
-    theme.palette.custom?.shellText ||
-    '#FFFFFF';
-  const teal =
-    theme.palette.primary.main ||
-    '#0F9D8A';
+  const shellText = theme.palette.custom?.shellText || '#FFFFFF';
+  const teal = theme.palette.primary.main || '#0F9D8A';
 
   // ========================================================
   // RENDER
@@ -377,18 +232,11 @@ export default function Header({
 
   return (
 
-    <StyledAppBar
-      position="sticky"
-      sx={{ border: 0 }}
-      elevation={0}
-    >
+    <StyledAppBar position="sticky" sx={{ border: 0 }} elevation={0}>
 
-      <Toolbar
-        disableGutters
+      <Toolbar disableGutters
         sx={{
-          px: 1.5,
-          minHeight:
-            "60px !important",
+          px: 1.5, minHeight: "60px !important",
         }}
       >
 

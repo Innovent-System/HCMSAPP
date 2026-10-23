@@ -194,11 +194,6 @@ const AddAdjustment = ({ openPopup, setOpenPopup, colData = [] }) => {
 
             dataToInsert.employeeId = values.employeeId.id;
             dataToInsert.requestDate = systemFormatDate(values.requestDate);
-            // const dataToInsert = values.employeeId.map((empId) => ({
-            //     ...values,
-            //     employeeId: empId.id,
-            //     requestDate: systemFormatDate(values.requestDate)
-            // }));
 
             addEntity({ url: DEFAULT_API, data: [dataToInsert] }).finally(() => {
                 setOpenPopup(false);

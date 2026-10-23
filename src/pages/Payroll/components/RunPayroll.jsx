@@ -186,7 +186,7 @@ const DetailPanelContent = ({ row }) => (
             <Grid item size={{ xs: 12, md: 4 }}>
                 <SectionColumn
                     title="Deductions"
-                    items={row.details.filter(d => !d.isEarning)}
+                    items={row.details.filter(d => !d.isEarning && !d.isEmployerShare)}
                     total={row.totalDeductions}
                     accentColor="#d32f2f"
                 />
@@ -415,7 +415,7 @@ const DETAIL_PANEL = {
 
 const DEFAULT_API = API.Process;
 
-const RunPayroll = ({ setOpenPopup }) => {
+const RunPayroll = ({ isFNF = false, setOpenPopup }) => {
     const dispatch = useAppDispatch();
     const query = useAppSelector(e => e.appdata.query.builder);
     const [selectionModel, setSelectionModel] = React.useState([]);
@@ -426,13 +426,13 @@ const RunPayroll = ({ setOpenPopup }) => {
 
     const { addEntity } = useEntityAction();
     const gridApiRef = useGridApi();
-    const { countryIds, stateIds, cityIds, areaIds, departmentIds, groupIds, designationIds, employeeIds } = useDropDownIds();
+    const { countryIds, stateIds, cityIds, areaIds, departmentIds, groupIds, designationIds, employeeIds, inactiveEmployeeIds } = useDropDownIds();
     const [getEmployeePayroll] = useLazyPostQuery();
 
     useEffect(() => {
         dispatch(showDropDownFilterAction({
             company: true, country: true, state: true, city: true,
-            area: true, department: true, group: true, employee: true
+            area: true, department: true, group: true, employee: !isFNF, inactiveEmployee: isFNF
         }));
         dispatch(builderFieldsAction(fields));
     }, [dispatch]);
@@ -445,7 +445,7 @@ const RunPayroll = ({ setOpenPopup }) => {
         const { HEADER_H, ITEM_H, TOTAL_H, SUMMARY_H, PADDING_H, MIN_H } = DETAIL_PANEL;
         const maxItems = Math.max(
             row.details?.filter(e => e.isEarning)?.length || 0,
-            row.details?.filter(e => !e.isEarning)?.length || 0,
+            row.details?.filter(e => !e.isEarning && !e.isEmployerShare)?.length || 0,
             row.others?.length || 0,
         );
         return Math.max(PADDING_H + HEADER_H + (maxItems * ITEM_H) + TOTAL_H + SUMMARY_H, MIN_H);
@@ -466,7 +466,7 @@ const RunPayroll = ({ setOpenPopup }) => {
             fileName: "TempPayrollSummaryReport",
             data: {
                 searchParams: {
-                    ...(employeeIds && { "employeeId": { value: employeeIds.split(','), operator: "In" } }),
+                    ...(employeeIds && { "employeeId": { value: isFNF ? inactiveEmployeeIds.split(',') : employeeIds.split(','), operator: "In" } }),
                     ...(countryIds && { "countryId": { value: countryIds.split(','), operator: "In" } }),
                     ...(stateIds && { "stateId": { value: stateIds.split(','), operator: "In" } }),
                     ...(cityIds && { "cityId": { value: cityIds.split(','), operator: "In" } }),
@@ -485,7 +485,7 @@ const RunPayroll = ({ setOpenPopup }) => {
         getEmployeePayroll({
             url: DEFAULT_API,
             data: {
-                ...(employeeIds && { "employeeId": employeeIds.split(',') }),
+                ...(employeeIds && { "employeeId": isFNF ? inactiveEmployeeIds.split(',') : employeeIds.split(',') }),
                 // ...(countryIds && { "countryId": { value: countryIds.split(','), operator: "In" } }),
                 // ...(stateIds && { "stateId": { value: stateIds.split(','), operator: "In" } }),
                 // ...(cityIds && { "cityId": { value: cityIds.split(','), operator: "In" } }),
@@ -494,7 +494,8 @@ const RunPayroll = ({ setOpenPopup }) => {
                 ...(departmentIds && { "departmentId": departmentIds.split(',') }),
                 ...query,
                 month: query?.month?.value,
-                year: query?.year?.value
+                year: query?.year?.value,
+                isFNF
             }
         }).then(({ data }) => {
             const { payrollDetails, ...extra } = data;
@@ -504,7 +505,7 @@ const RunPayroll = ({ setOpenPopup }) => {
             setDetailPanelExpandedRowIds(payrollDetails.map(e => e.employeeId));
         }).finally(() => dispatch(setGlobalLoader(false)));
     };
-
+    const POPUPTITLE = isFNF ? "Final Settlement" : "Payroll";
     const handleSavePayroll = () => {
         // const processData = records.filter(c => c.isProcess);
         const processData = records;
@@ -512,6 +513,7 @@ const RunPayroll = ({ setOpenPopup }) => {
             url: `${DEFAULT_API}/save`,
             data: {
                 payrollData: processData,
+                isFNF,
                 year: records[0].year,
                 month: records[0].month,
                 employeeIds: processData.map(c => c.employeeId),
@@ -524,10 +526,10 @@ const RunPayroll = ({ setOpenPopup }) => {
         <Box sx={{ bgcolor: 'grey.50', minHeight: '100%' }}>
 
             <PageHeader
-                title="Run Payroll"
+                title={`Run ${POPUPTITLE}`}
                 enableFilter={true}
                 handleApply={handleProcessPayroll}
-                subTitle="Process & review employee payroll"
+                subTitle={`Process & review ${POPUPTITLE.toLowerCase()}`}
                 icon={<PeopleOutline fontSize="large" />}
             />
 

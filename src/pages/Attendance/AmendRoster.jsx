@@ -14,7 +14,7 @@ import Popup from "../../components/Popup";
 import { dateRange, formateDate, getWeekStartEnd, formateISODateTime, formateISODate } from "../../services/dateTimeService";
 import { useExcelReader } from "../../hooks/useExcelReader";
 import { AutoForm } from '../../components/useForm'
-import { useDropDownIds } from "../../components/useDropDown";
+import { useDropDown, useDropDownIds } from "../../components/useDropDown";
 
 const fields = {
     name: {
@@ -79,7 +79,7 @@ const { weekStart, weekEnd } = getWeekStartEnd();
 export const AddRoster = ({ getTemplate, setFile, roster, setRoster, openPopup, setOpenPopup, isEdit = false, row = null, shifts }) => {
     const formApi = useRef(null);
     const { addEntity } = useEntityAction();
-    const { employees } = useAppSelector(e => e.appdata.employeeData);
+    const { employees, areas, departments, setFilter } = useDropDown();
     const handleSubmit = (e) => {
         const { getValue, validateFields } = formApi.current
         const { fkEmployeeId, rosterDates, fkShiftId } = getValue();
@@ -102,6 +102,32 @@ export const AddRoster = ({ getTemplate, setFile, roster, setRoster, openPopup, 
     }
 
     const formData = [
+        {
+            elementType: "ad_dropdown",
+            name: "areas",
+            label: "Area",
+            required: true,
+            validate: {
+                errorMessage: "Area is required",
+            },
+            dataId: 'id',
+            dataName: "name",
+            onChange: (data) => setFilter(data, filterType.AREA, "_id"),
+            options: areas,
+            isMultiple: true,
+            defaultValue: []
+        },
+        {
+            elementType: "ad_dropdown",
+            name: "departments",
+            label: "Department",
+            isMultiple: true,
+            onChange: (data) => setFilter(data, filterType.DEPARTMENT, "id"),
+            dataId: 'id',
+            dataName: "departmentName",
+            options: departments,
+            defaultValue: []
+        },
         {
             elementType: "ad_dropdown",
             name: "fkEmployeeId",
@@ -293,7 +319,7 @@ const AmendRoster = () => {
     }
 
     const handleActiveInActive = (id) => {
-        updateOneEntity({ url: DEFAULT_API, data: {  id } });
+        updateOneEntity({ url: DEFAULT_API, data: { id } });
     }
 
     const handelDeleteItems = (ids) => {
