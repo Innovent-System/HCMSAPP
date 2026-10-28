@@ -50,7 +50,9 @@ const fields = {
 
 const mapExcelData = (values) => {
     const map = { ...values };
-    map.employeeId = values.employeeId._id;
+    map.employeeId = values.employeeId.id;
+    map.periodStart = systemFormatDate(values.periodStart);
+    map.periodEnd = systemFormatDate(values.periodEnd);
     return map
 }
 
@@ -62,7 +64,7 @@ const getColumns = (onCancel) => [
     { field: 'startDate', headerName: 'Start Date', flex: 1, valueGetter: ({ row }) => formateISODate(row.periodStart) },
     { field: 'endDate', headerName: 'End Date', flex: 1, valueGetter: ({ row }) => formateISODate(row.periodEnd) },
     { field: 'amount', headerName: 'Amount' },
-    { field: 'policyNumber', headerName: 'Policy' },
+    { field: 'isTaxable', headerName: 'Taxable' },
     // {
     //     field: 'status', headerName: 'Status', flex: 1, renderCell: renderStatusCell
     // },
@@ -144,14 +146,14 @@ const AddInsurance = ({ openPopup, setOpenPopup, colData = [] }) => {
             }
         },
         {
-            elementType: "inputfield",
-            name: "policyNumber",
-            label: "Policy Number",
-            defaultValue: "",
+            elementType: "checkbox",
+            name: "isTaxable",
+            label: "Taxable",
+            defaultValue: false,
             excel: {
-                sampleData: ""
+                sampleData: false
             }
-        },
+        }
     ];
     colData.current = formData;
 

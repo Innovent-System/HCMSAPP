@@ -19,6 +19,7 @@ import QueryBuilder, {
   defultValue, loadTree, mapToQueryBuilderFormat,
 } from "./QueryBuilder";
 import { useAppDispatch, useAppSelector } from "../store/storehook";
+import HelpButton from "./HelpTool";
 
 // ─── Styled Header Bar ────────────────────────────────────────────────────────
 
@@ -77,7 +78,7 @@ export default function PageHeader(props) {
     title, subTitle,
     icon,
     handleUpload, handleApply, handleTemplate,
-    enableFilter, showQueryFilter = true,
+    enableFilter, showQueryFilter = true, helpFiles
   } = props;
 
   const dispatch = useAppDispatch();
@@ -88,6 +89,7 @@ export default function PageHeader(props) {
   const setEnableFilter = useAppSelector((e) => enableFilter ?? e.appdata.enableFilter);
   const upload = useAppSelector((e) => handleUpload ?? e.appdata.fileConfig.upload);
   const template = useAppSelector((e) => handleTemplate ?? e.appdata.fileConfig.template);
+  const helpFilesConfig = useAppSelector((e) => helpFiles ?? e.appdata.fileConfig.helpFiles);
   const applyFunc = useAppSelector((e) => handleApply ?? e.appdata.pageHeaderOption.apply);
 
   const [query, setQuery] = useState(() => defultValue());
@@ -155,7 +157,7 @@ export default function PageHeader(props) {
 
         {/* Right — Actions */}
         <Stack direction="row" alignItems="center" gap={0.5}>
-
+          <HelpButton files={helpFilesConfig} tooltip="Help" />
           {typeof upload === "function" && (
             <Tooltip title="Upload Template" placement="bottom" arrow>
               <label htmlFor="icon-button-excel-file">
@@ -163,7 +165,7 @@ export default function PageHeader(props) {
                   style={{ display: 'none' }}
                   onClick={(e) => { e.target.value = null; }}
                   onChange={upload}
-                  accept="image/*"
+                  inputProps={{ accept: ".xlsx,.xls" }}
                   id="icon-button-excel-file"
                   type="file"
                 />
@@ -312,4 +314,8 @@ PageHeader.propTypes = {
   handleApply: PropTypes.func,
   enableFilter: PropTypes.bool,
   showQueryFilter: PropTypes.bool,
+  helpFiles: PropTypes.arrayOf(PropTypes.shape({
+    title: PropTypes.string,
+    url: PropTypes.string.isRequired,
+  })),
 };

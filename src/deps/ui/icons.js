@@ -14,6 +14,7 @@ export {
     HealthAndSafety, PriceChange, DirectionsWalk, AvTimer, Difference, Minimize, Logout, TrendingUp, TrendingDown, AccountBalance, CalendarToday, ArrowUpward, ArrowDownward,
     Menu, DragIndicator, AutoAwesome, Lock, Bolt, LocationOn, WorkOutline, FilePresent, CheckCircleOutline, Language, Email,
     ContentCopy, Celebration, ChevronRight, EventAvailable, WbSunny, KeyboardArrowDown, KeyboardArrowUp, ArrowBack, Category,
-    LockOpen, VerifiedUser, ChevronLeft, Schedule, CalendarMonth, ReceiptLong, Notifications, DescriptionOutlined, AccountBalanceOutlined
+    LockOpen, VerifiedUser, ChevronLeft, Schedule, CalendarMonth, ReceiptLong, Notifications, DescriptionOutlined, AccountBalanceOutlined,
+    HelpOutline
 
 } from '@mui/icons-material';

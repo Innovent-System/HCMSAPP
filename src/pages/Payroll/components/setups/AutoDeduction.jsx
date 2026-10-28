@@ -22,7 +22,9 @@ export const AutoDeduction = ({ data }) => {
     data: {
       limit: 100,
       page: 1,
-      searchParams: {}
+      searchParams: {
+        isActive: { operator: 'Equal', value: true },
+      }
     }
   }, { selectFromResult: ({ data, isLoading }) => ({ data: data?.entityData, totalRecord: data?.totalRecord, isLoading }) });
 

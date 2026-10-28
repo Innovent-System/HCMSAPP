@@ -42,7 +42,7 @@ const PaySettings = ({ data }) => {
         if (isAllowance) {
             if (allowanceHeads.length === getValue().allowances.length) return;
             const newId = allowanceHeads.find(c => !disabledAllowance.includes(c.id)).id;
-            setFormValue({ allowances: [...getValue().allowances, { fkAllowanceId: allowanceHeads.length ? newId : "", type: PercentageOfBasicSalary, amount: 0, percentage: 0 }] })
+            setFormValue({ allowances: [...getValue().allowances, { fkAllowanceId: allowanceHeads.length ? newId : "", type: PercentageOfBasicSalary, amount: 0, percentage: 0, isTaxable: "no" }] })
             disabledAllowance.push(newId);
             setDisabledAllowance([...disabledAllowance])
         }

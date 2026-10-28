@@ -15,6 +15,7 @@ import { useFileConfig } from "../../../../hooks/useFileConfig";
 import Loader from '../../../../components/Circularloading'
 import { formateISODateTime } from "@/services/dateTimeService";
 import { getYears } from "@/util/common";
+import taxOpeningFile from "@/assets/tax/TaxOpeningInfo.pdf";
 
 
 const fields = {
@@ -61,7 +62,7 @@ const getColumns = (apiRef, onEdit, onActive) => {
 
         {
             field: 'isActive', headerName: 'Active', renderCell: (param) => (
-                param.row["isActive"] ? <Circle color="successs" /> : <Circle color="disabled" />
+                param.row["isActive"] ? <Circle color="success" /> : <Circle color="disabled" />
             ),
             flex: '0 1 5%',
             hideable: false,
@@ -133,8 +134,15 @@ export const AddTaxOpening = ({ openPopup, setOpenPopup, isEdit = false, row = n
             isNone: false,
             dataId: "id",
             dataName: "title",
+            required: true,
+            validate: {
+                errorMessage: "Taxable Income required",
+            },
             defaultValue: _years[_years.length - 1].id,
             options: _years,
+            excel: {
+                sampleData: new Date().getFullYear()
+            }
         },
         {
             elementType: "inputfield",
@@ -185,6 +193,7 @@ const mapData = (values) => {
     map.employeeId = values.employeeId.id;
     return map
 }
+const helpFiles = [{ title: "Tax Opening Guide", url: taxOpeningFile }];
 const TaxOpening = () => {
     const dispatch = useAppDispatch();
     const [openPopup, setOpenPopup] = useState(false);
@@ -218,7 +227,7 @@ const TaxOpening = () => {
         }
     }, [excelData])
 
-    useFileConfig(setFile, getTemplate);
+    useFileConfig(setFile, getTemplate, helpFiles);
     const gridApiRef = useGridApi();
     const query = useAppSelector(e => e.appdata.query.builder);
 

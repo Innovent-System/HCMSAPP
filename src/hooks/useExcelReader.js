@@ -27,11 +27,19 @@ const commaSeprateValue = (options, dataName, max = 3) => {
     return values.substring(0, values.length - 1) + spread;
 }
 
+function getEmployeeCode(value = "") {
+    const match = String(value).match(/^\s*\(?\s*([A-Za-z]+\d+)\s*\)?(\s|$)/);
+    return match ? match[1].toUpperCase() : null;
+}
+
 function isMatchEmployee(employeeName = "", searchTerm = "") {
-    const [code, ...name] = employeeName.split(" ");
-    const regex = new RegExp(`\\(?${code}\\)?|\\b${name.join(' ')}\\b`, 'i');
-    const matches = searchTerm.match(regex)
-    return matches?.length > 0;
+    const norm = s => String(s ?? "").trim().toLowerCase().replace(/\s+/g, " ");
+
+    const searchCode = getEmployeeCode(searchTerm);
+    if (searchCode) return getEmployeeCode(employeeName) === searchCode;
+
+    const name = norm(String(employeeName).replace(/^\(.*?\)\s*/, ""));
+    return name === norm(searchTerm);
 }
 
 const isRequired = (prop, value, objectData) => {
@@ -57,7 +65,7 @@ const excelDateToJSDate = (serial) => {
  * @returns {Array<T>}
  */
 const processAndVerifyData = ({ colInfo, excelData, transformData, uniqueBy = [] }) => {
-    const modifyData = [], errors = [], errorPrefix = "#On Row --> ";
+    const modifyData = [], errors = [], skipped = [], errorPrefix = "#On Row --> ";
     let objectData = {}, errorMsg = "";
     const hasKey = new Set();
     if (excelData[0].length !== colInfo.length) {
@@ -68,7 +76,7 @@ const processAndVerifyData = ({ colInfo, excelData, transformData, uniqueBy = []
         if (i === 0) continue;
         const values = excelData[i];
         objectData = {};
-
+        let skipRow = false;
         for (let j = 0; j < values.length; j++) {
             let value = values[j];
             const prop = colInfo[j];
@@ -83,10 +91,16 @@ const processAndVerifyData = ({ colInfo, excelData, transformData, uniqueBy = []
                     objectData[prop.name] = null;
                 } else {
                     let isExist = {};
-                    if (prop.dataName === "fullName")
-                        isExist = prop?.options.find(c => isMatchEmployee(c[prop.dataName], value))
+                    if (prop.dataName === "fullName") {
+                        isExist = prop.options.find(c => isMatchEmployee(c[prop.dataName], value));
+                        if (!isExist) {
+                            skipped.push(`#Row ${i + 1} skipped (employee not found / inactive) --> ${String(values[j]).trim()}`);
+                            skipRow = true;
+                            break;
+                        }
+                    }
                     else
-                        isExist = prop?.options.find(c => c[prop.dataName].toLowerCase() === value);
+                        isExist = prop?.options.find(c => String(c[prop.dataName]).toLowerCase() === value);
                     if (isExist) {
                         objectData[prop.name] = ['dropdown'].includes(prop.elementType) ? isExist[prop?.dataId] : { ...isExist };
                     }
@@ -116,6 +130,7 @@ const processAndVerifyData = ({ colInfo, excelData, transformData, uniqueBy = []
         }
         if (errors.length) continue;
         if (!values?.length) break;
+        if (skipRow) break;
 
         if (typeof transformData === "function")
             objectData = transformData(objectData);
@@ -129,7 +144,12 @@ const processAndVerifyData = ({ colInfo, excelData, transformData, uniqueBy = []
     }
     if (!modifyData.length && !errors.length)
         errors.push("No rows found");
-
+    // if (skipped.length) {
+    //     showWarning(
+    //         `${skipped.length} row(s) skipped (employee not found / inactive): ` +
+    //         skipped.map(s => `Row ${s.row} (${s.value})`).join(", ")
+    //     );
+    // }
     if (uniqueBy.length) {
         const finalData = uniqueData(modifyData, ...uniqueBy);
         return [errors, finalData]

@@ -44,25 +44,25 @@ const readView = () => {
 // ───────────── SAMPLE DATA (baad mein useDropDown se replace karna) ─────────────
 // Dhyan: sample ids asli tables mein nahi hain, save karne se pehle real lists jodna (ya DB mein same ids rakho)
 // asli list mein bhi har item par notifyOnExpiry (bool) aur maxFileSizeMb (int) aane chahiye
-export const DOCUMENT_TYPES_SAMPLE = [
-    { id: 1, name: 'CNIC / National ID', notifyOnExpiry: false, maxFileSizeMb: 5 },
-    { id: 2, name: 'Iqama', notifyOnExpiry: true, maxFileSizeMb: 5 },
-    { id: 3, name: 'Passport', notifyOnExpiry: true, maxFileSizeMb: 5 },
-    { id: 4, name: 'Visa', notifyOnExpiry: true, maxFileSizeMb: 3 },
-    { id: 5, name: 'Driving License', notifyOnExpiry: true, maxFileSizeMb: 3 },
-    { id: 6, name: 'Work Permit', notifyOnExpiry: true, maxFileSizeMb: 5 },
-];
+// export const DOCUMENT_TYPES_SAMPLE = [
+//     { id: 1, name: 'CNIC / National ID', notifyOnExpiry: false, maxFileSizeMb: 5 },
+//     { id: 2, name: 'Iqama', notifyOnExpiry: true, maxFileSizeMb: 5 },
+//     { id: 3, name: 'Passport', notifyOnExpiry: true, maxFileSizeMb: 5 },
+//     { id: 4, name: 'Visa', notifyOnExpiry: true, maxFileSizeMb: 3 },
+//     { id: 5, name: 'Driving License', notifyOnExpiry: true, maxFileSizeMb: 3 },
+//     { id: 6, name: 'Work Permit', notifyOnExpiry: true, maxFileSizeMb: 5 },
+// ];
 
-export const BANKS_SAMPLE = [
-    { id: 1, name: 'HBL' },
-    { id: 2, name: 'UBL' },
-    { id: 3, name: 'MCB' },
-    { id: 4, name: 'Meezan Bank' },
-    { id: 5, name: 'Bank Alfalah' },
-    { id: 6, name: 'Al Rajhi Bank' },
-    { id: 7, name: 'Saudi National Bank' },
-    { id: 8, name: 'Riyad Bank' },
-];
+// export const BANKS_SAMPLE = [
+//     { id: 1, name: 'HBL' },
+//     { id: 2, name: 'UBL' },
+//     { id: 3, name: 'MCB' },
+//     { id: 4, name: 'Meezan Bank' },
+//     { id: 5, name: 'Bank Alfalah' },
+//     { id: 6, name: 'Al Rajhi Bank' },
+//     { id: 7, name: 'Saudi National Bank' },
+//     { id: 8, name: 'Riyad Bank' },
+// ];
 
 // ───────────── Date helpers (DateOnly) ─────────────
 const pad = (n) => String(n).padStart(2, '0');
