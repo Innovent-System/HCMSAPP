@@ -1,6 +1,6 @@
 import React, { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import PrivateRoute from './wrapper';
+import { PublicOnlyRoute, PrivateRoute } from './wrapper';
 import Layout from '../layout';
 import CircularLoading from '../components/Circularloading'
 import Auth from '../services/AuthenticationService';
@@ -50,9 +50,12 @@ const Routers = () => {
     <>
       <Suspense fallback={<CircularLoading open={true} />}>
         <Routes>
-          <Route path="/" index element={<LazySignIn />} />
+
+          <Route element={<PublicOnlyRoute />}>
+            <Route path="/" element={<LazySignIn />} />
+          </Route>
           <Route path="/careers" element={<LazyJobPortal />} />
-          
+
           <Route element={<PrivateRoute />}>
             <Route path="/employeelistreport" element={<EmployeeListViewer fileName="EmployeeListReport" API_NAME={EmployeeAPI.EmployeeListReport} />} />
             <Route path="/attendancereport" element={<AttendanceReportViewer fileName="AttendanceReport" API_NAME={AttendanceAPI.AttendanceReport} />} />
@@ -62,7 +65,7 @@ const Routers = () => {
             <Route path="/payrollsummaryreport" element={<PayrollSummaryViewer fileName="PayrollSummaryReport" API_NAME={PayrollAPI.PayrollSummaryReport} />} />
             <Route path="/loanreport" element={<LoanViewer fileName="LoanReport" API_NAME={PayrollAPI.LoanReport} />} />
             <Route path="/leavebalancereport" element={<LeaveBalanceViewer fileName="LeaveBalanceReport" API_NAME={LeaveAPI.LeaveBalanceReport} />} />
-            <Route path="/payslipreport" element={<PaySlipViewer fileName="PayslipReport" API_NAME={PayrollAPI.PayslipReport} />} />
+            {/* <Route path="/payslipreport" element={<PaySlipViewer fileName="PayslipReport" API_NAME={PayrollAPI.PayslipReport} />} /> */}
             <Route path="/fnfreport" element={<FNFViewer fileName="FNFReport" API_NAME={SeparationAPI.FNFReport} />} />
             <Route element={<Layout />}>
               <Route path="/dashboard" element={<LazyDashboard />} />

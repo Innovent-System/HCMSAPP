@@ -19,7 +19,6 @@ export const API = {
     LeaveType: "leave/type",
     Insurance: 'payroll/insurance',
     TaxIncome: 'payroll/taxincome',
-    PFOpening: 'payroll/pfopening',
     ExtraAllowc: 'payroll/extraallowance',
     PayslipReport: "payroll/report/payslip",
     SalarySheetReport: 'payroll/report/salarysheet',
@@ -28,7 +27,10 @@ export const API = {
     FiscalYear: 'payroll/fiscalyear',
     TaxAdjustment: 'payroll/taxadjustment',
     TaxAdjustmentType: 'payroll/taxadjustmenttype',
-    TaxOpening: 'payroll/taxopening'
+    TaxOpening: 'payroll/taxopening',
+    EmployeeContributionType: 'payroll/employeecontributiontype',
+    EmployeeContributionPolicy: 'payroll/employeecontribution',
+    ECOpening: 'payroll/ECOpening'
 
 }
 
@@ -57,8 +59,8 @@ export const CalculationType = [
 ], PercentageOfBasicSalary = "PercentageOfBasicSalary", FixedAmount = "FixedAmount";
 
 export const calcTypeObj = {
-    "PercentageOfBasicSalary": "Percentage of Basic Salary",
-    "PercentageOfGrossSalary": "Percentage of Gross Salary",
+    "PercentageOfBasicSalary": "% of Basic Salary",
+    "PercentageOfGrossSalary": "% of Gross Salary",
     "FixedAmount": "Fix Amount"
 }
 export const OverTimeType = [

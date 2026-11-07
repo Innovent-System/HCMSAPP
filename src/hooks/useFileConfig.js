@@ -13,7 +13,7 @@ export const useFileConfig = (uploadFunc, templateFunc, helpFiles) => {
     useEffect(() => {
         dispatch(setFileConfig({ upload: (e) => uploadFunc(e.target.files[0]), template: templateFunc, helpFiles: helpFiles }));
         return () => {
-            dispatch(setFileConfig({ upload: null, template: null, helpFiles: null }))
+            dispatch(setFileConfig({ upload: null, template: null, helpFiles: [] }))
         }
     }, [uploadFunc, templateFunc, helpFiles]);
 

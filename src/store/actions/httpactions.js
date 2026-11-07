@@ -225,7 +225,9 @@ const INITIAL_STATE = {
   payrollData: {
     allowanceHeads: [],
     deductionHeads: [],
-    payrollSetups: []
+    payrollSetups: [],
+    autoDeductionType: [],
+    contributionPolicy: []
   },
   routeData: {
     sideMenuData: [],
